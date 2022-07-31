@@ -1,0 +1,5 @@
+rootProject.name = 'lockFactoryServer'
+
+include 'core'
+include 'server'
+include 'client'
