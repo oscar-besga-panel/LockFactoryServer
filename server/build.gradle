@@ -1,3 +1,5 @@
 dependencies {
     implementation project(':core')
 }
+
+group 'org.obapanel.lockfactoryserver.server'
