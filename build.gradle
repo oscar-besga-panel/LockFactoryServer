@@ -1,14 +1,50 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven { // The google mirror is less flaky than mavenCentral()
+            url "https://maven-central.storage-download.googleapis.com/maven2/"
+        }
+//        maven {
+//            url("https://plugins.gradle.org/m2/")
+//        }
+    }
+    dependencies {
+        classpath "com.google.protobuf:protobuf-gradle-plugin:${protobufGradleVersion}"
+        //classpath "com.github.johnrengelman.shadow:${shadowVersion}"
+    }
+}
+
+plugins {
+    id 'com.google.protobuf' version "${protobufGradleVersion}" apply false
+    id 'com.github.johnrengelman.shadow' version "${shadowVersion}" apply false
+}
+
 allprojects {
-    apply plugin: 'java'
-    apply plugin: 'jacoco'
-    apply plugin: 'maven-publish'
 
     repositories {
         mavenLocal()
+        maven { // The google mirror is less flaky than mavenCentral()
+            url "https://maven-central.storage-download.googleapis.com/maven2/"
+        }
         mavenCentral()
     }
 
+    apply plugin: 'java'
+    apply plugin: 'jacoco'
+    apply plugin: 'maven-publish'
+    apply plugin: 'com.google.protobuf'
+    apply plugin: 'com.github.johnrengelman.shadow'
+
     dependencies {
+        implementation group: 'javax.annotation', name: 'javax.annotation-api', version: "${javaxannotationVersion}"
+        implementation group: 'com.google.protobuf', name: 'protobuf-java-util', version: "${protobufVersion}"
+        implementation "io.grpc:grpc-protobuf:${grpcVersion}"
+        implementation "io.grpc:grpc-stub:${grpcVersion}"
+
+
+        implementation "org.slf4j:slf4j-api:${slf4jVersion}"
+        implementation "org.slf4j:slf4j-simple:${slf4jVersion}"
+
         testImplementation "junit:junit:${junitVersion}"
         testImplementation group: 'org.mockito', name: 'mockito-core', version: "${mockitoVersion}"
         testImplementation group: 'org.powermock', name: 'powermock-core', version: "${powermockVersion}"
@@ -40,5 +76,11 @@ allprojects {
 group 'org.obapanel.lockfactoryserver'
 version "${projectVersion}"
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = "${javaVersion}"
+targetCompatibility = "${javaVersion}"
+
+shadowJar {
+    manifest {
+        attributes 'Description': 'lockFactoryServer'
+    }
+}

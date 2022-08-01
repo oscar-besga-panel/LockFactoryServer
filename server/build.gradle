@@ -1,5 +1,23 @@
+//buildscript {
+//    repositories {
+//        maven {
+//            url("https://plugins.gradle.org/m2/")
+//        }
+//    }
+//    dependencies {
+//        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.1'
+//        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
+//    }
+//}
+
 dependencies {
     implementation project(':core')
+    implementation "io.netty:netty-common:${nettyVersion}"
+    implementation "io.netty:netty-buffer:${nettyVersion}"
+    implementation "io.netty:netty-transport:${nettyVersion}"
+    implementation "io.netty:netty-codec-http2:${nettyVersion}"
+    implementation "io.grpc:grpc-netty:${grpcVersion}"
+
 }
 
 group 'org.obapanel.lockfactoryserver.server'
