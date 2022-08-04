@@ -1,14 +1,7 @@
-//buildscript {
-//    repositories {
-//        maven {
-//            url("https://plugins.gradle.org/m2/")
-//        }
-//    }
-//    dependencies {
-//        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.1'
-//        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
-//    }
-//}
+plugins {
+    id 'application'
+    id 'com.github.johnrengelman.shadow'
+}
 
 dependencies {
     implementation project(':core')
@@ -16,8 +9,22 @@ dependencies {
     implementation "io.netty:netty-buffer:${nettyVersion}"
     implementation "io.netty:netty-transport:${nettyVersion}"
     implementation "io.netty:netty-codec-http2:${nettyVersion}"
+    implementation "io.netty:netty-handler-proxy:${nettyVersion}"
+    implementation "io.netty:netty-resolver-dns:${nettyVersion}"
     implementation "io.grpc:grpc-netty:${grpcVersion}"
-
+    implementation "io.ratpack:ratpack-core:${ratpackVersion}"
+    //implementation "com.google.guava:guava:${guavaVersion}"
+    // implementation "io.ratpack:ratpack-base:${ratpackVersion}"
 }
 
 group 'org.obapanel.lockfactoryserver.server'
+
+application {
+    mainClass = 'org.obapanel.lockfactoryserver.server.main.LockFactoryServerMain'
+}
+
+shadowJar {
+    manifest {
+        attributes 'Description': 'LockFactoryServer server shadow jar'
+    }
+}

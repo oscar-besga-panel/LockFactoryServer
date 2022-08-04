@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+
+package org.obapanel.lockfactoryserver.core.grpc;
+
+option java_multiple_files = true;
+option java_package = "org.obapanel.lockfactoryserver.core.grpc";
+option java_outer_classname = "LockFactoryServer";
+
+
+// for LockServerGrpc java class
+service LockServer {
+
+  rpc lock(google.protobuf.StringValue) returns (google.protobuf.StringValue) {}
+
+  rpc tryLock(TrylockValues) returns (google.protobuf.StringValue) {}
+
+  rpc isLocked(google.protobuf.StringValue) returns (google.protobuf.BoolValue) {}
+
+  rpc unLock(UnlockValues) returns (google.protobuf.BoolValue) {}
+
+}
+
+service SemaphoreServer {
+
+  rpc current(google.protobuf.StringValue) returns (google.protobuf.Int32Value) {}
+
+}
+
+message UnlockValues {
+  string name = 1;
+  string token = 2;
+}
+
+message TrylockValues {
+  oneof TrylockValuesOneof {
+    string name = 1;
+      TrylockValuesWithTimeout tryLockValuesWithTimeout = 2;
+  }
+
+}
+message TrylockValuesWithTimeout {
+  string name = 1;
+  uint64 time = 2;
+  TimeUnit timeUnit = 3;
+}
+
+enum TimeUnit {
+    MILLISECONDS = 0;
+    SECONDS = 1;
+    MINUTES = 2;
+    HOURS = 3;
+}

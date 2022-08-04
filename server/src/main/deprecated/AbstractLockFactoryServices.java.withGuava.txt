@@ -1,0 +1,92 @@
+package org.obapanel.lockfactoryserver.server.service;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.RemovalCause;
+import com.google.common.cache.RemovalNotification;
+import org.obapanel.lockfactoryserver.server.conf.LockFactoryConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+public abstract class AbstractLockFactoryServices<K> implements LockFactoryServices {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLockFactoryServices.class);
+
+
+    private final Cache<String, K> cache = CacheBuilder.newBuilder().
+            expireAfterAccess(2, TimeUnit.MINUTES).
+            removalListener(this::notificationOnRemoval).
+            build();
+
+    private final ExecutorService reloadValuesService = Executors.newSingleThreadExecutor();
+    private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+
+    public void init(LockFactoryConfiguration configuration) {
+        scheduledExecutorService.scheduleAtFixedRate(cache::cleanUp,0L, 5, TimeUnit.MINUTES);
+    }
+
+    protected K getOrCreateData(String name) {
+        try {
+            LOGGER.debug("getOrCreateData type {} name {}", getType(), name);
+            return cache.get(name, () -> createNew(name));
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    protected K getData(String name) {
+        return cache.getIfPresent(name);
+    }
+
+    protected void putData(String name, K data) {
+        cache.put(name, data);
+    }
+
+    protected boolean existsData(String name) {
+        return getData(name) != null;
+    }
+
+    protected void removeData(String name) {
+        cache.invalidate(name);
+    }
+
+    protected abstract K createNew(String name);
+
+    protected boolean avoidExpiration(String name, K data) {
+        return false;
+    }
+
+    void notificationOnRemoval(RemovalNotification<String, K> removalNotification) {
+        LOGGER.debug("notificationOnRemoval {}", removalNotification);
+        if (RemovalCause.EXPIRED == removalNotification.getCause()) {
+            final String name = removalNotification.getKey();
+            final K data = removalNotification.getValue();
+            if (avoidExpiration(name, data)) {
+                LOGGER.debug("notificationOnRemoval AVOID name {}", name);
+                reloadValuesService.submit(() -> cache.put(name, data));
+            } else {
+                LOGGER.debug("notificationOnRemoval remove name {}", name);
+            }
+        }
+    }
+
+    public void shutdown() throws Exception {
+        cache.invalidateAll();
+        reloadValuesService.shutdown();
+        reloadValuesService.shutdownNow();
+        scheduledExecutorService.shutdown();
+        scheduledExecutorService.shutdownNow();
+    }
+
+
+
+
+
+}

@@ -33,7 +33,6 @@ allprojects {
     apply plugin: 'jacoco'
     apply plugin: 'maven-publish'
     apply plugin: 'com.google.protobuf'
-    apply plugin: 'com.github.johnrengelman.shadow'
 
     dependencies {
         implementation group: 'javax.annotation', name: 'javax.annotation-api', version: "${javaxannotationVersion}"
@@ -79,8 +78,3 @@ version "${projectVersion}"
 sourceCompatibility = "${javaVersion}"
 targetCompatibility = "${javaVersion}"
 
-shadowJar {
-    manifest {
-        attributes 'Description': 'lockFactoryServer'
-    }
-}

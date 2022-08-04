@@ -1,3 +1,7 @@
+plugins {
+    id 'com.github.johnrengelman.shadow'
+}
+
 group 'org.obapanel.lockfactoryserver.core'
 
 sourceSets {
@@ -25,5 +29,11 @@ protobuf {
         all()*.plugins {
             grpc {}
         }
+    }
+}
+
+shadowJar {
+    manifest {
+        attributes 'Description': 'LockFactoryServer server shadow jar'
     }
 }

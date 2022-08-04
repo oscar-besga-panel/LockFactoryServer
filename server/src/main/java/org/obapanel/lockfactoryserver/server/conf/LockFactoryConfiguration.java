@@ -16,4 +16,11 @@ public class LockFactoryConfiguration {
         return true;
     }
 
+    public boolean isRestServerActive() {
+        return true;
+    }
+
+    public boolean isSemaphoreEnabled() {
+        return true;
+    }
 }

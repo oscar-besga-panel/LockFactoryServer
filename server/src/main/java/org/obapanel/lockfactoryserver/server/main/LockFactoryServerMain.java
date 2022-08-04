@@ -1,28 +1,21 @@
 package org.obapanel.lockfactoryserver.server.main;
 
-import io.grpc.Server;
-import io.grpc.ServerBuilder;
-import org.obapanel.lockfactoryserver.core.rmi.LockServer;
 import org.obapanel.lockfactoryserver.server.conf.LockFactoryConfiguration;
-import org.obapanel.lockfactoryserver.server.connections.grpc.LockServerGrpcImpl;
-import org.obapanel.lockfactoryserver.server.connections.rmi.LockServerRmiImpl;
-import org.obapanel.lockfactoryserver.server.service.LockService;
+import org.obapanel.lockfactoryserver.server.connections.Connections;
+import org.obapanel.lockfactoryserver.server.connections.LockFactoryConnection;
+import org.obapanel.lockfactoryserver.server.connections.grpc.GrpcConnection;
+import org.obapanel.lockfactoryserver.server.connections.rest.RestConnection;
+import org.obapanel.lockfactoryserver.server.connections.rmi.RmiConnection;
+import org.obapanel.lockfactoryserver.server.service.LockFactoryServices;
 import org.obapanel.lockfactoryserver.server.service.Services;
+import org.obapanel.lockfactoryserver.server.service.lock.LockService;
+import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.rmi.NotBoundException;
-import java.rmi.Remote;
-import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
-import java.rmi.server.UnicastRemoteObject;
+import java.util.Collections;
 import java.util.EnumMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 public class LockFactoryServerMain {
 
@@ -48,15 +41,13 @@ public class LockFactoryServerMain {
     }
 
 
-    private final Map<Services,Object> services = new EnumMap<>(Services.class);
-
-    private final Object await = new Object();
-    private final Set<Remote> rmiRemotes = new HashSet<>();
+    private final Map<Services, LockFactoryServices> services = new EnumMap<>(Services.class);
+    private final Map<Connections, LockFactoryConnection> lockServerConnections = new EnumMap<>(Connections.class);
 
     private LockFactoryConfiguration configuration = new LockFactoryConfiguration();
 
-    private Registry rmiRegistry;
-    private Server grpcServer;
+    private final Object await = new Object();
+
 
     public LockFactoryServerMain() {
     }
@@ -70,7 +61,10 @@ public class LockFactoryServerMain {
             if (configuration.isGrpcServerActive()) {
                 activateGrpcServer();
             }
-        } catch (IOException | InterruptedException e) {
+            if (configuration.isRestServerActive()) {
+                activateRestServer();
+            }
+        } catch (Exception e) {
             LOGGER.error("Error in start server process", e);
         }
     }
@@ -80,44 +74,53 @@ public class LockFactoryServerMain {
     private void createServices() {
         LOGGER.debug("createServices");
         if (configuration.isLockEnabled()) {
-            LockService lockService = new LockService();
-            services.put(Services.LOCK, lockService);
             LOGGER.debug("createServices lock");
+            LockService lockService = new LockService();
+            lockService.init(configuration);
+            services.put(Services.LOCK, lockService);
+        }
+        if (configuration.isSemaphoreEnabled()) {
+            LOGGER.debug("createServices semaphore");
+            SemaphoreService semaphoreService = new SemaphoreService();
+            semaphoreService.init(configuration);
+            services.put(Services.SEMAPHORE, semaphoreService);
         }
     }
 
-//    private LockServerRmiImpl lockServerRmi;
 
-    void activateRmiServer() throws RemoteException {
+    public Map<Services, LockFactoryServices> getServices() {
+        return Collections.unmodifiableMap(services);
+    }
+
+    void activateRmiServer() throws Exception {
         LOGGER.debug("activate RMI server");
-        rmiRegistry = LocateRegistry.createRegistry(1099);
-        if (configuration.isLockEnabled()) {
-            LockService lockService = (LockService) services.get(Services.LOCK);
-            LockServerRmiImpl lockServerRmi = new LockServerRmiImpl(lockService);
-            rmiRemotes.add(lockServerRmi);
-            LockServer lockServerStub = (LockServer) UnicastRemoteObject
-                    .exportObject(lockServerRmi, 0);
-            rmiRegistry.rebind(LockServer.NAME, lockServerStub);
-        }
+        RmiConnection rmiConnection = new RmiConnection();
+        rmiConnection.activate(configuration, getServices());
+        lockServerConnections.put(rmiConnection.getType(), rmiConnection);
     }
 
-    void activateGrpcServer() throws IOException, InterruptedException {
-        ServerBuilder serverBuilder = ServerBuilder.forPort(50051);
-        if (configuration.isLockEnabled()) {
-            LockService lockService = (LockService) services.get(Services.LOCK);
-            LockServerGrpcImpl lockServerGrpc = new LockServerGrpcImpl(lockService);
-            serverBuilder.addService(lockServerGrpc);
-        }
-        grpcServer = serverBuilder.build();
-        grpcServer.start();
+    void activateGrpcServer() throws Exception {
+        LOGGER.debug("activate GRPC server");
+        GrpcConnection grpcConnection = new GrpcConnection();
+        grpcConnection.activate(configuration, getServices());
+        lockServerConnections.put(grpcConnection.getType(), grpcConnection);
     }
+
+    void activateRestServer() throws Exception {
+        LOGGER.debug("activate REST server");
+        RestConnection restConnection = new RestConnection();
+        restConnection.activate(configuration, getServices());
+        lockServerConnections.put(restConnection.getType(), restConnection);
+    }
+
+
 
     void awaitTermitation() throws InterruptedException {
-        LOGGER.debug("wait ini");
+        LOGGER.debug("alive ini");
         synchronized (await) {
             await.wait();
         }
-        LOGGER.debug("wait fin");
+        LOGGER.debug("alive fin");
     }
 
     public void uncaughtException(Thread t, Throwable e) {
@@ -128,20 +131,22 @@ public class LockFactoryServerMain {
     private void shutdown() {
         LOGGER.info("Stopping server");
         try {
-            if (rmiRegistry != null) {
-                for (String bindName : rmiRegistry.list()) {
-                    rmiRegistry.unbind(bindName);
-                }
-                rmiRemotes.clear();
+            LOGGER.info("Shutdown connections");
+            for(LockFactoryConnection lockFactoryConnection : lockServerConnections.values()) {
+                lockFactoryConnection.shutdown();
             }
-            if (grpcServer != null) {
-                grpcServer.shutdown();
-                grpcServer.awaitTermination(3, TimeUnit.SECONDS);
+            LOGGER.info("Clear connections");
+            lockServerConnections.clear();
+            LOGGER.info("Shutdown services");
+            for(LockFactoryServices lockFactoryServices: services.values() ) {
+                lockFactoryServices.shutdown();
             }
+            LOGGER.info("Clear services");
+            services.clear();
             synchronized (await) {
                 await.notify();
             }
-        } catch (RemoteException | NotBoundException | InterruptedException e) {
+        } catch (Exception e) {
             LOGGER.error("Error in shutdown process", e);
         }
     }

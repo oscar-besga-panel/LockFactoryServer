@@ -1,12 +1,7 @@
 dependencies {
     implementation project(':core')
+    implementation "org.apache.httpcomponents:httpclient:${httpClientVersion}"
     implementation "io.grpc:grpc-netty-shaded:${grpcVersion}"
 }
 
 group 'org.obapanel.lockfactoryserver.client'
-
-/*
-Exception in thread "main" io.grpc.ManagedChannelProvider$ProviderNotFoundException: No functional channel service provider found.
- Try adding a dependency on the grpc-okhttp, grpc-netty, or grpc-netty-shaded artifact
-
- */
