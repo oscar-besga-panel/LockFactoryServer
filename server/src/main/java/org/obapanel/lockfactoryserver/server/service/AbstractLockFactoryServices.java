@@ -4,8 +4,12 @@ import org.obapanel.lockfactoryserver.server.conf.LockFactoryConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 public abstract class AbstractLockFactoryServices<K> implements LockFactoryServices {
 
@@ -19,6 +23,7 @@ public abstract class AbstractLockFactoryServices<K> implements LockFactoryServi
 
     public void init(LockFactoryConfiguration configuration) {
         scheduledExecutorService.scheduleAtFixedRate(this::checkForDataToRemove,1L, 1L, TimeUnit.MINUTES);
+        scheduledExecutorService.scheduleAtFixedRate(this::checkForDataToRemove,330L, 300L, TimeUnit.SECONDS);
     }
 
     protected K getOrCreateData(String name) {
@@ -84,8 +89,39 @@ public abstract class AbstractLockFactoryServices<K> implements LockFactoryServi
         LOGGER.debug("checkForDataToRemove < map {} delayQueue {}", dataMap.size(), delayQueue.size());
     }
 
+    ArrayList enumerationToString() {
+         ArrayList<String> l = new ArrayList<>();
+        Enumeration<String> e = dataMap.keys();
+        while(e.hasMoreElements()) {
+            l.add(e.nextElement());
+        }
+        return l;
+    }
 
-    class DelayedNamedPrimitive<K> implements Delayed {
+    void checkDataEquivalence() {
+        LOGGER.debug("checkDataEquivalence ini");
+        List<String> fromData = enumerationToString();
+        delayQueue.stream().
+                filter(dmp -> !fromData.contains(dmp.getName())).
+                forEach(dmp -> {
+                    LOGGER.debug("checkDataEquivalence delayQueue remove {}", dmp);
+                    delayQueue.remove(dmp);
+                });
+
+        List<String> fromDelay = delayQueue.stream().
+                map(DelayedNamedPrimitive::getName).
+                collect(Collectors.toList());
+        fromData.stream().
+                filter( name -> !fromDelay.contains(name) ).
+                forEach(name -> {
+                    LOGGER.debug("checkDataEquivalence delayQueue add {} ", name);
+                    delayQueue.add(new DelayedNamedPrimitive<>(name, dataMap.get(name)));
+                });
+        LOGGER.debug("checkDataEquivalence fin");
+    }
+
+
+        class DelayedNamedPrimitive<K> implements Delayed {
 
 
         private long timestampToLive;
