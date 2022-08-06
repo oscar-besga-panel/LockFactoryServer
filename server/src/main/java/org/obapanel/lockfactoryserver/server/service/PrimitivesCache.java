@@ -19,16 +19,21 @@ public abstract class PrimitivesCache<K> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PrimitivesCache.class);
 
+    public static final int INITIAL_DELAY_SECONDS = 3;
 
     private final ConcurrentHashMap<String, K> dataMap = new ConcurrentHashMap<>();
     private final DelayQueue<CacheEntry<K>> delayQueue = new DelayQueue<>();
 
     private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+    private final int cacheTimeToLiveSeconds;
 
     protected abstract String getMapName();
 
     public PrimitivesCache(LockFactoryConfiguration configuration){
-        scheduledExecutorService.scheduleAtFixedRate(this::checkForData,30L, 90L, TimeUnit.SECONDS);
+        this.scheduledExecutorService.scheduleAtFixedRate(this::checkForData, INITIAL_DELAY_SECONDS,
+                configuration.getCacheCheckDataPeriodSeconds(),
+                TimeUnit.SECONDS);
+        this.cacheTimeToLiveSeconds = configuration.getCacheTimeToLiveSeconds();
     }
 
     public K getOrCreateData(String name) {
@@ -140,8 +145,11 @@ public abstract class PrimitivesCache<K> {
         LOGGER.debug("checkDataEquivalenceInMap fin mapName {}", getMapName());
     }
 
+    public int getCacheTimeToLiveSeconds() {
+        return cacheTimeToLiveSeconds;
+    }
 
-    static class CacheEntry<K> implements Delayed {
+    class CacheEntry<K> implements Delayed {
 
         private long timestampToLive;
         private final String name;
@@ -153,9 +161,8 @@ public abstract class PrimitivesCache<K> {
             refresh();
         }
 
-        public CacheEntry<K> refresh() {
-            this.timestampToLive = System.currentTimeMillis() + 1 * 60 * 1000;
-            return this;
+        public void refresh() {
+            this.timestampToLive = System.currentTimeMillis() + (getCacheTimeToLiveSeconds() * 1000L);
         }
 
         public String getName() {

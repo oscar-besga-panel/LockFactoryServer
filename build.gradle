@@ -1,16 +1,13 @@
 buildscript {
     repositories {
         mavenCentral()
-        maven { // The google mirror is less flaky than mavenCentral()
+        maven {
+            // The google mirror is less flaky than mavenCentral()
             url "https://maven-central.storage-download.googleapis.com/maven2/"
         }
-//        maven {
-//            url("https://plugins.gradle.org/m2/")
-//        }
     }
     dependencies {
         classpath "com.google.protobuf:protobuf-gradle-plugin:${protobufGradleVersion}"
-        //classpath "com.github.johnrengelman.shadow:${shadowVersion}"
     }
 }
 
@@ -23,7 +20,7 @@ allprojects {
 
     repositories {
         mavenLocal()
-        maven { // The google mirror is less flaky than mavenCentral()
+        maven {
             url "https://maven-central.storage-download.googleapis.com/maven2/"
         }
         mavenCentral()

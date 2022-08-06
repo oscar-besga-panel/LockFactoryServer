@@ -38,7 +38,7 @@ public class RmiConnection implements LockFactoryConnection {
 
     @Override
     public void activate(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices<?>> services) throws Exception {
-        rmiRegistry = LocateRegistry.createRegistry(1099);
+        rmiRegistry = LocateRegistry.createRegistry(configuration.getRmiServerPort());
         if (configuration.isLockEnabled()) {
             LockService lockService = (LockService) services.get(Services.LOCK);
             LockServerRmiImpl lockServerRmi = new LockServerRmiImpl(lockService);

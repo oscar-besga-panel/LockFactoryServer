@@ -30,7 +30,7 @@ public class GrpcConnection implements LockFactoryConnection {
 
     @Override
     public void activate(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices<?>> services) throws Exception {
-        ServerBuilder serverBuilder = ServerBuilder.forPort(50051);
+        ServerBuilder serverBuilder = ServerBuilder.forPort(configuration.getRestServerPort());
         if (configuration.isLockEnabled()) {
             LockService lockService = (LockService)  services.get(Services.LOCK);
             LockServerGrpcImpl lockServerGrpc = new LockServerGrpcImpl(lockService);
