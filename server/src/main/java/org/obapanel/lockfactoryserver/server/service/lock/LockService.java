@@ -1,7 +1,8 @@
 package org.obapanel.lockfactoryserver.server.service.lock;
 
 
-import org.obapanel.lockfactoryserver.server.service.AbstractLockFactoryServices;
+import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
+import org.obapanel.lockfactoryserver.server.service.LockFactoryServices;
 import org.obapanel.lockfactoryserver.server.service.Services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,12 +11,17 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.StampedLock;
 
 
-public class LockService extends AbstractLockFactoryServices<StampedLock> {
+public class LockService extends LockFactoryServices<StampedLock> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LockService.class);
 
     public static final Services TYPE = Services.LOCK;
 
+    public LockService(LockFactoryConfiguration configuration) {
+        super(configuration);
+    }
+
+    @Override
     public Services getType() {
         return TYPE;
     }

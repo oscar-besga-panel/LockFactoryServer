@@ -2,7 +2,7 @@ package org.obapanel.lockfactoryserver.server.connections.grpc;
 
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
-import org.obapanel.lockfactoryserver.server.conf.LockFactoryConfiguration;
+import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.connections.Connections;
 import org.obapanel.lockfactoryserver.server.connections.LockFactoryConnection;
 import org.obapanel.lockfactoryserver.server.service.LockFactoryServices;
@@ -29,10 +29,10 @@ public class GrpcConnection implements LockFactoryConnection {
     }
 
     @Override
-    public void activate(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices> services) throws Exception {
+    public void activate(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices<?>> services) throws Exception {
         ServerBuilder serverBuilder = ServerBuilder.forPort(50051);
         if (configuration.isLockEnabled()) {
-            LockService lockService = (LockService) services.get(Services.LOCK);
+            LockService lockService = (LockService)  services.get(Services.LOCK);
             LockServerGrpcImpl lockServerGrpc = new LockServerGrpcImpl(lockService);
             serverBuilder.addService(lockServerGrpc);
         }

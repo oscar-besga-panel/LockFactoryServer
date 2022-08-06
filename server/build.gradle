@@ -13,14 +13,13 @@ dependencies {
     implementation "io.netty:netty-resolver-dns:${nettyVersion}"
     implementation "io.grpc:grpc-netty:${grpcVersion}"
     implementation "io.ratpack:ratpack-core:${ratpackVersion}"
-    //implementation "com.google.guava:guava:${guavaVersion}"
-    // implementation "io.ratpack:ratpack-base:${ratpackVersion}"
+
 }
 
 group 'org.obapanel.lockfactoryserver.server'
 
 application {
-    mainClass = 'org.obapanel.lockfactoryserver.server.main.LockFactoryServerMain'
+    mainClass = 'org.obapanel.lockfactoryserver.server.LockFactoryServerMain'
 }
 
 shadowJar {

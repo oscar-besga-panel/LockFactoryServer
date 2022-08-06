@@ -2,7 +2,7 @@ package org.obapanel.lockfactoryserver.server.connections.rmi;
 
 import org.obapanel.lockfactoryserver.core.rmi.LockServerRmi;
 import org.obapanel.lockfactoryserver.core.rmi.SemaphoreServerRmi;
-import org.obapanel.lockfactoryserver.server.conf.LockFactoryConfiguration;
+import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.connections.Connections;
 import org.obapanel.lockfactoryserver.server.connections.LockFactoryConnection;
 import org.obapanel.lockfactoryserver.server.service.LockFactoryServices;
@@ -37,7 +37,7 @@ public class RmiConnection implements LockFactoryConnection {
     }
 
     @Override
-    public void activate(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices> services) throws Exception {
+    public void activate(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices<?>> services) throws Exception {
         rmiRegistry = LocateRegistry.createRegistry(1099);
         if (configuration.isLockEnabled()) {
             LockService lockService = (LockService) services.get(Services.LOCK);

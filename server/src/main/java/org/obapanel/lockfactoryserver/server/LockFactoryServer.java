@@ -1,6 +1,5 @@
-package org.obapanel.lockfactoryserver.server.main;
+package org.obapanel.lockfactoryserver.server;
 
-import org.obapanel.lockfactoryserver.server.conf.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.connections.Connections;
 import org.obapanel.lockfactoryserver.server.connections.LockFactoryConnection;
 import org.obapanel.lockfactoryserver.server.connections.grpc.GrpcConnection;
@@ -17,42 +16,29 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
 
-public class LockFactoryServerMain {
+public class LockFactoryServer {
+
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LockFactoryServerMain.class);
 
-    private static LockFactoryServerMain lockFactoryServerMain;
 
-    public static void main(String[] args)  {
-        try {
-            LOGGER.info("Beginning server");
-            lockFactoryServerMain = new LockFactoryServerMain();
-            Thread.setDefaultUncaughtExceptionHandler(lockFactoryServerMain::uncaughtException);
-            Runtime.getRuntime().addShutdownHook(new Thread(lockFactoryServerMain::shutdown));
-            lockFactoryServerMain.startServer();
-            LOGGER.info("Executing server");
-            lockFactoryServerMain.awaitTermitation();
-        } catch (Exception e) {
-            LOGGER.error("Error in server", e);
-        }
-        lockFactoryServerMain = null;
-        LOGGER.info("Ending server");
-
-    }
-
-
-    private final Map<Services, LockFactoryServices> services = new EnumMap<>(Services.class);
+    private final EnumMap<Services, LockFactoryServices<?>> services = new EnumMap<>(Services.class);
     private final Map<Connections, LockFactoryConnection> lockServerConnections = new EnumMap<>(Connections.class);
 
-    private LockFactoryConfiguration configuration = new LockFactoryConfiguration();
+    private final LockFactoryConfiguration configuration;
 
     private final Object await = new Object();
 
-
-    public LockFactoryServerMain() {
+    public LockFactoryServer() {
+        this(new LockFactoryConfiguration());
     }
 
-    void startServer() {
+    public LockFactoryServer(LockFactoryConfiguration lockFactoryConfiguration) {
+        this.configuration = lockFactoryConfiguration;
+    }
+
+
+    public final void startServer() {
         try {
             createServices();
             if (configuration.isRmiServerActive()) {
@@ -71,51 +57,52 @@ public class LockFactoryServerMain {
 
 
 
-    private void createServices() {
+    final void createServices() {
         LOGGER.debug("createServices");
         if (configuration.isLockEnabled()) {
             LOGGER.debug("createServices lock");
-            LockService lockService = new LockService();
-            lockService.init(configuration);
+            LockService lockService = new LockService(configuration);
             services.put(Services.LOCK, lockService);
         }
         if (configuration.isSemaphoreEnabled()) {
             LOGGER.debug("createServices semaphore");
-            SemaphoreService semaphoreService = new SemaphoreService();
-            semaphoreService.init(configuration);
+            SemaphoreService semaphoreService = new SemaphoreService(configuration);
             services.put(Services.SEMAPHORE, semaphoreService);
         }
     }
 
 
-    public Map<Services, LockFactoryServices> getServices() {
+    final Map<Services, LockFactoryServices<?>> getServices() {
         return Collections.unmodifiableMap(services);
     }
 
-    void activateRmiServer() throws Exception {
+    final LockFactoryServices<?> getServices(Services service) {
+        return services.get(service);
+    }
+
+
+    final void activateRmiServer() throws Exception {
         LOGGER.debug("activate RMI server");
         RmiConnection rmiConnection = new RmiConnection();
         rmiConnection.activate(configuration, getServices());
         lockServerConnections.put(rmiConnection.getType(), rmiConnection);
     }
 
-    void activateGrpcServer() throws Exception {
+    final void activateGrpcServer() throws Exception {
         LOGGER.debug("activate GRPC server");
         GrpcConnection grpcConnection = new GrpcConnection();
         grpcConnection.activate(configuration, getServices());
         lockServerConnections.put(grpcConnection.getType(), grpcConnection);
     }
 
-    void activateRestServer() throws Exception {
+    final void activateRestServer() throws Exception {
         LOGGER.debug("activate REST server");
         RestConnection restConnection = new RestConnection();
         restConnection.activate(configuration, getServices());
         lockServerConnections.put(restConnection.getType(), restConnection);
     }
 
-
-
-    void awaitTermitation() throws InterruptedException {
+    final void awaitTermitation() throws InterruptedException {
         LOGGER.debug("alive ini");
         synchronized (await) {
             await.wait();
@@ -123,12 +110,12 @@ public class LockFactoryServerMain {
         LOGGER.debug("alive fin");
     }
 
-    public void uncaughtException(Thread t, Throwable e) {
+    public final void uncaughtException(Thread t, Throwable e) {
         LOGGER.error("Unhandled exception caught! Thread {} ", t, e);
         shutdown();
     }
 
-    private void shutdown() {
+    public final void shutdown() {
         LOGGER.info("Stopping server");
         try {
             LOGGER.info("Shutdown connections");
@@ -150,5 +137,6 @@ public class LockFactoryServerMain {
             LOGGER.error("Error in shutdown process", e);
         }
     }
+
 
 }

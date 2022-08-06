@@ -1,6 +1,6 @@
 package org.obapanel.lockfactoryserver.server.connections.rest;
 
-import org.obapanel.lockfactoryserver.server.conf.LockFactoryConfiguration;
+import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.connections.Connections;
 import org.obapanel.lockfactoryserver.server.connections.LockFactoryConnection;
 import org.obapanel.lockfactoryserver.server.service.LockFactoryServices;
@@ -31,7 +31,7 @@ public class RestConnection implements LockFactoryConnection {
     }
 
     @Override
-    public void activate(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices> services) throws Exception {
+    public void activate(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices<?>> services) throws Exception {
         final Action<Chain> action = getAction(configuration, services);
         ratpackServer = RatpackServer.of(server -> server.
                 serverConfig( serverConfigBuilder -> {
@@ -45,7 +45,7 @@ public class RestConnection implements LockFactoryConnection {
         LOGGER.debug("RestConnection activated");
     }
 
-    Action<Chain> getAction(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices> services) {
+    Action<Chain> getAction(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices<?>> services) {
         ClientErrorHandler clientErrorHandler = (context, statusCode) -> {
             context.getResponse().status(statusCode);
             context.getResponse().send(statusCode + " error");
@@ -66,7 +66,7 @@ public class RestConnection implements LockFactoryConnection {
         };
     }
 
-    Action<Chain> getActionLock(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices> services) {
+    Action<Chain> getActionLock(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices<?>> services) {
         return (chain) -> {
             if (configuration.isLockEnabled()) {
                 LockService lockService = (LockService) services.get(Services.LOCK);
@@ -84,7 +84,7 @@ public class RestConnection implements LockFactoryConnection {
         };
     }
 
-    Action<Chain> getActionSemaphore(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices> services) {
+    Action<Chain> getActionSemaphore(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices<?>> services) {
         return (chain) -> {
             if (configuration.isLockEnabled()) {
                 SemaphoreService semaphoreService = (SemaphoreService) services.get(Services.SEMAPHORE);

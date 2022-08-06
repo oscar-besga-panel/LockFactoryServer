@@ -11,7 +11,7 @@ public class LockServerRestImpl {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LockServerRestImpl.class);
 
-    private LockService lockService;
+    private final LockService lockService;
 
     public LockServerRestImpl(LockService lockService) {
         this.lockService = lockService;
