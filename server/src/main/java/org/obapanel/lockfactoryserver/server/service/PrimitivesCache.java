@@ -37,7 +37,7 @@ public abstract class PrimitivesCache<K> {
     }
 
     public K getOrCreateData(String name) {
-        LOGGER.debug("getOrCreateData mapName {} class {} name {}", getMapName(), name);
+        LOGGER.debug("getOrCreateData mapName {} name {}", getMapName(), name);
         K data = dataMap.get(name);
         if (data == null) {
             data = createData(name);
@@ -70,7 +70,7 @@ public abstract class PrimitivesCache<K> {
     public abstract boolean avoidExpiration(String name, K data);
 
 
-    public void clearAndShutdown() throws Exception {
+    public void clearAndShutdown() {
         LOGGER.debug("clearAndShutdown mapName {}", getMapName());
         dataMap.clear();
         delayQueue.clear();
@@ -93,7 +93,7 @@ public abstract class PrimitivesCache<K> {
     void checkForDataToRemove() {
         LOGGER.debug("checkForDataToRemove delayedData ini mapName {}", getMapName());
         LOGGER.debug("checkForDataToRemove mapName {} > map {} delayQueue {}", getMapName(), dataMap.size(), delayQueue.size());
-        CacheEntry<K> delayedData = null;
+        CacheEntry<K> delayedData;
         while( (delayedData = delayQueue.poll()) != null) {
             LOGGER.debug("checkForDataToRemove delayedData {}", delayedData );
             if (delayedData.isDelayed() ) {
@@ -149,13 +149,13 @@ public abstract class PrimitivesCache<K> {
         return cacheTimeToLiveSeconds;
     }
 
-    class CacheEntry<K> implements Delayed {
+    class CacheEntry<T> implements Delayed {
 
         private long timestampToLive;
         private final String name;
-        private final K primitive;
+        private final T primitive;
 
-        public CacheEntry(String name, K primitive) {
+        public CacheEntry(String name, T primitive) {
             this.name = name;
             this.primitive = primitive;
             refresh();
@@ -169,7 +169,7 @@ public abstract class PrimitivesCache<K> {
             return name;
         }
 
-        public K getPrimitive() {
+        public T getPrimitive() {
             return primitive;
         }
 

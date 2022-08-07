@@ -81,7 +81,7 @@ public class LockService extends LockFactoryServices<StampedLock> {
     }
 
     public boolean isLocked(String name) {
-        LOGGER.info("service> isLocked {} {}", name);
+        LOGGER.info("service> isLocked {} ", name);
         boolean locked = false;
         StampedLock lock = getData(name);
         if (lock != null) {
@@ -116,12 +116,9 @@ public class LockService extends LockFactoryServices<StampedLock> {
             String prefix = String.format("%s_", name);
             return Long.parseLong(token.replace(prefix, ""));
         } catch (NumberFormatException nfe) {
-            LOGGER.warn("tokenToStamp Bad token {} for name ", token, name);
+            LOGGER.warn("tokenToStamp Bad token {} for name {}", token, name);
             return 0;
         }
     }
-
-
-
 
 }
