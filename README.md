@@ -10,10 +10,8 @@ _Project information_
 
 _Current Build_  
 [![Build Status](https://app.travis-ci.com/oscar-besga-panel/LockFactoryServer.svg?branch=main)](https://app.travis-ci.com/oscar-besga-panel/LockFactoryServer)
-![Issues](https://img.shields.io/github/issues/oscar-besga-panel/LockFactoryServer)  
-
-_todo codecov_
-
+![Issues](https://img.shields.io/github/issues/oscar-besga-panel/LockFactoryServer)
+[![codecov](https://codecov.io/gh/oscar-besga-panel/LockFactoryServer/branch/main/graph/badge.svg?token=BUFDK9DQ3Q)](https://codecov.io/gh/oscar-besga-panel/LockFactoryServer)
 [![Language grade: Java](https://img.shields.io/lgtm/grade/java/g/oscar-besga-panel/LockFactoryServer.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/oscar-besga-panel/LockFactoryServer/context:java)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/95b46a3667b143ba80848c2bd3889890)](https://www.codacy.com/gh/oscar-besga-panel/LockFactoryServer/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=oscar-besga-panel/LockFactoryServer&amp;utm_campaign=Badge_Grade)
 
