@@ -14,7 +14,6 @@ public class SemaphoreClientRmi {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SemaphoreClientRmi.class);
 
-
     public static void main(String[] args) throws RemoteException, NotBoundException {
         Registry registry = LocateRegistry.getRegistry("127.0.0.1", 1099);
         SemaphoreServerRmi semaphoreServerRmi = (SemaphoreServerRmi) registry
@@ -23,4 +22,5 @@ public class SemaphoreClientRmi {
         int response = semaphoreServerRmi.current(request);
         LOGGER.info("LockServerRmi.lock request {} response {}", request, response);
     }
+
 }

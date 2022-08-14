@@ -10,14 +10,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 
 public class LockClientRest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LockClientRest.class);
 
 
-    public static void main(String[] args) throws URISyntaxException {
+    public static void main(String[] args)  {
         try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
             HttpGet httpGet = new HttpGet("http://localhost:8080/lock/lock/myLock_Rest");
             try (CloseableHttpResponse response = httpclient.execute(httpGet)) {
@@ -25,8 +24,8 @@ public class LockClientRest {
                 LOGGER.info("LockServerRest.lock request myLock_Rest response {}",  value);
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            LOGGER.error("Erorr in LockClientRest", e);
         }
-
     }
+
 }

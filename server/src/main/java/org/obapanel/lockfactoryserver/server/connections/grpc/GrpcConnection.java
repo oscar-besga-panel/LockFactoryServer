@@ -8,6 +8,7 @@ import org.obapanel.lockfactoryserver.server.connections.LockFactoryConnection;
 import org.obapanel.lockfactoryserver.server.service.LockFactoryServices;
 import org.obapanel.lockfactoryserver.server.service.Services;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
+import org.obapanel.lockfactoryserver.server.service.management.ManagementService;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,8 +30,13 @@ public class GrpcConnection implements LockFactoryConnection {
     }
 
     @Override
-    public void activate(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices<?>> services) throws Exception {
-        ServerBuilder serverBuilder = ServerBuilder.forPort(configuration.getRestServerPort());
+    public void activate(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices> services) throws Exception {
+        ServerBuilder serverBuilder = ServerBuilder.forPort(configuration.getGrpcServerPort());
+        if (configuration.isManagementEnabled()) {
+            ManagementService managementService = (ManagementService)  services.get(Services.MANAGEMENT);
+            ManagementServerGrpcImpl managementServerGrpc = new ManagementServerGrpcImpl(managementService);
+            serverBuilder.addService(managementServerGrpc);
+        }
         if (configuration.isLockEnabled()) {
             LockService lockService = (LockService)  services.get(Services.LOCK);
             LockServerGrpcImpl lockServerGrpc = new LockServerGrpcImpl(lockService);

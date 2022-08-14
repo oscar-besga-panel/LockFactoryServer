@@ -2,6 +2,9 @@ package org.obapanel.lockfactoryserver.server;
 
 import java.util.Properties;
 
+/**
+ * Class that holds a properties file and gives configuration to all other components of the project
+ */
 public class LockFactoryConfiguration {
 
 
@@ -16,9 +19,11 @@ public class LockFactoryConfiguration {
 
     public static final String LOCK_ENABLED = "lockEnabled";
     public static final String SEMAPHORE_ENABLED = "semaphoreEnabled";
+    public static final String MANAGEMENT_ENABLED = "managementEnabled";
 
     public static final String CACHE_CHECK_DATA_PERIOD_SECONDS = "cacheCheckDataPeriodSeconds";
     public static final String CACHE_TIME_TO_LIVE_SECONDS = "cacheTimeToLiveSeconds";
+    public static final String CACHE_CHECK_CONTINUOUSLY = "cacheCheckContinuously";
 
     public static final String DEFAULT_RMI_SERVER_ACTIVE = TRUE;
     public static final String DEFAULT_RMI_SERVER_PORT = "1099";
@@ -29,25 +34,39 @@ public class LockFactoryConfiguration {
 
     public static final String DEFAULT_LOCK_ENABLED = TRUE;
     public static final String DEFAULT_SEMAPHORE_ENABLED = TRUE;
+    public static final String DEFAULT_MANAGEMENT_ENABLED = TRUE;
 
     public static final String DEFAULT_CACHE_CHECK_DATA_PERIOD_SECONDS = "30";
     public static final String DEFAULT_CACHE_TIME_TO_LIVE_SECONDS = "150";
+    public static final String DEFAULT_CACHE_CHECK_CONTINUOUSLY = TRUE;
 
 
 
     private final Properties properties;
 
+    /**
+     * New configuration with empty properties, it will use default values
+     */
     public LockFactoryConfiguration() {
         this(new Properties());
     }
 
+    /**
+     * New configuration with given properties, it will use given values
+     * @param properties from external source, like a file
+     */
     public LockFactoryConfiguration(Properties properties) {
         this.properties = properties;
     }
 
+    /**
+     * Get the properties under the hood
+     * @return propeties of the object
+     */
     Properties getProperties() {
         return properties;
     }
+
 
     public boolean isRmiServerActive() {
         return Boolean.parseBoolean(properties.getProperty(RMI_SERVER_ACTIVE, DEFAULT_RMI_SERVER_ACTIVE));
@@ -91,4 +110,15 @@ public class LockFactoryConfiguration {
         return Integer.parseInt(properties.getProperty(CACHE_TIME_TO_LIVE_SECONDS,
                 DEFAULT_CACHE_TIME_TO_LIVE_SECONDS));
     }
+
+    public boolean isCacheCheckContinuously() {
+        return Boolean.parseBoolean(properties.getProperty(CACHE_CHECK_CONTINUOUSLY, DEFAULT_CACHE_CHECK_CONTINUOUSLY));
+    }
+
+    public boolean isManagementEnabled() {
+        return Boolean.parseBoolean(properties.getProperty(MANAGEMENT_ENABLED, DEFAULT_MANAGEMENT_ENABLED));
+    }
+
+
+
 }

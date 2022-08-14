@@ -32,10 +32,9 @@ public class LockServerGrpcImpl extends LockServerGrpc.LockServerImplBase {
         responseObserver.onCompleted();
     }
 
-    public void tryLock(org.obapanel.lockfactoryserver.core.grpc.TrylockValues request,
-                        io.grpc.stub.StreamObserver<com.google.protobuf.StringValue> responseObserver) {
-        TrylockValues.TrylockValuesOneofCase option = request.getTrylockValuesOneofCase();
-        String result = "";
+    public void tryLock(TrylockValues request,
+                        StreamObserver<StringValue> responseObserver) {
+        String result;
         if (request.getName() != null) {
             String name = request.getName();
             LOGGER.info("grpc server> tryLock {}",name);
@@ -67,18 +66,6 @@ public class LockServerGrpcImpl extends LockServerGrpc.LockServerImplBase {
             default:
                 throw new IllegalArgumentException("Error tryLock convert timeunit " + timeUnitGrpc);
         }
-    }
-
-
-
-    public void tryLock(StringValue request,
-                     StreamObserver<StringValue> responseObserver) {
-        String name = request.getValue();
-        LOGGER.info("grpc server> tryLock {}",name);
-        String result = lockService.tryLock(name);
-        StringValue response = StringValue.newBuilder().setValue(result).build();
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
     }
 
     public void isLocked(StringValue request,

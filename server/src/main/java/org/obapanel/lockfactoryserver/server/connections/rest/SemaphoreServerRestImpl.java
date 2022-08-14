@@ -9,7 +9,7 @@ public class SemaphoreServerRestImpl {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SemaphoreServerRestImpl.class);
 
-    private SemaphoreService semaphoreService;
+    private final SemaphoreService semaphoreService;
 
     public SemaphoreServerRestImpl(SemaphoreService semaphoreService) {
         this.semaphoreService = semaphoreService;

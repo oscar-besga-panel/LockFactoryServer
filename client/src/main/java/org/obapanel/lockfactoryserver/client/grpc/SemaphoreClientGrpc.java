@@ -13,7 +13,6 @@ public class SemaphoreClientGrpc {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SemaphoreClientGrpc.class);
 
-
     public static void main(String[] args) {
         ManagedChannel managedChannel = ManagedChannelBuilder.forAddress("127.0.0.1", 50051).
                 usePlaintext().
@@ -23,4 +22,5 @@ public class SemaphoreClientGrpc {
         Int32Value response = semaphoreServerGrpcClient.current(request);
         LOGGER.info("LockServerGrpc.lock request {} response {}", request.getValue(), response.getValue());
     }
+
 }

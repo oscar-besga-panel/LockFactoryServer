@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 public interface LockServerRmi extends Remote {
 
-    public static final String NAME = "LockServerRmi";
+    String NAME = "LockServerRmi";
 
     String lock(String name) throws RemoteException;
 

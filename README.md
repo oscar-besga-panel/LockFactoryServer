@@ -6,6 +6,7 @@ _Project information_
 [![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://opensource.org/licenses/MIT)
 ![Top languaje](https://img.shields.io/github/languages/top/oscar-besga-panel/LockFactoryServer)
 [![Wiki](https://badgen.net/badge/icon/wiki?icon=wiki&label)](https://github.com/oscar-besga-panel/LockFactoryServer/wiki)
+[![Github Web page](https://badgen.net/badge/github/website?icon=github)](https://oscar-besga-panel.github.io/LockFactoryServer/)
 [![OpenHub](https://badgen.net/badge/%20/openhub/purple?icon=awesome)](https://openhub.net/p/LockFactoryServer)
 
 _Current Build_  

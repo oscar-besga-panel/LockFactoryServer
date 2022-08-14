@@ -13,7 +13,7 @@ public class LockServerRmiImpl implements LockServerRmi {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LockServerRmiImpl.class);
 
-    private LockService lockService;
+    private final LockService lockService;
 
     public LockServerRmiImpl(LockService lockService) {
         this.lockService = lockService;
@@ -33,13 +33,13 @@ public class LockServerRmiImpl implements LockServerRmi {
 
     @Override
     public String tryLock(String name) throws RemoteException {
-        LOGGER.info("rmi  server> trylock {}",name);
+        LOGGER.info("rmi  server> tryLock {}",name);
         return lockService.tryLock(name);
     }
 
     @Override
     public String tryLock(String name, long time, TimeUnit timeUnit)  throws RemoteException {
-        LOGGER.info("rmi  server> trylock {} {} {}",name, time, timeUnit);
+        LOGGER.info("rmi  server> tryLock {} {} {}",name, time, timeUnit);
         return lockService.tryLock(name, time, timeUnit);
     }
 

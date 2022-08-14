@@ -8,3 +8,8 @@ curl http://localhost:8080/lock/tryLock/myLock_Rest2/1/MINUTES
 
 curl http://localhost:8080/lock/unLock/myLock_Rest/myLock_Rest_384
 curl http://localhost:8080/lock/unLock/myLock_Rest2/myLock_Rest2_384
+
+
+curl http://localhost:8080/management/shutdownServer
+
+curl http://localhost:8080/management/isRunning

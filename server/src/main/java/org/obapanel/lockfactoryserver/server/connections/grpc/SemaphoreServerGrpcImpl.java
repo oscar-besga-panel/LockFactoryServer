@@ -12,7 +12,7 @@ public class SemaphoreServerGrpcImpl extends SemaphoreServerGrpc.SemaphoreServer
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SemaphoreServerGrpcImpl.class);
 
-    private SemaphoreService semaphoreService;
+    private final SemaphoreService semaphoreService;
 
     public SemaphoreServerGrpcImpl(SemaphoreService semaphoreService) {
         this.semaphoreService = semaphoreService;

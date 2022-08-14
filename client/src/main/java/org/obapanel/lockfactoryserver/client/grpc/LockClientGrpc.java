@@ -12,7 +12,6 @@ public class LockClientGrpc {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LockClientGrpc.class);
 
-
     public static void main(String[] args) {
         ManagedChannel managedChannel = ManagedChannelBuilder.forAddress("127.0.0.1", 50051).
                 usePlaintext().
@@ -22,4 +21,5 @@ public class LockClientGrpc {
         StringValue response = lockServerGrpcClient.lock(request);
         LOGGER.info("LockServerGrpc.lock request {} response {}", request.getValue(), response.getValue());
     }
+
 }

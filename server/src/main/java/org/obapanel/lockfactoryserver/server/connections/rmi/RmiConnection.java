@@ -1,6 +1,7 @@
 package org.obapanel.lockfactoryserver.server.connections.rmi;
 
 import org.obapanel.lockfactoryserver.core.rmi.LockServerRmi;
+import org.obapanel.lockfactoryserver.core.rmi.ManagementServerRmi;
 import org.obapanel.lockfactoryserver.core.rmi.SemaphoreServerRmi;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.connections.Connections;
@@ -8,6 +9,7 @@ import org.obapanel.lockfactoryserver.server.connections.LockFactoryConnection;
 import org.obapanel.lockfactoryserver.server.service.LockFactoryServices;
 import org.obapanel.lockfactoryserver.server.service.Services;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
+import org.obapanel.lockfactoryserver.server.service.management.ManagementService;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,8 +39,17 @@ public class RmiConnection implements LockFactoryConnection {
     }
 
     @Override
-    public void activate(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices<?>> services) throws Exception {
+    public void activate(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices> services) throws Exception {
         rmiRegistry = LocateRegistry.createRegistry(configuration.getRmiServerPort());
+        if (configuration.isManagementEnabled()) {
+            ManagementService managementService = (ManagementService) services.get(Services.MANAGEMENT);
+            ManagementRmiImpl managementRmi = new ManagementRmiImpl(managementService);
+            rmiRemotes.add(managementRmi);
+            ManagementServerRmi managementRmiStub = (ManagementServerRmi) UnicastRemoteObject
+                    .exportObject(managementRmi, 0);
+            rmiStubs.add(managementRmiStub);
+            rmiRegistry.rebind(ManagementServerRmi.NAME, managementRmiStub);
+        }
         if (configuration.isLockEnabled()) {
             LockService lockService = (LockService) services.get(Services.LOCK);
             LockServerRmiImpl lockServerRmi = new LockServerRmiImpl(lockService);

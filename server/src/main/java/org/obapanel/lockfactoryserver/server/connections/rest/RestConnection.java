@@ -6,6 +6,7 @@ import org.obapanel.lockfactoryserver.server.connections.LockFactoryConnection;
 import org.obapanel.lockfactoryserver.server.service.LockFactoryServices;
 import org.obapanel.lockfactoryserver.server.service.Services;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
+import org.obapanel.lockfactoryserver.server.service.management.ManagementService;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,7 @@ import ratpack.error.ClientErrorHandler;
 import ratpack.error.ServerErrorHandler;
 import ratpack.func.Action;
 import ratpack.handling.Chain;
+import ratpack.registry.Registry;
 import ratpack.server.RatpackServer;
 
 import java.util.Map;
@@ -31,31 +33,45 @@ public class RestConnection implements LockFactoryConnection {
     }
 
     @Override
-    public void activate(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices<?>> services) throws Exception {
+    public void activate(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices> services) throws Exception {
         final Action<Chain> action = getAction(configuration, services);
+        final Registry userRegistry = getRegistryWithHandlers();
         ratpackServer = RatpackServer.of(server -> server.
                 serverConfig( serverConfigBuilder -> {
                     serverConfigBuilder.port(configuration.getRestServerPort());
-                    serverConfigBuilder.onError(throwable -> {
-                        LOGGER.error("Error inside RestConnection ratpackServer ", throwable);
-                    });
+                    serverConfigBuilder.onError(throwable ->
+                        LOGGER.error("Error inside RestConnection ratpackServer ", throwable)
+                    );
                 }).
-                handlers(action));
+                handlers(action).
+                registry(userRegistry));
         ratpackServer.start();
         LOGGER.debug("RestConnection activated");
     }
 
-    Action<Chain> getAction(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices<?>> services) {
-        ClientErrorHandler clientErrorHandler = (context, statusCode) -> {
+    static Registry getRegistryWithHandlers() {
+        final ClientErrorHandler clientErrorHandler = (context, statusCode) -> {
+            LOGGER.warn("RestConnection clientErrorHandler context {} error {}", context.getRequest().getPath(), statusCode);
             context.getResponse().status(statusCode);
             context.getResponse().send(statusCode + " error");
         };
-        ServerErrorHandler serverErrorHandler = (context, throwable) -> {
+        final ServerErrorHandler serverErrorHandler = (context, throwable) -> {
+            LOGGER.error("RestConnection serverErrorHandler context {} INTERNAL ERROR", context.getRequest().getPath(), throwable);
             context.getResponse().status(500);
             context.getResponse().send(String.format("500 error [%s]", throwable.toString()));
         };
+        return Registry.builder().
+                add(ClientErrorHandler.class, clientErrorHandler).
+                add(ServerErrorHandler.class, serverErrorHandler).
+                build();
+    }
+
+    Action<Chain> getAction(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices> services) {
         return (chain) -> {
             chain.get("", ctx -> ctx.getResponse().send("LockFactoryServer"));
+            if (configuration.isManagementEnabled()) {
+                chain.prefix("management", getActionManagement(configuration, services));
+            }
             if (configuration.isLockEnabled()) {
                 chain.prefix("lock", getActionLock(configuration, services));
             }
@@ -66,37 +82,43 @@ public class RestConnection implements LockFactoryConnection {
         };
     }
 
-    Action<Chain> getActionLock(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices<?>> services) {
+    private Action<? super Chain> getActionManagement(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices> services) {
         return (chain) -> {
-            if (configuration.isLockEnabled()) {
-                LockService lockService = (LockService) services.get(Services.LOCK);
-                LockServerRestImpl lockServerRest = new LockServerRestImpl(lockService);
-                chain.get("lock/:name", lockServerRest::lock);
-                chain.get("tryLock/:name", lockServerRest::tryLock);
-                chain.get("trylock/:name", lockServerRest::tryLock);
-                chain.get("tryLock/:name/:time/:timeUnit", lockServerRest::tryLock);
-                chain.get("trylock/:name/:time/:timeUnit", lockServerRest::tryLock);
-                chain.get("isLocked/:name", lockServerRest::isLocked);
-                chain.get("islocked/:name", lockServerRest::isLocked);
-                chain.get("unLock/:name/:token", lockServerRest::unlock);
-                chain.get("unlock/:name/:token", lockServerRest::unlock);
-            }
+            ManagementService managementService = (ManagementService) services.get(Services.MANAGEMENT);
+            ManagementServerRestImpl managementServerRest = new ManagementServerRestImpl(managementService);
+            chain.get("shutdownServer", managementServerRest::shutdownServer);
+            chain.get("shutdownserver", managementServerRest::shutdownServer);
+            chain.get("isRunning", managementServerRest::isRunning);
+            chain.get("isrunning", managementServerRest::isRunning);
         };
     }
 
-    Action<Chain> getActionSemaphore(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices<?>> services) {
+    Action<Chain> getActionLock(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices> services) {
         return (chain) -> {
-            if (configuration.isLockEnabled()) {
-                SemaphoreService semaphoreService = (SemaphoreService) services.get(Services.SEMAPHORE);
-                SemaphoreServerRestImpl semaphoreServerRest = new SemaphoreServerRestImpl(semaphoreService);
-                chain.get("current/:name", semaphoreServerRest::current);
-            }
+            LockService lockService = (LockService) services.get(Services.LOCK);
+            LockServerRestImpl lockServerRest = new LockServerRestImpl(lockService);
+            chain.get("lock/:name", lockServerRest::lock);
+            chain.get("tryLock/:name", lockServerRest::tryLock);
+            chain.get("trylock/:name", lockServerRest::tryLock);
+            chain.get("tryLock/:name/:time/:timeUnit", lockServerRest::tryLock);
+            chain.get("trylock/:name/:time/:timeUnit", lockServerRest::tryLock);
+            chain.get("isLocked/:name", lockServerRest::isLocked);
+            chain.get("islocked/:name", lockServerRest::isLocked);
+            chain.get("unLock/:name/:token", lockServerRest::unlock);
+            chain.get("unlock/:name/:token", lockServerRest::unlock);
+        };
+    }
+
+    Action<Chain> getActionSemaphore(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices> services) {
+        return (chain) -> {
+            SemaphoreService semaphoreService = (SemaphoreService) services.get(Services.SEMAPHORE);
+            SemaphoreServerRestImpl semaphoreServerRest = new SemaphoreServerRestImpl(semaphoreService);
+            chain.get("current/:name", semaphoreServerRest::current);
         };
 
     }
 
-
-        @Override
+    @Override
     public void shutdown() throws Exception {
         if (ratpackServer != null) {
             ratpackServer.stop();

@@ -11,7 +11,7 @@ public class SemaphoreServerRmiImpl implements SemaphoreServerRmi {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SemaphoreServerRmiImpl.class);
 
-    private SemaphoreService semaphoreService;
+    private final SemaphoreService semaphoreService;
 
     public SemaphoreServerRmiImpl(SemaphoreService semaphoreService) {
         this.semaphoreService = semaphoreService;

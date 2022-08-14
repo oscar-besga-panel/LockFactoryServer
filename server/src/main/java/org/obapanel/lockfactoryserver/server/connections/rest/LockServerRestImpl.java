@@ -17,6 +17,7 @@ public class LockServerRestImpl {
         this.lockService = lockService;
     }
 
+
     public void lock(Context context) {
         String name = context.getPathTokens().get("name");
         LOGGER.info("rest server> lock lock {}", name);

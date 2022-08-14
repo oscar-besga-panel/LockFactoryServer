@@ -2,16 +2,16 @@ package org.obapanel.lockfactoryserver.server.service.lock;
 
 
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
-import org.obapanel.lockfactoryserver.server.service.LockFactoryServices;
+import org.obapanel.lockfactoryserver.server.service.LockFactoryServicesWithData;
 import org.obapanel.lockfactoryserver.server.service.Services;
+import org.obapanel.lockfactoryserver.server.utils.RuntimeInterruptedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.StampedLock;
 
-
-public class LockService extends LockFactoryServices<StampedLock> {
+public class LockService extends LockFactoryServicesWithData<StampedLock> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LockService.class);
 
@@ -38,19 +38,18 @@ public class LockService extends LockFactoryServices<StampedLock> {
 
 
     public String lock(String name) {
-        LOGGER.info("service> lock {}",name);
+        LOGGER.info("service> lock {}", name);
         StampedLock lock = getOrCreateData(name);
         try {
             long stamp = lock.writeLockInterruptibly();
             return stampToToken(name, stamp);
         } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException(e);
+            throw RuntimeInterruptedException.throwWhenInterrupted(e);
         }
     }
 
     public String tryLock(String name) {
-        LOGGER.info("service> tryLock {}",name);
+        LOGGER.info("service> tryLock {}", name);
         StampedLock lock = getOrCreateData(name);
         long stamp = lock.tryWriteLock();
         if (stamp != 0) {
@@ -71,8 +70,7 @@ public class LockService extends LockFactoryServices<StampedLock> {
                 return "";
             }
         } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException(e);
+            throw RuntimeInterruptedException.throwWhenInterrupted(e);
         }
     }
 
@@ -103,6 +101,7 @@ public class LockService extends LockFactoryServices<StampedLock> {
                 try {
                     lock.unlock(stamp);
                     unlocked = true;
+                    expireData(name);
                 } catch (IllegalMonitorStateException imse) {
                     LOGGER.debug("Not valid stamp {} gives error {}", token, imse.getMessage());
                 }
