@@ -43,16 +43,6 @@ public class LockFactoryServerMain {
         System.exit(0);
     }
 
-    private static void sleepBeforeEnd()  {
-        try {
-            Thread.sleep(123);
-        } catch (InterruptedException e) {
-            LOGGER.warn("sleepBeforeEnd interrupted ? why?");
-            // nooothing
-        }
-    }
-
-
     /**
      * Creates a thread to execute shutdown on LockFactoryServer
      * @param lockFactoryServer server to close

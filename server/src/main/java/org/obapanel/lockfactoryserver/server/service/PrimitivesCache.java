@@ -123,15 +123,17 @@ public abstract class PrimitivesCache<K> {
     }
 
     /**
-     * Set a data for expiration
-     * Sure it will be removed on background; it's not immediate
+     * Remove data directly
      * @param name name of the primitive to expire
      */
-    public void expireData(String name) {
+    public void removeData(String name) {
         delayQueue.stream().
                 filter( pce -> pce.getName().equals(name)).
                 findFirst().
-                ifPresent(PrimitivesCacheEntry::expire);
+                ifPresent( pce -> {
+                    delayQueue.remove(pce);
+                    dataMap.remove(pce.getName());
+                });
     }
 
     private boolean avoidExpiration(PrimitivesCacheEntry<K> delayed) {
@@ -238,8 +240,7 @@ public abstract class PrimitivesCache<K> {
         if (delayedData.isDelayed() ) {
             if (avoidExpiration(delayedData)) {
                 LOGGER.debug("removeEntryDataFromQueue delayedData mapName {} AVOID {} ", getMapName(), delayedData );
-                delayedData.refresh();
-                delayQueue.offer(delayedData);
+                delayQueue.offer(delayedData.refresh());
             } else {
                 LOGGER.debug("removeEntryDataFromQueue delayedData mapName {} REMOVE {} ", getMapName(), delayedData );
                 K result = dataMap.remove(delayedData.getName());

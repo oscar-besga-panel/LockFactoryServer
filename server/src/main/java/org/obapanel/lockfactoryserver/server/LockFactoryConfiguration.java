@@ -37,7 +37,7 @@ public class LockFactoryConfiguration {
     public static final String DEFAULT_MANAGEMENT_ENABLED = TRUE;
 
     public static final String DEFAULT_CACHE_CHECK_DATA_PERIOD_SECONDS = "30";
-    public static final String DEFAULT_CACHE_TIME_TO_LIVE_SECONDS = "150";
+    public static final String DEFAULT_CACHE_TIME_TO_LIVE_SECONDS = "30";
     public static final String DEFAULT_CACHE_CHECK_CONTINUOUSLY = TRUE;
 
 

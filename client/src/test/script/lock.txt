@@ -1,13 +1,13 @@
-wget http://localhost:8080/lock/lock/myLock_Rest
+curl http://localhost:8080/about
 
-curl http://localhost:8080/lock/lock/myLock_Rest
-curl http://localhost:8080/lock/tryLock/myLock_Rest2
+curl http://localhost:8080/lock/lock/myLock_1Rest
+curl http://localhost:8080/lock/tryLock/myLock_2Rest
 
-curl http://localhost:8080/lock/tryLock/myLock_Rest2/2/SECONDS
-curl http://localhost:8080/lock/tryLock/myLock_Rest2/1/MINUTES
+curl http://localhost:8080/lock/tryLock/myLock_2Rest/2/SECONDS
+curl http://localhost:8080/lock/tryLock/myLock_1Rest/1/MINUTES
 
-curl http://localhost:8080/lock/unLock/myLock_Rest/myLock_Rest_384
-curl http://localhost:8080/lock/unLock/myLock_Rest2/myLock_Rest2_384
+curl http://localhost:8080/lock/unLock/myLock_1Rest/myLock_1Rest_384
+curl http://localhost:8080/lock/unLock/myLock_2Rest/myLock_2Rest_384
 
 
 curl http://localhost:8080/management/shutdownServer

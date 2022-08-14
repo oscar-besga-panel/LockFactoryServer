@@ -27,8 +27,8 @@ public abstract class LockFactoryServicesWithData<K> implements LockFactoryServi
         return primitivesCache.getData(name);
     }
 
-    protected void expireData(String name) {
-        primitivesCache.expireData(name);
+    protected void removeData(String name) {
+        primitivesCache.removeData(name);
     }
 
     public void shutdown() throws Exception {

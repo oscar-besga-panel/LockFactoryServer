@@ -70,21 +70,20 @@ public class RestConnection implements LockFactoryConnection {
         return (chain) -> {
             chain.get("", ctx -> ctx.getResponse().send("LockFactoryServer"));
             if (configuration.isManagementEnabled()) {
-                chain.prefix("management", getActionManagement(configuration, services));
+                chain.prefix("management", getActionManagement((ManagementService) services.get(Services.MANAGEMENT)));
             }
             if (configuration.isLockEnabled()) {
-                chain.prefix("lock", getActionLock(configuration, services));
+                chain.prefix("lock", getActionLock((LockService) services.get(Services.LOCK)));
             }
             if (configuration.isSemaphoreEnabled()) {
-                chain.prefix("semaphore", getActionSemaphore(configuration, services));
+                chain.prefix("semaphore", getActionSemaphore((SemaphoreService) services.get(Services.SEMAPHORE)));
             }
-            chain.get("about", ctx -> ctx.getResponse().send("LockFactoryServer"));
+            chain.get("about", ctx -> ctx.getResponse().send("LockFactoryServer (t " + System.currentTimeMillis() + ")"));
         };
     }
 
-    private Action<? super Chain> getActionManagement(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices> services) {
+    private Action<? super Chain> getActionManagement(final ManagementService managementService) {
         return (chain) -> {
-            ManagementService managementService = (ManagementService) services.get(Services.MANAGEMENT);
             ManagementServerRestImpl managementServerRest = new ManagementServerRestImpl(managementService);
             chain.get("shutdownServer", managementServerRest::shutdownServer);
             chain.get("shutdownserver", managementServerRest::shutdownServer);
@@ -93,9 +92,8 @@ public class RestConnection implements LockFactoryConnection {
         };
     }
 
-    Action<Chain> getActionLock(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices> services) {
+    Action<Chain> getActionLock(final LockService lockService) {
         return (chain) -> {
-            LockService lockService = (LockService) services.get(Services.LOCK);
             LockServerRestImpl lockServerRest = new LockServerRestImpl(lockService);
             chain.get("lock/:name", lockServerRest::lock);
             chain.get("tryLock/:name", lockServerRest::tryLock);
@@ -109,9 +107,8 @@ public class RestConnection implements LockFactoryConnection {
         };
     }
 
-    Action<Chain> getActionSemaphore(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices> services) {
+    Action<Chain> getActionSemaphore(final SemaphoreService semaphoreService) {
         return (chain) -> {
-            SemaphoreService semaphoreService = (SemaphoreService) services.get(Services.SEMAPHORE);
             SemaphoreServerRestImpl semaphoreServerRest = new SemaphoreServerRestImpl(semaphoreService);
             chain.get("current/:name", semaphoreServerRest::current);
         };

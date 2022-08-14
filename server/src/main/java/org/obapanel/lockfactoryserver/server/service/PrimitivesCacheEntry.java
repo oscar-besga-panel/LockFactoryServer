@@ -27,22 +27,14 @@ class PrimitivesCacheEntry<T> implements Delayed {
         this.name = name;
         this.primitive = primitive;
         this.timeToLiveSeconds = timeToLiveSeconds;
-        refresh();
-    }
-
-    /**
-     * Sets the timestamp limit with the current timestamp and the general time to live
-     */
-    public void refresh() {
         this.timestampToLive = System.currentTimeMillis() + (timeToLiveSeconds * 1000L);
     }
 
-    /**
-     * Sets the timestamp limit to zero effectively expiring this entry
-     */
-    public void expire() {
-        this.timestampToLive = 0;
+    public PrimitivesCacheEntry<T> refresh() {
+        this.timestampToLive = System.currentTimeMillis() + (timeToLiveSeconds * 1000L);
+        return this;
     }
+
 
     public String getName() {
         return name;
@@ -68,7 +60,7 @@ class PrimitivesCacheEntry<T> implements Delayed {
 
     @Override
     public int compareTo(Delayed o) {
-        return (int) (getDelay(TimeUnit.MILLISECONDS) - o.getDelay(TimeUnit.MILLISECONDS));
+        return Long.compare(getDelay(TimeUnit.MILLISECONDS), o.getDelay(TimeUnit.MILLISECONDS));
     }
 
     @Override
@@ -95,4 +87,5 @@ class PrimitivesCacheEntry<T> implements Delayed {
         sb.append('}');
         return sb.toString();
     }
+
 }

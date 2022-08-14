@@ -101,7 +101,7 @@ public class LockService extends LockFactoryServicesWithData<StampedLock> {
                 try {
                     lock.unlock(stamp);
                     unlocked = true;
-                    expireData(name);
+                    removeData(name);
                 } catch (IllegalMonitorStateException imse) {
                     LOGGER.debug("Not valid stamp {} gives error {}", token, imse.getMessage());
                 }
