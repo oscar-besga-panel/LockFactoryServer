@@ -1,4 +1,4 @@
-package org.obapanel.lockfactoryserver.server.service;
+package org.obapanel.lockfactoryserver.server.utils.primitivesCache;
 
 import java.util.Objects;
 import java.util.concurrent.Delayed;

@@ -1,6 +1,7 @@
 package org.obapanel.lockfactoryserver.server.service;
 
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
+import org.obapanel.lockfactoryserver.server.utils.primitivesCache.PrimitivesCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +47,7 @@ public abstract class LockFactoryServicesWithData<K> implements LockFactoryServi
         }
 
         @Override
-        protected String getMapName() {
+        public String getMapName() {
             return LockFactoryServicesWithData.this.getType().name() + "_map";
         }
 

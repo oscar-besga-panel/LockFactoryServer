@@ -1,4 +1,4 @@
-package org.obapanel.lockfactoryserver.server.service;
+package org.obapanel.lockfactoryserver.server.utils.primitivesCache;
 
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.utils.RuntimeInterruptedException;
@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -70,7 +71,7 @@ public abstract class PrimitivesCache<K> {
      * External map of the name
      * @return name
      */
-    protected abstract String getMapName();
+    public abstract String getMapName();
 
 
     /**
@@ -127,13 +128,16 @@ public abstract class PrimitivesCache<K> {
      * @param name name of the primitive to expire
      */
     public void removeData(String name) {
-        delayQueue.stream().
+        Optional<PrimitivesCacheEntry<K>> entry = delayQueue.stream().
                 filter( pce -> pce.getName().equals(name)).
-                findFirst().
-                ifPresent( pce -> {
-                    delayQueue.remove(pce);
-                    dataMap.remove(pce.getName());
-                });
+                findFirst();
+        if (entry.isPresent()) {
+            LOGGER.debug("removeData to remove {}", entry.get());
+            dataMap.remove(entry.get().getName());
+            delayQueue.remove(entry.get());
+        } else {
+            LOGGER.warn("removeData nothing to remove with name{}", name);
+        }
     }
 
     private boolean avoidExpiration(PrimitivesCacheEntry<K> delayed) {
@@ -185,8 +189,6 @@ public abstract class PrimitivesCache<K> {
         }
     }
 
-
-
     /**
      * Checks data for cleanup and equivalence and coherence between data structures
      */
@@ -195,12 +197,13 @@ public abstract class PrimitivesCache<K> {
             LOGGER.debug("checkForData not needed mapName {}", getMapName());
         } else {
             long t = System.currentTimeMillis();
-            LOGGER.debug("checkForData ini mapName {}", getMapName());
+            LOGGER.debug("checkForData ini mapName {} > map {} delayQueue {}", getMapName(), dataMap.size(), delayQueue.size());
             checkForDataToRemove();
             checkDataEquivalenceInQueue();
             checkDataEquivalenceInMap();
             t = System.currentTimeMillis() - t;
-            LOGGER.debug("checkForData fin mapName {} t {}", getMapName(), t);
+            LOGGER.debug("checkForData ini mapName {} t > map {} delayQueue {} > t {}", getMapName(),
+                    dataMap.size(), delayQueue.size(), t);
         }
     }
 
