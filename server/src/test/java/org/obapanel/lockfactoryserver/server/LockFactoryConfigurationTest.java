@@ -20,7 +20,6 @@ public class LockFactoryConfigurationTest {
             }
         }
         return new LockFactoryConfiguration(properties);
-
     }
 
 
