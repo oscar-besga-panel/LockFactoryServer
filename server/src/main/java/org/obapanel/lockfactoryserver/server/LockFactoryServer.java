@@ -167,6 +167,15 @@ public class LockFactoryServer {
         lockServerConnections.put(restConnection.getType(), restConnection);
     }
 
+    final Map<Connections, LockFactoryConnection> getConnections() {
+        return Collections.unmodifiableMap(lockServerConnections);
+    }
+
+    final LockFactoryConnection getConnection(Connections type) {
+        return lockServerConnections.get(type);
+    }
+
+
     /**
      * Makes the current thread wait to shutdown method to be invoked and finished
      * @throws InterruptedException If it must exit

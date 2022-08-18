@@ -18,6 +18,11 @@ dependencies {
 
 group 'org.obapanel.lockfactoryserver.server'
 
+tasks.distTar.enabled = false
+tasks.distZip.enabled = false
+tasks.shadowDistTar.enabled = false
+tasks.shadowDistZip.enabled = Boolean.parseBoolean("${shadowDistZipEnabled}")
+
 application {
     mainClass = 'org.obapanel.lockfactoryserver.server.LockFactoryServerMain'
 }

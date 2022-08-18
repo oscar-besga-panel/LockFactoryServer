@@ -34,12 +34,18 @@ public class LockFactoryServerMain {
      * @param args arguments from command line
      */
     public static void main(String[] args) {
-        System.out.println("LockFactoryServer!");
-        lockFactoryServerMain = new LockFactoryServerMain();
-        if (args.length > 0 && args[0] != null && !args[0].isEmpty()) {
-            lockFactoryServerMain.setPath(args[0]);
+        try {
+            System.out.println("LockFactoryServer!");
+            lockFactoryServerMain = new LockFactoryServerMain();
+            if (args.length > 0 && args[0] != null && !args[0].isEmpty()) {
+                lockFactoryServerMain.setPath(args[0]);
+            }
+            lockFactoryServerMain.execute();
+            System.exit(0);
+        } catch (Exception e) {
+            System.out.println("Error in main " + e);
+            e.printStackTrace();
         }
-        lockFactoryServerMain.execute();
     }
 
     LockFactoryServerMain(){}
@@ -64,7 +70,6 @@ public class LockFactoryServerMain {
             lockFactoryServer.shutdown();
         }
         LOGGER.info("Ending server");
-        System.exit(0);
     }
 
     LockFactoryConfiguration generateLockFactoryConfiguration() {
