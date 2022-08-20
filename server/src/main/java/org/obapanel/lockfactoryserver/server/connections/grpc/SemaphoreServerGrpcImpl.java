@@ -8,6 +8,9 @@ import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Class that connects a GRPC call with the semaphore service
+ */
 public class SemaphoreServerGrpcImpl extends SemaphoreServerGrpc.SemaphoreServerImplBase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SemaphoreServerGrpcImpl.class);

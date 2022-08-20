@@ -5,6 +5,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ratpack.handling.Context;
 
+/**
+ * Class that connects a REST petition with the management service
+ */
 public class ManagementServerRestImpl {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LockServerRestImpl.class);

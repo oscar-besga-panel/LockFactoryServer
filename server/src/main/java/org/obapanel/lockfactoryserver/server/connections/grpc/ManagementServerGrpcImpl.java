@@ -8,6 +8,9 @@ import org.obapanel.lockfactoryserver.server.service.management.ManagementServic
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Class that connects a GRPC call with the management service
+ */
 public class ManagementServerGrpcImpl extends ManagementServerGrpc.ManagementServerImplBase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LockServerGrpcImpl.class);

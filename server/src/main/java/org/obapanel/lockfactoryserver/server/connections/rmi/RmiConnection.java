@@ -22,6 +22,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Class that provides a RMI connection for the services and binds them
+ */
 public class RmiConnection implements LockFactoryConnection {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RmiConnection.class);
@@ -30,7 +33,9 @@ public class RmiConnection implements LockFactoryConnection {
 
 
     private Registry rmiRegistry;
+    // This map is needed to maintain remotes in memory, RMI mandates
     private final Set<Remote> rmiRemotes = new HashSet<>();
+    // This map is needed to maintain stubs in memory, RMI mandates
     private final Set<Remote> rmiStubs = new HashSet<>();
 
     @Override

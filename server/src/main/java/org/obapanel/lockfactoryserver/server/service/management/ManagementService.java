@@ -7,6 +7,9 @@ import org.obapanel.lockfactoryserver.server.service.Services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Service that offers management utilities
+ */
 public class ManagementService implements LockFactoryServices {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ManagementService.class);

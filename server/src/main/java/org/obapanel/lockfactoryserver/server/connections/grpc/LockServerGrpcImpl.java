@@ -11,7 +11,9 @@ import org.obapanel.lockfactoryserver.server.service.lock.LockService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+/**
+ * Class that connects a GRPC call with the lock service
+ */
 public class LockServerGrpcImpl extends LockServerGrpc.LockServerImplBase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LockServerGrpcImpl.class);
@@ -52,19 +54,29 @@ public class LockServerGrpcImpl extends LockServerGrpc.LockServerImplBase {
         responseObserver.onCompleted();
     }
 
+    /**
+     * Converts gRPC timeUnit to Java Time unit
+     * @param timeUnitGrpc grpc-based timeunit enum
+     * @return java timeUnit
+     * @throws IllegalArgumentException if unrecognized or illegal or null data
+     */
     java.util.concurrent.TimeUnit convert(org.obapanel.lockfactoryserver.core.grpc.TimeUnit timeUnitGrpc) {
-        switch (timeUnitGrpc) {
-            case MILLISECONDS:
-                return java.util.concurrent.TimeUnit.MILLISECONDS;
-            case SECONDS:
-                return java.util.concurrent.TimeUnit.SECONDS;
-            case MINUTES:
-                return java.util.concurrent.TimeUnit.MINUTES;
-            case HOURS:
-                return java.util.concurrent.TimeUnit.HOURS;
-            case UNRECOGNIZED:
-            default:
-                throw new IllegalArgumentException("Error tryLock convert timeunit " + timeUnitGrpc);
+        if (timeUnitGrpc == null) {
+            throw new IllegalArgumentException("Error tryLock convert null timeunit ");
+        } else {
+            switch (timeUnitGrpc) {
+                case MILLISECONDS:
+                    return java.util.concurrent.TimeUnit.MILLISECONDS;
+                case SECONDS:
+                    return java.util.concurrent.TimeUnit.SECONDS;
+                case MINUTES:
+                    return java.util.concurrent.TimeUnit.MINUTES;
+                case HOURS:
+                    return java.util.concurrent.TimeUnit.HOURS;
+                case UNRECOGNIZED:
+                default:
+                    throw new IllegalArgumentException("Error tryLock convert timeunit " + timeUnitGrpc);
+            }
         }
     }
 
@@ -76,7 +88,6 @@ public class LockServerGrpcImpl extends LockServerGrpc.LockServerImplBase {
         BoolValue response = BoolValue.newBuilder().setValue(result).build();
         responseObserver.onNext(response);
         responseObserver.onCompleted();
-
     }
 
     public void unLock(UnlockValues request, StreamObserver<BoolValue> responseObserver) {
@@ -87,8 +98,6 @@ public class LockServerGrpcImpl extends LockServerGrpc.LockServerImplBase {
         BoolValue response = BoolValue.newBuilder().setValue(result).build();
         responseObserver.onNext(response);
         responseObserver.onCompleted();
-
-
     }
 
 }

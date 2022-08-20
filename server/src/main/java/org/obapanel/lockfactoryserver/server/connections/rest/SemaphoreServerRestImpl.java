@@ -5,6 +5,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ratpack.handling.Context;
 
+/**
+ * Class that connects a REST petition with the semaphore service
+ */
 public class SemaphoreServerRestImpl {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SemaphoreServerRestImpl.class);

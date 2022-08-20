@@ -7,6 +7,9 @@ import org.slf4j.LoggerFactory;
 
 import java.rmi.RemoteException;
 
+/**
+ * Class that connects a RMI call with the management service
+ */
 public class ManagementRmiImpl implements ManagementServerRmi {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ManagementRmiImpl.class);

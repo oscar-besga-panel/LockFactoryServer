@@ -8,6 +8,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Semaphore;
 
+/**
+ * Service based on semaphore primitive
+ */
 public class SemaphoreService extends LockFactoryServicesWithData<Semaphore> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SemaphoreService.class);

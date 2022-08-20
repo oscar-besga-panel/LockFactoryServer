@@ -16,6 +16,9 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Class that provides a GRPC connection for the services and binds them
+ */
 public class GrpcConnection implements LockFactoryConnection {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GrpcConnection.class);
@@ -60,4 +63,5 @@ public class GrpcConnection implements LockFactoryConnection {
         }
         LOGGER.debug("GrpcConnection shutdown");
     }
+
 }

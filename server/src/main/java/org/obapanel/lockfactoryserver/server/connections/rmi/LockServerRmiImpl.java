@@ -9,6 +9,9 @@ import org.slf4j.LoggerFactory;
 import java.rmi.RemoteException;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Class that connects a RMI call with the lock service
+ */
 public class LockServerRmiImpl implements LockServerRmi {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LockServerRmiImpl.class);

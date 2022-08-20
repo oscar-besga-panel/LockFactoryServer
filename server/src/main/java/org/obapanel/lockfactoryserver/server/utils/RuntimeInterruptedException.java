@@ -1,7 +1,7 @@
 package org.obapanel.lockfactoryserver.server.utils;
 
 /**
- * Runtime exception for interrupted
+ * Runtime exception for interrupted exceptions
  */
 public class RuntimeInterruptedException extends RuntimeException {
 
@@ -15,25 +15,10 @@ public class RuntimeInterruptedException extends RuntimeException {
         return new RuntimeInterruptedException(cause);
     }
 
-    //MAYBE..
-//    public static void doEvenInterrupted(InterrumtibleAction action) {
-//        try {
-//            action.call();
-//        } catch (InterruptedException cause) {
-//            Thread.currentThread().interrupt();
-//            throw new RuntimeInterruptedException(cause);
-//        }
-//    }
-//
-//    public static <K> K doGeEvenInterrupted(InterrumtibleGetAction<K> action) {
-//        try {
-//            return action.call();
-//        } catch (InterruptedException cause) {
-//            Thread.currentThread().interrupt();
-//            throw new RuntimeInterruptedException(cause);
-//        }
-//    }
-
+    /**
+     * Make a new exception from an Interrupted one
+     * @param cause
+     */
     public RuntimeInterruptedException(InterruptedException cause) {
         super(cause);
     }
@@ -41,14 +26,5 @@ public class RuntimeInterruptedException extends RuntimeException {
     public String getMessage() {
         return String.format("Interrupted by %s", getCause().getMessage());
     }
-
-    // MAYBE...
-//    public interface InterrumtibleAction {
-//        void call() throws InterruptedException;
-//    }
-//
-//    public interface InterrumtibleGetAction<K> {
-//        K call() throws InterruptedException;
-//    }
 
 }

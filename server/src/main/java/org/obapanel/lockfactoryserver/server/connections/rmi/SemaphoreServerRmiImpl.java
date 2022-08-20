@@ -7,6 +7,9 @@ import org.slf4j.LoggerFactory;
 
 import java.rmi.RemoteException;
 
+/**
+ * Class that connects a RMI call with the semaphore service
+ */
 public class SemaphoreServerRmiImpl implements SemaphoreServerRmi {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SemaphoreServerRmiImpl.class);

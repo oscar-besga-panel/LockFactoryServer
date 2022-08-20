@@ -19,6 +19,9 @@ import ratpack.server.RatpackServer;
 
 import java.util.Map;
 
+/**
+ * Class that provides a REST connection for the services and binds them
+ */
 public class RestConnection implements LockFactoryConnection {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RestConnection.class);
@@ -49,6 +52,10 @@ public class RestConnection implements LockFactoryConnection {
         LOGGER.debug("RestConnection activated");
     }
 
+    /**
+     * Generates a registry for errors and common responsed
+     * @return registry
+     */
     static Registry getRegistryWithHandlers() {
         final ClientErrorHandler clientErrorHandler = (context, statusCode) -> {
             LOGGER.warn("RestConnection clientErrorHandler context {} error {}", context.getRequest().getPath(), statusCode);
@@ -66,6 +73,13 @@ public class RestConnection implements LockFactoryConnection {
                 build();
     }
 
+    /**
+     * Generates actions to bind services to URLS
+     * Only alloed services are bind to urls
+     * @param configuration global configuration
+     * @param services all services
+     * @return action with avalible services to urls
+     */
     Action<Chain> getAction(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices> services) {
         return (chain) -> {
             chain.get("", ctx -> ctx.getResponse().send("LockFactoryServer"));
@@ -82,7 +96,12 @@ public class RestConnection implements LockFactoryConnection {
         };
     }
 
-    private Action<? super Chain> getActionManagement(final ManagementService managementService) {
+    /**
+     * Binds urls to management services
+     * @param managementService Service to bind
+     * @return action with urls - management
+     */
+    Action<Chain> getActionManagement(final ManagementService managementService) {
         return (chain) -> {
             ManagementServerRestImpl managementServerRest = new ManagementServerRestImpl(managementService);
             chain.get("shutdownServer", managementServerRest::shutdownServer);
@@ -92,6 +111,11 @@ public class RestConnection implements LockFactoryConnection {
         };
     }
 
+    /**
+     * Binds urls to lock services
+     * @param lockService Service to bind
+     * @return action with urls - lock
+     */
     Action<Chain> getActionLock(final LockService lockService) {
         return (chain) -> {
             LockServerRestImpl lockServerRest = new LockServerRestImpl(lockService);
@@ -107,6 +131,11 @@ public class RestConnection implements LockFactoryConnection {
         };
     }
 
+    /**
+     * Binds urls to semaphore services
+     * @param semaphoreService Service to bind
+     * @return action with urls - semaphore
+     */
     Action<Chain> getActionSemaphore(final SemaphoreService semaphoreService) {
         return (chain) -> {
             SemaphoreServerRestImpl semaphoreServerRest = new SemaphoreServerRestImpl(semaphoreService);

@@ -11,6 +11,9 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.StampedLock;
 
+/**
+ * Service based on lock primitive
+ */
 public class LockService extends LockFactoryServicesWithData<StampedLock> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LockService.class);

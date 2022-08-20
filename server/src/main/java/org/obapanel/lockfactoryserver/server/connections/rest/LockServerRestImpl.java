@@ -7,6 +7,9 @@ import ratpack.handling.Context;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Class that connects a REST petition with the lock service
+ */
 public class LockServerRestImpl {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LockServerRestImpl.class);
