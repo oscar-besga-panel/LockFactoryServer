@@ -9,15 +9,26 @@ option java_multiple_files = true;
 option java_package = "org.obapanel.lockfactoryserver.core.grpc";
 option java_outer_classname = "LockFactoryServer";
 
-//for managing server
+/**
+ * Servic that defines management services for GRPC
+ */
 service ManagementServer {
 
+  /**
+   * Shutdowns the server
+   */
   rpc shutdownServer(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 
+  /**
+   * Checks if it is runnning, returnning true if running
+   */
   rpc isRunning(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
 
 
 }
+/*
+
+ */
 
 // for LockServerGrpc java class
 service LockServer {
