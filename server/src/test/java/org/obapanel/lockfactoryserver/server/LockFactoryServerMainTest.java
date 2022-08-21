@@ -90,7 +90,6 @@ public class LockFactoryServerMainTest {
         assertFalse(properties.stringPropertyNames().isEmpty());
         assertEquals(data, properties.getProperty(name));
         assertEquals("99", properties.getProperty("cacheCheckDataPeriodSeconds"));
-
     }
 
 }

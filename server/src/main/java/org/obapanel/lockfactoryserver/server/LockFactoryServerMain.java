@@ -48,12 +48,19 @@ public class LockFactoryServerMain {
         }
     }
 
-    LockFactoryServerMain(){}
-
+    /**
+     * Set the path from the configuration
+     * @param path absolute and relative
+     */
     void setPath(String path) {
         this.path = path;
     }
 
+    /**
+     * Creates and executes the server
+     * Add the shutdown hook and the uncaugth exception
+     * Awaits termination from shutdown hook and maintains server alive
+     */
     void execute() {
         try {
             LOGGER.info("Obtaining configuration");
@@ -72,6 +79,12 @@ public class LockFactoryServerMain {
         LOGGER.info("Ending server");
     }
 
+    /**
+     * Creates a LockFactoryConfiguration object
+     * If a path is given, it will try to read the file and use a properties object
+     * Otherwise, default configuration will be used
+     * @return global configuration
+     */
     LockFactoryConfiguration generateLockFactoryConfiguration() {
         Properties properties = null;
         if (path != null) {
