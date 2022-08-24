@@ -16,8 +16,7 @@ import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
 
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.when;
 
@@ -43,7 +42,6 @@ public class LockFactoryServerTest {
         MockedConstruction<SemaphoreService> semaphoreServiceMocked = mockConstruction(SemaphoreService.class, (mock, context) -> {
             when(mock.getType()).thenReturn(Services.SEMAPHORE);
         });
-
     }
 
 
@@ -80,10 +78,69 @@ public class LockFactoryServerTest {
         assertEquals(Services.values().length, servicesMap.size());
         for(Services services: Services.values()) {
             assertNotNull(servicesMap.get(services));
+            assertEquals(servicesMap.get(services), lockFactoryServer.getServices(services));
             assertEquals(services, servicesMap.get(services).getType());
         }
     }
 
+    @Test
+    public void startServerTest() {
+        lockFactoryServer.startServer();
+        assertEquals(Services.values().length, lockFactoryServer.getServices().size());
+        assertEquals(Connections.values().length, lockFactoryServer.getConnections().size());
+        for(Connections connections: Connections.values()) {
+            assertNotNull(lockFactoryServer.getConnection(connections));
+        }
+        assertTrue(lockFactoryServer.isRunning());
+    }
+
+    @Test
+    public void shutdowntServerTest() {
+        lockFactoryServer.startServer();
+        assertTrue(lockFactoryServer.isRunning());
+        lockFactoryServer.shutdown();;
+        assertFalse(lockFactoryServer.isRunning());
+    }
+
+    @Test
+    public void awaitServerTest() throws InterruptedException {
+        lockFactoryServer.startServer();
+        assertTrue(lockFactoryServer.isRunning());
+        long t0 = System.currentTimeMillis();
+        Thread t = new Thread(() -> {
+            try {
+                Thread.sleep(501);
+                lockFactoryServer.shutdown();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        t.setDaemon(true);
+        t.start();
+        lockFactoryServer.awaitTermitation();
+        long t1 = System.currentTimeMillis();
+        assertTrue( t1 - t0 >= 500);
+    }
+
+    @Test
+    public void uncaughtExceptionTest() throws InterruptedException {
+        lockFactoryServer.startServer();
+        assertTrue(lockFactoryServer.isRunning());
+        long t0 = System.currentTimeMillis();
+        Thread t = new Thread(() -> {
+            try {
+                Thread.sleep(501);
+                lockFactoryServer.uncaughtException(Thread.currentThread(), new Exception("here"));
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        t.setDaemon(true);
+        t.start();
+        lockFactoryServer.awaitTermitation();
+        long t1 = System.currentTimeMillis();
+        assertTrue( t1 - t0 >= 500);
+    }
 
 }
 

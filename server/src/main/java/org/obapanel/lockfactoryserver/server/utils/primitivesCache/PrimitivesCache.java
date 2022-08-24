@@ -181,7 +181,7 @@ public abstract class PrimitivesCache<K> {
                 removeEntryDataFromQueue(delayedData);
             } catch(InterruptedException e){
                 if (isRunning.get()) {
-                    throw RuntimeInterruptedException.throwWhenInterrupted(e);
+                    throw RuntimeInterruptedException.getToThrowWhenInterrupted(e);
                 } else {
                     LOGGER.debug("checkContinuouslyForDataToRemove shutdown");
                 }

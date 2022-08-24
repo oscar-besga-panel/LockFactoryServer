@@ -10,7 +10,7 @@ public class RuntimeInterruptedException extends RuntimeException {
      * USAGE: throw RuntimeInterruptedException.throwWhenInterrupted(e);
      * @param cause origiinal interrupted exception
      */
-    public static RuntimeInterruptedException throwWhenInterrupted(InterruptedException cause) {
+    public static RuntimeInterruptedException getToThrowWhenInterrupted(InterruptedException cause) {
         Thread.currentThread().interrupt();
         return new RuntimeInterruptedException(cause);
     }

@@ -47,7 +47,7 @@ public class LockService extends LockFactoryServicesWithData<StampedLock> {
             long stamp = lock.writeLockInterruptibly();
             return stampToToken(name, stamp);
         } catch (InterruptedException e) {
-            throw RuntimeInterruptedException.throwWhenInterrupted(e);
+            throw RuntimeInterruptedException.getToThrowWhenInterrupted(e);
         }
     }
 
@@ -73,7 +73,7 @@ public class LockService extends LockFactoryServicesWithData<StampedLock> {
                 return "";
             }
         } catch (InterruptedException e) {
-            throw RuntimeInterruptedException.throwWhenInterrupted(e);
+            throw RuntimeInterruptedException.getToThrowWhenInterrupted(e);
         }
     }
 

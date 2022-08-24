@@ -13,7 +13,7 @@ class PrimitivesCacheEntry<T> implements Delayed {
 
     private final String name;
     private final T primitive;
-    private final long timeToLiveSeconds;
+    private final long timeToLiveMilis;
 
     private long timestampToLive;
 
@@ -21,41 +21,65 @@ class PrimitivesCacheEntry<T> implements Delayed {
      * Creates and refresh the entry
      * @param name      Name of the data, refered in map
      * @param primitive Data
-     * @param timeToLiveSeconds seconds of live of this object in cache/queue
+     * @param timeToLiveMilis milis of live of this object in cache/queue
      */
-    public PrimitivesCacheEntry(String name, T primitive, long timeToLiveSeconds) {
+    PrimitivesCacheEntry(String name, T primitive, long timeToLiveMilis) {
         this.name = name;
         this.primitive = primitive;
-        this.timeToLiveSeconds = timeToLiveSeconds;
-        this.timestampToLive = System.currentTimeMillis() + (timeToLiveSeconds * 1000L);
+        this.timeToLiveMilis = timeToLiveMilis;
+        refresh();
     }
 
-    public PrimitivesCacheEntry<T> refresh() {
-        this.timestampToLive = System.currentTimeMillis() + (timeToLiveSeconds * 1000L);
+    /**
+     * Refresh the time to live with the amount of time given to live
+     * @return this
+     */
+    PrimitivesCacheEntry<T> refresh() {
+        this.timestampToLive = System.currentTimeMillis() + timeToLiveMilis;
         return this;
     }
 
 
-    public String getName() {
+    /**
+     * Get name
+     * @return strign
+     */
+    String getName() {
         return name;
     }
 
-    public T getPrimitive() {
+    /**
+     * Return data
+     * @return T
+     */
+    T getPrimitive() {
         return primitive;
     }
 
-    public boolean isDelayed() {
+    /**
+     * Check if it has time to live or is delayed and can be purged
+     * @return true if it has no time to live
+     */
+    boolean isDelayed() {
         return getDelay() <= 0;
     }
 
-    public long getDelay() {
-        return getDelay(TimeUnit.MILLISECONDS);
+    /**
+     * Get miliseconds to live left for this object
+     * @return miliseconds to live
+     */
+    long getDelay() {
+        return timestampToLive - System.currentTimeMillis();
     }
 
+    /**
+     * Get time to live left for this object
+     * @param unit  time unit to be returned
+     * @return miliseconds to live
+     */
     @Override
     public long getDelay(TimeUnit unit) {
-        long t = timestampToLive - System.currentTimeMillis();
-        return unit.convert(t, TimeUnit.MILLISECONDS);
+        return unit.convert(getDelay(), TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -68,20 +92,20 @@ class PrimitivesCacheEntry<T> implements Delayed {
         if (this == o) return true;
         if (!(o instanceof PrimitivesCacheEntry)) return false;
         PrimitivesCacheEntry<?> that = (PrimitivesCacheEntry<?>) o;
-        return timeToLiveSeconds == that.timeToLiveSeconds &&
+        return timeToLiveMilis == that.timeToLiveMilis &&
                 Objects.equals(getName(), that.getName()) &&
                 Objects.equals(getPrimitive(), that.getPrimitive());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(timeToLiveSeconds, getName(), getPrimitive());
+        return Objects.hash(timeToLiveMilis, getName(), getPrimitive());
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("ConcurrentDelayedMapEntry{");
-        sb.append("timeToLiveSeconds=").append(timeToLiveSeconds);
+        sb.append("timeToLiveSeconds=").append(timeToLiveMilis);
         sb.append(", name='").append(name).append('\'');
         sb.append(", primitive=").append(primitive);
         sb.append('}');
