@@ -25,9 +25,9 @@ public abstract class PrimitivesCache<K> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PrimitivesCache.class);
 
-    private static final AtomicInteger INSTANCE_COUNT = new AtomicInteger(0);
+    static final AtomicInteger INSTANCE_COUNT = new AtomicInteger(0);
 
-    public static final int INITIAL_DELAY_SECONDS = 3;
+    public static final int INITIAL_DELAY_SECONDS = 1;
 
     // Map that holds the data
     private final ConcurrentHashMap<String, K> dataMap = new ConcurrentHashMap<>();
@@ -44,14 +44,26 @@ public abstract class PrimitivesCache<K> {
 
     /**
      * Constructor with the global configuration
-     * @param configuration
+     * @param configuration Global configuration
      */
     public PrimitivesCache(LockFactoryConfiguration configuration){
+        this(configuration.getCacheCheckDataPeriodSeconds(),
+                configuration.getCacheTimeToLiveSeconds(),
+                configuration.isCacheCheckContinuously());
+    }
+
+    /**
+     * Constructor
+     * @param cacheCheckDataPeriodSeconds check data shcedurler period
+     * @param cacheTimeToLiveSeconds time to live for every object
+     * @param cacheCheckContinuously if a thread should check continuously the objects
+     */
+    public PrimitivesCache(int cacheCheckDataPeriodSeconds, int cacheTimeToLiveSeconds,
+                           boolean cacheCheckContinuously) {
         this.scheduledExecutorService.scheduleAtFixedRate(this::checkForData, calculateInitialDelay(),
-                configuration.getCacheCheckDataPeriodSeconds(),
-                TimeUnit.SECONDS);
-        this.cacheTimeToLiveSeconds = configuration.getCacheTimeToLiveSeconds();
-        if (configuration.isCacheCheckContinuously()) {
+                cacheCheckDataPeriodSeconds, TimeUnit.SECONDS);
+        this.cacheTimeToLiveSeconds = cacheTimeToLiveSeconds;
+        if (cacheCheckContinuously) {
             this.checkDataContinuouslyThread = new Thread(this::checkContinuouslyForDataToRemove);
             this.checkDataContinuouslyThread.setName("checkDataContinuouslyThread_" + getMapName());
             this.checkDataContinuouslyThread.setDaemon(true);
