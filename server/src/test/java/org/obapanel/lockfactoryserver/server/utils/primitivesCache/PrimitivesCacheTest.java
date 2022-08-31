@@ -2,6 +2,7 @@ package org.obapanel.lockfactoryserver.server.utils.primitivesCache;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.obapanel.lockfactoryserver.server.service.LockFactoryServicesWithDataTest;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -68,6 +69,16 @@ public class PrimitivesCacheTest {
         assertTrue(data1.contains("100_"));
         assertNull(data2);
         assertNull(data3);
+    }
+
+    @Test
+    public void shutdownTest() throws Exception {
+        MyPrimitivesCache myPrimitivesCache = new MyPrimitivesCache(30, 30, false);
+        boolean isRunningNow1 = myPrimitivesCache.checkIsRunning();
+        myPrimitivesCache.clearAndShutdown();
+        boolean isRunningNow2 = myPrimitivesCache.checkIsRunning();
+        assertTrue(isRunningNow1);
+        assertFalse(isRunningNow2);
     }
 
     @Test

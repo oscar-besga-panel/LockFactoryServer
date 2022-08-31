@@ -55,6 +55,9 @@ public abstract class LockFactoryServicesWithData<K> implements LockFactoryServi
         primitivesCache.removeData(name);
     }
 
+    boolean checkIsRunning() {
+        return primitivesCache.checkIsRunning();
+    }
 
     public void shutdown() throws Exception {
         primitivesCache.clearAndShutdown();

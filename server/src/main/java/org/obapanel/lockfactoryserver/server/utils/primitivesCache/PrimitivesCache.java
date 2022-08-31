@@ -179,6 +179,10 @@ public abstract class PrimitivesCache<K> {
             checkDataContinuouslyThread.interrupt();
         }
     }
+    
+    public boolean checkIsRunning(){
+        return isRunning.get();
+    }
 
     /**
      * Checks data for cleanup, continuously, in a background thread
