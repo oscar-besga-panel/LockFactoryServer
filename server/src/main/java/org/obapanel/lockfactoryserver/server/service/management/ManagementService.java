@@ -44,6 +44,6 @@ public class ManagementService implements LockFactoryServices {
     public boolean isRunning() {
         LOGGER.info("service> isRunning");
         return lockFactoryServer.isRunning();
-
     }
+
 }
