@@ -1,5 +1,6 @@
 package org.obapanel.lockfactoryserver.server.service.management;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,14 +35,21 @@ public class ManagementServiceTest {
         doAnswer(ioc -> {
             running.set(false);
             semaphore.release(1);
-            return Void.class;
+            return null;
         }).when(lockFactoryServer).shutdown();
+    }
+
+    @After
+    public void tearsDown() throws Exception {
+        managementService.shutdown();
+        managementService = null;
     }
 
     @Test
     public void getTypeTest() {
         Services services = managementService.getType();
         assertEquals(Services.MANAGEMENT, services);
+        assertEquals(Services.MANAGEMENT.getServiceClass(), managementService.getClass());
     }
 
     @Test

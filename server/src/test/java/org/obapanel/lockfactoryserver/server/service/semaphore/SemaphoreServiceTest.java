@@ -1,5 +1,6 @@
 package org.obapanel.lockfactoryserver.server.service.semaphore;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
@@ -18,10 +19,17 @@ public class SemaphoreServiceTest {
         semaphoreService = new SemaphoreService(new LockFactoryConfiguration());
     }
 
+    @After
+    public void tearsDown() throws Exception {
+        semaphoreService.shutdown();
+        semaphoreService = null;
+    }
+
     @Test
     public void getTypeTest() {
         Services services = semaphoreService.getType();
         assertEquals(Services.SEMAPHORE, services);
+        assertEquals(Services.SEMAPHORE.getServiceClass(), semaphoreService.getClass());
     }
 
     @Test

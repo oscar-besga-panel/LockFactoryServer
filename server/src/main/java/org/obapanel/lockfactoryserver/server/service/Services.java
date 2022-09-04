@@ -13,7 +13,7 @@ public enum Services {
     LOCK(LockService.class),
     SEMAPHORE(SemaphoreService.class);
 
-    private final Class<? extends  LockFactoryServices> serviceClass;
+    private final Class<? extends LockFactoryServices> serviceClass;
 
     /**
      * Service type
@@ -30,4 +30,5 @@ public enum Services {
     public Class<? extends LockFactoryServices> getServiceClass() {
         return serviceClass;
     }
+
 }

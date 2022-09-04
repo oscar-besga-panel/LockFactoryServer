@@ -2,15 +2,10 @@ package org.obapanel.lockfactoryserver.server;
 
 import org.junit.Test;
 
-import java.util.Properties;
-
 import static org.junit.Assert.*;
 import static org.obapanel.lockfactoryserver.server.UtilsForTest.createLockFactoryConfiguration;
 
 public class LockFactoryConfigurationTest {
-
-
-
 
     @Test
     public void servicesEnabledTest() {
