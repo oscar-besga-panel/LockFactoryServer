@@ -6,9 +6,7 @@ import org.junit.Test;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.service.Services;
 
-import java.util.concurrent.Semaphore;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class SemaphoreServiceTest {
 
@@ -30,22 +28,6 @@ public class SemaphoreServiceTest {
         Services services = semaphoreService.getType();
         assertEquals(Services.SEMAPHORE, services);
         assertEquals(Services.SEMAPHORE.getServiceClass(), semaphoreService.getClass());
-    }
-
-    @Test
-    public void createNewTest() {
-        assertNotNull(semaphoreService.createNew("sem1"));
-    }
-
-    @Test
-    public void avoidExpirationTest() {
-        Semaphore sem1 = semaphoreService.createNew("sem1");
-        Semaphore sem2 = semaphoreService.createNew("sem2");
-        sem1.release(1);
-        boolean result1 = semaphoreService.avoidExpiration("sem1", sem1);
-        boolean result2 = semaphoreService.avoidExpiration("sem2", sem2);
-        assertTrue(result1);
-        assertFalse(result2);
     }
 
     @Test

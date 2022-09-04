@@ -2,7 +2,6 @@ package org.obapanel.lockfactoryserver.server.service.lock;
 
 
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
-import org.obapanel.lockfactoryserver.server.service.LockFactoryServices;
 import org.obapanel.lockfactoryserver.server.service.Services;
 import org.obapanel.lockfactoryserver.server.utils.RuntimeInterruptedException;
 import org.slf4j.Logger;
@@ -14,16 +13,14 @@ import java.util.concurrent.locks.StampedLock;
 /**
  * Service based on lock primitive
  */
-public class LockService implements LockFactoryServices {
+public class LockService extends LockFactoryServicesWithData<StampedLock> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LockService.class);
 
     public static final Services TYPE = Services.LOCK;
 
-    private final LockCache lockCache;
-
     public LockService(LockFactoryConfiguration configuration) {
-        this.lockCache = new LockCache(configuration);
+        super(configuration);
     }
 
     @Override
@@ -32,13 +29,19 @@ public class LockService implements LockFactoryServices {
     }
 
     @Override
-    public void shutdown() throws Exception {
-        lockCache.clearAndShutdown();
+    protected StampedLock createNew(String name) {
+        return new StampedLock();
     }
+
+    @Override
+    protected boolean avoidExpiration(String name, StampedLock lock) {
+        return lock.isWriteLocked();
+    }
+
 
     public String lock(String name) {
         LOGGER.info("service> lock {}", name);
-        StampedLock lock = lockCache.getOrCreateData(name);
+        StampedLock lock = getOrCreateData(name);
         try {
             long stamp = lock.writeLockInterruptibly();
             return stampToToken(name, stamp);
@@ -49,7 +52,7 @@ public class LockService implements LockFactoryServices {
 
     public String tryLock(String name) {
         LOGGER.info("service> tryLock {}", name);
-        StampedLock lock = lockCache.getOrCreateData(name);
+        StampedLock lock = getOrCreateData(name);
         long stamp = lock.tryWriteLock();
         if (stamp != 0) {
             return stampToToken(name, stamp);
@@ -61,7 +64,7 @@ public class LockService implements LockFactoryServices {
     public String tryLock(String name, long time, TimeUnit timeUnit) {
         try {
             LOGGER.info("service> tryLock {} {} {}", name, time, timeUnit);
-            StampedLock lock = lockCache.getOrCreateData(name);
+            StampedLock lock = getOrCreateData(name);
             long stamp = lock.tryWriteLock(time, timeUnit);
             if (stamp != 0) {
                 return stampToToken(name, stamp);
@@ -80,7 +83,7 @@ public class LockService implements LockFactoryServices {
     public boolean isLocked(String name) {
         LOGGER.info("service> isLocked {} ", name);
         boolean locked = false;
-        StampedLock lock = lockCache.getData(name);
+        StampedLock lock = getData(name);
         if (lock != null) {
             locked = lock.isWriteLocked();
         }
@@ -90,7 +93,7 @@ public class LockService implements LockFactoryServices {
     public boolean unLock(String name, String token) {
         LOGGER.info("service> unLock {} {}", name, token);
         boolean unlocked = false;
-        StampedLock lock = lockCache.getData(name);
+        StampedLock lock = getData(name);
         if (lock != null) {
             long stamp = tokenToStamp(name, token);
             boolean valid = lock.isWriteLocked() &&
@@ -100,7 +103,7 @@ public class LockService implements LockFactoryServices {
                 try {
                     lock.unlock(stamp);
                     unlocked = true;
-                    lockCache.removeData(name);
+                    removeData(name);
                 } catch (IllegalMonitorStateException imse) {
                     LOGGER.debug("Not valid stamp {} gives error {}", token, imse.getMessage());
                 }

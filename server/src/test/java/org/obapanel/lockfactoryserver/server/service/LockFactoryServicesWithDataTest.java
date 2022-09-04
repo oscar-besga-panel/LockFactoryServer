@@ -4,7 +4,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.utils.primitivesCache.PrimitivesCache;
-import org.obapanel.lockfactoryserver.server.utils.primitivesCache.PrimitivesCacheTest;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -74,10 +73,12 @@ public class LockFactoryServicesWithDataTest {
         assertFalse(isRunningNow2);
     }
 
-    class MyLockFactoryServicesWithData extends LockFactoryServicesWithData<String> {
+
+    class MyLockFactoryServicesWithData implements LockFactoryServices {
+
+        private final MyPrimitiveCache myCache;
 
 
-        private final BiFunction<String, String, Boolean> avoidExpirationFunction;
 
         public MyLockFactoryServicesWithData() {
             this(lockFactoryConfiguration);
@@ -88,8 +89,7 @@ public class LockFactoryServicesWithDataTest {
         }
 
         public MyLockFactoryServicesWithData(LockFactoryConfiguration configuration, BiFunction<String, String, Boolean> avoidExpirationFunction) {
-            super(configuration);
-            this.avoidExpirationFunction = avoidExpirationFunction;
+            this.myCache = new MyPrimitiveCache(configuration, avoidExpirationFunction);
         }
 
         @Override
@@ -98,7 +98,45 @@ public class LockFactoryServicesWithDataTest {
         }
 
         @Override
-        protected String createNew(String name) {
+        public void shutdown() throws Exception {
+            myCache.clearAndShutdown();
+        }
+
+        public boolean checkIsRunning() {
+            return myCache.checkIsRunning();
+        }
+
+        public String getOrCreateData(String name) {
+            return myCache.getOrCreateData(name);
+        }
+
+        public String getData(String name) {
+            return myCache.getData(name);
+        }
+
+        public void removeData(String name) {
+            myCache.removeData(name);
+        }
+
+    }
+
+    private class MyPrimitiveCache extends PrimitivesCache<String> {
+
+        private final BiFunction<String, String, Boolean> avoidExpirationFunction;
+
+        public MyPrimitiveCache(LockFactoryConfiguration configuration,
+                                BiFunction<String, String, Boolean> avoidExpirationFunction) {
+            super(configuration);
+            this.avoidExpirationFunction = avoidExpirationFunction;
+        }
+
+        @Override
+        public String getMapName() {
+            return MyPrimitiveCache.class.getName();
+        }
+
+        @Override
+        public String createNew(String name) {
             return name + "_" + System.currentTimeMillis() + "_" + dataCreated.incrementAndGet();
         }
 
@@ -111,4 +149,5 @@ public class LockFactoryServicesWithDataTest {
             }
         }
     }
+
 }
