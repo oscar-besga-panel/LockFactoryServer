@@ -51,14 +51,14 @@ public class LockServiceTest {
 
     @Test
     public void tryLockTest() {
-        String token11 = lockService.lock("lock2");
-        String token12 = lockService.tryLock("lock2");
-        String token13 = lockService.tryLock("lock2", 125, TimeUnit.MILLISECONDS);
-        assertNotNull(token11);
-        assertTrue(token12 == null || token12.isEmpty());
-        assertTrue(token13 == null || token13.isEmpty());
+        String token21 = lockService.lock("lock2");
+        String token22 = lockService.tryLock("lock2");
+        String token23 = lockService.tryLock("lock2", 125, TimeUnit.MILLISECONDS);
+        assertNotNull(token21);
+        assertTrue(token22 == null || token22.isEmpty());
+        assertTrue(token23 == null || token23.isEmpty());
         assertTrue(lockService.isLocked("lock2"));
-        assertTrue(lockService.unLock("lock2", token11));
+        assertTrue(lockService.unLock("lock2", token21));
     }
 
     @Test
