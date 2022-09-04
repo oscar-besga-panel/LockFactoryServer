@@ -30,6 +30,8 @@ public class ManagementServiceTest {
 
     @Before
     public void setup() {
+        running.set(true);
+        semaphore = new Semaphore(0);
         managementService = new ManagementService(new LockFactoryConfiguration(), lockFactoryServer);
         when(lockFactoryServer.isRunning()).thenAnswer(ioc ->  running.get());
         doAnswer(ioc -> {
@@ -52,13 +54,15 @@ public class ManagementServiceTest {
         assertEquals(Services.MANAGEMENT.getServiceClass(), managementService.getClass());
     }
 
-    @Test
-    public void shutdownTest() throws Exception {
-        managementService.shutdown();
-    }
+//    @Test
+//    public void shutdownTest() throws Exception {
+//        managementService.shutdown();
+//    }
 
     @Test
     public void shutdownServerTest() throws InterruptedException {
+        running.set(true);
+        //ManagementService managementService = new ManagementService(new LockFactoryConfiguration(), lockFactoryServer);
         boolean result1 = managementService.isRunning();
         managementService.shutdownServer();
         boolean acquired = semaphore.tryAcquire(1,1, TimeUnit.SECONDS);

@@ -26,17 +26,20 @@ public class SemaphoreCacheTest {
 
     @Test
     public void createNewTest() {
-        Semaphore sem1 = semaphoreCache.createNew("sem1");
-        assertEquals(0, sem1.availablePermits());
+        String sem3 = "sem3_" + System.currentTimeMillis();
+        Semaphore ssem3 = semaphoreCache.createNew(sem3);
+        assertEquals(0, ssem3.availablePermits());
     }
 
     @Test
     public void avoidExpirationTest() throws InterruptedException {
-        Semaphore sem1 = semaphoreCache.createNew("sem1");
-        Semaphore sem2 = semaphoreCache.createNew("sem2");
-        sem1.release(1);
-        boolean result1 = semaphoreCache.avoidExpiration("sem1", sem1);
-        boolean result2 = semaphoreCache.avoidExpiration("sem2", sem2);
+        String sem1 = "sem1_" + System.currentTimeMillis();
+        String sem2 = "sem2_" + System.currentTimeMillis();
+        Semaphore ssem1 = semaphoreCache.createNew(sem1);
+        Semaphore ssem2 = semaphoreCache.createNew(sem2);
+        ssem1.release(1);
+        boolean result1 = semaphoreCache.avoidExpiration(sem1, ssem1);
+        boolean result2 = semaphoreCache.avoidExpiration(sem2, ssem2);
         assertTrue(result1);
         assertFalse(result2);
     }
