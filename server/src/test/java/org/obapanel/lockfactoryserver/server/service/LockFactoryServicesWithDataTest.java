@@ -12,12 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiFunction;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.obapanel.lockfactoryserver.server.UtilsForTest.createLockFactoryConfiguration;
 
 public class LockFactoryServicesWithDataTest {
@@ -28,8 +24,8 @@ public class LockFactoryServicesWithDataTest {
     private final AtomicInteger dataCreated = new AtomicInteger(0);
     private final AtomicBoolean avoidExpiration = new AtomicBoolean(false);
     private final LockFactoryConfiguration lockFactoryConfiguration =
-            createLockFactoryConfiguration(LockFactoryConfiguration.CACHE_CHECK_DATA_PERIOD_SECONDS, "1",
-            LockFactoryConfiguration.CACHE_TIME_TO_LIVE_SECONDS, "1");
+            createLockFactoryConfiguration(LockFactoryConfiguration.CACHE_CHECK_DATA_PERIOD_SECONDS, "3",
+            LockFactoryConfiguration.CACHE_TIME_TO_LIVE_SECONDS, "3");
 
 
     private final List<MyLockFactoryServicesWithData> toBeClosed = new ArrayList<>();
@@ -110,18 +106,8 @@ public class LockFactoryServicesWithDataTest {
 
         private final MyPrimitiveCache myCache;
 
-
-
         public MyLockFactoryServicesWithData() {
-            this(lockFactoryConfiguration);
-        }
-
-        public MyLockFactoryServicesWithData(LockFactoryConfiguration configuration) {
-            this(configuration, null);
-        }
-
-        public MyLockFactoryServicesWithData(LockFactoryConfiguration configuration, BiFunction<String, String, Boolean> avoidExpirationFunction) {
-            this.myCache = new MyPrimitiveCache(configuration, avoidExpirationFunction);
+            this.myCache = new MyPrimitiveCache(lockFactoryConfiguration);
         }
 
         @Override
@@ -152,14 +138,11 @@ public class LockFactoryServicesWithDataTest {
 
     }
 
+
     private class MyPrimitiveCache extends PrimitivesCache<String> {
 
-        private final BiFunction<String, String, Boolean> avoidExpirationFunction;
-
-        public MyPrimitiveCache(LockFactoryConfiguration configuration,
-                                BiFunction<String, String, Boolean> avoidExpirationFunction) {
+        public MyPrimitiveCache(LockFactoryConfiguration configuration) {
             super(configuration);
-            this.avoidExpirationFunction = avoidExpirationFunction;
         }
 
         @Override
@@ -174,12 +157,9 @@ public class LockFactoryServicesWithDataTest {
 
         @Override
         public boolean avoidExpiration(String name, String data) {
-            if (avoidExpirationFunction != null) {
-                return avoidExpirationFunction.apply(name, data);
-            } else {
-                return avoidExpiration.get();
-            }
+            return avoidExpiration.get();
         }
+
     }
 
 }
