@@ -6,7 +6,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockedConstruction;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.obapanel.lockfactoryserver.server.connections.Connections;
 import org.obapanel.lockfactoryserver.server.connections.grpc.GrpcConnection;
@@ -35,25 +34,32 @@ public class LockFactoryServerTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(LockFactoryServerTest.class);
 
 
+    static MockedConstruction<RmiConnection> rmiConnectionMocked;
+    static MockedConstruction<GrpcConnection> grpcConnectionMocked;
+    static MockedConstruction<RestConnection> restConnectionMocked;
+    static MockedConstruction<ManagementService> managementServiceMocked;
+    static MockedConstruction<LockService> lockServiceMocked;
+    static MockedConstruction<SemaphoreService> semaphoreServiceMocked;
+
     @BeforeClass
     public static void setupAll() {
         LOGGER.debug("setupAll");
-        MockedConstruction<RmiConnection> rmiConnectionMocked = mockConstruction(RmiConnection.class, (mock, context) -> {
+        rmiConnectionMocked = mockConstruction(RmiConnection.class, (mock, context) -> {
             when(mock.getType()).thenReturn(Connections.RMI);
         });
-        MockedConstruction<GrpcConnection> grpcConnectionMocked = mockConstruction(GrpcConnection.class, (mock, context) -> {
+        grpcConnectionMocked = mockConstruction(GrpcConnection.class, (mock, context) -> {
             when(mock.getType()).thenReturn(Connections.GRPC);
         });
-        MockedConstruction<RestConnection> restConnectionMocked = mockConstruction(RestConnection.class, (mock, context) -> {
+        restConnectionMocked = mockConstruction(RestConnection.class, (mock, context) -> {
             when(mock.getType()).thenReturn(Connections.REST);
         });
-        MockedConstruction<ManagementService> managementServiceMocked = mockConstruction(ManagementService.class, (mock, context) -> {
+        managementServiceMocked = mockConstruction(ManagementService.class, (mock, context) -> {
             when(mock.getType()).thenReturn(Services.MANAGEMENT);
         });
-        MockedConstruction<LockService> lockServiceMocked = mockConstruction(LockService.class, (mock, context) -> {
+        lockServiceMocked = mockConstruction(LockService.class, (mock, context) -> {
             when(mock.getType()).thenReturn(Services.LOCK);
         });
-        MockedConstruction<SemaphoreService> semaphoreServiceMocked = mockConstruction(SemaphoreService.class, (mock, context) -> {
+        semaphoreServiceMocked = mockConstruction(SemaphoreService.class, (mock, context) -> {
             when(mock.getType()).thenReturn(Services.SEMAPHORE);
         });
     }
@@ -61,7 +67,19 @@ public class LockFactoryServerTest {
     @AfterClass
     public static void tearsDownAll() {
         LOGGER.debug("tearsDownAll");
-        Mockito.clearAllCaches();
+        rmiConnectionMocked.close();
+        rmiConnectionMocked = null;
+        grpcConnectionMocked.close();
+        grpcConnectionMocked = null;
+        restConnectionMocked.close();
+        restConnectionMocked = null;
+        managementServiceMocked.close();
+        managementServiceMocked = null;
+        lockServiceMocked.close();
+        lockServiceMocked = null;
+        semaphoreServiceMocked.close();
+        semaphoreServiceMocked = null;
+        //Mockito.clearAllCaches();
     }
 
     private LockFactoryServer lockFactoryServer;
