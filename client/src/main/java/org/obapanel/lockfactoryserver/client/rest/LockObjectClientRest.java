@@ -5,6 +5,8 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
@@ -12,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 
 public class LockObjectClientRest {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(LockObjectClientRest.class);
 
     private final String baseUrl;
     private final String name;
@@ -75,4 +78,7 @@ public class LockObjectClientRest {
         return unlocked;
     }
 
+    public void close() {
+        LOGGER.debug("closed");
+    }
 }

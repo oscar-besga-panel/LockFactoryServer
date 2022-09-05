@@ -8,18 +8,26 @@ import org.obapanel.lockfactoryserver.core.grpc.LockServerGrpc;
 import org.obapanel.lockfactoryserver.core.grpc.TrylockValues;
 import org.obapanel.lockfactoryserver.core.grpc.TrylockValuesWithTimeout;
 import org.obapanel.lockfactoryserver.core.grpc.UnlockValues;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LockObjectClientGrpc {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(LockObjectClientGrpc.class);
 
+
+    private final AtomicBoolean isManagedChannlePrivate = new AtomicBoolean(false);
     private final ManagedChannel managedChannel;
     private final LockServerGrpc.LockServerBlockingStub lockServerBlockingStub;
     private final String name;
     private String token;
 
-    LockObjectClientGrpc(String name) {
-        this(ManagedChannelBuilder.forAddress("127.0.0.1", 50051).
+    LockObjectClientGrpc(String address, int port, String name) {
+        this(ManagedChannelBuilder.forAddress(address, port).
                 usePlaintext().build(), name);
+        isManagedChannlePrivate.set(true);
     }
 
     LockObjectClientGrpc(ManagedChannel managedChannel, String name) {
@@ -83,6 +91,13 @@ public class LockObjectClientGrpc {
         }
         return response.getValue();
     }
+
+    public void close() {
+        if (isManagedChannlePrivate.get()) {
+            managedChannel.shutdown();
+        }
+    }
+
 
     /**
      * Converts java timeUnit to grpc Time unit
