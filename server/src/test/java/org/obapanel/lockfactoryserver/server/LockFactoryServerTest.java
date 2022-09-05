@@ -1,9 +1,13 @@
 package org.obapanel.lockfactoryserver.server;
 
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.MockedConstruction;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.obapanel.lockfactoryserver.server.connections.Connections;
 import org.obapanel.lockfactoryserver.server.connections.grpc.GrpcConnection;
 import org.obapanel.lockfactoryserver.server.connections.rest.RestConnection;
@@ -13,17 +17,27 @@ import org.obapanel.lockfactoryserver.server.service.Services;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
 import org.obapanel.lockfactoryserver.server.service.management.ManagementService;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.when;
 
+@RunWith(MockitoJUnitRunner.class)
 public class LockFactoryServerTest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(LockFactoryServerTest.class);
+
 
     @BeforeClass
     public static void setupAll() {
+        LOGGER.debug("setupAll");
         MockedConstruction<RmiConnection> rmiConnectionMocked = mockConstruction(RmiConnection.class, (mock, context) -> {
             when(mock.getType()).thenReturn(Connections.RMI);
         });
@@ -44,6 +58,11 @@ public class LockFactoryServerTest {
         });
     }
 
+    @AfterClass
+    public static void tearsDownAll() {
+        LOGGER.debug("tearsDownAll");
+        Mockito.clearAllCaches();
+    }
 
     private LockFactoryServer lockFactoryServer;
 

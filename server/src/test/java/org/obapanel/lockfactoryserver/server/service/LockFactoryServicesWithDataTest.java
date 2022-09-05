@@ -1,18 +1,29 @@
 package org.obapanel.lockfactoryserver.server.service;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.utils.primitivesCache.PrimitivesCache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.obapanel.lockfactoryserver.server.UtilsForTest.createLockFactoryConfiguration;
 
 public class LockFactoryServicesWithDataTest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(LockFactoryServicesWithDataTest.class);
+
 
     private final AtomicInteger dataCreated = new AtomicInteger(0);
     private final AtomicBoolean avoidExpiration = new AtomicBoolean(false);
@@ -20,15 +31,33 @@ public class LockFactoryServicesWithDataTest {
             createLockFactoryConfiguration(LockFactoryConfiguration.CACHE_CHECK_DATA_PERIOD_SECONDS, "1",
             LockFactoryConfiguration.CACHE_TIME_TO_LIVE_SECONDS, "1");
 
+
+    private final List<MyLockFactoryServicesWithData> toBeClosed = new ArrayList<>();
+
     @Before
     public void setup() {
-
-
+        LOGGER.debug("before setup");
+        toBeClosed.clear();
     }
+
+    @After
+    public void tearsDown() {
+        LOGGER.debug("after tearsdown");
+        toBeClosed.forEach( z -> {
+            try {
+                z.shutdown();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+        toBeClosed.clear();
+    }
+
 
     @Test
     public void getOrCreateDataTest() {
         MyLockFactoryServicesWithData myLockFactoryServicesWithData = new MyLockFactoryServicesWithData();
+        toBeClosed.add(myLockFactoryServicesWithData);
         String data1 = myLockFactoryServicesWithData.getOrCreateData("100");
         String data2 = myLockFactoryServicesWithData.getOrCreateData("101");
         String data3 = myLockFactoryServicesWithData.getOrCreateData("100");
@@ -41,6 +70,7 @@ public class LockFactoryServicesWithDataTest {
     @Test
     public void getDataTest() {
         MyLockFactoryServicesWithData myLockFactoryServicesWithData = new MyLockFactoryServicesWithData();
+        toBeClosed.add(myLockFactoryServicesWithData);
         String data1 = myLockFactoryServicesWithData.getOrCreateData("100");
         String data2 = myLockFactoryServicesWithData.getData("101");
         String data3 = myLockFactoryServicesWithData.getData("100");
@@ -53,6 +83,7 @@ public class LockFactoryServicesWithDataTest {
     @Test
     public void removeDataTest() {
         MyLockFactoryServicesWithData myLockFactoryServicesWithData = new MyLockFactoryServicesWithData();
+        toBeClosed.add(myLockFactoryServicesWithData);
         String data1 = myLockFactoryServicesWithData.getOrCreateData("100");
         String data2 = myLockFactoryServicesWithData.getData("101");
         myLockFactoryServicesWithData.removeData("100");
@@ -66,6 +97,7 @@ public class LockFactoryServicesWithDataTest {
     @Test
     public void shutdownTest() throws Exception {
         MyLockFactoryServicesWithData myLockFactoryServicesWithData = new MyLockFactoryServicesWithData();
+        toBeClosed.add(myLockFactoryServicesWithData);
         boolean isRunningNow1 = myLockFactoryServicesWithData.checkIsRunning();
         myLockFactoryServicesWithData.shutdown();
         boolean isRunningNow2 = myLockFactoryServicesWithData.checkIsRunning();
@@ -131,7 +163,7 @@ public class LockFactoryServicesWithDataTest {
         }
 
         @Override
-        public String getMapName() {
+        public String getMapGenericName() {
             return MyPrimitiveCache.class.getName();
         }
 

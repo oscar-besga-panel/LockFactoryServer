@@ -8,9 +8,13 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.DelayQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 /**
@@ -25,9 +29,13 @@ public abstract class PrimitivesCache<K> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PrimitivesCache.class);
 
-    static final AtomicInteger INSTANCE_COUNT = new AtomicInteger(0);
+    static final AtomicLong INSTANCE_COUNT = new AtomicLong(0);
 
     public static final int INITIAL_DELAY_SECONDS = 1;
+
+
+    private final long instance = INSTANCE_COUNT.getAndIncrement();
+    private String mapName = "";
 
     // Map that holds the data
     private final ConcurrentHashMap<String, K> dataMap = new ConcurrentHashMap<>();
@@ -40,6 +48,7 @@ public abstract class PrimitivesCache<K> {
 
     private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
     private final int cacheTimeToLiveSeconds;
+
 
 
     /**
@@ -65,7 +74,7 @@ public abstract class PrimitivesCache<K> {
         this.cacheTimeToLiveSeconds = cacheTimeToLiveSeconds;
         if (cacheCheckContinuously) {
             this.checkDataContinuouslyThread = new Thread(this::checkContinuouslyForDataToRemove);
-            this.checkDataContinuouslyThread.setName("checkDataContinuouslyThread_" + getMapName());
+            this.checkDataContinuouslyThread.setName("checkDataContinuouslyThread_" + getMapGenericName() + "_" + instance);
             this.checkDataContinuouslyThread.setDaemon(true);
             this.checkDataContinuouslyThread.start();
         }
@@ -75,15 +84,27 @@ public abstract class PrimitivesCache<K> {
      * Calculate a little delay to init checkForData; a little more each cache is created
      * @return seconds to init checkForData
      */
-    static int calculateInitialDelay() {
-        return INITIAL_DELAY_SECONDS + INSTANCE_COUNT.getAndIncrement();
+    private long calculateInitialDelay() {
+        return INITIAL_DELAY_SECONDS + instance;
     }
 
     /**
-     * External map of the name
+     * Name of the map
      * @return name
      */
-    public abstract String getMapName();
+    public String getMapName() {
+        if (mapName.isEmpty()) {
+            mapName = getMapGenericName() + "_" + instance;
+        }
+        return mapName;
+    }
+
+
+    /**
+     * External and generic name of the map
+     * @return name
+     */
+    public abstract String getMapGenericName();
 
 
     /**
@@ -255,7 +276,7 @@ public abstract class PrimitivesCache<K> {
      * @param delayedData data to be checked an removed
      */
     void removeEntryDataFromQueue(PrimitivesCacheEntry<K> delayedData){
-        LOGGER.debug("removeEntryDataFromQueue delayedData {}", delayedData );
+        LOGGER.debug("removeEntryDataFromQueue mapName {} delayedData {}", getMapName(), delayedData );
         if (delayedData.isDelayed() ) {
             if (avoidExpiration(delayedData)) {
                 LOGGER.debug("removeEntryDataFromQueue delayedData mapName {} AVOID {} ", getMapName(), delayedData );

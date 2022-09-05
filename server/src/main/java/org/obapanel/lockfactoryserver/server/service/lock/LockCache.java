@@ -12,7 +12,7 @@ public class LockCache extends PrimitivesCache<StampedLock> {
     }
 
     @Override
-    public String getMapName() {
+    public String getMapGenericName() {
         return LockCache.class.getName();
     }
 

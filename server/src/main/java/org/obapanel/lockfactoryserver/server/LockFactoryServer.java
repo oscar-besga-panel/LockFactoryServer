@@ -40,7 +40,7 @@ public class LockFactoryServer {
 
     private final LockFactoryConfiguration configuration;
 
-    private final AtomicBoolean isRunning = new AtomicBoolean(false);
+    private final AtomicBoolean isRunningServer = new AtomicBoolean(false);
 
     private final Object await = new Object();
 
@@ -64,7 +64,7 @@ public class LockFactoryServer {
      */
     public final synchronized void startServer() {
         try {
-            if (!isRunning.get()) {
+            if (!isRunningServer.get()) {
                 LOGGER.info("Starting server");
                 createServices();
                 if (configuration.isRmiServerActive()) {
@@ -76,7 +76,7 @@ public class LockFactoryServer {
                 if (configuration.isRestServerActive()) {
                     activateRestServer();
                 }
-                isRunning.set(true);
+                isRunningServer.set(true);
             } else {
                 LOGGER.info("Started server");
             }
@@ -129,8 +129,9 @@ public class LockFactoryServer {
      * @return boolean
      */
     public final boolean isRunning() {
-        LOGGER.debug("isRunning {}", isRunning.get());
-        return isRunning.get();
+        boolean isRunningNow = isRunningServer.get();
+        LOGGER.debug("isRunning {}", isRunningNow);
+        return isRunningNow;
     }
 
 
@@ -209,7 +210,7 @@ public class LockFactoryServer {
      */
     public final synchronized void shutdown() {
         try {
-            if (isRunning.get()) {
+            if (isRunningServer.get()) {
                 LOGGER.info("Stopping server");
                 LOGGER.info("Shutdown connections");
                 for (LockFactoryConnection lockFactoryConnection : lockServerConnections.values()) {
@@ -227,7 +228,7 @@ public class LockFactoryServer {
                     await.notify();
                 }
                 LOGGER.info("Stopped services");
-                isRunning.set(false);
+                isRunningServer.set(false);
             } else {
                 LOGGER.info("Stopped server");
             }

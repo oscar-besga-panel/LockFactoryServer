@@ -5,22 +5,32 @@ import org.junit.Before;
 import org.junit.Test;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.service.Services;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class LockServiceTest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(LockServiceTest.class);
+
 
     private LockService lockService;
 
     @Before
     public void setup() {
+        LOGGER.debug("before setup");
         lockService = new LockService(new LockFactoryConfiguration());
     }
 
     @After
     public void tearsDown() throws Exception {
+        LOGGER.debug("after teardown");
         lockService.shutdown();
         lockService = null;
     }

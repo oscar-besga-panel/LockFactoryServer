@@ -121,7 +121,7 @@ public class LockFactoryServerMain {
     Thread generateShutdownThread() {
         Thread thread = new Thread(lockFactoryServer::shutdown);
         thread.setDaemon(true);
-        thread.setName("shutdownThread");
+        thread.setName("shutdownThreadLockFactoryServer");
         return thread;
     }
 

@@ -2,13 +2,16 @@ package org.obapanel.lockfactoryserver.server.utils.primitivesCache;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.obapanel.lockfactoryserver.server.service.LockFactoryServicesWithDataTest;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class PrimitivesCacheTest {
 
@@ -166,7 +169,7 @@ public class PrimitivesCacheTest {
         }
 
         @Override
-        public String getMapName() {
+        public String getMapGenericName() {
             return this.getClass().getName();
         }
 

@@ -12,7 +12,7 @@ public class SemaphoreCache extends PrimitivesCache<Semaphore> {
     }
 
     @Override
-    public String getMapName() {
+    public String getMapGenericName() {
         return SemaphoreCache.class.getName();
     }
 
