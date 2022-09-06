@@ -1,63 +1,52 @@
 package org.obapanel.lockfactoryserver.client.rest;
 
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
+import org.obapanel.lockfactoryserver.client.WithLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.concurrent.TimeUnit;
 
-public class LockObjectClientRest {
+public class LockObjectClientRest extends AbstractClientRest
+        implements WithLock {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LockObjectClientRest.class);
 
-    private final String baseUrl;
-    private final String name;
+    private static final String SERVICE_URL_NAME_LOCK = "lock";
+
     private String token;
 
     public LockObjectClientRest(String name) {
-        this("http://localhost:8080/lock/", name);
+        super(name);
     }
 
     public LockObjectClientRest(String baseUrl, String name) {
-        this.baseUrl = baseUrl;
-        this.name = name;
+        super(baseUrl, name);
     }
 
-    protected String requestWithUrl(String... parts) {
-        return request(String.join("/", parts));
-    }
-
-
-    protected String request(String operation) {
-        try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
-            HttpGet httpGet = new HttpGet(baseUrl + operation);
-            try (CloseableHttpResponse response = httpclient.execute(httpGet)) {
-                return EntityUtils.toString(response.getEntity());
-            }
-        } catch (IOException e) {
-            throw new IllegalStateException("Error in requesrt", e);
-        }
+    String serviceUrlName() {
+        return SERVICE_URL_NAME_LOCK;
     }
 
     public boolean lock() {
-        token = requestWithUrl( "lock", name);
-        return currentlyBlocked();
+        token = requestWithUrl( "lock", getName());
+        boolean result = currentlyBlocked();
+        LOGGER.debug("lock name {} currentluBlocked {}", getName(), result);
+        return result;
     }
 
     public boolean tryLock() throws RemoteException {
-        token = requestWithUrl("tryLock", name);
-        return currentlyBlocked();
+        token = requestWithUrl("tryLock", getName());
+        boolean result = currentlyBlocked();
+        LOGGER.debug("trylock name {} currentluBlocked {}", getName(), result);
+        return result;
     }
 
     public boolean tryLock(long time, TimeUnit timeUnit) throws RemoteException {
-        token = requestWithUrl("tryLock", name, Long.toString(time), timeUnit.name().toLowerCase());
-        return currentlyBlocked();
+        token = requestWithUrl("tryLock", getName(), Long.toString(time), timeUnit.name().toLowerCase());
+        boolean result = currentlyBlocked();
+        LOGGER.debug("trylock name {} currentluBlocked {}", getName(), result);
+        return result;
     }
 
     protected boolean currentlyBlocked() {
@@ -65,12 +54,12 @@ public class LockObjectClientRest {
     }
 
     public boolean isLocked() throws RemoteException {
-        String result = requestWithUrl( "isLocked", name);
+        String result = requestWithUrl( "isLocked", getName());
         return Boolean.parseBoolean(result);
     }
 
     public boolean unLock() throws RemoteException {
-        String requerstResult = requestWithUrl( "unlock", name, token);
+        String requerstResult = requestWithUrl( "unlock", getName(), token);
         boolean unlocked = Boolean.parseBoolean(requerstResult);
         if (unlocked) {
             token = null;
@@ -78,7 +67,4 @@ public class LockObjectClientRest {
         return unlocked;
     }
 
-    public void close() {
-        LOGGER.debug("closed");
-    }
 }

@@ -3,7 +3,7 @@ package org.obapanel.lockfactoryserver.client.grpc;
 import com.google.protobuf.BoolValue;
 import com.google.protobuf.StringValue;
 import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
+import org.obapanel.lockfactoryserver.client.WithLock;
 import org.obapanel.lockfactoryserver.core.grpc.LockServerGrpc;
 import org.obapanel.lockfactoryserver.core.grpc.TrylockValues;
 import org.obapanel.lockfactoryserver.core.grpc.TrylockValuesWithTimeout;
@@ -11,48 +11,51 @@ import org.obapanel.lockfactoryserver.core.grpc.UnlockValues;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
-public class LockObjectClientGrpc {
+public class LockObjectClientGrpc extends AbstractClientGrpc<LockServerGrpc.LockServerBlockingStub>
+        implements WithLock {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LockObjectClientGrpc.class);
 
-
-    private final AtomicBoolean isManagedChannlePrivate = new AtomicBoolean(false);
-    private final ManagedChannel managedChannel;
-    private final LockServerGrpc.LockServerBlockingStub lockServerBlockingStub;
-    private final String name;
     private String token;
 
-    LockObjectClientGrpc(String address, int port, String name) {
-        this(ManagedChannelBuilder.forAddress(address, port).
-                usePlaintext().build(), name);
-        isManagedChannlePrivate.set(true);
+    public LockObjectClientGrpc(String address, int port, String name) {
+        super(address, port, name);
     }
 
-    LockObjectClientGrpc(ManagedChannel managedChannel, String name) {
-        this.managedChannel = managedChannel;
-        this.lockServerBlockingStub = LockServerGrpc.newBlockingStub(managedChannel);
-        this.name = name;
+    public LockObjectClientGrpc(ManagedChannel managedChannel, String name) {
+        super(managedChannel, name);
     }
 
-    protected StringValue myName() {
-        return StringValue.of(name);
+    @Override
+    LockServerGrpc.LockServerBlockingStub generateStub(ManagedChannel managedChannel) {
+        return LockServerGrpc.newBlockingStub(managedChannel);
     }
+
+    private StringValue myName() {
+        return StringValue.of(getName());
+    }
+
+
+
+
 
     public boolean lock() {
-        StringValue response = lockServerBlockingStub.lock(myName());
+        StringValue response = getStub().lock(myName());
         token = response.getValue();
-        return currentlyBlocked();
+        boolean result = currentlyBlocked();
+        LOGGER.debug("lock name {} currentluBlocked {}", getName(), result);
+        return result;
     }
 
     public boolean tryLock() {
         TrylockValues trylockValues = TrylockValues.newBuilder().
-                setName(name).
+                setName(getName()).
                 build();
-        StringValue response = lockServerBlockingStub.tryLock(trylockValues);
+        StringValue response = getStub().tryLock(trylockValues);
         token = response.getValue();
-        return currentlyBlocked();
+        boolean result = currentlyBlocked();
+        LOGGER.debug("trylock name {} currentluBlocked {}", getName(), result);
+        return result;
     }
 
     public boolean tryLock(long time, java.util.concurrent.TimeUnit timeUnit) {
@@ -60,15 +63,17 @@ public class LockObjectClientGrpc {
         TrylockValuesWithTimeout trylockValuesWithTimeout = TrylockValuesWithTimeout.newBuilder().
                 setTime(time).
                 setTimeUnit(timeUnitGrpc).
-                setName(name).
+                setName(getName()).
                 build();
         TrylockValues trylockValues = TrylockValues.newBuilder().
-                setName(name).
+                setName(getName()).
                 setTryLockValuesWithTimeout(trylockValuesWithTimeout).
                 build();
-        StringValue response = lockServerBlockingStub.tryLock(trylockValues);
+        StringValue response = getStub().tryLock(trylockValues);
         token = response.getValue();
-        return currentlyBlocked();
+        boolean result = currentlyBlocked();
+        LOGGER.debug("trylock name {} currentluBlocked {}", getName(), result);
+        return result;
     }
 
     protected boolean currentlyBlocked() {
@@ -76,28 +81,21 @@ public class LockObjectClientGrpc {
     }
 
     public boolean isLocked() {
-        BoolValue response = lockServerBlockingStub.isLocked(myName());
+        BoolValue response = getStub().isLocked(myName());
         return response.getValue();
     }
 
     public boolean unLock() {
         UnlockValues unlockValues = UnlockValues.newBuilder().
-                setName(name).
+                setName(getName()).
                 setToken(token).
                 build();
-        BoolValue response = lockServerBlockingStub.unLock(unlockValues);
+        BoolValue response = getStub().unLock(unlockValues);
         if (response.getValue()) {
             token = null;
         }
         return response.getValue();
     }
-
-    public void close() {
-        if (isManagedChannlePrivate.get()) {
-            managedChannel.shutdown();
-        }
-    }
-
 
     /**
      * Converts java timeUnit to grpc Time unit
@@ -105,7 +103,7 @@ public class LockObjectClientGrpc {
      * @return grpc-based timeunit enum java timeUnit
      * @throws IllegalArgumentException if unrecognized or illegal or null data
      */
-    org.obapanel.lockfactoryserver.core.grpc.TimeUnit convert(java.util.concurrent.TimeUnit timeUnitJava) {
+    static org.obapanel.lockfactoryserver.core.grpc.TimeUnit convert(java.util.concurrent.TimeUnit timeUnitJava) {
         if (timeUnitJava == null) {
             throw new IllegalArgumentException("Error tryLock convert null timeunit ");
         } else {
