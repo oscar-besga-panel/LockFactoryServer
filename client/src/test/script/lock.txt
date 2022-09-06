@@ -9,6 +9,7 @@ curl http://localhost:8080/lock/tryLock/myLock_1Rest/1/MINUTES
 curl http://localhost:8080/lock/unLock/myLock_1Rest/myLock_1Rest_384
 curl http://localhost:8080/lock/unLock/myLock_2Rest/myLock_2Rest_384
 
+curl http://localhost:8080/semaphore/current/mySemaphore_1Rest
 
 curl http://localhost:8080/management/shutdownServer
 
