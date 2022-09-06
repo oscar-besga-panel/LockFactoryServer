@@ -141,7 +141,6 @@ public class RestConnection implements LockFactoryConnection {
             SemaphoreServerRestImpl semaphoreServerRest = new SemaphoreServerRestImpl(semaphoreService);
             chain.get("current/:name", semaphoreServerRest::current);
         };
-
     }
 
     @Override

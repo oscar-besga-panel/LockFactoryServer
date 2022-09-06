@@ -37,7 +37,7 @@ public class LockServerGrpcImpl extends LockServerGrpc.LockServerImplBase {
     public void tryLock(TrylockValues request,
                         StreamObserver<StringValue> responseObserver) {
         String result;
-        if (request.getName() != null) {
+        if (request.getName() != null && !request.getName().isEmpty()) {
             String name = request.getName();
             LOGGER.info("grpc server> tryLock {}",name);
             result = lockService.tryLock(name);

@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ManagementServerGrpcImpl extends ManagementServerGrpc.ManagementServerImplBase {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LockServerGrpcImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ManagementServerGrpcImpl.class);
 
     private final ManagementService managementService;
 
