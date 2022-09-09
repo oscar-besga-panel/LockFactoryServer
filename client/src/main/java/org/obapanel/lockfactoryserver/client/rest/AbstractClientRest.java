@@ -17,10 +17,6 @@ public abstract class AbstractClientRest implements AutoCloseable {
     private final String baseUrl;
     private final String name;
 
-    public AbstractClientRest(String name) {
-        this("http://localhost:8080/", name);
-    }
-
     public AbstractClientRest(String baseServerUrl, String name) {
         this.baseUrl = baseServerUrl + serviceUrlName() + "/";
         this.name = name;

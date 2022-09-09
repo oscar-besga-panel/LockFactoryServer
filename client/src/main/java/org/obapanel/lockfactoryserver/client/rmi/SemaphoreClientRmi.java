@@ -8,22 +8,25 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 
-public class SemaphoreObjectClientRmi extends AbstractClientRmi<SemaphoreServerRmi> {
+public class SemaphoreClientRmi extends AbstractClientRmi<SemaphoreServerRmi> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SemaphoreObjectClientRmi.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SemaphoreClientRmi.class);
+
+    public static final String RMI_NAME = SemaphoreServerRmi.RMI_NAME;
+
 
     private String token;
 
-    public SemaphoreObjectClientRmi(String host, int port, String name) throws NotBoundException, RemoteException {
+    public SemaphoreClientRmi(String host, int port, String name) throws NotBoundException, RemoteException {
         super(host, port, name);
     }
 
-    public SemaphoreObjectClientRmi(Registry registry, String name) throws NotBoundException, RemoteException {
+    public SemaphoreClientRmi(Registry registry, String name) throws NotBoundException, RemoteException {
         super(registry, name);
     }
 
     String registryLookupName() {
-        return SemaphoreServerRmi.NAME;
+        return RMI_NAME;
     }
 
     public int current() throws RemoteException {

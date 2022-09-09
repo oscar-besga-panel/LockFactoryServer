@@ -40,7 +40,7 @@ public abstract class AbstractClientRmi<K extends Remote> implements AutoCloseab
         return serverRmi;
     }
 
-    String getName() {
+    public String getName() {
         return name;
     }
 

@@ -1,6 +1,7 @@
 package org.obapanel.lockfactoryserver.client.rmi;
 
 import org.obapanel.lockfactoryserver.client.WithLock;
+import org.obapanel.lockfactoryserver.core.LockStatus;
 import org.obapanel.lockfactoryserver.core.rmi.LockServerRmi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,52 +11,56 @@ import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.util.concurrent.TimeUnit;
 
-public class LockObjectClientRmi extends AbstractClientRmi<LockServerRmi>
+public class LockClientRmi extends AbstractClientRmi<LockServerRmi>
         implements WithLock {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LockObjectClientRmi.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LockClientRmi.class);
 
-    private String token;
+    private static final String EMPTY_TOKEN = "";
 
-    public LockObjectClientRmi(String host, int port, String name) throws NotBoundException, RemoteException {
+    public static final String RMI_NAME = LockServerRmi.RMI_NAME;
+
+    private String token = EMPTY_TOKEN;
+
+    public LockClientRmi(String host, int port, String name) throws NotBoundException, RemoteException {
         super(host, port, name);
     }
 
-    public LockObjectClientRmi(Registry registry, String name) throws NotBoundException, RemoteException {
+    public LockClientRmi(Registry registry, String name) throws NotBoundException, RemoteException {
         super(registry, name);
     }
 
     String registryLookupName() {
-        return LockServerRmi.NAME;
+        return RMI_NAME;
     }
 
     public boolean lock() throws RemoteException {
         token = getServerRmi().lock(getName());
-        return currentlyBlocked();
+        return currentlyHasToken();
     }
 
     public boolean tryLock() throws RemoteException {
         token = getServerRmi().tryLock(getName());
-        return currentlyBlocked();
+        return currentlyHasToken();
     }
 
     public boolean tryLock(long time, TimeUnit timeUnit) throws RemoteException {
         token = getServerRmi().tryLock(getName(), time, timeUnit);
-        return currentlyBlocked();
+        return currentlyHasToken();
     }
 
-    protected boolean currentlyBlocked() {
+    protected boolean currentlyHasToken() {
         return token != null && !token.isEmpty();
     }
 
-    public boolean isLocked() throws RemoteException {
-        return getServerRmi().isLocked(getName());
+    public LockStatus lockStatus() throws RemoteException {
+        return getServerRmi().lockStatus(getName(), token);
     }
 
     public boolean unLock() throws RemoteException {
         boolean unlocked = getServerRmi().unlock(getName(), token);
         if (unlocked) {
-            token = null;
+            token = EMPTY_TOKEN;
         }
         return unlocked;
     }
