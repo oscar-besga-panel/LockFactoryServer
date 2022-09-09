@@ -74,9 +74,6 @@ public class ManagementRmiTest {
         LOGGER.debug("test isRunning fin <<<");
     }
 
-    //TODO check but this is weird...
-    // there's no way to stop a rmi registry
-    @Ignore
     @Test
     public void shutdownTest() throws NotBoundException, RemoteException {
         LOGGER.debug("test shutdownTest ini >>>");

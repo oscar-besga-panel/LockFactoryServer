@@ -47,13 +47,14 @@ public class RmiConnection implements LockFactoryConnection {
 
     @Override
     public void activate(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices> services) throws Exception {
-        rmiRegistry = createOrGetRmiRegistry(configuration.getRmiServerPort());
+        int port = configuration.getRmiServerPort();
+        rmiRegistry = createOrGetRmiRegistry(port);
         if (configuration.isManagementEnabled()) {
             ManagementService managementService = (ManagementService) services.get(Services.MANAGEMENT);
             ManagementServerRmiImpl managementServerRmi = new ManagementServerRmiImpl(managementService);
             rmiRemotes.add(managementServerRmi);
             ManagementServerRmi managementRmiStub = (ManagementServerRmi) UnicastRemoteObject
-                    .exportObject(managementServerRmi, 0);
+                    .exportObject(managementServerRmi, port);
             rmiStubs.add(managementRmiStub);
             rmiRegistry.rebind(ManagementServerRmi.RMI_NAME, managementRmiStub);
         }
@@ -62,7 +63,7 @@ public class RmiConnection implements LockFactoryConnection {
             LockServerRmiImpl lockServerRmi = new LockServerRmiImpl(lockService);
             rmiRemotes.add(lockServerRmi);
             LockServerRmi lockServerRmiStub = (LockServerRmi) UnicastRemoteObject
-                    .exportObject(lockServerRmi, 0);
+                    .exportObject(lockServerRmi, port);
             rmiStubs.add(lockServerRmiStub);
             rmiRegistry.rebind(LockServerRmi.RMI_NAME, lockServerRmiStub);
         }
@@ -71,7 +72,7 @@ public class RmiConnection implements LockFactoryConnection {
             SemaphoreServerRmiImpl semaphoreServerRmi = new SemaphoreServerRmiImpl(semaphoreService);
             rmiRemotes.add(semaphoreServerRmi);
             SemaphoreServerRmi semaphoreServerRmiStub = (SemaphoreServerRmi) UnicastRemoteObject
-                    .exportObject(semaphoreServerRmi, 0);
+                    .exportObject(semaphoreServerRmi, port);
             rmiStubs.add(semaphoreServerRmiStub);
             rmiRegistry.rebind(SemaphoreServerRmi.RMI_NAME, semaphoreServerRmiStub);
         }
@@ -101,6 +102,9 @@ public class RmiConnection implements LockFactoryConnection {
     @Override
     public void shutdown() throws Exception {
         if (rmiRegistry != null) {
+            for (Remote stub : rmiRemotes) {
+                UnicastRemoteObject.unexportObject(stub, true);
+            }
             rmiRemotes.clear();
             rmiStubs.clear();
             for (String bindName : rmiRegistry.list()) {
