@@ -1,0 +1,7 @@
+dependencies {
+    implementation project(':core')
+    implementation project(':server')
+    implementation project(':client')
+}
+
+group 'org.obapanel.lockfactoryserver.integration'
