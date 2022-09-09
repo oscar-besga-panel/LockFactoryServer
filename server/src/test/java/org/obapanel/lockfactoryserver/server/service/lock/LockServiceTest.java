@@ -3,17 +3,16 @@ package org.obapanel.lockfactoryserver.server.service.lock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.obapanel.lockfactoryserver.core.LockStatus;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.service.Services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class LockServiceTest {
 
@@ -69,7 +68,8 @@ public class LockServiceTest {
         assertNotNull(token21);
         assertTrue(token22 == null || token22.isEmpty());
         assertTrue(token23 == null || token23.isEmpty());
-        assertTrue(lockService.isLocked(lock2));
+        assertEquals(LockStatus.OWNER, lockService.lockStatus(lock2, token21));
+        assertEquals(LockStatus.OTHER, lockService.lockStatus(lock2, token22));
         assertTrue(lockService.unLock(lock2, token21));
     }
 
@@ -78,13 +78,15 @@ public class LockServiceTest {
         String lock3 = "lock3_" + System.currentTimeMillis();
         String token3 = lockService.lock(lock3);
         boolean unlock31 = lockService.unLock(lock3, "xxxxxx");
-        boolean isunlock31 = lockService.isLocked(lock3);
+        LockStatus lockStatus31 = lockService.lockStatus(lock3, "xxxxxx");
+        LockStatus lockStatus32 = lockService.lockStatus(lock3, token3);
         boolean unlock32 = lockService.unLock(lock3, token3);
-        boolean isunlock32 = lockService.isLocked(lock3);
+        LockStatus lockStatus33 = lockService.lockStatus(lock3, token3);
         assertFalse(unlock31);
-        assertTrue(isunlock31);
+        assertEquals(LockStatus.OTHER, lockStatus31);
+        assertEquals(LockStatus.OWNER, lockStatus32);
         assertTrue(unlock32);
-        assertFalse(isunlock32);
+        assertTrue(Arrays.asList(LockStatus.ABSENT, LockStatus.UNLOCKED).contains(lockStatus33));
     }
 
 }

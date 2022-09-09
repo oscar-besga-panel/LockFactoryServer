@@ -1,6 +1,7 @@
 package org.obapanel.lockfactoryserver.server.service.lock;
 
 
+import org.obapanel.lockfactoryserver.core.LockStatus;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.service.LockFactoryServices;
 import org.obapanel.lockfactoryserver.server.service.Services;
@@ -17,6 +18,8 @@ import java.util.concurrent.locks.StampedLock;
 public class LockService implements LockFactoryServices {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LockService.class);
+
+    private static final String EMPTY_TOKEN = "";
 
     public static final Services TYPE = Services.LOCK;
 
@@ -54,7 +57,7 @@ public class LockService implements LockFactoryServices {
         if (stamp != 0) {
             return stampToToken(name, stamp);
         } else {
-            return "";
+            return EMPTY_TOKEN;
         }
     }
 
@@ -66,25 +69,30 @@ public class LockService implements LockFactoryServices {
             if (stamp != 0) {
                 return stampToToken(name, stamp);
             } else {
-                return "";
+                return EMPTY_TOKEN;
             }
         } catch (InterruptedException e) {
             throw RuntimeInterruptedException.getToThrowWhenInterrupted(e);
         }
     }
 
-    String stampToToken(String name, long stamp) {
-        return String.format("%s_%d", name, stamp);
-    }
-
-    public boolean isLocked(String name) {
-        LOGGER.info("service> isLocked {} ", name);
-        boolean locked = false;
+    public LockStatus lockStatus(String name, String token) {
         StampedLock lock = lockCache.getData(name);
-        if (lock != null) {
-            locked = lock.isWriteLocked();
+        if (lock == null) {
+            return LockStatus.ABSENT;
+        } else if (!lock.isWriteLocked()) {
+            return LockStatus.UNLOCKED;
+        } else {
+            long stamp = tokenToStamp(name, token);
+            boolean valid = lock.isWriteLocked() &&
+                    stamp > 0 &&
+                    lock.validate(stamp);
+            if (valid) {
+                return LockStatus.OWNER;
+            } else {
+                return LockStatus.OTHER;
+            }
         }
-        return locked;
     }
 
     public boolean unLock(String name, String token) {
@@ -109,13 +117,21 @@ public class LockService implements LockFactoryServices {
         return unlocked;
     }
 
+    protected String stampToToken(String name, long stamp) {
+        return String.format("%s_%d", name, stamp);
+    }
+
     protected long tokenToStamp(String name, String token) {
-        try {
-            String prefix = String.format("%s_", name);
-            return Long.parseLong(token.replace(prefix, ""));
-        } catch (NumberFormatException nfe) {
-            LOGGER.warn("tokenToStamp Bad token {} for name {}", token, name);
+        if (token == null || token.isEmpty()) {
             return 0;
+        } else {
+            try {
+                String prefix = String.format("%s_", name);
+                return Long.parseLong(token.replace(prefix, ""));
+            } catch (NumberFormatException nfe) {
+                LOGGER.warn("tokenToStamp Bad token {} for name {}", token, name);
+                return 0;
+            }
         }
     }
 

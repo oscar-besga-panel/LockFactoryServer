@@ -5,11 +5,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.obapanel.lockfactoryserver.core.LockStatus;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
 
 import java.rmi.RemoteException;
 import java.util.concurrent.TimeUnit;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
@@ -30,7 +32,7 @@ public class LockServerRmiImplTest {
                 thenAnswer( ioc -> ioc.getArgument(0) + "_" + System.currentTimeMillis());
         when(lockService.tryLock(anyString(), anyLong(), any(TimeUnit.class))).
                 thenAnswer( ioc -> ioc.getArgument(0) + "_" + System.currentTimeMillis());
-        when(lockService.isLocked(anyString())).thenReturn(true);
+        when(lockService.lockStatus(anyString(), anyString())).thenReturn(LockStatus.UNLOCKED);
         when(lockService.unLock(anyString(), anyString())).thenReturn(true);
         lockServerRmi = new LockServerRmiImpl(lockService);
     }
@@ -59,8 +61,9 @@ public class LockServerRmiImplTest {
     @Test
     public void isLocked() {
         String lockName = "lock4" + System.currentTimeMillis();
-        boolean locked = lockServerRmi.isLocked(lockName);
-        assertTrue(locked);
+        String token = "token_" + lockName;
+        LockStatus lockStatus = lockServerRmi.lockStatus(lockName, token);
+        assertEquals(LockStatus.UNLOCKED, lockStatus);
     }
 
     @Test

@@ -1,5 +1,6 @@
 package org.obapanel.lockfactoryserver.server.connections.rest;
 
+import org.obapanel.lockfactoryserver.core.LockStatus;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,13 +45,13 @@ public class LockServerRestImpl {
         context.getResponse().send(response);
     }
 
-    public void isLocked(Context context) {
+    public void lockStatus(Context context) {
         String name = context.getPathTokens().get("name");
-        LOGGER.info("rest server> lock isLocked {}", name);
-        boolean response = lockService.isLocked(name);
-        context.getResponse().send(Boolean.toString(response));
+        String token = context.getPathTokens().get("token");
+        LOGGER.info("rest server> lock lockStatus name {} token {}", name, token);
+        LockStatus response = lockService.lockStatus(name, token);
+        context.getResponse().send(response.name().toLowerCase());
     }
-
 
     public void unlock(Context context) {
         String name = context.getPathTokens().get("name");
@@ -59,5 +60,6 @@ public class LockServerRestImpl {
         boolean response = lockService.unLock(name, token);
         context.getResponse().send(Boolean.toString(response));
     }
+
 
 }

@@ -15,8 +15,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.rmi.Remote;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.ExportException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.HashSet;
 import java.util.Map;
@@ -45,15 +47,15 @@ public class RmiConnection implements LockFactoryConnection {
 
     @Override
     public void activate(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices> services) throws Exception {
-        rmiRegistry = LocateRegistry.createRegistry(configuration.getRmiServerPort());
+        rmiRegistry = createOrGetRmiRegistry(configuration.getRmiServerPort());
         if (configuration.isManagementEnabled()) {
             ManagementService managementService = (ManagementService) services.get(Services.MANAGEMENT);
-            ManagementRmiImpl managementRmi = new ManagementRmiImpl(managementService);
-            rmiRemotes.add(managementRmi);
+            ManagementServerRmiImpl managementServerRmi = new ManagementServerRmiImpl(managementService);
+            rmiRemotes.add(managementServerRmi);
             ManagementServerRmi managementRmiStub = (ManagementServerRmi) UnicastRemoteObject
-                    .exportObject(managementRmi, 0);
+                    .exportObject(managementServerRmi, 0);
             rmiStubs.add(managementRmiStub);
-            rmiRegistry.rebind(ManagementServerRmi.NAME, managementRmiStub);
+            rmiRegistry.rebind(ManagementServerRmi.RMI_NAME, managementRmiStub);
         }
         if (configuration.isLockEnabled()) {
             LockService lockService = (LockService) services.get(Services.LOCK);
@@ -62,7 +64,7 @@ public class RmiConnection implements LockFactoryConnection {
             LockServerRmi lockServerRmiStub = (LockServerRmi) UnicastRemoteObject
                     .exportObject(lockServerRmi, 0);
             rmiStubs.add(lockServerRmiStub);
-            rmiRegistry.rebind(LockServerRmi.NAME, lockServerRmiStub);
+            rmiRegistry.rebind(LockServerRmi.RMI_NAME, lockServerRmiStub);
         }
         if (configuration.isSemaphoreEnabled()) {
             SemaphoreService semaphoreService = (SemaphoreService) services.get(Services.SEMAPHORE);
@@ -71,19 +73,40 @@ public class RmiConnection implements LockFactoryConnection {
             SemaphoreServerRmi semaphoreServerRmiStub = (SemaphoreServerRmi) UnicastRemoteObject
                     .exportObject(semaphoreServerRmi, 0);
             rmiStubs.add(semaphoreServerRmiStub);
-            rmiRegistry.rebind(SemaphoreServerRmi.NAME, semaphoreServerRmiStub);
+            rmiRegistry.rebind(SemaphoreServerRmi.RMI_NAME, semaphoreServerRmiStub);
         }
         LOGGER.debug("RmiConnection activated");
     }
 
+    private static Registry createOrGetRmiRegistry(int port) throws RemoteException {
+        Registry registry = null;
+        try {
+            registry = LocateRegistry.createRegistry(port);
+        } catch (ExportException ex) {
+            try {
+                LOGGER.error("createOrGetRmiRegistry retry getting registry");
+                registry = LocateRegistry.getRegistry(port);
+            } catch (RemoteException ex2) {
+                LOGGER.error("createOrGetRmiRegistry inner error ", ex2);
+                throw new IllegalStateException("createOrGetRmiRegistry inner error ", ex2);
+            }
+        } catch (RemoteException ex) {
+            LOGGER.error("createOrGetRmiRegistry error ", ex);
+            throw new IllegalStateException("createOrGetRmiRegistry error ", ex);
+        }
+        return registry;
+    }
+
+
     @Override
     public void shutdown() throws Exception {
         if (rmiRegistry != null) {
+            rmiRemotes.clear();
+            rmiStubs.clear();
             for (String bindName : rmiRegistry.list()) {
                 rmiRegistry.unbind(bindName);
             }
-            rmiRemotes.clear();
-            rmiStubs.clear();
+            rmiRegistry = null;
         }
         LOGGER.debug("RmiConnection shutdown");
     }

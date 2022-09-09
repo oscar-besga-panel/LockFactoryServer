@@ -3,13 +3,14 @@ package org.obapanel.lockfactoryserver.server.connections.grpc;
 import com.google.protobuf.BoolValue;
 import com.google.protobuf.StringValue;
 import io.grpc.stub.StreamObserver;
-import org.obapanel.lockfactoryserver.core.grpc.LockServerGrpc;
-import org.obapanel.lockfactoryserver.core.grpc.TrylockValues;
-import org.obapanel.lockfactoryserver.core.grpc.TrylockValuesWithTimeout;
-import org.obapanel.lockfactoryserver.core.grpc.UnlockValues;
+import org.obapanel.lockfactoryserver.core.LockStatus;
+import org.obapanel.lockfactoryserver.core.grpc.*;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.obapanel.lockfactoryserver.core.util.LockStatusConverter.fromJavaToGrpc;
+import static org.obapanel.lockfactoryserver.core.util.TimeUnitConverter.fromGrpcToJava;
 
 /**
  * Class that connects a GRPC call with the lock service
@@ -37,14 +38,15 @@ public class LockServerGrpcImpl extends LockServerGrpc.LockServerImplBase {
     public void tryLock(TrylockValues request,
                         StreamObserver<StringValue> responseObserver) {
         String result;
-        if (request.getName() != null && !request.getName().isEmpty()) {
+        TrylockValues.TrylockValuesOneofCase caseValues =  request.getTrylockValuesOneofCase();
+        if (caseValues == TrylockValues.TrylockValuesOneofCase.NAME) {
             String name = request.getName();
             LOGGER.info("grpc server> tryLock {}",name);
             result = lockService.tryLock(name);
-        } else if (request.getTryLockValuesWithTimeout() != null) {
+        } else if (caseValues == TrylockValues.TrylockValuesOneofCase.TRYLOCKVALUESWITHTIMEOUT) {
             TrylockValuesWithTimeout trylockValuesWithTimeout = request.getTryLockValuesWithTimeout();
             LOGGER.info("grpc server> tryLock {}", trylockValuesWithTimeout);
-            java.util.concurrent.TimeUnit timeUnit = convert(trylockValuesWithTimeout.getTimeUnit());
+            java.util.concurrent.TimeUnit timeUnit = fromGrpcToJava(trylockValuesWithTimeout.getTimeUnit());
             result = lockService.tryLock(trylockValuesWithTimeout.getName(), trylockValuesWithTimeout.getTime(), timeUnit);
         } else {
             throw new IllegalArgumentException("Error tryLock request " + request);
@@ -54,47 +56,23 @@ public class LockServerGrpcImpl extends LockServerGrpc.LockServerImplBase {
         responseObserver.onCompleted();
     }
 
-    /**
-     * Converts gRPC timeUnit to Java Time unit
-     * @param timeUnitGrpc grpc-based timeunit enum
-     * @return java timeUnit
-     * @throws IllegalArgumentException if unrecognized or illegal or null data
-     */
-    java.util.concurrent.TimeUnit convert(org.obapanel.lockfactoryserver.core.grpc.TimeUnit timeUnitGrpc) {
-        if (timeUnitGrpc == null) {
-            throw new IllegalArgumentException("Error tryLock convert null timeunit ");
-        } else {
-            switch (timeUnitGrpc) {
-                case MILLISECONDS:
-                    return java.util.concurrent.TimeUnit.MILLISECONDS;
-                case SECONDS:
-                    return java.util.concurrent.TimeUnit.SECONDS;
-                case MINUTES:
-                    return java.util.concurrent.TimeUnit.MINUTES;
-                case HOURS:
-                    return java.util.concurrent.TimeUnit.HOURS;
-                case UNRECOGNIZED:
-                default:
-                    throw new IllegalArgumentException("Error tryLock convert timeunit " + timeUnitGrpc);
-            }
-        }
-    }
-
-    public void isLocked(StringValue request,
-                         StreamObserver<BoolValue> responseObserver) {
-        String name = request.getValue();
-        LOGGER.info("grpc server> isLocked {}",name);
-        boolean result = lockService.isLocked(name);
-        BoolValue response = BoolValue.newBuilder().setValue(result).build();
+    public void lockStatus(NameTokenValues request,
+                           StreamObserver<LockStatusValues> responseObserver) {
+        String name = request.getName();
+        String token = request.getToken();
+        LOGGER.info("grpc server> lockStatus {} {}", name, token);
+        LockStatus lockStatus = lockService.lockStatus(name, token);
+        LockStatusValues response = LockStatusValues.newBuilder().
+                setLockStatus(fromJavaToGrpc(lockStatus)).build();
         responseObserver.onNext(response);
         responseObserver.onCompleted();
     }
 
-    public void unLock(UnlockValues request, StreamObserver<BoolValue> responseObserver) {
+    public void unLock(NameTokenValues request, StreamObserver<BoolValue> responseObserver) {
         String name = request.getName();
         String token = request.getToken();
         LOGGER.info("grpc server> unLock {} {}", name, token);
-        boolean result = lockService.unLock(name, name);
+        boolean result = lockService.unLock(name, token);
         BoolValue response = BoolValue.newBuilder().setValue(result).build();
         responseObserver.onNext(response);
         responseObserver.onCompleted();

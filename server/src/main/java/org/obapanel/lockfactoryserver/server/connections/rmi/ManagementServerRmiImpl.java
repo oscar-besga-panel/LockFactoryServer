@@ -10,13 +10,13 @@ import java.rmi.RemoteException;
 /**
  * Class that connects a RMI call with the management service
  */
-public class ManagementRmiImpl implements ManagementServerRmi {
+public class ManagementServerRmiImpl implements ManagementServerRmi {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ManagementRmiImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ManagementServerRmiImpl.class);
 
     private final ManagementService managementService;
 
-    public ManagementRmiImpl(ManagementService managementService) {
+    public ManagementServerRmiImpl(ManagementService managementService) {
         this.managementService = managementService;
     }
 

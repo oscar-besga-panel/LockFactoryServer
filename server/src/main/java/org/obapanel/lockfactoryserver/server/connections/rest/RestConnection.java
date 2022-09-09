@@ -124,10 +124,14 @@ public class RestConnection implements LockFactoryConnection {
             chain.get("trylock/:name", lockServerRest::tryLock);
             chain.get("tryLock/:name/:time/:timeUnit", lockServerRest::tryLock);
             chain.get("trylock/:name/:time/:timeUnit", lockServerRest::tryLock);
-            chain.get("isLocked/:name", lockServerRest::isLocked);
-            chain.get("islocked/:name", lockServerRest::isLocked);
+            chain.get("lockStatus/:name/:token", lockServerRest::lockStatus);
+            chain.get("lockstatus/:name/:token", lockServerRest::lockStatus);
+            chain.get("lockStatus/:name", lockServerRest::lockStatus);
+            chain.get("lockstatus/:name", lockServerRest::lockStatus);
             chain.get("unLock/:name/:token", lockServerRest::unlock);
             chain.get("unlock/:name/:token", lockServerRest::unlock);
+            chain.get("unLock/:name", lockServerRest::unlock);
+            chain.get("unlock/:name", lockServerRest::unlock);
         };
     }
 

@@ -1,6 +1,7 @@
 package org.obapanel.lockfactoryserver.server.connections.rmi;
 
 
+import org.obapanel.lockfactoryserver.core.LockStatus;
 import org.obapanel.lockfactoryserver.core.rmi.LockServerRmi;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
 import org.slf4j.Logger;
@@ -28,10 +29,11 @@ public class LockServerRmiImpl implements LockServerRmi {
         return lockService.lock(name);
     }
 
+
     @Override
-    public boolean isLocked(String name) {
-        LOGGER.info("rmi  server> isLocked {}",name);
-        return lockService.isLocked(name);
+    public LockStatus lockStatus(String name, String token) {
+        LOGGER.info("rmi  server> lockStatus {}",name);
+        return lockService.lockStatus(name, token);
     }
 
     @Override

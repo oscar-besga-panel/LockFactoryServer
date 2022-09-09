@@ -5,12 +5,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.obapanel.lockfactoryserver.core.LockStatus;
 import org.obapanel.lockfactoryserver.server.FakeContext;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
 
 import java.rmi.RemoteException;
 import java.util.concurrent.TimeUnit;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
@@ -31,7 +33,7 @@ public class LockServerRestImplTest {
                 thenAnswer( ioc -> ioc.getArgument(0) + "_" + System.currentTimeMillis());
         when(lockService.tryLock(anyString(), anyLong(), any(TimeUnit.class))).
                 thenAnswer( ioc -> ioc.getArgument(0) + "_" + System.currentTimeMillis());
-        when(lockService.isLocked(anyString())).thenReturn(true);
+        when(lockService.lockStatus(anyString(), anyString())).thenReturn(LockStatus.ABSENT);
         when(lockService.unLock(anyString(), anyString())).thenReturn(true);
         lockServerRest = new LockServerRestImpl(lockService);
     }
@@ -66,12 +68,14 @@ public class LockServerRestImplTest {
     }
 
     @Test
-    public void isLocked() {
+    public void lockStatusTest() {
         String lockName = "lock4" + System.currentTimeMillis();
+        String token = "token_" + lockName;
         FakeContext fakeContext = new FakeContext();
         fakeContext.getPathTokens().put("name", lockName);
-        lockServerRest.isLocked(fakeContext);
-        assertTrue(Boolean.parseBoolean(fakeContext.getFakeSentResponse()));
+        fakeContext.getPathTokens().put("token", token);
+        lockServerRest.lockStatus(fakeContext);
+        assertEquals(LockStatus.ABSENT.name().toLowerCase(), fakeContext.getFakeSentResponse());
     }
 
     @Test

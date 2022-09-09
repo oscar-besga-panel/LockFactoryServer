@@ -12,6 +12,8 @@ public class ManagementServerRestImpl {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LockServerRestImpl.class);
 
+    public final static String OK = "ok";
+
     private final ManagementService managementService;
 
     public ManagementServerRestImpl(ManagementService managementService) {
@@ -21,7 +23,7 @@ public class ManagementServerRestImpl {
     public void shutdownServer(Context context) {
         LOGGER.info("rest server> management shutdown");
         managementService.shutdownServer();
-        context.getResponse().send("OK");
+        context.getResponse().send(OK);
     }
 
     public void isRunning(Context context) {
