@@ -7,19 +7,19 @@ import org.obapanel.lockfactoryserver.core.grpc.ManagementServerGrpc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ManagerClientGrpc extends AbstractClientGrpc<ManagementServerGrpc.ManagementServerBlockingStub>  {
+public class ManagementClientGrpc extends AbstractClientGrpc<ManagementServerGrpc.ManagementServerBlockingStub>  {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ManagerClientGrpc.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ManagementClientGrpc.class);
 
 
     private static final String NAME = "ManagerClientGrpc";
     private static final Empty EMPTY = Empty.newBuilder().build();
 
-    public ManagerClientGrpc(String address, int port) {
+    public ManagementClientGrpc(String address, int port) {
         super(address, port, NAME);
     }
 
-    public ManagerClientGrpc(ManagedChannel managedChannel) {
+    public ManagementClientGrpc(ManagedChannel managedChannel) {
         super(managedChannel, NAME);
     }
 

@@ -21,7 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ManagerClientGrpcTest {
+public class ManagementClientGrpcTest {
 
     @Mock
     private ManagedChannel managedChannel;
@@ -31,7 +31,7 @@ public class ManagerClientGrpcTest {
 
     private MockedStatic<ManagementServerGrpc> mockedStaticManagementServerGrpc;
 
-    private ManagerClientGrpc managerClientGrpc;
+    private ManagementClientGrpc managementClientGrpc;
 
     private final AtomicBoolean running = new AtomicBoolean(true);
 
@@ -46,7 +46,7 @@ public class ManagerClientGrpcTest {
                 return null;
         });
         when(stub.isRunning(any(Empty.class))).thenAnswer(ioc -> BoolValue.of(running.get()));
-        managerClientGrpc = new ManagerClientGrpc(managedChannel);
+        managementClientGrpc = new ManagementClientGrpc(managedChannel);
     }
 
     @After
@@ -56,9 +56,9 @@ public class ManagerClientGrpcTest {
 
     @Test
     public void test() {
-        boolean before = managerClientGrpc.isRunning();
-        managerClientGrpc.shutdownServer();
-        boolean after = managerClientGrpc.isRunning();
+        boolean before = managementClientGrpc.isRunning();
+        managementClientGrpc.shutdownServer();
+        boolean after = managementClientGrpc.isRunning();
         assertTrue(before);
         assertFalse(after);
         verify(stub, times(2)).isRunning(any(Empty.class));
