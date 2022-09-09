@@ -37,9 +37,9 @@ service LockServer {
 
   rpc tryLock(TrylockValues) returns (google.protobuf.StringValue) {}
 
-  rpc isLocked(google.protobuf.StringValue) returns (google.protobuf.BoolValue) {}
+  rpc lockStatus(NameTokenValues) returns (LockStatusValues) {}
 
-  rpc unLock(UnlockValues) returns (google.protobuf.BoolValue) {}
+  rpc unLock(NameTokenValues) returns (google.protobuf.BoolValue) {}
 
 }
 
@@ -50,7 +50,7 @@ service SemaphoreServer {
 
 }
 
-message UnlockValues {
+message NameTokenValues {
   string name = 1;
   string token = 2;
 }
@@ -60,12 +60,22 @@ message TrylockValues {
     string name = 1;
       TrylockValuesWithTimeout tryLockValuesWithTimeout = 2;
   }
-
 }
 message TrylockValuesWithTimeout {
   string name = 1;
   uint64 time = 2;
   TimeUnit timeUnit = 3;
+}
+
+message LockStatusValues {
+    LockStatus lockStatus = 1;
+}
+
+enum LockStatus {
+    ABSENT = 0; // No lock has been found
+    UNLOCKED = 1; // Lock exists and its unlocked
+    OWNER = 2; // Lock exists, is locked by caller
+    OTHER = 3; // Lock exists, is locked by other
 }
 
 enum TimeUnit {

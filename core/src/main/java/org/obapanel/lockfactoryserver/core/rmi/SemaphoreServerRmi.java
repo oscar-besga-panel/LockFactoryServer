@@ -8,7 +8,7 @@ import java.rmi.RemoteException;
  */
 public interface SemaphoreServerRmi extends Remote {
 
-    String NAME = "SemaphoreServerRmi";
+    String RMI_NAME = "SemaphoreServerRmi";
 
 
     /**

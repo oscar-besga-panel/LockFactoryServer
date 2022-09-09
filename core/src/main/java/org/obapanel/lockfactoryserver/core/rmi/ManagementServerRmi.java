@@ -8,7 +8,7 @@ import java.rmi.RemoteException;
  */
 public interface ManagementServerRmi extends Remote {
 
-    String NAME = "ManagementServerRmi";
+    String RMI_NAME = "ManagementServerRmi";
 
     /**
      * Shutdowns the server

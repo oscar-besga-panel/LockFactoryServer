@@ -1,5 +1,7 @@
 package org.obapanel.lockfactoryserver.core.rmi;
 
+import org.obapanel.lockfactoryserver.core.LockStatus;
+
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.concurrent.TimeUnit;
@@ -9,7 +11,7 @@ import java.util.concurrent.TimeUnit;
  */
 public interface LockServerRmi extends Remote {
 
-    String NAME = "LockServerRmi";
+    String RMI_NAME = "LockServerRmi";
 
     /**
      * Try to obain a lock, waiting if needed
@@ -38,12 +40,19 @@ public interface LockServerRmi extends Remote {
     String tryLock(String name, long time, TimeUnit timeUnit)  throws RemoteException;
 
     /**
-     * Check if a lock is locked
+     * Check if a lock is locked and how, status options are:
+     * -   ERROR: In case an error happens
+     * -   ABSENT: No lock has been found
+     * -   UNLOCKED: Lock exists and its unlocked
+     * -   OWNER: Lock exists, is locked by caller
+     * -   OTHER: Lock exists, is locked by other
+     *
      * @param name Name of the lock
-     * @return true if lock exists and its locked currently
+     * @param token Current token or null/empy if doesnt have one
+     * @return LockStatus for current lock
      * @throws RemoteException
      */
-    boolean isLocked(String name) throws RemoteException;
+    LockStatus lockStatus(String name, String token) throws RemoteException;
 
     /**
      * Unlock previously locked lock
