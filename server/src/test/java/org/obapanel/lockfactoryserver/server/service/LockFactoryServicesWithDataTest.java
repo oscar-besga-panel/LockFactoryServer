@@ -24,8 +24,8 @@ public class LockFactoryServicesWithDataTest {
     private final AtomicInteger dataCreated = new AtomicInteger(0);
     private final AtomicBoolean avoidExpiration = new AtomicBoolean(false);
     private final LockFactoryConfiguration lockFactoryConfiguration =
-            createLockFactoryConfiguration(LockFactoryConfiguration.CACHE_CHECK_DATA_PERIOD_SECONDS, "3",
-            LockFactoryConfiguration.CACHE_TIME_TO_LIVE_SECONDS, "3");
+            createLockFactoryConfiguration(LockFactoryConfiguration.CACHE_CHECK_DATA_PERIOD_SECONDS, "5",
+            LockFactoryConfiguration.CACHE_TIME_TO_LIVE_SECONDS, "5");
 
 
     private final List<MyLockFactoryServicesWithData> toBeClosed = new ArrayList<>();
@@ -39,9 +39,11 @@ public class LockFactoryServicesWithDataTest {
     @After
     public void tearsDown() {
         LOGGER.debug("after tearsdown");
-        toBeClosed.forEach( z -> {
+        toBeClosed.forEach( tbc -> {
             try {
-                z.shutdown();
+                if (tbc.checkIsRunning()) {
+                    tbc.shutdown();
+                }
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -51,7 +53,7 @@ public class LockFactoryServicesWithDataTest {
 
 
     @Test
-    public void getOrCreateDataTest() {
+    public void getOrCreateDataTest() throws Exception {
         MyLockFactoryServicesWithData myLockFactoryServicesWithData = new MyLockFactoryServicesWithData();
         toBeClosed.add(myLockFactoryServicesWithData);
         String data1 = myLockFactoryServicesWithData.getOrCreateData("100");
@@ -61,10 +63,11 @@ public class LockFactoryServicesWithDataTest {
         assertTrue(data1.contains("100_"));
         assertTrue(data2.contains("101_"));
         assertEquals(data1, data3);
+        myLockFactoryServicesWithData.shutdown();
     }
 
     @Test
-    public void getDataTest() {
+    public void getDataTest() throws Exception {
         MyLockFactoryServicesWithData myLockFactoryServicesWithData = new MyLockFactoryServicesWithData();
         toBeClosed.add(myLockFactoryServicesWithData);
         String data1 = myLockFactoryServicesWithData.getOrCreateData("100");
@@ -74,10 +77,11 @@ public class LockFactoryServicesWithDataTest {
         assertTrue(data1.contains("100_"));
         assertNull(data2);
         assertEquals(data1, data3);
+        myLockFactoryServicesWithData.shutdown();
     }
 
     @Test
-    public void removeDataTest() {
+    public void removeDataTest() throws Exception {
         MyLockFactoryServicesWithData myLockFactoryServicesWithData = new MyLockFactoryServicesWithData();
         toBeClosed.add(myLockFactoryServicesWithData);
         String data1 = myLockFactoryServicesWithData.getOrCreateData("100");
@@ -88,6 +92,7 @@ public class LockFactoryServicesWithDataTest {
         assertTrue(data1.contains("100_"));
         assertNull(data2);
         assertNull(data3);
+        myLockFactoryServicesWithData.shutdown();
     }
 
     @Test
@@ -99,6 +104,7 @@ public class LockFactoryServicesWithDataTest {
         boolean isRunningNow2 = myLockFactoryServicesWithData.checkIsRunning();
         assertTrue(isRunningNow1);
         assertFalse(isRunningNow2);
+        myLockFactoryServicesWithData.shutdown();
     }
 
 
