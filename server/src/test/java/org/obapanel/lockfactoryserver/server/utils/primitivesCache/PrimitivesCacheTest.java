@@ -7,11 +7,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class PrimitivesCacheTest {
 
@@ -126,7 +122,7 @@ public class PrimitivesCacheTest {
         myPrimitivesCache.getOrCreateData("101");
         String data1 = myPrimitivesCache.getData("100");
         String data2 = myPrimitivesCache.getData("101");
-        Thread.sleep(1100);
+        Thread.sleep(3100);
         String data3 = myPrimitivesCache.getData("100");
         String data4 = myPrimitivesCache.getData("101");
         assertNotNull(data1);
@@ -143,7 +139,7 @@ public class PrimitivesCacheTest {
         myPrimitivesCache.getOrCreateData("101");
         String data1 = myPrimitivesCache.getData("100");
         String data2 = myPrimitivesCache.getData("101");
-        Thread.sleep(1100);
+        Thread.sleep(2100);
         String data3 = myPrimitivesCache.getData("100");
         String data4 = myPrimitivesCache.getData("101");
         assertNotNull(data1);
