@@ -46,7 +46,7 @@ public class LockClientGrpc extends AbstractClientGrpc<LockServerGrpc.LockServer
         StringValue response = getStub().lock(StringValue.of(getName()));
         token = response.getValue();
         boolean result = currentlyBlocked();
-        LOGGER.debug("lock name {} currentluBlocked {}", getName(), result);
+        LOGGER.debug("lock name {} token {} currentluBlocked {}", getName(), token, result);
         return result;
     }
 
@@ -57,7 +57,7 @@ public class LockClientGrpc extends AbstractClientGrpc<LockServerGrpc.LockServer
         StringValue response = getStub().tryLock(trylockValues);
         token = response.getValue();
         boolean result = currentlyBlocked();
-        LOGGER.debug("trylock name {} currentluBlocked {}", getName(), result);
+        LOGGER.debug("trylock name {} token {} currentluBlocked {}", getName(), token, result);
         return result;
     }
 
@@ -73,8 +73,8 @@ public class LockClientGrpc extends AbstractClientGrpc<LockServerGrpc.LockServer
         StringValue response = getStub().tryLock(trylockValues);
         token = response.getValue();
         boolean result = currentlyBlocked();
-        LOGGER.debug("trylock name {} currentluBlocked {}", getName(), result);
-        return result;
+        LOGGER.debug("trylock name {} token {} currentluBlocked {}", getName(), token, result);
+          return result;
     }
 
     protected boolean currentlyBlocked() {

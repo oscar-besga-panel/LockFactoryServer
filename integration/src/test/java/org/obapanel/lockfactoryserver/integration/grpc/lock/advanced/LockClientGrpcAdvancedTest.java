@@ -1,9 +1,11 @@
 package org.obapanel.lockfactoryserver.integration.grpc.lock.advanced;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 import org.obapanel.lockfactoryserver.client.grpc.LockClientGrpc;
+import org.obapanel.lockfactoryserver.core.LockStatus;
 import org.obapanel.lockfactoryserver.integration.grpc.lock.LockGpcTest;
+import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
+import org.obapanel.lockfactoryserver.server.LockFactoryServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,14 +22,58 @@ public class LockClientGrpcAdvancedTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LockGpcTest.class);
 
+    public static final String LOCALHOST = "127.0.0.1";
+
     private final AtomicBoolean intoCriticalZone = new AtomicBoolean(false);
     private final AtomicBoolean errorInCriticalZone = new AtomicBoolean(false);
     private final AtomicBoolean otherErrors = new AtomicBoolean(false);
 
     private final List<LockClientGrpc> lockList = new ArrayList<>();
 
+    private LockFactoryConfiguration configuration;
+    private LockFactoryServer lockFactoryServer;
 
-    @Ignore
+
+    private final String lockName = "lockGrpc999x" + System.currentTimeMillis();
+
+    @BeforeClass
+    public static void setupAll() throws InterruptedException {
+        Thread.sleep(250);
+        LOGGER.debug("setup all ini <<<");
+        LOGGER.debug("setup all fin <<<");
+        Thread.sleep(250);
+    }
+
+    @Before
+    public void setup() throws InterruptedException {
+        LOGGER.debug("setup ini >>>");
+        configuration = new LockFactoryConfiguration();
+        lockFactoryServer = new LockFactoryServer();
+        lockFactoryServer.startServer();
+        LOGGER.debug("setup fin <<<");
+        Thread.sleep(250);
+    }
+
+    @AfterClass
+    public static void tearsDownAll() throws InterruptedException {
+        Thread.sleep(250);
+        LOGGER.debug("tearsDown all ini >>>");
+
+        LOGGER.debug("tearsDown all fin <<<");
+        Thread.sleep(250);
+    }
+
+
+    @After
+    public void tearsDown() throws InterruptedException {
+        Thread.sleep(250);
+        LOGGER.debug("tearsDown ini >>>");
+        lockFactoryServer.shutdown();
+        LOGGER.debug("tearsDown fin <<<");
+        Thread.sleep(250);
+    }
+
+//    @Ignore
     @Test
     public void testIfInterruptedFor5SecondsLock() throws InterruptedException {
             intoCriticalZone.set(false);
@@ -51,20 +97,34 @@ public class LockClientGrpcAdvancedTest {
             t3.join();
             assertFalse(errorInCriticalZone.get());
             assertFalse(otherErrors.get());
-            assertFalse(lockList.stream().anyMatch(il -> il != null && il.lockStatus()));
+            assertFalse(lockList.stream().anyMatch(this::isLockInUse));
+    }
+
+    private boolean isLockInUse(LockClientGrpc lockClientGrpc) {
+        LockStatus lockStatus = lockClientGrpc != null ? lockClientGrpc.lockStatus() : null;
+        return LockStatus.OWNER == lockStatus;
     }
 
     private void accesLockOfCriticalZone(int sleepTime) {
         try {
-            JedisLock jedisLock = new JedisLock(mockOfJedis.getJedisPool(), lockName);
-            lockList.add(jedisLock);
-            jedisLock.lock();
-            checkLock(jedisLock);
+            LockClientGrpc lockClientGrpc = new LockClientGrpc(LOCALHOST ,configuration.getGrpcServerPort(), lockName);
+            lockList.add(lockClientGrpc);
+            lockClientGrpc.lock();
+            checkLock(lockClientGrpc);
             accessCriticalZone(sleepTime);
-            jedisLock.unlock();
+            lockClientGrpc.unLock();
         } catch (Exception e){
             otherErrors.set(true);
             LOGGER.error("Other error ", e);
+        }
+    }
+
+    private void checkLock(LockClientGrpc lockClientGrpc) {
+       LockStatus lockStatus = lockClientGrpc.lockStatus();
+        if (!LockStatus.OWNER.equals(lockStatus)) {
+            String message = String.format("Lock %s of thread %s is in status %s, not OWNER",
+                    lockClientGrpc.getName(), Thread.currentThread().getName(), lockStatus);
+            throw new IllegalStateException(message);
         }
     }
 

@@ -7,12 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.DelayQueue;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
@@ -131,7 +126,8 @@ public abstract class PrimitivesCache<K> {
         if (!dataMap.containsKey(name)) {
             K data = createNew(name);
             dataMap.put(name, data);
-            delayQueue.put(new PrimitivesCacheEntry<>(name, data, cacheTimeToLiveSeconds));
+            long cacheTimeToLiveMilis = TimeUnit.SECONDS.toMillis(cacheTimeToLiveSeconds);
+            delayQueue.put(new PrimitivesCacheEntry<>(name, data, cacheTimeToLiveMilis ));
             return data;
         } else {
             return dataMap.get(name);
@@ -160,16 +156,36 @@ public abstract class PrimitivesCache<K> {
      * Remove data directly
      * @param name name of the primitive to expire
      */
-    public void removeData(String name) {
-        Optional<PrimitivesCacheEntry<K>> entry = delayQueue.stream().
+    public void removeDataIfNotAvoidable(String name) {
+        K primitive = dataMap.get(name);
+        if (primitive != null) {
+            if (avoidExpiration(name, primitive)) {
+                LOGGER.debug("removeDataIfNotAvoidable not remove data name {}", name);
+            } else {
+                LOGGER.debug("removeDataIfNotAvoidable do  remove data name {}", name);
+                removeData(name);
+            }
+        }
+    }
+
+    PrimitivesCacheEntry<K> getQueueEntry(String name) {
+        return delayQueue.stream().
                 filter( pce -> pce.getName().equals(name)).
-                findFirst();
-        if (entry.isPresent()) {
-            LOGGER.debug("removeData to remove {}", entry.get());
-            dataMap.remove(entry.get().getName());
-            delayQueue.remove(entry.get());
+                findFirst().orElse(null);
+    }
+
+    /**
+     * Remove data directly
+     * @param name name of the primitive to expire
+     */
+    public void removeData(String name) {
+        PrimitivesCacheEntry<K> primitive = getQueueEntry(name);
+        if (primitive != null) {
+            LOGGER.debug("removeData to remove name {} data {}", name, primitive);
+            dataMap.remove(name);
+            delayQueue.remove(primitive);
         } else {
-            LOGGER.warn("removeData nothing to remove with name{}", name);
+            LOGGER.warn("removeData nothing to remove with name {}", name);
         }
     }
 

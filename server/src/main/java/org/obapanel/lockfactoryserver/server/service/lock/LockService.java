@@ -108,10 +108,13 @@ public class LockService implements LockFactoryServices {
                 try {
                     lock.unlock(stamp);
                     unlocked = true;
-                    lockCache.removeData(name);
+                    LOGGER.debug("unlock done name {} token {}", name, token);
+                    //lockCache.removeDataIfNotAvoidable(name);
                 } catch (IllegalMonitorStateException imse) {
                     LOGGER.debug("Not valid stamp {} gives error {}", token, imse.getMessage());
                 }
+            } else {
+                LOGGER.debug("unlock invalid name {} token {}", name, token);
             }
         }
         return unlocked;
