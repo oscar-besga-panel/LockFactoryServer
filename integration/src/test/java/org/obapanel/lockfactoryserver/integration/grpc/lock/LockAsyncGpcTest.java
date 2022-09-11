@@ -11,9 +11,11 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class LockAsyncGpcTest {
 
@@ -88,7 +90,8 @@ public class LockAsyncGpcTest {
             makeWait.release();
         });
         LOGGER.debug(" after");
-        makeWait.acquire();
+        boolean acquired = makeWait.tryAcquire(15, TimeUnit.SECONDS);
+        assertTrue(acquired);
         LOGGER.debug("test lockUnlockTest fin <<<");
     }
 
@@ -103,10 +106,9 @@ public class LockAsyncGpcTest {
             makeWait.release();
         });
         LOGGER.debug(" after");
-        makeWait.acquire();
+        boolean acquired = makeWait.tryAcquire(15, TimeUnit.SECONDS);
+        assertTrue(acquired);
         LOGGER.debug("test lockUnlockTest fin <<<");
     }
-
-
 
 }

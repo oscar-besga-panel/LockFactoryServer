@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
@@ -114,5 +115,23 @@ public class LockServerGrpcImplTest {
         assertTrue(responseObserver.getNext().getValue());
     }
 
+    @Test
+    public void asyncLock2Test() throws InterruptedException {
+        String lockName = "lock6" + System.currentTimeMillis();
+        StringValue request = StringValue.newBuilder().setValue(lockName).build();
+        FakeStreamObserver<StringValue> responseObserver = new FakeStreamObserver<>();
+        lockServerGrpc.asyncLock2(request, responseObserver);
+        int count = 0;
+        while(!responseObserver.isCompleted()) {
+            Thread.sleep(75);
+            if (count < 100) {
+                count++;
+            } else {
+                fail("Waitig for too long, like 100 times");
+            }
+        }
+        assertTrue(responseObserver.isCompleted());
+        assertTrue(responseObserver.getNext().getValue().contains(lockName));
+    }
 
 }

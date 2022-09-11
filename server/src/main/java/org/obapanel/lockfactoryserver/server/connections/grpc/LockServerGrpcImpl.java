@@ -24,6 +24,9 @@ public class LockServerGrpcImpl extends LockServerGrpc.LockServerImplBase {
 
     private final LockService lockService;
 
+    private ExecutorService asyncLockService = Executors.newSingleThreadExecutor();
+
+
     public LockServerGrpcImpl(LockService lockService) {
         this.lockService = lockService;
     }
@@ -81,7 +84,6 @@ public class LockServerGrpcImpl extends LockServerGrpc.LockServerImplBase {
         responseObserver.onCompleted();
     }
 
-    private ExecutorService asyncLockService = Executors.newSingleThreadExecutor();
 
     @Override
     public void asyncLock1(StringValue request, StreamObserver<StringValue> responseObserver) {
