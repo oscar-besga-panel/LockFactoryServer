@@ -41,6 +41,10 @@ service LockServer {
 
   rpc unLock(NameTokenValues) returns (google.protobuf.BoolValue) {}
 
+  rpc asyncLock1(google.protobuf.StringValue) returns (stream google.protobuf.StringValue) {}
+
+  rpc asyncLock2(google.protobuf.StringValue) returns (google.protobuf.StringValue) {}
+
 }
 
 // for SemaphoreServerGrpc java class

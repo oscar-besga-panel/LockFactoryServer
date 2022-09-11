@@ -62,7 +62,7 @@ public class LockServiceAdvancedTest {
             otherErrors.set(false);
             List<Thread> threadList = new ArrayList<>();
             for(int i= 0; i < 5; i++) {
-                int sleepTime = ThreadLocalRandom.current().nextInt(i,10);
+                int sleepTime = ThreadLocalRandom.current().nextInt(0,5) + i;
                 Thread t = new Thread(() -> accessLockOfCriticalZone(sleepTime));
                 t.setName(String.format("prueba_t%d",i));
                 threadList.add(t);

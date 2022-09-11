@@ -9,6 +9,9 @@ import org.obapanel.lockfactoryserver.server.service.lock.LockService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import static org.obapanel.lockfactoryserver.core.util.LockStatusConverter.fromJavaToGrpc;
 import static org.obapanel.lockfactoryserver.core.util.TimeUnitConverter.fromGrpcToJava;
 
@@ -76,6 +79,24 @@ public class LockServerGrpcImpl extends LockServerGrpc.LockServerImplBase {
         BoolValue response = BoolValue.newBuilder().setValue(result).build();
         responseObserver.onNext(response);
         responseObserver.onCompleted();
+    }
+
+    private ExecutorService asyncLockService = Executors.newSingleThreadExecutor();
+
+    @Override
+    public void asyncLock1(StringValue request, StreamObserver<StringValue> responseObserver) {
+        asyncLockService.submit(() -> {
+            LOGGER.info("grpc server> asyncLock {}", request.getValue());
+            lock(request, responseObserver);
+        });
+    }
+
+    @Override
+    public void asyncLock2(StringValue request, StreamObserver<StringValue> responseObserver) {
+        asyncLockService.submit(() -> {
+            LOGGER.info("grpc server> asyncLock {}", request.getValue());
+            lock(request, responseObserver);
+        });
     }
 
 }
