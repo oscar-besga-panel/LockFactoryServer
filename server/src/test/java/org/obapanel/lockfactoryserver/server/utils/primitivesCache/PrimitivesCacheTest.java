@@ -88,7 +88,7 @@ public class PrimitivesCacheTest {
         myPrimitivesCache.getOrCreateData("101");
         String data1 = myPrimitivesCache.getData("100");
         String data2 = myPrimitivesCache.getData("101");
-        Thread.sleep(1100);
+        Thread.sleep(3100);
         String data3 = myPrimitivesCache.getData("100");
         String data4 = myPrimitivesCache.getData("101");
         assertNotNull(data1);
