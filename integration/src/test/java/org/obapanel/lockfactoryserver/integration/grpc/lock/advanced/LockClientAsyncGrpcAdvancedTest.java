@@ -12,13 +12,12 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.assertFalse;
 
-public class LockClientGrpcAdvancedTest {
+public class LockClientAsyncGrpcAdvancedTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LockGpcTest.class);
 
@@ -29,6 +28,7 @@ public class LockClientGrpcAdvancedTest {
     private final AtomicBoolean otherErrors = new AtomicBoolean(false);
 
     private final List<LockClientGrpc> lockList = new ArrayList<>();
+    private final ExecutorService executorService = Executors.newCachedThreadPool();
 
     private LockFactoryConfiguration configuration;
     private LockFactoryServer lockFactoryServer;
@@ -88,9 +88,9 @@ public class LockClientGrpcAdvancedTest {
             }
             Collections.shuffle(threadList);
             threadList.forEach(Thread::start);
-//            t1.start();
-//            t2.start();
-//            t3.start();
+    //            t1.start();
+    //            t2.start();
+    //            t3.start();
             //Thread.sleep(TimeUnit.SECONDS.toMillis(5));
             for (Thread thread : threadList) {
                 thread.join();
@@ -105,19 +105,36 @@ public class LockClientGrpcAdvancedTest {
         return LockStatus.OWNER == lockStatus;
     }
 
-    private void accesLockOfCriticalZone(int sleepTime) {
+    private void accesLockOfCriticalZone(final int sleepTime) {
         try {
-            LockClientGrpc lockClientGrpc = new LockClientGrpc(LOCALHOST ,configuration.getGrpcServerPort(), lockName);
+            final Semaphore semaphore = new Semaphore(0);
+            final LockClientGrpc lockClientGrpc = new LockClientGrpc(LOCALHOST ,configuration.getGrpcServerPort(), lockName);
             lockList.add(lockClientGrpc);
-            lockClientGrpc.lock();
-            checkLock(lockClientGrpc);
-            accessCriticalZone(sleepTime);
-            lockClientGrpc.unLock();
+            lockClientGrpc.asyncLock2(executorService, () ->
+                    accesLockOfCriticalZoneAsync(lockClientGrpc, sleepTime, semaphore)
+            );
+            boolean acquired = semaphore.tryAcquire(30, TimeUnit.SECONDS);
+            if (!acquired) {
+                otherErrors.set(true);
+            }
         } catch (Exception e){
             otherErrors.set(true);
             LOGGER.error("Other error ", e);
         }
     }
+
+    private void accesLockOfCriticalZoneAsync(LockClientGrpc lockClientGrpc, int sleepTime, Semaphore semaphore) {
+        try {
+            checkLock(lockClientGrpc);
+            accessCriticalZone(sleepTime);
+            lockClientGrpc.unLock();
+            semaphore.release();
+        } catch (Exception e){
+            otherErrors.set(true);
+            LOGGER.error("Other async error ", e);
+        }
+    }
+
 
     private void checkLock(LockClientGrpc lockClientGrpc) {
        LockStatus lockStatus = lockClientGrpc.lockStatus();
