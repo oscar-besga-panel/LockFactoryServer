@@ -56,7 +56,7 @@ public class SemaphoreClientGrpcTest {
 
     @Test
     public void currentTest() {
-        int currentValue = semaphoreClientGrpc.current();
+        int currentValue = semaphoreClientGrpc.currentPermits();
         assertEquals(current.get(), currentValue);
         verify(stub).currentPermits(any(StringValue.class));
     }
