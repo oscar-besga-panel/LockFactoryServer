@@ -29,11 +29,10 @@ public class SemaphoreClientGrpc extends AbstractClientGrpc<SemaphoreServerGrpc.
     }
 
     public int current() {
-        Int32Value response = getStub().current(myName());
+        Int32Value response = getStub().currentPermits(myName());
         int result = response.getValue();
         LOGGER.debug("current name {} currentluBlocked {}", getName(), result);
         return result;
-
     }
 
 }

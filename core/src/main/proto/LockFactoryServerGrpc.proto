@@ -50,7 +50,13 @@ service LockServer {
 // for SemaphoreServerGrpc java class
 service SemaphoreServer {
 
-  rpc current(google.protobuf.StringValue) returns (google.protobuf.Int32Value) {}
+  rpc currentPermits(google.protobuf.StringValue) returns (google.protobuf.Int32Value) {}
+
+  rpc acquire(NamePermits) returns (google.protobuf.Empty) {}
+
+  rpc tryAcquire(TryAcquirekValues) returns (google.protobuf.BoolValue) {}
+
+  rpc release(NamePermits) returns (google.protobuf.Empty) {}
 
 }
 
@@ -62,9 +68,10 @@ message NameTokenValues {
 message TrylockValues {
   oneof TrylockValuesOneof {
     string name = 1;
-      TrylockValuesWithTimeout tryLockValuesWithTimeout = 2;
+    TrylockValuesWithTimeout tryLockValuesWithTimeout = 2;
   }
 }
+
 message TrylockValuesWithTimeout {
   string name = 1;
   uint64 time = 2;
@@ -73,6 +80,25 @@ message TrylockValuesWithTimeout {
 
 message LockStatusValues {
     LockStatus lockStatus = 1;
+}
+
+message NamePermits {
+  string name = 1;
+  uint32 permits = 2;
+}
+
+message NamePermitsWithTimeout {
+  string name = 1;
+  uint32 permits = 2;
+  uint64 time = 3;
+  TimeUnit timeUnit = 4;
+}
+
+message TryAcquirekValues {
+  oneof TryAcquireValuesOneof {
+    NamePermits namePermits = 1;
+    NamePermitsWithTimeout namePermitsWithTimeout = 2;
+  }
 }
 
 enum LockStatus {

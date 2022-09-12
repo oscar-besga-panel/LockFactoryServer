@@ -38,7 +38,7 @@ public class SemaphoreClientRmiTest {
     public void setup() throws NotBoundException, RemoteException {
         current.set(ThreadLocalRandom.current().nextInt(10));
         when(registry.lookup(eq(SemaphoreClientRmi.RMI_NAME))).thenReturn(semaphoreServerRmi);
-        when(semaphoreServerRmi.current(anyString())).thenAnswer(ioc -> current.get());
+        when(semaphoreServerRmi.currentPermits(anyString())).thenAnswer(ioc -> current.get());
         semaphoreClientRmi = new SemaphoreClientRmi(registry, name);
     }
 
@@ -47,7 +47,7 @@ public class SemaphoreClientRmiTest {
     public void currentTest() throws RemoteException {
         int result = semaphoreClientRmi.current();
         assertEquals(current.get(), result);
-        verify(semaphoreServerRmi).current(anyString());
+        verify(semaphoreServerRmi).currentPermits(anyString());
     }
 
 

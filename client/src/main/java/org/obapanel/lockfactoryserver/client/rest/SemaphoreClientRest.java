@@ -18,7 +18,7 @@ public class SemaphoreClientRest extends AbstractClientRest {
     }
 
     public int current() {
-        String response = requestWithUrl( "current", getName());
+        String response = requestWithUrl( "currentPermits", getName());
         int result = Integer.parseInt(response);
         LOGGER.debug("current name {} result {}", getName(), result);
         return result;

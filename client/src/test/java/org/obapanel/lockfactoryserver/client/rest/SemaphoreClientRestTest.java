@@ -89,7 +89,7 @@ public class SemaphoreClientRestTest {
         verify(httpclient).execute(any(HttpGet.class));
         String finalUrl = finalUrl();
         assertTrue(finalUrl.contains("semaphore"));
-        assertTrue(finalUrl.contains("current"));
+        assertTrue(finalUrl.contains("currentPermits"));
         assertTrue(finalUrl.contains(name));
     }
 

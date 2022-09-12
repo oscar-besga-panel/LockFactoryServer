@@ -26,7 +26,7 @@ public class SemaphoreServerRmiImplTest {
 
     @Before
     public void setup()  {
-        when(semaphoreService.current(anyString())).
+        when(semaphoreService.currentPermits(anyString())).
                 thenAnswer( ioc -> current.get());
         semaphoreServerRmi = new SemaphoreServerRmiImpl(semaphoreService);
     }
@@ -34,7 +34,7 @@ public class SemaphoreServerRmiImplTest {
     @Test
     public void currentTest() throws RemoteException {
         String semaphoreName = "sem1" + System.currentTimeMillis();
-        int result = semaphoreServerRmi.current(semaphoreName);
+        int result = semaphoreServerRmi.currentPermits(semaphoreName);
         assertEquals(0, result);
     }
 

@@ -37,7 +37,7 @@ public class LockServerRestImpl {
             response = lockService.tryLock(name);
         } else {
             long time = Long.parseLong(context.getPathTokens().get("time"));
-            String timeUnitName = context.getPathTokens().get("timeUnit");
+            String timeUnitName = context.getPathTokens().getOrDefault("timeUnit", TimeUnit.MILLISECONDS.name());
             TimeUnit timeUnit = TimeUnit.valueOf(timeUnitName.toUpperCase());
             LOGGER.info("rest server> lock tryLock {} {} {}", name, time, timeUnit);
             response = lockService.tryLock(name, time, timeUnit);

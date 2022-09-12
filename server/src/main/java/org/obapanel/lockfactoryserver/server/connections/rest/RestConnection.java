@@ -143,7 +143,18 @@ public class RestConnection implements LockFactoryConnection {
     Action<Chain> getActionSemaphore(final SemaphoreService semaphoreService) {
         return (chain) -> {
             SemaphoreServerRestImpl semaphoreServerRest = new SemaphoreServerRestImpl(semaphoreService);
-            chain.get("current/:name", semaphoreServerRest::current);
+            chain.get("currentPermits/:name", semaphoreServerRest::currentPermits);
+            chain.get("currentpermits/:name", semaphoreServerRest::currentPermits);
+            chain.get("acquire/:name/:permits", semaphoreServerRest::acquire);
+            chain.get("acquire/:name", semaphoreServerRest::acquire);
+            chain.get("tryacquire/:name/:permits", semaphoreServerRest::tryAcquire);
+            chain.get("tryAcquire/:name/:permits", semaphoreServerRest::tryAcquire);
+            chain.get("tryacquire/:name/:permits/:time/:timeUnit", semaphoreServerRest::tryAcquire);
+            chain.get("tryAcquire/:name/:permits/:time/:timeUnit", semaphoreServerRest::tryAcquire);
+            chain.get("tryacquire/:name", semaphoreServerRest::tryAcquire);
+            chain.get("tryAcquire/:name", semaphoreServerRest::tryAcquire);
+            chain.get("release/:name/:permits", semaphoreServerRest::release);
+            chain.get("release/:name", semaphoreServerRest::release);
         };
     }
 

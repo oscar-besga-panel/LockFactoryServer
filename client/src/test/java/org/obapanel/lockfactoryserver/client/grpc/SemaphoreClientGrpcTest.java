@@ -45,7 +45,7 @@ public class SemaphoreClientGrpcTest {
         mockedStaticSemaphoreServerGrpc.when(() -> SemaphoreServerGrpc.newBlockingStub(any(ManagedChannel.class))).
                 thenReturn(stub);
 
-        when(stub.current(any(StringValue.class))).thenAnswer(ioc -> Int32Value.of(current.get()));
+        when(stub.currentPermits(any(StringValue.class))).thenAnswer(ioc -> Int32Value.of(current.get()));
         semaphoreClientGrpc = new SemaphoreClientGrpc(managedChannel, name);
     }
 
@@ -58,7 +58,7 @@ public class SemaphoreClientGrpcTest {
     public void currentTest() {
         int currentValue = semaphoreClientGrpc.current();
         assertEquals(current.get(), currentValue);
-        verify(stub).current(any(StringValue.class));
+        verify(stub).currentPermits(any(StringValue.class));
     }
 
 }

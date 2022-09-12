@@ -30,7 +30,7 @@ public class SemaphoreClientRmi extends AbstractClientRmi<SemaphoreServerRmi> {
     }
 
     public int current() throws RemoteException {
-        int response = getServerRmi().current(getName());
+        int response = getServerRmi().currentPermits(getName());
         return response;
     }
 

@@ -27,7 +27,7 @@ public class SemaphoreServerRestImplTest {
 
     @Before
     public void setup()  {
-        when(semaphoreService.current(anyString())).
+        when(semaphoreService.currentPermits(anyString())).
                 thenAnswer( ioc -> current.get());
         semaphoreServerRest = new SemaphoreServerRestImpl(semaphoreService);
     }
@@ -37,7 +37,7 @@ public class SemaphoreServerRestImplTest {
         String semaphoreName = "sem1" + System.currentTimeMillis();
         FakeContext fakeContext = new FakeContext();
         fakeContext.getPathTokens().put("name", semaphoreName);
-        semaphoreServerRest.current(fakeContext);
+        semaphoreServerRest.currentPermits(fakeContext);
         assertEquals(0, Integer.parseInt(fakeContext.getFakeSentResponse()));
     }
 

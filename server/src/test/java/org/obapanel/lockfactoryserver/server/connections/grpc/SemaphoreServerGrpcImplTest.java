@@ -29,7 +29,7 @@ public class SemaphoreServerGrpcImplTest {
 
     @Before
     public void setup()  {
-        when(semaphoreService.current(anyString())).
+        when(semaphoreService.currentPermits(anyString())).
                 thenAnswer( ioc -> current.get());
         semaphoreServerGrpc = new SemaphoreServerGrpcImpl(semaphoreService);
     }
@@ -39,7 +39,7 @@ public class SemaphoreServerGrpcImplTest {
         String semaphoreName = "sem1" + System.currentTimeMillis();
         StringValue request = StringValue.newBuilder().setValue(semaphoreName).build();
         FakeStreamObserver<Int32Value> responseObserver = new FakeStreamObserver<>();
-        semaphoreServerGrpc.current(request, responseObserver);
+        semaphoreServerGrpc.currentPermits(request, responseObserver);
         assertTrue(responseObserver.isCompleted());
         assertNotNull(responseObserver.getNext());
         assertEquals(0, responseObserver.getNext().getValue());
