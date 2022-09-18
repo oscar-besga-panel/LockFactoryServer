@@ -9,6 +9,8 @@ public class LockFactoryConfiguration {
 
 
     public static final String TRUE = "true";
+    public static final String FALSE = "false";
+
 
     public static final String RMI_SERVER_ACTIVE =  "rmiServerActive";
     public static final String RMI_SERVER_PORT = "rmiServerPort";
@@ -25,6 +27,8 @@ public class LockFactoryConfiguration {
     public static final String CACHE_TIME_TO_LIVE_SECONDS = "cacheTimeToLiveSeconds";
     public static final String CACHE_CHECK_CONTINUOUSLY = "cacheCheckContinuously";
 
+    public static final String ORDERED_SINGLE_THREAD = "orderedSingleThread";
+
     public static final String DEFAULT_RMI_SERVER_ACTIVE = TRUE;
     public static final String DEFAULT_RMI_SERVER_PORT = "1099";
     public static final String DEFAULT_GRPC_SERVER_ACTIVE = TRUE;
@@ -39,6 +43,9 @@ public class LockFactoryConfiguration {
     public static final String DEFAULT_CACHE_CHECK_DATA_PERIOD_SECONDS = "10";
     public static final String DEFAULT_CACHE_TIME_TO_LIVE_SECONDS = "10";
     public static final String DEFAULT_CACHE_CHECK_CONTINUOUSLY = TRUE;
+
+    public static final String DEFAULT_ORDERED_SINGLE_THREAD = FALSE;
+//    public static final String DEFAULT_ORDERED_SINGLE_THREAD = TRUE;
 
 
 
@@ -92,7 +99,6 @@ public class LockFactoryConfiguration {
         return Integer.parseInt(properties.getProperty(REST_SERVER_PORT, DEFAULT_REST_SERVER_PORT));
     }
 
-
     public boolean isLockEnabled() {
         return Boolean.parseBoolean(properties.getProperty(LOCK_ENABLED, DEFAULT_LOCK_ENABLED));
     }
@@ -119,6 +125,8 @@ public class LockFactoryConfiguration {
         return Boolean.parseBoolean(properties.getProperty(MANAGEMENT_ENABLED, DEFAULT_MANAGEMENT_ENABLED));
     }
 
-
+    public boolean isOrderedSingleThread() {
+        return Boolean.parseBoolean(properties.getProperty(ORDERED_SINGLE_THREAD, DEFAULT_ORDERED_SINGLE_THREAD));
+    }
 
 }

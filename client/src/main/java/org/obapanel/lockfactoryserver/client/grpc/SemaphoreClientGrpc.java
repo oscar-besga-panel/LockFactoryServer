@@ -1,6 +1,8 @@
 package org.obapanel.lockfactoryserver.client.grpc;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.BoolValue;
+import com.google.protobuf.Empty;
 import com.google.protobuf.Int32Value;
 import com.google.protobuf.StringValue;
 import io.grpc.ManagedChannel;
@@ -11,11 +13,15 @@ import org.obapanel.lockfactoryserver.core.grpc.TryAcquirekValues;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static org.obapanel.lockfactoryserver.core.util.TimeUnitConverter.fromJavaToGrpc;
 
-public class SemaphoreClientGrpc extends AbstractClientGrpc<SemaphoreServerGrpc.SemaphoreServerBlockingStub> {
+public class SemaphoreClientGrpc
+        extends AbstractClientWithAsyncGrpc<SemaphoreServerGrpc.SemaphoreServerBlockingStub, SemaphoreServerGrpc.SemaphoreServerFutureStub> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SemaphoreClientGrpc.class);
 
@@ -30,6 +36,11 @@ public class SemaphoreClientGrpc extends AbstractClientGrpc<SemaphoreServerGrpc.
     @Override
     SemaphoreServerGrpc.SemaphoreServerBlockingStub generateStub(ManagedChannel managedChannel) {
         return SemaphoreServerGrpc.newBlockingStub(managedChannel);
+    }
+
+    @Override
+    SemaphoreServerGrpc.SemaphoreServerFutureStub generateAsyncStub(ManagedChannel managedChannel) {
+        return SemaphoreServerGrpc.newFutureStub(managedChannel);
     }
 
     private StringValue myName() {
@@ -57,6 +68,42 @@ public class SemaphoreClientGrpc extends AbstractClientGrpc<SemaphoreServerGrpc.
     public void acquire(int permits) {
         NamePermits namePermits = createNamePermits(permits);
         getStub().acquire(namePermits);
+    }
+
+    public void asyncAcquire(Runnable onAcquire) {
+        asyncAcquire(1, null, onAcquire);
+    }
+
+    public void asyncAcquire(Executor executor, Runnable onAcquire) {
+        asyncAcquire(1, executor, onAcquire);
+    }
+
+    public void asyncAcquire(int permits, Runnable onAcquire) {
+        asyncAcquire(permits, null, onAcquire);
+    }
+
+    public void asyncAcquire(int permits, Executor executor, Runnable onAcquire) {
+        NamePermits namePermits = createNamePermits(permits);
+        ListenableFuture<Empty> listenableFuture = getAsyncStub().asyncAcquire(namePermits);
+        listenableFuture.addListener(() -> {
+            try {
+                listenableFuture.get();
+                LOGGER.debug("Empty is future ");
+                doExecuteOnLock(executor, onAcquire);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }, Executors.newSingleThreadExecutor());
+    }
+
+    private void doExecuteOnLock(Executor executor, Runnable onAcquire) {
+        if (executor != null && onAcquire != null) {
+            executor.execute(onAcquire);
+        } else if (onAcquire != null) {
+            onAcquire.run();
+        }
     }
 
     public boolean tryAcquire() {
@@ -99,6 +146,4 @@ public class SemaphoreClientGrpc extends AbstractClientGrpc<SemaphoreServerGrpc.
         getStub().release(namePermits);
     }
 
-
-
-    }
+}

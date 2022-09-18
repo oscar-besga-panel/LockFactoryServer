@@ -8,8 +8,11 @@ import org.obapanel.lockfactoryserver.server.connections.rmi.RmiConnection;
 import org.obapanel.lockfactoryserver.server.service.LockFactoryServices;
 import org.obapanel.lockfactoryserver.server.service.Services;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
+import org.obapanel.lockfactoryserver.server.service.lock.LockServiceOrdered;
 import org.obapanel.lockfactoryserver.server.service.management.ManagementService;
+import org.obapanel.lockfactoryserver.server.service.management.ManagementServiceOrdered;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
+import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreServiceOrdered;
 import org.obapanel.lockfactoryserver.server.utils.RuntimeInterruptedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,6 +93,34 @@ public class LockFactoryServer {
      */
     final void createServices() {
         LOGGER.debug("createServices");
+        if (configuration.isOrderedSingleThread()) {
+            createOrderedSingleThreadServices();
+        } else {
+            createNormalServices();
+        }
+    }
+
+    private void createOrderedSingleThreadServices() {
+        LOGGER.debug("createOrderedSingleThreadServices");
+        if (configuration.isManagementEnabled()) {
+            LOGGER.debug("createServices management");
+            ManagementService managementService = new ManagementServiceOrdered(configuration, this);
+            services.put(Services.MANAGEMENT, managementService);
+        }
+        if (configuration.isLockEnabled()) {
+            LOGGER.debug("createServices lock");
+            LockService lockService = new LockServiceOrdered(configuration);
+            services.put(Services.LOCK, lockService);
+        }
+        if (configuration.isSemaphoreEnabled()) {
+            LOGGER.debug("createServices semaphore");
+            SemaphoreService semaphoreService = new SemaphoreServiceOrdered(configuration);
+            services.put(Services.SEMAPHORE, semaphoreService);
+        }
+    }
+
+    final void createNormalServices() {
+        LOGGER.debug("createNormalServices");
         if (configuration.isManagementEnabled()) {
             LOGGER.debug("createServices management");
             ManagementService managementService = new ManagementService(configuration, this);

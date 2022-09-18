@@ -7,13 +7,16 @@ import java.util.concurrent.Semaphore;
 
 public class SemaphoreCache extends PrimitivesCache<Semaphore> {
 
+
+    public final static String NAME = "SemaphoreCache";
+
     public SemaphoreCache(LockFactoryConfiguration configuration) {
         super(configuration);
     }
 
     @Override
     public String getMapGenericName() {
-        return SemaphoreCache.class.getName();
+        return NAME;
     }
 
     @Override
@@ -23,6 +26,7 @@ public class SemaphoreCache extends PrimitivesCache<Semaphore> {
 
     @Override
     public boolean avoidExpiration(String name, Semaphore semaphore) {
-        return semaphore.availablePermits() > 0;
+        return semaphore.hasQueuedThreads();
     }
+
 }

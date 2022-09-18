@@ -7,9 +7,12 @@ import org.obapanel.lockfactoryserver.server.LockFactoryServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class SemaphoreRestTest {
 
@@ -73,13 +76,92 @@ public class SemaphoreRestTest {
         return new SemaphoreClientRest(baseUrl, semaphoreName);
     }
 
+
     @Test
-    public void currentTest() {
+    public void currentPermitsTest() {
         LOGGER.debug("test currentTest ini >>>");
         SemaphoreClientRest semaphoreClientRest = generateSemaphoreClientRest();
-        int result = semaphoreClientRest.current();
-        assertEquals(0, result);
+        int result1 = semaphoreClientRest.currentPermits();
+        semaphoreClientRest.release(5);
+        semaphoreClientRest.acquire(3);
+        int result2 = semaphoreClientRest.currentPermits();
+        assertEquals(0, result1);
+        assertEquals(2, result2);
         LOGGER.debug("test currentTest fin <<<");
+    }
+
+    @Test
+    public void accquireAndReleaseTest() {
+        LOGGER.debug("test accquireTest ini >>>");
+        SemaphoreClientRest semaphoreClientRest = generateSemaphoreClientRest();
+        int result1 = semaphoreClientRest.currentPermits();
+        Executors.newSingleThreadExecutor().execute(() -> {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            semaphoreClientRest.release(5);
+        });
+        semaphoreClientRest.acquire(3);
+        int result2 = semaphoreClientRest.currentPermits();
+        assertEquals(0, result1);
+        assertEquals(2, result2);
+        LOGGER.debug("test accquireTest fin <<<");
+    }
+
+    @Test
+    public void tryAcquireTest() throws InterruptedException {
+        Semaphore inner = new Semaphore(0);
+        LOGGER.debug("test tryAcquireTest ini >>>");
+        SemaphoreClientRest semaphoreClientRest = generateSemaphoreClientRest();
+        int result1 = semaphoreClientRest.currentPermits();
+        Executors.newSingleThreadExecutor().execute(() -> {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            semaphoreClientRest.release();
+            inner.release();
+        });
+        boolean resulttry1 = semaphoreClientRest.tryAcquire();
+        boolean resulttrya = inner.tryAcquire(10, TimeUnit.SECONDS);
+        boolean resulttry2 = semaphoreClientRest.tryAcquire();
+        int result2 = semaphoreClientRest.currentPermits();
+        assertEquals(0, result1);
+        assertEquals(0, result2);
+        assertFalse(resulttry1);
+        assertTrue(resulttrya);
+        assertTrue(resulttry2);
+        LOGGER.debug("test tryAcquireTest fin <<<");
+    }
+
+    @Test
+    public void tryAcquireWithTimeOutTest() throws InterruptedException {
+        Semaphore inner = new Semaphore(0);
+        LOGGER.debug("test tryAcquireWithTimeOutTest ini >>>");
+        SemaphoreClientRest semaphoreClientRest = generateSemaphoreClientRest();
+        int result1 = semaphoreClientRest.currentPermits();
+        Executors.newSingleThreadExecutor().execute(() -> {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            semaphoreClientRest.release(3);
+            inner.release();
+        });
+        boolean resulttry1 = semaphoreClientRest.tryAcquire(3500, TimeUnit.MILLISECONDS);
+        boolean resulttrya = inner.tryAcquire(10, TimeUnit.SECONDS);
+        boolean resulttry2 = semaphoreClientRest.tryAcquire(2,500, TimeUnit.MILLISECONDS);
+        int result2 = semaphoreClientRest.currentPermits();
+        assertEquals(0, result1);
+        assertEquals(0, result2);
+        assertTrue(resulttry1);
+        assertTrue(resulttrya);
+        assertTrue(resulttry2);
+        LOGGER.debug("test tryAcquireWithTimeOutTest fin <<<");
     }
 
 }

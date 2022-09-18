@@ -15,12 +15,12 @@ import org.obapanel.lockfactoryserver.core.grpc.TryAcquirekValues;
 import org.obapanel.lockfactoryserver.server.FakeStreamObserver;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SemaphoreServerGrpcImplTest {
@@ -31,12 +31,18 @@ public class SemaphoreServerGrpcImplTest {
 
     private final AtomicInteger current = new AtomicInteger(0);
 
+    private final AtomicBoolean acquired = new AtomicBoolean(false);
+
     private SemaphoreServerGrpcImpl semaphoreServerGrpc;
 
     @Before
     public void setup()  {
         when(semaphoreService.currentPermits(anyString())).
                 thenAnswer( ioc -> current.get());
+        doAnswer(ioc -> {
+            acquired.set(true);
+            return null;
+        }).when(semaphoreService).acquire(anyString(), anyInt());
         when(semaphoreService.tryAcquire(anyString(), anyInt())).
                 thenReturn(true);
         when(semaphoreService.tryAcquire(anyString(), anyInt(), anyLong(), any(java.util.concurrent.TimeUnit.class))).
@@ -66,6 +72,29 @@ public class SemaphoreServerGrpcImplTest {
         verify(semaphoreService).acquire(anyString(), anyInt());
         assertTrue(responseObserver.isCompleted());
         assertNotNull(responseObserver.getNext());
+        assertTrue(acquired.get());
+    }
+
+    @Test
+    public void asyncAcquireTest() throws InterruptedException {
+        String semaphoreName = "sem2" + System.currentTimeMillis();
+        NamePermits namePermits = NamePermits.newBuilder().
+                setName(semaphoreName).setPermits(1).build();
+        FakeStreamObserver<Empty> responseObserver = new FakeStreamObserver<>();
+        semaphoreServerGrpc.asyncAcquire(namePermits, responseObserver);
+        int count = 0;
+        while(!responseObserver.isCompleted()) {
+            Thread.sleep(75);
+            if (count < 100) {
+                count++;
+            } else {
+                fail("Waitig for too long, like 100 times");
+            }
+        }
+        verify(semaphoreService).acquire(anyString(), anyInt());
+        assertTrue(responseObserver.isCompleted());
+        assertNotNull(responseObserver.getNext());
+        assertTrue(acquired.get());
     }
 
     @Test

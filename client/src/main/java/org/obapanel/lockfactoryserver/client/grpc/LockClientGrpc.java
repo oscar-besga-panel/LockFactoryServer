@@ -18,7 +18,8 @@ import java.util.concurrent.Executors;
 import static org.obapanel.lockfactoryserver.core.util.LockStatusConverter.fromGrpcToJava;
 import static org.obapanel.lockfactoryserver.core.util.TimeUnitConverter.fromJavaToGrpc;
 
-public class LockClientGrpc extends AbstractClientGrpc<LockServerGrpc.LockServerBlockingStub>
+public class LockClientGrpc
+        extends AbstractClientWithAsyncGrpc<LockServerGrpc.LockServerBlockingStub, LockServerGrpc.LockServerFutureStub>
         implements WithLock {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LockClientGrpc.class);
@@ -38,6 +39,11 @@ public class LockClientGrpc extends AbstractClientGrpc<LockServerGrpc.LockServer
     @Override
     LockServerGrpc.LockServerBlockingStub generateStub(ManagedChannel managedChannel) {
         return LockServerGrpc.newBlockingStub(managedChannel);
+    }
+
+    @Override
+    LockServerGrpc.LockServerFutureStub generateAsyncStub(ManagedChannel managedChannel) {
+        return LockServerGrpc.newFutureStub(managedChannel);
     }
 
     private NameTokenValues doNameTokenValues() {
@@ -115,7 +121,8 @@ public class LockClientGrpc extends AbstractClientGrpc<LockServerGrpc.LockServer
     }
 
     public void asyncLock1(Executor executor, Runnable onLock){
-            LockServerGrpc.newStub(getManagedChannel()).asyncLock1(StringValue.of(getName()), new StreamObserver<>() {
+            LockServerGrpc.newStub(getManagedChannel()).asyncLock1(StringValue.of(getName()), new StreamObserver<StringValue>() {
+
             @Override
             public void onNext(StringValue value) {
                 token = value.getValue();
@@ -151,7 +158,7 @@ public class LockClientGrpc extends AbstractClientGrpc<LockServerGrpc.LockServer
     }
 
     public void asyncLock2(Executor executor, Runnable onLock) {
-        ListenableFuture<StringValue> listenableFuture = LockServerGrpc.newFutureStub(getManagedChannel()).
+        ListenableFuture<StringValue> listenableFuture = getAsyncStub().
                 asyncLock2(StringValue.of(getName()));
         listenableFuture.addListener(() -> {
             try {

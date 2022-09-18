@@ -7,13 +7,15 @@ import java.util.concurrent.locks.StampedLock;
 
 public class LockCache extends PrimitivesCache<StampedLock> {
 
+    public final static String NAME = "LockCache";
+
     public LockCache(LockFactoryConfiguration configuration) {
         super(configuration);
     }
 
     @Override
     public String getMapGenericName() {
-        return LockCache.class.getName();
+        return NAME;
     }
 
     @Override
@@ -25,4 +27,5 @@ public class LockCache extends PrimitivesCache<StampedLock> {
     public boolean avoidExpiration(String name, StampedLock lock) {
         return lock.isWriteLocked();
     }
+
 }

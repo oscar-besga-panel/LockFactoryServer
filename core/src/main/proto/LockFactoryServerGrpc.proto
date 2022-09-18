@@ -54,6 +54,8 @@ service SemaphoreServer {
 
   rpc acquire(NamePermits) returns (google.protobuf.Empty) {}
 
+  rpc asyncAcquire(NamePermits) returns (google.protobuf.Empty) {}
+
   rpc tryAcquire(TryAcquirekValues) returns (google.protobuf.BoolValue) {}
 
   rpc release(NamePermits) returns (google.protobuf.Empty) {}

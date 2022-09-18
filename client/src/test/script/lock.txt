@@ -11,6 +11,25 @@ curl http://localhost:8080/lock/unLock/myLock_2Rest/myLock_2Rest_384
 
 curl http://localhost:8080/semaphore/current/mySemaphore_1Rest
 
+curl http://localhost:8080/semaphore/acquire/mySemaphore_1Rest
+
+curl http://localhost:8080/semaphore/acquire/mySemaphore_1Rest/2
+
+curl http://localhost:8080/semaphore/tryAcquire/mySemaphore_1Rest
+
+curl http://localhost:8080/semaphore/tryAcquire/mySemaphore_1Rest/2
+
+curl http://localhost:8080/semaphore/tryAcquire/mySemaphore_1Rest/3/seconds
+
+curl http://localhost:8080/semaphore/tryAcquire/mySemaphore_1Rest/2/3/seconds
+
+curl http://localhost:8080/semaphore/release/mySemaphore_1Rest
+
+curl http://localhost:8080/semaphore/release/mySemaphore_1Rest/11
+
+
+curl http://localhost:8080/semaphore/current/semaphoreGrpc999x1663252407692
+
 curl http://localhost:8080/management/shutdownServer
 
 curl http://localhost:8080/management/isRunning

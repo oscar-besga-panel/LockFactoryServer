@@ -13,6 +13,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -83,15 +84,17 @@ public class LockAsyncGpcTest {
     public void lockAsync1Test() throws InterruptedException {
         Semaphore makeWait = new Semaphore(0);
         LockClientGrpc lockClientGrpc = generateLockClientGrpc();
+        AtomicReference<LockStatus> refLockStatus = new AtomicReference<>(LockStatus.ABSENT);
         LOGGER.debug("test lockUnlockTest ini >>>");
         lockClientGrpc.asyncLock1(executorService, () -> {
             LOGGER.debug("runnable after");
-            assertEquals(LockStatus.OWNER, lockClientGrpc.lockStatus());
+            refLockStatus.set(lockClientGrpc.lockStatus());
             makeWait.release();
         });
         LOGGER.debug(" after");
-        boolean acquired = makeWait.tryAcquire(15, TimeUnit.SECONDS);
+        boolean acquired = makeWait.tryAcquire(30, TimeUnit.SECONDS);
         assertTrue(acquired);
+        assertEquals(LockStatus.OWNER, refLockStatus.get());
         LOGGER.debug("test lockUnlockTest fin <<<");
     }
 
@@ -99,15 +102,19 @@ public class LockAsyncGpcTest {
     public void lockAsync2Test() throws InterruptedException {
         Semaphore makeWait = new Semaphore(0);
         LockClientGrpc lockClientGrpc = generateLockClientGrpc();
+        AtomicReference<LockStatus> refLockStatus = new AtomicReference<>(LockStatus.ABSENT);
         LOGGER.debug("test lockUnlockTest ini >>>");
+        lockClientGrpc.lock();
         lockClientGrpc.asyncLock2(executorService, () -> {
             LOGGER.debug("runnable after");
-            assertEquals(LockStatus.OWNER, lockClientGrpc.lockStatus());
+            refLockStatus.set(lockClientGrpc.lockStatus());
             makeWait.release();
         });
         LOGGER.debug(" after");
-        boolean acquired = makeWait.tryAcquire(15, TimeUnit.SECONDS);
+        lockClientGrpc.unLock();
+        boolean acquired = makeWait.tryAcquire(30, TimeUnit.SECONDS);
         assertTrue(acquired);
+        assertEquals(LockStatus.OWNER, refLockStatus.get());
         LOGGER.debug("test lockUnlockTest fin <<<");
     }
 

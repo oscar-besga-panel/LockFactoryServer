@@ -189,15 +189,20 @@ public abstract class PrimitivesCache<K> {
         }
     }
 
+    /**
+     * Checks if a expired primitive shouldn't be deleted
+     * @param delayed data to be deleted
+     * @return true if this data can not be deleted
+     */
     private boolean avoidExpiration(PrimitivesCacheEntry<K> delayed) {
         return avoidExpiration(delayed.getName(), delayed.getPrimitive());
     }
 
     /**
-     * Checks if a expired primitive should be deleted
+     * Checks if a expired primitive shouldn't be deleted
      * @param name Name of the primitive
      * @param data primitive
-     * @return true if this data can be deleted
+     * @return true if this data can not be deleted
      */
     public abstract boolean avoidExpiration(String name, K data);
 

@@ -7,7 +7,8 @@ import org.obapanel.lockfactoryserver.core.grpc.ManagementServerGrpc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ManagementClientGrpc extends AbstractClientGrpc<ManagementServerGrpc.ManagementServerBlockingStub>  {
+public class ManagementClientGrpc
+        extends AbstractClientGrpc<ManagementServerGrpc.ManagementServerBlockingStub>  {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ManagementClientGrpc.class);
 
@@ -27,7 +28,7 @@ public class ManagementClientGrpc extends AbstractClientGrpc<ManagementServerGrp
     ManagementServerGrpc.ManagementServerBlockingStub generateStub(ManagedChannel managedChannel) {
         return ManagementServerGrpc.newBlockingStub(managedChannel);
     }
-    
+
     public void shutdownServer() {
         getStub().shutdownServer(EMPTY);
     }

@@ -6,14 +6,15 @@ import io.grpc.stub.AbstractBlockingStub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-abstract class AbstractClientGrpc<K extends AbstractBlockingStub<K>> implements AutoCloseable {
+abstract class AbstractClientGrpc<M extends AbstractBlockingStub> implements AutoCloseable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractClientGrpc.class);
 
 
     private boolean managedChannlePrivate = false;
     private final ManagedChannel managedChannel;
-    private final K blockingStub;
+    private final M blockingStub;
+
     private final String name;
 
     AbstractClientGrpc(String address, int port, String name) {
@@ -28,7 +29,8 @@ abstract class AbstractClientGrpc<K extends AbstractBlockingStub<K>> implements 
         this.name = name;
     }
 
-    abstract K generateStub(ManagedChannel managedChannel);
+    abstract M generateStub(ManagedChannel managedChannel);
+
 
     public boolean isManagedChannlePrivate() {
         return managedChannlePrivate;
@@ -38,8 +40,12 @@ abstract class AbstractClientGrpc<K extends AbstractBlockingStub<K>> implements 
         return managedChannel;
     }
 
-    K getStub() {
-        return blockingStub;
+    M getStub() {
+        if (blockingStub == null) {
+            throw new UnsupportedOperationException("stub not supported");
+        } else {
+            return blockingStub;
+        }
     }
 
     public String getName() {

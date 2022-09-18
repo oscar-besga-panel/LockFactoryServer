@@ -1,6 +1,5 @@
 package org.obapanel.lockfactoryserver.client.grpc;
 
-import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.BoolValue;
 import com.google.protobuf.StringValue;
 import io.grpc.ManagedChannel;
@@ -20,9 +19,8 @@ import org.obapanel.lockfactoryserver.core.grpc.TrylockValues;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -78,7 +76,7 @@ public class LockClientGrpcTest {
         when(stub.unLock(any(NameTokenValues.class))).thenReturn(BoolValue.of(true));
         when(futureStub.asyncLock2(any(StringValue.class))).thenAnswer(ioc -> {
             StringValue result = generateTokenFromRequest(ioc.getArgument(0));
-            return new FakeListenableFuture(result).execute();
+            return new FakeListenableFuture<>(result).execute();
         });
         lockClientGrpc = new LockClientGrpc(managedChannel, name);
     }
@@ -188,67 +186,6 @@ public class LockClientGrpcTest {
         assertTrue(acquired);
         assertTrue(lockClientGrpc.getToken().contains(name));
         verify(futureStub).asyncLock2(any(StringValue.class));
-    }
-
-    static class FakeListenableFuture implements ListenableFuture<StringValue> {
-
-
-        private final Map<Runnable, Executor> listeners = new HashMap<>();
-        private final StringValue result;
-        private final ExecutorService executor = Executors.newSingleThreadExecutor();
-        private Future<StringValue> valueFuture;
-
-
-        FakeListenableFuture(StringValue result) {
-            this.result = result;
-        }
-
-        public FakeListenableFuture execute() {
-            valueFuture = executor.submit(() -> {
-                Thread.sleep(150);
-                executor.submit(() -> {
-                    try {
-                        Thread.sleep(50);
-                        listeners.forEach( (r,e) -> e.execute(r));
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
-                return result;
-            });
-            return this;
-        }
-
-
-        @Override
-        public void addListener(Runnable listener, Executor executor) {
-            listeners.put(listener, executor);
-        }
-
-        @Override
-        public boolean cancel(boolean mayInterruptIfRunning) {
-            return valueFuture.cancel(mayInterruptIfRunning);
-        }
-
-        @Override
-        public boolean isCancelled() {
-            return valueFuture.isCancelled();
-        }
-
-        @Override
-        public boolean isDone() {
-            return valueFuture.isDone();
-        }
-
-        @Override
-        public StringValue get() throws InterruptedException, ExecutionException {
-            return valueFuture.get();
-        }
-
-        @Override
-        public StringValue get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-            return valueFuture.get(timeout, unit);
-        }
     }
 
 }

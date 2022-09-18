@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
+import java.util.concurrent.TimeUnit;
 
 public class SemaphoreClientRmi extends AbstractClientRmi<SemaphoreServerRmi> {
 
@@ -14,8 +15,6 @@ public class SemaphoreClientRmi extends AbstractClientRmi<SemaphoreServerRmi> {
 
     public static final String RMI_NAME = SemaphoreServerRmi.RMI_NAME;
 
-
-    private String token;
 
     public SemaphoreClientRmi(String host, int port, String name) throws NotBoundException, RemoteException {
         super(host, port, name);
@@ -29,9 +28,41 @@ public class SemaphoreClientRmi extends AbstractClientRmi<SemaphoreServerRmi> {
         return RMI_NAME;
     }
 
-    public int current() throws RemoteException {
-        int response = getServerRmi().currentPermits(getName());
-        return response;
+    public int currentPermits() throws RemoteException {
+        return getServerRmi().currentPermits(getName());
+    }
+
+    public void acquire() throws RemoteException {
+        acquire(1);
+    }
+
+    public void acquire(int permits) throws RemoteException {
+        getServerRmi().acquire(getName(), permits);
+    }
+
+    public boolean tryAcquire() throws RemoteException {
+        return tryAcquire(1);
+    }
+
+    public boolean tryAcquire(int permits) throws RemoteException {
+        return getServerRmi().tryAcquire(getName(), permits);
+    }
+
+
+    public boolean tryAcquire(long timeOut, TimeUnit timeUnit) throws RemoteException {
+        return tryAcquire(1, timeOut, timeUnit);
+    }
+
+    public boolean tryAcquire(int permits, long timeOut, TimeUnit timeUnit) throws RemoteException {
+        return getServerRmi().tryAcquire(getName(), permits, timeOut, timeUnit);
+    }
+
+    public void release() throws RemoteException {
+        release(1);
+    }
+
+    public void release(int permits) throws RemoteException {
+        getServerRmi().release(getName(), permits);
     }
 
 }
