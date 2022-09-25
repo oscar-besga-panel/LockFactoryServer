@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.service.lock.advanced.LockServiceAdvancedTest;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
-import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreServiceOrdered;
+import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreServiceSynchronized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,14 +22,14 @@ public class SemaphoreServiceSynchonizationTest {
     private final String semaphoreTestName = "semahporeS7XXXx" + System.currentTimeMillis();
 
     private SemaphoreService semaphoreServiceNormal;
-    private SemaphoreServiceOrdered semaphoreServiceOrdered;
+    private SemaphoreServiceSynchronized semaphoreServiceSynchronized;
 
 
     @Before
     public void setup() throws InterruptedException {
         LOGGER.debug("setup ini >>>");
         semaphoreServiceNormal = new SemaphoreService(new LockFactoryConfiguration());
-        semaphoreServiceOrdered = new SemaphoreServiceOrdered(new LockFactoryConfiguration());
+        semaphoreServiceSynchronized = new SemaphoreServiceSynchronized(new LockFactoryConfiguration());
         LOGGER.debug("setup fin <<<");
         Thread.sleep(250);
     }
@@ -40,7 +40,7 @@ public class SemaphoreServiceSynchonizationTest {
         Thread.sleep(250);
         LOGGER.debug("tearsDown ini >>>");
         semaphoreServiceNormal.shutdown();
-        semaphoreServiceOrdered.shutdown();
+        semaphoreServiceSynchronized.shutdown();
         LOGGER.debug("tearsDown fin <<<");
         Thread.sleep(250);
     }
@@ -57,7 +57,7 @@ public class SemaphoreServiceSynchonizationTest {
 
     @Test
     public void testSemaphoreServiceOrdered() throws InterruptedException {
-        doTest(semaphoreServiceOrdered);
+        doTest(semaphoreServiceSynchronized);
     }
 
     private void doTest(SemaphoreService semaphoreService) throws InterruptedException {

@@ -6,10 +6,10 @@ import org.obapanel.lockfactoryserver.server.LockFactoryServer;
 /**
  * Service that offers management utilities
  */
-public class ManagementServiceOrdered extends ManagementService {
+public class ManagementServiceSynchronized extends ManagementService {
 
 
-    public ManagementServiceOrdered(LockFactoryConfiguration configuration, LockFactoryServer lockFactoryServer) {
+    public ManagementServiceSynchronized(LockFactoryConfiguration configuration, LockFactoryServer lockFactoryServer) {
         super(configuration, lockFactoryServer);
     }
 

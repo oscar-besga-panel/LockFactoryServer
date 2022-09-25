@@ -4,8 +4,9 @@ import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.utils.primitivesCache.PrimitivesCache;
 
 import java.util.concurrent.Semaphore;
+import java.util.function.Supplier;
 
-public class SemaphoreCache extends PrimitivesCache<Semaphore> {
+public final class SemaphoreCache extends PrimitivesCache<Semaphore> {
 
 
     public final static String NAME = "SemaphoreCache";
@@ -22,6 +23,11 @@ public class SemaphoreCache extends PrimitivesCache<Semaphore> {
     @Override
     public Semaphore createNew(String name) {
         return new Semaphore(0);
+    }
+
+    @Override
+    public Semaphore getOrCreateData(String name, Supplier<java.util.concurrent.Semaphore> creator) {
+        throw new UnsupportedOperationException("Not allowed create with supplier for semaphore");
     }
 
     @Override

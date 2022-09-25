@@ -8,12 +8,12 @@ import java.util.concurrent.TimeUnit;
 
 import static org.obapanel.lockfactoryserver.server.utils.RuntimeInterruptedException.doWithRuntime;
 
-public class SemaphoreServiceOrdered extends SemaphoreService {
+public final class SemaphoreServiceSynchronized extends SemaphoreService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SemaphoreService.class);
 
 
-    public SemaphoreServiceOrdered(LockFactoryConfiguration configuration) {
+    public SemaphoreServiceSynchronized(LockFactoryConfiguration configuration) {
         super(configuration);
     }
 
@@ -32,16 +32,11 @@ public class SemaphoreServiceOrdered extends SemaphoreService {
         return result;
     }
 
-//    @Override
-//    public synchronized void acquire(String name, int permits) {
-//        super.acquire(name, permits);
-//    }
-
     @Override
     public synchronized void acquire(String name, int permits) {
         boolean acquired = super.tryAcquire(name, permits);
         while(!acquired) {
-            doWithRuntime(SemaphoreServiceOrdered.this::wait);
+            doWithRuntime(SemaphoreServiceSynchronized.this::wait);
             acquired = super.tryAcquire(name, permits);
         }
         notifyAllIfPermits(name);
@@ -64,7 +59,7 @@ public class SemaphoreServiceOrdered extends SemaphoreService {
         long t = System.currentTimeMillis() + unit.toMillis(timeout);
         while(!result && t > System.currentTimeMillis() ) {
             LOGGER.debug("]]] tryAcquire wtimeout  ]]] into while {}", System.currentTimeMillis());
-            doWithRuntime(() -> SemaphoreServiceOrdered.this.wait(unit.toMillis(timeout) + 1));
+            doWithRuntime(() -> SemaphoreServiceSynchronized.this.wait(unit.toMillis(timeout) + 1));
             LOGGER.debug("]]] tryAcquire wtimeout  ]]] into while wait {}", System.currentTimeMillis());
             result = super.tryAcquire(name, permits);
         }

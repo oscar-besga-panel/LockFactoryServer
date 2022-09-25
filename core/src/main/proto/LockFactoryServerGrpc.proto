@@ -70,7 +70,7 @@ service CountDownLatchServer {
 
     rpc getCount(google.protobuf.StringValue) returns (google.protobuf.Int32Value) {}
 
-    rpc await(AwaitValues) returns (google.protobuf.Empty) {}
+    rpc await(AwaitValues) returns (google.protobuf.BoolValue) {}
 
     rpc asyncAwait(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
 

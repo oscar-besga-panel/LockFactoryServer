@@ -5,7 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
-import org.obapanel.lockfactoryserver.server.service.lock.LockServiceOrdered;
+import org.obapanel.lockfactoryserver.server.service.lock.LockServiceSynchronized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,13 +25,13 @@ public class LockServiceSynchonizationTest {
     private final String lockTestName = "lockS7XXXx" + System.currentTimeMillis();
 
     private LockService lockServiceNormal;
-    private LockServiceOrdered lockServiceOrdered;
+    private LockServiceSynchronized lockServiceSynchronized;
 
     @Before
     public void setup() throws InterruptedException {
         LOGGER.debug("setup ini >>>");
         lockServiceNormal = new LockService(new LockFactoryConfiguration());
-        lockServiceOrdered = new LockServiceOrdered(new LockFactoryConfiguration());
+        lockServiceSynchronized = new LockServiceSynchronized(new LockFactoryConfiguration());
         LOGGER.debug("setup fin <<<");
         Thread.sleep(250);
     }
@@ -42,7 +42,7 @@ public class LockServiceSynchonizationTest {
         Thread.sleep(250);
         LOGGER.debug("tearsDown ini >>>");
         lockServiceNormal.shutdown();
-        lockServiceOrdered.shutdown();
+        lockServiceSynchronized.shutdown();
         LOGGER.debug("tearsDown fin <<<");
         Thread.sleep(250);
     }
@@ -58,7 +58,7 @@ public class LockServiceSynchonizationTest {
 
     @Test
     public void testLockServiceOrdered() throws InterruptedException {
-        doTest(lockServiceOrdered);
+        doTest(lockServiceSynchronized);
     }
 
     private void doTest(LockService lockService) throws InterruptedException {

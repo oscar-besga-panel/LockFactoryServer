@@ -56,7 +56,7 @@ public class CountDownLatchService implements LockFactoryServices {
         }
     }
 
-    public long getCount(String name) {
+    public int getCount(String name) {
         LOGGER.info("service> getCount name {}", name);
         CountDownLatch countDownLatch = countDownLatchCache.getData(name);
         if (countDownLatch != null) {
@@ -64,7 +64,7 @@ public class CountDownLatchService implements LockFactoryServices {
             if (count == 0) {
                 countDownLatchCache.removeData(name);
             }
-            return count;
+            return (int) count;
         } else {
             return 0;
         }
@@ -82,16 +82,18 @@ public class CountDownLatchService implements LockFactoryServices {
         }
     }
 
-    public void await(String name, long timeOut, TimeUnit timeUnit) {
+    public boolean await(String name, long timeOut, TimeUnit timeUnit) {
+        boolean result = false;
         LOGGER.info("service> countDown name {} timeOut {} timeUnit {}", name, timeOut, timeUnit);
         CountDownLatch countDownLatch = countDownLatchCache.getData(name);
         if (countDownLatch != null) {
             try {
-                countDownLatch.await(timeOut, timeUnit);
+                result = countDownLatch.await(timeOut, timeUnit);
             } catch (InterruptedException e) {
                 throw RuntimeInterruptedException.getToThrowWhenInterrupted(e);
             }
         }
+        return result;
     }
 
 }

@@ -44,22 +44,24 @@ public class CountDownLatchServerRestImpl {
     public void getCount(Context context) {
         String name = context.getPathTokens().get("name");
         LOGGER.info("rest server> getCount name {}", name);
-        long count = countDownLatchService.getCount(name);
-        context.getResponse().send(Long.toString(count));
+        int count = countDownLatchService.getCount(name);
+        context.getResponse().send(Integer.toString(count));
     }
 
     public void await(Context context) {
+        boolean result = false;
         String name = context.getPathTokens().get("name");
         if (context.getPathTokens().get("time") != null) {
             long time = Long.parseLong(context.getPathTokens().get("time"));
             String timeUnitName = context.getPathTokens().getOrDefault("timeUnit", TimeUnit.MILLISECONDS.name());
             TimeUnit timeUnit = TimeUnit.valueOf(timeUnitName.toUpperCase());
-            countDownLatchService.await(name, time, timeUnit);
+            result = countDownLatchService.await(name, time, timeUnit);
         } else {
             LOGGER.info("rest server> await name {}", name);
             countDownLatchService.await(name);
+            result = true;
         }
-        context.getResponse().send(OK);
+        context.getResponse().send(result ? OK : KO);
     }
 
 }

@@ -12,10 +12,10 @@ public interface CountDownLatchServerRmi extends Remote {
 
     void countDown(String name)  throws RemoteException;
 
-    long getCount(String name)  throws RemoteException;
+    int getCount(String name)  throws RemoteException;
 
     void await(String name) throws RemoteException;
 
-    void await(String name, long timeOut, TimeUnit timeUnit) throws RemoteException;
+    boolean await(String name, long timeOut, TimeUnit timeUnit) throws RemoteException;
 
 }

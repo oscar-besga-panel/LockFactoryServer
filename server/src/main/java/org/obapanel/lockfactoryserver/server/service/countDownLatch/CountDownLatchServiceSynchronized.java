@@ -8,11 +8,11 @@ import java.util.concurrent.TimeUnit;
 
 import static org.obapanel.lockfactoryserver.server.utils.RuntimeInterruptedException.doWithRuntime;
 
-public class CountDownLatchServiceOrdered extends CountDownLatchService {
+public final class CountDownLatchServiceSynchronized extends CountDownLatchService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CountDownLatchServiceOrdered.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CountDownLatchServiceSynchronized.class);
 
-    public CountDownLatchServiceOrdered(LockFactoryConfiguration configuration) {
+    public CountDownLatchServiceSynchronized(LockFactoryConfiguration configuration) {
         super(configuration);
     }
 
@@ -35,24 +35,26 @@ public class CountDownLatchServiceOrdered extends CountDownLatchService {
     }
 
     @Override
-    public synchronized long getCount(String name) {
+    public synchronized int getCount(String name) {
         return super.getCount(name);
     }
 
     public synchronized void await(String name) {
         while(getCount(name) > 0) {
             super.await(name, 1, TimeUnit.MILLISECONDS);
-            doWithRuntime(() -> CountDownLatchServiceOrdered.this.wait());
+            doWithRuntime(() -> CountDownLatchServiceSynchronized.this.wait());
         }
 
     }
 
-    public synchronized void await(String name, long timeOut, TimeUnit timeUnit) {
+    public synchronized boolean await(String name, long timeOut, TimeUnit timeUnit) {
         long t = timeUnit.toMillis(timeOut) + System.currentTimeMillis();
         while(getCount(name) > 0 && t > System.currentTimeMillis()) {
             super.await(name, 1, TimeUnit.MILLISECONDS);
-            doWithRuntime(() -> CountDownLatchServiceOrdered.this.wait(timeUnit.toMillis(timeOut) + 1));
+            doWithRuntime(() -> CountDownLatchServiceSynchronized.this.wait(timeUnit.toMillis(timeOut) + 1));
         }
+        //TODO ¿???
+        return true;
     }
 
 }

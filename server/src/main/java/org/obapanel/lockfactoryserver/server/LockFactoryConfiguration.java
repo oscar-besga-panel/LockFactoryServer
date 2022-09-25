@@ -28,7 +28,7 @@ public class LockFactoryConfiguration {
     public static final String CACHE_TIME_TO_LIVE_SECONDS = "cacheTimeToLiveSeconds";
     public static final String CACHE_CHECK_CONTINUOUSLY = "cacheCheckContinuously";
 
-    public static final String ORDERED_SINGLE_THREAD = "orderedSingleThread";
+    public static final String SYNCHRONIZED_SERVICES = "synchronizedServices";
 
     public static final String DEFAULT_RMI_SERVER_ACTIVE = TRUE;
     public static final String DEFAULT_RMI_SERVER_PORT = "1099";
@@ -48,8 +48,8 @@ public class LockFactoryConfiguration {
     public static final String DEFAULT_CACHE_CHECK_CONTINUOUSLY = TRUE;
 
 //     checking
-//    public static final String DEFAULT_ORDERED_SINGLE_THREAD = FALSE;
-    public static final String DEFAULT_ORDERED_SINGLE_THREAD = TRUE;
+//    public static final String DEFAULT_SYNCHRONIZED_SERVICES = FALSE;
+    public static final String DEFAULT_SYNCHRONIZED_SERVICES = TRUE;
 
 
 
@@ -133,8 +133,8 @@ public class LockFactoryConfiguration {
         return Boolean.parseBoolean(properties.getProperty(MANAGEMENT_ENABLED, DEFAULT_MANAGEMENT_ENABLED));
     }
 
-    public boolean isOrderedSingleThread() {
-        return Boolean.parseBoolean(properties.getProperty(ORDERED_SINGLE_THREAD, DEFAULT_ORDERED_SINGLE_THREAD));
+    public boolean isSynchronizedServices() {
+        return Boolean.parseBoolean(properties.getProperty(SYNCHRONIZED_SERVICES, DEFAULT_SYNCHRONIZED_SERVICES));
     }
 
 }

@@ -4,8 +4,9 @@ import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.utils.primitivesCache.PrimitivesCache;
 
 import java.util.concurrent.locks.StampedLock;
+import java.util.function.Supplier;
 
-public class LockCache extends PrimitivesCache<StampedLock> {
+public final class LockCache extends PrimitivesCache<StampedLock> {
 
     public final static String NAME = "LockCache";
 
@@ -21,6 +22,11 @@ public class LockCache extends PrimitivesCache<StampedLock> {
     @Override
     public StampedLock createNew(String name) {
         return new StampedLock();
+    }
+
+    @Override
+    public StampedLock getOrCreateData(String name, Supplier<StampedLock> creator) {
+        throw new UnsupportedOperationException("Not allowed create with supplier for lock");
     }
 
     @Override

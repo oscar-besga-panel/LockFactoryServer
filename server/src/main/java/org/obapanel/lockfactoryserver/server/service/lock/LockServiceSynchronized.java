@@ -9,12 +9,12 @@ import java.util.concurrent.TimeUnit;
 
 import static org.obapanel.lockfactoryserver.server.utils.RuntimeInterruptedException.doWithRuntime;
 
-public class LockServiceOrdered extends LockService {
+public final class LockServiceSynchronized extends LockService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LockServiceOrdered.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LockServiceSynchronized.class);
 
 
-    public LockServiceOrdered(LockFactoryConfiguration configuration) {
+    public LockServiceSynchronized(LockFactoryConfiguration configuration) {
         super(configuration);
     }
 
@@ -29,7 +29,7 @@ public class LockServiceOrdered extends LockService {
     public synchronized String lock(String name) {
         String token = super.tryLock(name);
         while(token == null || token.isEmpty()) {
-            doWithRuntime(LockServiceOrdered.this::wait);
+            doWithRuntime(LockServiceSynchronized.this::wait);
             token = super.tryLock(name);
         }
         return token;
@@ -47,7 +47,7 @@ public class LockServiceOrdered extends LockService {
         long t = System.currentTimeMillis() + timeUnit.toMillis(time);
         while((result == null || result.isEmpty()) && t > System.currentTimeMillis() ) {
             LOGGER.debug("]]] tryLock wtimeout  ]]] into while {}", System.currentTimeMillis());
-            doWithRuntime(() -> LockServiceOrdered.this.wait(timeUnit.toMillis(time) + 1));
+            doWithRuntime(() -> LockServiceSynchronized.this.wait(timeUnit.toMillis(time) + 1));
             LOGGER.debug("]]] tryLock wtimeout  ]]] into while wait {}", System.currentTimeMillis());
             result = super.tryLock(name);
         }
@@ -65,7 +65,7 @@ public class LockServiceOrdered extends LockService {
     public synchronized boolean unLock(String name, String token) {
         boolean unlocked = super.unLock(name, token);
         if (unlocked) {
-            LockServiceOrdered.this.notifyAll();
+            LockServiceSynchronized.this.notifyAll();
         }
         return unlocked;
     }

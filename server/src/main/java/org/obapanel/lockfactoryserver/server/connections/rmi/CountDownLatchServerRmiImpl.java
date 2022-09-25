@@ -20,28 +20,32 @@ public class CountDownLatchServerRmiImpl implements CountDownLatchServerRmi {
 
     @Override
     public boolean createNew(String name, int count) throws RemoteException {
-        LOGGER.info("rmi  server> current {}", name);
+        LOGGER.info("rmi  server> createNew name {} count {}", name, count);
         return countDownLatchService.createNew(name, count);
     }
 
     @Override
     public void countDown(String name) throws RemoteException {
+        LOGGER.info("rmi  server> countDown name {}", name);
         countDownLatchService.countDown(name);
     }
 
     @Override
-    public long getCount(String name) throws RemoteException {
+    public int getCount(String name) throws RemoteException {
+        LOGGER.info("rmi  server> getCount name {}", name);
         return countDownLatchService.getCount(name);
     }
 
     @Override
     public void await(String name) throws RemoteException {
+        LOGGER.info("rmi  server> await name {}", name);
         countDownLatchService.await(name);
     }
 
     @Override
-    public void await(String name, long timeOut, TimeUnit timeUnit) throws RemoteException {
-        countDownLatchService.await(name, timeOut, timeUnit);
+    public boolean await(String name, long timeOut, TimeUnit timeUnit) throws RemoteException {
+        LOGGER.info("rmi  server> await name {} timeOut {} timeUnit", name, timeOut, timeUnit);
+        return countDownLatchService.await(name, timeOut, timeUnit);
     }
 
 }

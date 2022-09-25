@@ -122,7 +122,7 @@ public abstract class PrimitivesCache<K> {
         return data;
     }
 
-    private K createData(String name) {
+    private synchronized K createData(String name) {
         return createData(name, null);
     }
 
