@@ -14,8 +14,10 @@ import org.obapanel.lockfactoryserver.server.connections.rmi.RmiConnection;
 import org.obapanel.lockfactoryserver.server.service.LockFactoryServices;
 import org.obapanel.lockfactoryserver.server.service.Services;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
+import org.obapanel.lockfactoryserver.server.service.lock.LockServiceOrdered;
 import org.obapanel.lockfactoryserver.server.service.management.ManagementService;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
+import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreServiceOrdered;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +41,9 @@ public class LockFactoryServerTest {
     static MockedConstruction<RestConnection> restConnectionMocked;
     static MockedConstruction<ManagementService> managementServiceMocked;
     static MockedConstruction<LockService> lockServiceMocked;
+    static MockedConstruction<LockServiceOrdered> lockServiceOrderedMocked;
     static MockedConstruction<SemaphoreService> semaphoreServiceMocked;
+    static MockedConstruction<SemaphoreServiceOrdered> semaphoreServiceOrderedMocked;
 
     @BeforeClass
     public static void setupAll() {
@@ -59,7 +63,13 @@ public class LockFactoryServerTest {
         lockServiceMocked = mockConstruction(LockService.class, (mock, context) -> {
             when(mock.getType()).thenReturn(Services.LOCK);
         });
+        lockServiceOrderedMocked = mockConstruction(LockServiceOrdered.class, (mock, context) -> {
+            when(mock.getType()).thenReturn(Services.LOCK);
+        });
         semaphoreServiceMocked = mockConstruction(SemaphoreService.class, (mock, context) -> {
+            when(mock.getType()).thenReturn(Services.SEMAPHORE);
+        });
+        semaphoreServiceOrderedMocked = mockConstruction(SemaphoreServiceOrdered.class, (mock, context) -> {
             when(mock.getType()).thenReturn(Services.SEMAPHORE);
         });
     }
@@ -77,8 +87,13 @@ public class LockFactoryServerTest {
         managementServiceMocked = null;
         lockServiceMocked.close();
         lockServiceMocked = null;
+        lockServiceOrderedMocked.close();
+        lockServiceOrderedMocked = null;
         semaphoreServiceMocked.close();
         semaphoreServiceMocked = null;
+        semaphoreServiceOrderedMocked.close();
+        semaphoreServiceOrderedMocked = null;
+
         //Mockito.clearAllCaches();
     }
 
