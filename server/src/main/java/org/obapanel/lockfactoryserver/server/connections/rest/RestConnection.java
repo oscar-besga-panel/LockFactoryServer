@@ -5,6 +5,7 @@ import org.obapanel.lockfactoryserver.server.connections.Connections;
 import org.obapanel.lockfactoryserver.server.connections.LockFactoryConnection;
 import org.obapanel.lockfactoryserver.server.service.LockFactoryServices;
 import org.obapanel.lockfactoryserver.server.service.Services;
+import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchService;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
 import org.obapanel.lockfactoryserver.server.service.management.ManagementService;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
@@ -92,6 +93,11 @@ public class RestConnection implements LockFactoryConnection {
             if (configuration.isSemaphoreEnabled()) {
                 chain.prefix("semaphore", getActionSemaphore((SemaphoreService) services.get(Services.SEMAPHORE)));
             }
+            if (configuration.isCountDownLatchEnabled()) {
+                Action<Chain> actionChain = getActionCountDownLatch((CountDownLatchService) services.get(Services.COUNTDOWNLATCH));
+                chain.prefix("countdownlatch", actionChain);
+                chain.prefix("countDownLatch", actionChain);
+            }
             chain.get("about", ctx -> ctx.getResponse().send("LockFactoryServer (t " + System.currentTimeMillis() + ")"));
         };
     }
@@ -156,6 +162,21 @@ public class RestConnection implements LockFactoryConnection {
             chain.get("release/:name/:permits", semaphoreServerRest::release);
             chain.get("release/:name", semaphoreServerRest::release);
         };
+    }
+
+    Action<Chain> getActionCountDownLatch(final CountDownLatchService countDownLatchService) {
+        return (chain) -> {
+            SemaphoreServerRestImpl semaphoreServerRest = null; // new SemaphoreServerRestImpl(semaphoreService);
+            chain.get("createNew/:name", semaphoreServerRest::currentPermits);
+            chain.get("createnew/:name", semaphoreServerRest::currentPermits);
+            chain.get("countDown/:name", semaphoreServerRest::currentPermits);
+            chain.get("countdown/:name", semaphoreServerRest::currentPermits);
+            chain.get("getCount/:name", semaphoreServerRest::currentPermits);
+            chain.get("getcount/:name", semaphoreServerRest::currentPermits);
+            chain.get("await/:name", semaphoreServerRest::tryAcquire);
+            chain.get("await/:name/:time/:timeUnit", semaphoreServerRest::tryAcquire);
+        };
+
     }
 
     @Override

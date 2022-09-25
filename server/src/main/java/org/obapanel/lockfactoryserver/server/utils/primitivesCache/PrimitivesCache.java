@@ -7,9 +7,14 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.DelayQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -117,14 +122,42 @@ public abstract class PrimitivesCache<K> {
         return data;
     }
 
+    private K createData(String name) {
+        return createData(name, null);
+    }
+
+    /**
+     * Get a synchronization primitive already stored with this name
+     * Or create synchronously if needed
+     * @param name name of the primitive
+     * @param creator supplier not to use defaul method
+     * @return non-null primitive
+     */
+    public K getOrCreateData(String name, Supplier<K> creator) {
+        LOGGER.debug("getOrCreateData mapName {} name {}", getMapName(), name);
+        K data = dataMap.get(name);
+        if (data == null) {
+            data = createData(name, creator);
+        }
+        return data;
+    }
+
     /**
      * Create synchronously if needed
+     * Use supplier if given (not null)
+     * If supplier is null, createNew will be used
      * @param name name of the element
+     * @param supplier supplier for creating a new element (can be null)
      * @return new element
      */
-    private synchronized K createData(String name) {
+    private synchronized K createData(String name, Supplier<K> supplier) {
         if (!dataMap.containsKey(name)) {
-            K data = createNew(name);
+            K data;
+            if (supplier != null) {
+                data = supplier.get();
+            } else {
+                data = createNew(name);
+            }
             dataMap.put(name, data);
             long cacheTimeToLiveMilis = TimeUnit.SECONDS.toMillis(cacheTimeToLiveSeconds);
             delayQueue.put(new PrimitivesCacheEntry<>(name, data, cacheTimeToLiveMilis ));
@@ -133,6 +166,7 @@ public abstract class PrimitivesCache<K> {
             return dataMap.get(name);
         }
     }
+
 
     /**
      * Simply creates a new primitive

@@ -1,6 +1,10 @@
 package org.obapanel.lockfactoryserver.integration.grpc.lock.advanced;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.obapanel.lockfactoryserver.client.grpc.LockClientGrpc;
 import org.obapanel.lockfactoryserver.core.LockStatus;
 import org.obapanel.lockfactoryserver.integration.grpc.lock.LockGpcTest;
@@ -81,7 +85,7 @@ public class LockClientGrpcAdvancedTest {
             List<Thread> threadList = new ArrayList<>();
             for(int i=0; i < 5; i++) {
                 int time = ThreadLocalRandom.current().nextInt(0,5) + i;
-                Thread t = new Thread(() -> accesLockOfCriticalZone(1));
+                Thread t = new Thread(() -> accesLockOfCriticalZone(time));
                 t.setName(String.format("prueba_t%d",i));
                 threadList.add(t);
             }

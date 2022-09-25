@@ -1,6 +1,10 @@
 package org.obapanel.lockfactoryserver.integration.grpc.lock;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.obapanel.lockfactoryserver.client.grpc.SemaphoreClientGrpc;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.LockFactoryServer;
@@ -12,7 +16,9 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class SemaphoreGpcTest {
 
@@ -87,7 +93,6 @@ public class SemaphoreGpcTest {
         int result2 = semaphoreClientGrpc.currentPermits();
         assertEquals(0, result1);
         assertEquals(2, result2);
-        LOGGER.debug("test currentTest fin <<<");
         LOGGER.debug("test currentTest fin <<<");
     }
 

@@ -7,6 +7,8 @@ import org.obapanel.lockfactoryserver.server.connections.rest.RestConnection;
 import org.obapanel.lockfactoryserver.server.connections.rmi.RmiConnection;
 import org.obapanel.lockfactoryserver.server.service.LockFactoryServices;
 import org.obapanel.lockfactoryserver.server.service.Services;
+import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchService;
+import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchServiceOrdered;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
 import org.obapanel.lockfactoryserver.server.service.lock.LockServiceOrdered;
 import org.obapanel.lockfactoryserver.server.service.management.ManagementService;
@@ -117,6 +119,11 @@ public class LockFactoryServer {
             SemaphoreService semaphoreService = new SemaphoreServiceOrdered(configuration);
             services.put(Services.SEMAPHORE, semaphoreService);
         }
+        if (configuration.isCountDownLatchEnabled()) {
+            LOGGER.debug("createServices countdownlatch");
+            CountDownLatchService countDownLatchService = new CountDownLatchServiceOrdered(configuration);
+            services.put(Services.COUNTDOWNLATCH, countDownLatchService);
+        }
     }
 
     final void createNormalServices() {
@@ -135,6 +142,11 @@ public class LockFactoryServer {
             LOGGER.debug("createServices semaphore");
             SemaphoreService semaphoreService = new SemaphoreService(configuration);
             services.put(Services.SEMAPHORE, semaphoreService);
+        }
+        if (configuration.isCountDownLatchEnabled()) {
+            LOGGER.debug("createServices countdownlatch");
+            CountDownLatchService countDownLatchService = new CountDownLatchService(configuration);
+            services.put(Services.COUNTDOWNLATCH, countDownLatchService);
         }
     }
 

@@ -1,6 +1,10 @@
 package org.obapanel.lockfactoryserver.integration.rest.lock;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.obapanel.lockfactoryserver.client.rest.SemaphoreClientRest;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.LockFactoryServer;
@@ -12,7 +16,9 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class SemaphoreRestTest {
 
@@ -141,21 +147,23 @@ public class SemaphoreRestTest {
     public void tryAcquireWithTimeOutTest() throws InterruptedException {
         Semaphore inner = new Semaphore(0);
         LOGGER.debug("test tryAcquireWithTimeOutTest ini >>>");
-        SemaphoreClientRest semaphoreClientRest = generateSemaphoreClientRest();
-        int result1 = semaphoreClientRest.currentPermits();
+        SemaphoreClientRest semaphoreClientRest1 = generateSemaphoreClientRest();
+        SemaphoreClientRest semaphoreClientRest2 = generateSemaphoreClientRest(semaphoreClientRest1.getName());
+        SemaphoreClientRest semaphoreClientRest3 = generateSemaphoreClientRest(semaphoreClientRest1.getName());
+        int result1 = semaphoreClientRest1.currentPermits();
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
                 Thread.sleep(500);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            semaphoreClientRest.release(3);
+            semaphoreClientRest2.release(3);
             inner.release();
         });
-        boolean resulttry1 = semaphoreClientRest.tryAcquire(3500, TimeUnit.MILLISECONDS);
+        boolean resulttry1 = semaphoreClientRest1.tryAcquire(3500, TimeUnit.MILLISECONDS);
         boolean resulttrya = inner.tryAcquire(10, TimeUnit.SECONDS);
-        boolean resulttry2 = semaphoreClientRest.tryAcquire(2,500, TimeUnit.MILLISECONDS);
-        int result2 = semaphoreClientRest.currentPermits();
+        boolean resulttry2 = semaphoreClientRest2.tryAcquire(2,500, TimeUnit.MILLISECONDS);
+        int result2 = semaphoreClientRest3.currentPermits();
         assertEquals(0, result1);
         assertEquals(0, result2);
         assertTrue(resulttry1);

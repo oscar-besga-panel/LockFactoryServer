@@ -1,6 +1,10 @@
 package org.obapanel.lockfactoryserver.integration.rmi.lock;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.obapanel.lockfactoryserver.client.rmi.SemaphoreClientRmi;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.LockFactoryServer;
@@ -14,7 +18,9 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class SemaphoreRmiTest {
 
@@ -153,8 +159,11 @@ public class SemaphoreRmiTest {
             inner.release();
         });
         boolean resulttry1 = semaphoreClientRmi.tryAcquire(3500, TimeUnit.MILLISECONDS);
+        LOGGER.debug("}tryAcquireWithTimeOutTest} obtained resulttry1 {}", resulttry1);
         boolean resulttrya = inner.tryAcquire(10, TimeUnit.SECONDS);
+        LOGGER.debug("}tryAcquireWithTimeOutTest} obtained resulttrya {}", resulttrya);
         boolean resulttry2 = semaphoreClientRmi.tryAcquire(2,500, TimeUnit.MILLISECONDS);
+        LOGGER.debug("}tryAcquireWithTimeOutTest} obtained resulttry2 {}", resulttry2);
         int result2 = semaphoreClientRmi.currentPermits();
         assertEquals(0, result1);
         assertEquals(0, result2);

@@ -21,6 +21,7 @@ public class LockFactoryConfiguration {
 
     public static final String LOCK_ENABLED = "lockEnabled";
     public static final String SEMAPHORE_ENABLED = "semaphoreEnabled";
+    public static final String COUNTDOWNLATCH_ENABLED = "countDownLatchEnabled";
     public static final String MANAGEMENT_ENABLED = "managementEnabled";
 
     public static final String CACHE_CHECK_DATA_PERIOD_SECONDS = "cacheCheckDataPeriodSeconds";
@@ -38,14 +39,17 @@ public class LockFactoryConfiguration {
 
     public static final String DEFAULT_LOCK_ENABLED = TRUE;
     public static final String DEFAULT_SEMAPHORE_ENABLED = TRUE;
+    public static final String DEFAULT_COUNTDOWNLATCH_ENABLED = TRUE;
     public static final String DEFAULT_MANAGEMENT_ENABLED = TRUE;
+
 
     public static final String DEFAULT_CACHE_CHECK_DATA_PERIOD_SECONDS = "10";
     public static final String DEFAULT_CACHE_TIME_TO_LIVE_SECONDS = "10";
     public static final String DEFAULT_CACHE_CHECK_CONTINUOUSLY = TRUE;
 
-    public static final String DEFAULT_ORDERED_SINGLE_THREAD = FALSE;
-//    public static final String DEFAULT_ORDERED_SINGLE_THREAD = TRUE;
+//     checking
+//    public static final String DEFAULT_ORDERED_SINGLE_THREAD = FALSE;
+    public static final String DEFAULT_ORDERED_SINGLE_THREAD = TRUE;
 
 
 
@@ -105,6 +109,10 @@ public class LockFactoryConfiguration {
 
     public boolean isSemaphoreEnabled() {
         return Boolean.parseBoolean(properties.getProperty(SEMAPHORE_ENABLED, DEFAULT_SEMAPHORE_ENABLED));
+    }
+
+    public boolean isCountDownLatchEnabled() {
+        return Boolean.parseBoolean(properties.getProperty(COUNTDOWNLATCH_ENABLED, DEFAULT_COUNTDOWNLATCH_ENABLED));
     }
 
     public int getCacheCheckDataPeriodSeconds() {

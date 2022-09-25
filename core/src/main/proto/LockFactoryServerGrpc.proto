@@ -62,6 +62,20 @@ service SemaphoreServer {
 
 }
 
+service CountDownLatchServer {
+
+    rpc createNew(NameCount) returns (google.protobuf.BoolValue) {}
+
+    rpc countDown(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
+
+    rpc getCount(google.protobuf.StringValue) returns (google.protobuf.Int32Value) {}
+
+    rpc await(AwaitValues) returns (google.protobuf.Empty) {}
+
+    rpc asyncAwait(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
+
+}
+
 message NameTokenValues {
   string name = 1;
   string token = 2;
@@ -89,6 +103,7 @@ message NamePermits {
   uint32 permits = 2;
 }
 
+
 message NamePermitsWithTimeout {
   string name = 1;
   uint32 permits = 2;
@@ -101,6 +116,24 @@ message TryAcquirekValues {
     NamePermits namePermits = 1;
     NamePermitsWithTimeout namePermitsWithTimeout = 2;
   }
+}
+
+message NameCount {
+  string name = 1;
+  uint32 permits = 2;
+}
+
+message AwaitValues {
+  oneof AwaitValuesOneOf {
+    string name = 1;
+    AwaitValuesWithTimeout namePermitsWithTimeout = 2;
+  }
+}
+
+message AwaitValuesWithTimeout {
+  string name = 1;
+  uint64 time = 2;
+  TimeUnit timeUnit = 3;
 }
 
 enum LockStatus {
