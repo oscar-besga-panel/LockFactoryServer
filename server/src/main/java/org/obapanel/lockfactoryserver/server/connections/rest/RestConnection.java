@@ -166,17 +166,16 @@ public class RestConnection implements LockFactoryConnection {
 
     Action<Chain> getActionCountDownLatch(final CountDownLatchService countDownLatchService) {
         return (chain) -> {
-            SemaphoreServerRestImpl semaphoreServerRest = null; // new SemaphoreServerRestImpl(semaphoreService);
-            chain.get("createNew/:name", semaphoreServerRest::currentPermits);
-            chain.get("createnew/:name", semaphoreServerRest::currentPermits);
-            chain.get("countDown/:name", semaphoreServerRest::currentPermits);
-            chain.get("countdown/:name", semaphoreServerRest::currentPermits);
-            chain.get("getCount/:name", semaphoreServerRest::currentPermits);
-            chain.get("getcount/:name", semaphoreServerRest::currentPermits);
-            chain.get("await/:name", semaphoreServerRest::tryAcquire);
-            chain.get("await/:name/:time/:timeUnit", semaphoreServerRest::tryAcquire);
+            CountDownLatchServerRestImpl countDownLatchServerRest = new CountDownLatchServerRestImpl(countDownLatchService);
+            chain.get("createNew/:name/:count", countDownLatchServerRest::createNew);
+            chain.get("createnew/:name/:count", countDownLatchServerRest::createNew);
+            chain.get("countDown/:name", countDownLatchServerRest::countDown);
+            chain.get("countdown/:name", countDownLatchServerRest::countDown);
+            chain.get("getCount/:name", countDownLatchServerRest::getCount);
+            chain.get("getcount/:name", countDownLatchServerRest::getCount);
+            chain.get("await/:name", countDownLatchServerRest::await);
+            chain.get("await/:name/:time/:timeUnit", countDownLatchServerRest::await);
         };
-
     }
 
     @Override

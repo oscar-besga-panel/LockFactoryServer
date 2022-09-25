@@ -23,7 +23,6 @@ public class SemaphoreServiceSynchonizationTest {
 
     private SemaphoreService semaphoreServiceNormal;
     private SemaphoreServiceOrdered semaphoreServiceOrdered;
-//    private SemaphoreServicesSingleThread semaphoreServicesSingleThread;
 
 
     @Before
@@ -31,7 +30,6 @@ public class SemaphoreServiceSynchonizationTest {
         LOGGER.debug("setup ini >>>");
         semaphoreServiceNormal = new SemaphoreService(new LockFactoryConfiguration());
         semaphoreServiceOrdered = new SemaphoreServiceOrdered(new LockFactoryConfiguration());
-//        semaphoreServicesSingleThread = new SemaphoreServicesSingleThread(new LockFactoryConfiguration());
         LOGGER.debug("setup fin <<<");
         Thread.sleep(250);
     }
@@ -43,7 +41,6 @@ public class SemaphoreServiceSynchonizationTest {
         LOGGER.debug("tearsDown ini >>>");
         semaphoreServiceNormal.shutdown();
         semaphoreServiceOrdered.shutdown();
-//        semaphoreServicesSingleThread.shutdown();
         LOGGER.debug("tearsDown fin <<<");
         Thread.sleep(250);
     }
@@ -62,12 +59,6 @@ public class SemaphoreServiceSynchonizationTest {
     public void testSemaphoreServiceOrdered() throws InterruptedException {
         doTest(semaphoreServiceOrdered);
     }
-
-//    @Ignore
-//    @Test
-//    public void testSemaphoreServiceSingleThread() throws InterruptedException {
-//        doTest(semaphoreServicesSingleThread);
-//    }
 
     private void doTest(SemaphoreService semaphoreService) throws InterruptedException {
         LOGGER.debug("doTest ini >>>");

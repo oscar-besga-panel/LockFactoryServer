@@ -26,16 +26,12 @@ public class LockServiceSynchonizationTest {
 
     private LockService lockServiceNormal;
     private LockServiceOrdered lockServiceOrdered;
-//    private LockServiceSingleThread lockServiceSingleThread;
-
-
 
     @Before
     public void setup() throws InterruptedException {
         LOGGER.debug("setup ini >>>");
         lockServiceNormal = new LockService(new LockFactoryConfiguration());
         lockServiceOrdered = new LockServiceOrdered(new LockFactoryConfiguration());
-//        lockServiceSingleThread = new LockServiceSingleThread(new LockFactoryConfiguration());
         LOGGER.debug("setup fin <<<");
         Thread.sleep(250);
     }
@@ -47,11 +43,9 @@ public class LockServiceSynchonizationTest {
         LOGGER.debug("tearsDown ini >>>");
         lockServiceNormal.shutdown();
         lockServiceOrdered.shutdown();
-//        lockServiceSingleThread.shutdown();
         LOGGER.debug("tearsDown fin <<<");
         Thread.sleep(250);
     }
-
 
     String generateLockName() {
         return lockTestName.replace("XXX", String.format("%03d", ThreadLocalRandom.current().nextInt(99)));
@@ -66,13 +60,6 @@ public class LockServiceSynchonizationTest {
     public void testLockServiceOrdered() throws InterruptedException {
         doTest(lockServiceOrdered);
     }
-
-//    @Ignore
-//    @Test
-//    public void testLockServiceSingleThread() throws InterruptedException {
-//        doTest(lockServiceSingleThread);
-//    }
-
 
     private void doTest(LockService lockService) throws InterruptedException {
         String lockName = generateLockName();
@@ -113,6 +100,5 @@ public class LockServiceSynchonizationTest {
         assertNotEquals(token, token2Ref.get());
         assertTrue(ABSENT_OR_UNLOCKED.contains(lockService.lockStatus(lockName,"")));
     }
-
 
 }
