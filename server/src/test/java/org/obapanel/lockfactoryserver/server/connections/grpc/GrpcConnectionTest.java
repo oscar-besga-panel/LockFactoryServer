@@ -60,7 +60,7 @@ public class GrpcConnectionTest {
         try (MockedStatic<ServerBuilder> mockedStatic = Mockito.mockStatic(ServerBuilder.class)) {
             mockedStatic.when(() -> ServerBuilder.forPort(anyInt())).thenReturn(serverBuilder);
             grpcConnection.activate(configuration, mapOfMockServices());
-            verify(serverBuilder, times(3)).addService(any(BindableService.class));
+            verify(serverBuilder, times(4)).addService(any(BindableService.class));
         }
     }
 
