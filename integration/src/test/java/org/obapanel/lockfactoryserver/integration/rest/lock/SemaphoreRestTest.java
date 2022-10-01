@@ -32,7 +32,7 @@ public class SemaphoreRestTest {
     private LockFactoryServer lockFactoryServer;
 
 
-    private final String semaphoreBaseName = "semaphoreGrpcXXXx" + System.currentTimeMillis();
+    private final String semaphoreBaseName = "semaphoreRestXXXx" + System.currentTimeMillis();
 
     @BeforeClass
     public static void setupAll() throws InterruptedException {

@@ -45,7 +45,7 @@ public class CountDownLatchServerRestImplTest {
         fakeContext.getPathTokens().put("count", Integer.toString(count));
         countDownLatchServerRest.createNew(fakeContext);
         verify(countDownLatchService).createNew(eq(name), eq(count));
-        assertEquals("ok", fakeContext.getFakeSentResponse());
+        assertEquals("true", fakeContext.getFakeSentResponse());
     }
 
     @Test
@@ -75,7 +75,7 @@ public class CountDownLatchServerRestImplTest {
         fakeContext.getPathTokens().put("name", name);
         countDownLatchServerRest.await(fakeContext);
         verify(countDownLatchService).await(eq(name));
-        assertEquals("ok", fakeContext.getFakeSentResponse());
+        assertEquals("true", fakeContext.getFakeSentResponse());
     }
 
     @Test
@@ -87,7 +87,7 @@ public class CountDownLatchServerRestImplTest {
         fakeContext.getPathTokens().put("timeUnit", TimeUnit.MILLISECONDS.name().toLowerCase());
         countDownLatchServerRest.await(fakeContext);
         verify(countDownLatchService).await(eq(name), eq(1L), eq(TimeUnit.MILLISECONDS));
-        assertEquals("ok", fakeContext.getFakeSentResponse());
+        assertEquals("true", fakeContext.getFakeSentResponse());
     }
 
 }

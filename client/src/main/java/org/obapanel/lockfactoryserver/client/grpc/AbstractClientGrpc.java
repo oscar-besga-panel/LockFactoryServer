@@ -1,5 +1,6 @@
 package org.obapanel.lockfactoryserver.client.grpc;
 
+import com.google.protobuf.StringValue;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.AbstractBlockingStub;
@@ -50,6 +51,10 @@ abstract class AbstractClientGrpc<M extends AbstractBlockingStub> implements Aut
 
     public String getName() {
         return name;
+    }
+
+    public StringValue getStringValueName() {
+        return StringValue.of(name);
     }
 
     public void close() {

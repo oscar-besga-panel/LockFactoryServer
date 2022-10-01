@@ -73,9 +73,12 @@ public class CountDownLatchService implements LockFactoryServices {
     public void await(String name) {
         LOGGER.info("service> await name {}", name);
         CountDownLatch countDownLatch = countDownLatchCache.getData(name);
+LOGGER.debug(">> wait codola {} {}", name, countDownLatch);
         if (countDownLatch != null) {
             try {
+LOGGER.debug(">> wait codola {} {} PRE>", name, countDownLatch);
                 countDownLatch.await();
+LOGGER.debug(">> wait codola {} {} POST<", name, countDownLatch);
             } catch (InterruptedException e) {
                 throw RuntimeInterruptedException.getToThrowWhenInterrupted(e);
             }
@@ -84,8 +87,9 @@ public class CountDownLatchService implements LockFactoryServices {
 
     public boolean await(String name, long timeOut, TimeUnit timeUnit) {
         boolean result = false;
-        LOGGER.info("service> countDown name {} timeOut {} timeUnit {}", name, timeOut, timeUnit);
+        LOGGER.info("service> await name {} timeOut {} timeUnit {}", name, timeOut, timeUnit);
         CountDownLatch countDownLatch = countDownLatchCache.getData(name);
+LOGGER.debug(">> wait codola {} {}", name, countDownLatch);
         if (countDownLatch != null) {
             try {
                 result = countDownLatch.await(timeOut, timeUnit);

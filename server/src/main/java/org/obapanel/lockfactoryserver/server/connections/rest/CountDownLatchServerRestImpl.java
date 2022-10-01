@@ -25,12 +25,10 @@ public class CountDownLatchServerRestImpl {
         int count = Integer.parseInt(context.getPathTokens().get("count"));
         LOGGER.info("rest server> createNew name {} count {}", name, count);
         boolean result = countDownLatchService.createNew(name, count);
-        if (result) {
-            context.getResponse().send(OK);
-        } else {
+        if (!result) {
             context.getResponse().status(500);
-            context.getResponse().send(KO);
         }
+        context.getResponse().send(Boolean.toString(result));
     }
 
     public void countDown(Context context) {
@@ -55,13 +53,17 @@ public class CountDownLatchServerRestImpl {
             long time = Long.parseLong(context.getPathTokens().get("time"));
             String timeUnitName = context.getPathTokens().getOrDefault("timeUnit", TimeUnit.MILLISECONDS.name());
             TimeUnit timeUnit = TimeUnit.valueOf(timeUnitName.toUpperCase());
+            LOGGER.info("rest server> await name {} timeOut {} timeUnit {}", name, time, timeUnit);
             result = countDownLatchService.await(name, time, timeUnit);
         } else {
             LOGGER.info("rest server> await name {}", name);
             countDownLatchService.await(name);
             result = true;
         }
-        context.getResponse().send(result ? OK : KO);
+        if (!result) {
+            context.getResponse().status(500);
+        }
+        context.getResponse().send(Boolean.toString(result));
     }
 
 }

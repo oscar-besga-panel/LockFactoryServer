@@ -1,0 +1,59 @@
+package org.obapanel.lockfactoryserver.client.rest;
+
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.TimeUnit;
+
+public class CountDownLatchClientRest extends AbstractClientRest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CountDownLatchClientRest.class);
+
+    private static final String SERVICE_URL_NAME_COUNT_DOWN_LATCH = "countDownLatch";
+
+    public CountDownLatchClientRest(String baseServerUrl, String name) {
+        super(baseServerUrl, name);
+    }
+
+    @Override
+    String serviceUrlName() {
+        return SERVICE_URL_NAME_COUNT_DOWN_LATCH;
+    }
+
+    public boolean createNew(int count) {
+        String response = requestWithUrl( "createNew", getName(), Integer.toString(count));
+        boolean result = Boolean.parseBoolean(response);
+        LOGGER.debug("createNew name {} count {} response {}", getName(), count, result);
+        return result;
+    }
+
+    public void countDown() {
+        String response = requestWithUrl( "countDown", getName());
+        LOGGER.debug("countDown name {} response {}", getName(), response);
+    }
+
+    public boolean isActive() {
+        return getCount() > 0;
+    }
+
+    public int getCount() {
+        String response = requestWithUrl( "getCount", getName());
+        int result = Integer.parseInt(response);
+        LOGGER.debug("getCount name {} response {}", getName(), result);
+        return result;
+    }
+
+    public void await() {
+        String response = requestWithUrl( "await", getName());
+        LOGGER.debug("await name {} response {}", getName(), response);
+    }
+
+    public boolean await(long timeOut, TimeUnit timeUnit) {
+        String response = requestWithUrl( "await", getName(), Long.toString(timeOut), timeUnit.name().toLowerCase());
+        boolean result = Boolean.parseBoolean(response);
+        LOGGER.debug("await name {} timeOut {} timeUnit {} response {}", getName(), timeOut, timeUnit, result);
+        return result;
+    }
+
+}

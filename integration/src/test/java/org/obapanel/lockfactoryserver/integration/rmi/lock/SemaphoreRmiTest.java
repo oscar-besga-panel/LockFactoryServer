@@ -34,7 +34,7 @@ public class SemaphoreRmiTest {
     private LockFactoryServer lockFactoryServer;
 
 
-    private final String semaphoreBaseName = "semaphoreGrpcXXXx" + System.currentTimeMillis();
+    private final String semaphoreBaseName = "semaphoreRmiXXXx" + System.currentTimeMillis();
 
     @BeforeClass
     public static void setupAll() throws InterruptedException {

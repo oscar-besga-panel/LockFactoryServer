@@ -7,13 +7,16 @@ import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
 import org.obapanel.lockfactoryserver.client.WithLock;
 import org.obapanel.lockfactoryserver.core.LockStatus;
-import org.obapanel.lockfactoryserver.core.grpc.*;
+import org.obapanel.lockfactoryserver.core.grpc.LockServerGrpc;
+import org.obapanel.lockfactoryserver.core.grpc.LockStatusValues;
+import org.obapanel.lockfactoryserver.core.grpc.NameTokenValues;
+import org.obapanel.lockfactoryserver.core.grpc.TrylockValues;
+import org.obapanel.lockfactoryserver.core.grpc.TrylockValuesWithTimeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 import static org.obapanel.lockfactoryserver.core.util.LockStatusConverter.fromGrpcToJava;
 import static org.obapanel.lockfactoryserver.core.util.TimeUnitConverter.fromJavaToGrpc;
@@ -170,7 +173,8 @@ public class LockClientGrpc
             } catch (ExecutionException e) {
                 throw new RuntimeException(e);
             }
-        }, Executors.newSingleThreadExecutor());
+        }, executor);
+        //}, Executors.newSingleThreadExecutor());
     }
 
     private void doExecuteOnLock(Executor executor, Runnable onLock) {

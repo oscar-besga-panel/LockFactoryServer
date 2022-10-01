@@ -48,8 +48,8 @@ public class LockFactoryConfiguration {
     public static final String DEFAULT_CACHE_CHECK_CONTINUOUSLY = TRUE;
 
 //     checking
-//    public static final String DEFAULT_SYNCHRONIZED_SERVICES = FALSE;
-    public static final String DEFAULT_SYNCHRONIZED_SERVICES = TRUE;
+    public static final String DEFAULT_SYNCHRONIZED_SERVICES = FALSE;
+//    public static final String DEFAULT_SYNCHRONIZED_SERVICES = TRUE;
 
 
 

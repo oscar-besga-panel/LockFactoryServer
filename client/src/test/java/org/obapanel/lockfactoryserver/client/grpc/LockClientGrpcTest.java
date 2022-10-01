@@ -22,7 +22,9 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -182,7 +184,7 @@ public class LockClientGrpcTest {
         lockClientGrpc.asyncLock2(() -> {
             semaphore.release();
         });
-        boolean acquired = semaphore.tryAcquire(1, TimeUnit.SECONDS);
+        boolean acquired = semaphore.tryAcquire(3, TimeUnit.SECONDS);
         assertTrue(acquired);
         assertTrue(lockClientGrpc.getToken().contains(name));
         verify(futureStub).asyncLock2(any(StringValue.class));

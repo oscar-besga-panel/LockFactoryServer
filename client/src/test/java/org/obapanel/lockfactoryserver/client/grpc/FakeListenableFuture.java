@@ -4,14 +4,20 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 class FakeListenableFuture<K> implements ListenableFuture<K> {
 
 
     private final Map<Runnable, Executor> listeners = new HashMap<>();
     private final K result;
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private final ExecutorService innerExecutor = Executors.newSingleThreadExecutor();
     private Future<K> valueFuture;
 
 
@@ -20,9 +26,9 @@ class FakeListenableFuture<K> implements ListenableFuture<K> {
     }
 
     public FakeListenableFuture execute() {
-        valueFuture = executor.submit(() -> {
+        valueFuture = innerExecutor.submit(() -> {
             Thread.sleep(150);
-            executor.submit(() -> {
+            innerExecutor.submit(() -> {
                 try {
                     Thread.sleep(50);
                     listeners.forEach((r, e) -> e.execute(r));
@@ -38,7 +44,11 @@ class FakeListenableFuture<K> implements ListenableFuture<K> {
 
     @Override
     public void addListener(Runnable listener, Executor executor) {
-        listeners.put(listener, executor);
+        if (executor == null) {
+            listeners.put(listener, innerExecutor);
+        } else {
+            listeners.put(listener, executor);
+        }
     }
 
     @Override
