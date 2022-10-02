@@ -15,8 +15,13 @@ import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -42,7 +47,9 @@ public class LockClientRmiTest {
         when(registry.lookup(eq(LockClientRmi.RMI_NAME))).thenReturn(lockServerRmi);
         when(lockServerRmi.lock(anyString())).thenReturn( "token_" + name);
         when(lockServerRmi.tryLock(anyString())).thenReturn( "token_" + name);
-        when(lockServerRmi.tryLock(anyString(), anyLong(), any(TimeUnit.class))).
+        when(lockServerRmi.tryLockWithTimeOut(anyString(), anyLong())).
+                thenReturn( "token_" + name);
+        when(lockServerRmi.tryLockWithTimeOut(anyString(), anyLong(), any(TimeUnit.class))).
                 thenReturn( "token_" + name);
         when(lockServerRmi.lockStatus(anyString(), anyString())).thenReturn(LockStatus.OWNER);
         when(lockServerRmi.unlock(anyString(), anyString())).thenReturn( true);
@@ -69,11 +76,20 @@ public class LockClientRmiTest {
 
     @Test
     public void tryLock2Test() throws RemoteException {
-        boolean result = lockClientRmi.tryLock(1, TimeUnit.MILLISECONDS);
+        boolean result = lockClientRmi.tryLockWithTimeOut(1, TimeUnit.MILLISECONDS);
         assertTrue(result);
         assertEquals(LockStatus.OWNER, lockClientRmi.lockStatus());
         assertTrue(lockClientRmi.currentlyHasToken());
-        verify(lockServerRmi).tryLock(anyString(), anyLong(), any(TimeUnit.class));
+        verify(lockServerRmi).tryLockWithTimeOut(anyString(), anyLong(), any(TimeUnit.class));
+    }
+
+    @Test
+    public void tryLock3Test() throws RemoteException {
+        boolean result = lockClientRmi.tryLockWithTimeOut(1);
+        assertTrue(result);
+        assertEquals(LockStatus.OWNER, lockClientRmi.lockStatus());
+        assertTrue(lockClientRmi.currentlyHasToken());
+        verify(lockServerRmi).tryLockWithTimeOut(anyString(), anyLong());
     }
 
     @Test

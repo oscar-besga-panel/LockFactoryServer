@@ -61,11 +61,16 @@ public class LockService implements LockFactoryServices {
         }
     }
 
-    public String tryLock(String name, long time, TimeUnit timeUnit) {
+    public String tryLockWithTimeOut(String name, long timeOut) {
+        return this.tryLockWithTimeOut(name, timeOut, TimeUnit.MILLISECONDS);
+    }
+
+
+    public String tryLockWithTimeOut(String name, long timeOut, TimeUnit timeUnit) {
         try {
-            LOGGER.info("service> tryLock {} {} {}", name, time, timeUnit);
+            LOGGER.info("service> tryLock {} {} {}", name, timeOut, timeUnit);
             StampedLock lock = lockCache.getOrCreateData(name);
-            long stamp = lock.tryWriteLock(time, timeUnit);
+            long stamp = lock.tryWriteLock(timeOut, timeUnit);
             if (stamp != 0) {
                 return stampToToken(name, stamp);
             } else {

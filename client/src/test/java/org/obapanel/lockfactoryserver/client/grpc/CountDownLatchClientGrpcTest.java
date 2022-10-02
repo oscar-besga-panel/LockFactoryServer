@@ -14,7 +14,7 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.obapanel.lockfactoryserver.core.grpc.AwaitValues;
+import org.obapanel.lockfactoryserver.core.grpc.AwaitWithTimeout;
 import org.obapanel.lockfactoryserver.core.grpc.CountDownLatchServerGrpc;
 import org.obapanel.lockfactoryserver.core.grpc.NameCount;
 
@@ -62,7 +62,9 @@ public class CountDownLatchClientGrpcTest {
                 thenReturn(futureStub);
         when(stub.createNew(any(NameCount.class))).thenReturn(BoolValue.of(true));
         when(stub.getCount(any(StringValue.class))).thenReturn(Int32Value.of(currentCount));
-        when(stub.await(any(AwaitValues.class))).thenReturn(BoolValue.of(true));
+        when(stub.await(any(StringValue.class))).thenReturn(Empty.getDefaultInstance());
+        when(stub.tryAwait(any(StringValue.class))).thenReturn(BoolValue.of(true));
+        when(stub.tryAwaitWithTimeOut(any(AwaitWithTimeout.class))).thenReturn(BoolValue.of(true));
         when(futureStub.asyncAwait(any(StringValue.class))).thenAnswer(ioc ->
             new FakeListenableFuture<Empty>(Empty.newBuilder().build()).execute()
         );
@@ -116,23 +118,31 @@ public class CountDownLatchClientGrpcTest {
 
     @Test
     public void awaitTest() {
-        ArgumentCaptor<AwaitValues> captor = ArgumentCaptor.forClass(AwaitValues.class);
+        ArgumentCaptor<StringValue> captor = ArgumentCaptor.forClass(StringValue.class);
         countDownLatchClientGrpc.await();
         verify(stub).await(captor.capture());
-        assertEquals(name, captor.getValue().getName());
-        assertEquals(AwaitValues.AwaitValuesOneOfCase.NAME, captor.getValue().getAwaitValuesOneOfCase());
+        assertEquals(name, captor.getValue().getValue());
     }
 
     @Test
-    public void awaitWithTimeOurTest() {
+    public void tryAwaitTest() {
+        ArgumentCaptor<StringValue> captor = ArgumentCaptor.forClass(StringValue.class);
+        boolean result = countDownLatchClientGrpc.tryAwait();
+        verify(stub).tryAwait(captor.capture());
+        assertEquals(name, captor.getValue().getValue());
+        assertTrue(result);
+    }
+
+    @Test
+    public void tryAwaitWithTimeOutTest() {
         long timeOut = ThreadLocalRandom.current().nextLong(1,100);
-        ArgumentCaptor<AwaitValues> captor = ArgumentCaptor.forClass(AwaitValues.class);
-        countDownLatchClientGrpc.await(timeOut, TimeUnit.MILLISECONDS);
-        verify(stub).await(captor.capture());
-        assertEquals(name, captor.getValue().getNamePermitsWithTimeout().getName());
-        assertEquals(timeOut, captor.getValue().getNamePermitsWithTimeout().getTime());
-        assertEquals(TimeUnit.MILLISECONDS, fromGrpcToJava( captor.getValue().getNamePermitsWithTimeout().getTimeUnit()));
-        assertEquals(AwaitValues.AwaitValuesOneOfCase.NAMEPERMITSWITHTIMEOUT, captor.getValue().getAwaitValuesOneOfCase());
+        ArgumentCaptor<AwaitWithTimeout> captor = ArgumentCaptor.forClass(AwaitWithTimeout.class);
+        boolean result = countDownLatchClientGrpc.tryAwaitWithTimeOut(timeOut, TimeUnit.MILLISECONDS);
+        verify(stub).tryAwaitWithTimeOut(captor.capture());
+        assertEquals(name, captor.getValue().getName());
+        assertEquals(timeOut, captor.getValue().getTimeOut());
+        assertEquals(TimeUnit.MILLISECONDS, fromGrpcToJava( captor.getValue().getTimeUnit()));
+        assertTrue(result);
     }
 
     @Test

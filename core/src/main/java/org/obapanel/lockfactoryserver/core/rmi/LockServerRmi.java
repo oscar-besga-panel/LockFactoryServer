@@ -29,6 +29,16 @@ public interface LockServerRmi extends Remote {
      */
     String tryLock(String name)  throws RemoteException;
 
+
+    /**
+     * Try to obain a lock, waiting a defined time
+     * @param name Name of the lock
+     * @param time Quantity of time to wait in miliseconds
+     * @return a non-null non-empty string with the token of the lock if acquired, or an empty/null string if not
+     * @throws RemoteException if anything goes wrong
+     */
+    String tryLockWithTimeOut(String name, long time)  throws RemoteException;
+
     /**
      * Try to obain a lock, waiting a defined time
      * @param name Name of the lock
@@ -37,7 +47,7 @@ public interface LockServerRmi extends Remote {
      * @return a non-null non-empty string with the token of the lock if acquired, or an empty/null string if not
      * @throws RemoteException if anything goes wrong
      */
-    String tryLock(String name, long time, TimeUnit timeUnit)  throws RemoteException;
+    String tryLockWithTimeOut(String name, long time, TimeUnit timeUnit)  throws RemoteException;
 
     /**
      * Check if a lock is locked and how, status options are:

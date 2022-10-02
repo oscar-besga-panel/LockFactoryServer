@@ -47,20 +47,29 @@ public class CountDownLatchServerRestImpl {
     }
 
     public void await(Context context) {
+        String name = context.getPathTokens().get("name");
+        LOGGER.info("rest server> await name {}", name);
+        countDownLatchService.await(name);
+        context.getResponse().send(OK);
+    }
+
+    public void tryAwait(Context context) {
+        String name = context.getPathTokens().get("name");
+        LOGGER.info("rest server> tryAwait name {}", name);
+        boolean result = countDownLatchService.tryAwait(name);
+        context.getResponse().send(Boolean.toString(result));
+    }
+
+    public void tryAwaitWithTimeOut(Context context) {
         boolean result = false;
         String name = context.getPathTokens().get("name");
-        if (context.getPathTokens().get("time") != null) {
-            long time = Long.parseLong(context.getPathTokens().get("time"));
+        if (context.getPathTokens().get("timeOut") != null) {
+            long time = Long.parseLong(context.getPathTokens().get("timeOut"));
             String timeUnitName = context.getPathTokens().getOrDefault("timeUnit", TimeUnit.MILLISECONDS.name());
             TimeUnit timeUnit = TimeUnit.valueOf(timeUnitName.toUpperCase());
-            LOGGER.info("rest server> await name {} timeOut {} timeUnit {}", name, time, timeUnit);
-            result = countDownLatchService.await(name, time, timeUnit);
+            LOGGER.info("rest server> tryAwaitWithTimeOut name {} timeOut {} timeUnit {}", name, time, timeUnit);
+            result = countDownLatchService.tryAwaitWithTimeOut(name, time, timeUnit);
         } else {
-            LOGGER.info("rest server> await name {}", name);
-            countDownLatchService.await(name);
-            result = true;
-        }
-        if (!result) {
             context.getResponse().status(500);
         }
         context.getResponse().send(Boolean.toString(result));

@@ -28,7 +28,7 @@ public final class LockServiceSynchronized extends LockService {
     @Override
     public synchronized String lock(String name) {
         String token = super.tryLock(name);
-        while(token == null || token.isEmpty()) {
+        while (token == null || token.isEmpty()) {
             doWithRuntime(LockServiceSynchronized.this::wait);
             token = super.tryLock(name);
         }
@@ -40,19 +40,25 @@ public final class LockServiceSynchronized extends LockService {
         return super.tryLock(name);
     }
 
+
     @Override
-    public synchronized String tryLock(String name, long time, TimeUnit timeUnit) {
-        LOGGER.debug("]]] tryLock wtimeout  ]]] init {}", System.currentTimeMillis());
+    public synchronized String tryLockWithTimeOut(String name, long timeOut) {
+        return this.tryLockWithTimeOut(name, timeOut, TimeUnit.MILLISECONDS);
+    }
+
+    @Override
+    public synchronized String tryLockWithTimeOut(String name, long timeOut, TimeUnit timeUnit) {
+        LOGGER.debug("]]] tryLockWithTimeOut  ]]] init {}", System.currentTimeMillis());
         String result = super.tryLock(name);
-        long t = System.currentTimeMillis() + timeUnit.toMillis(time);
+        long t = System.currentTimeMillis() + timeUnit.toMillis(timeOut);
         while((result == null || result.isEmpty()) && t > System.currentTimeMillis() ) {
-            LOGGER.debug("]]] tryLock wtimeout  ]]] into while {}", System.currentTimeMillis());
-            doWithRuntime(() -> LockServiceSynchronized.this.wait(timeUnit.toMillis(time) + 1));
-            LOGGER.debug("]]] tryLock wtimeout  ]]] into while wait {}", System.currentTimeMillis());
+            LOGGER.debug("]]] tryLockWithTimeOut ]]] into while {}", System.currentTimeMillis());
+            doWithRuntime(() -> LockServiceSynchronized.this.wait(timeUnit.toMillis(timeOut) + 1));
+            LOGGER.debug("]]] tryLockWithTimeOut  ]]] into while wait {}", System.currentTimeMillis());
             result = super.tryLock(name);
         }
-        LOGGER.debug("]]] tryLock wtimeout  ]]] into gotoend wait {}", System.currentTimeMillis());
-        LOGGER.debug("] tryLock wtimeout  result {}", result);
+        LOGGER.debug("]]] tryLockWithTimeOut  ]]] into gotoend wait {}", System.currentTimeMillis());
+        LOGGER.debug("] tryLockWithTimeOut  result {}", result);
         return result;
     }
 

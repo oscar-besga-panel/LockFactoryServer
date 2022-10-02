@@ -9,7 +9,6 @@ import io.grpc.ManagedChannel;
 import org.obapanel.lockfactoryserver.core.grpc.NamePermits;
 import org.obapanel.lockfactoryserver.core.grpc.NamePermitsWithTimeout;
 import org.obapanel.lockfactoryserver.core.grpc.SemaphoreServerGrpc;
-import org.obapanel.lockfactoryserver.core.grpc.TryAcquirekValues;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,28 +111,30 @@ public class SemaphoreClientGrpc
 
     public boolean tryAcquire(int permits) {
         NamePermits namePermits = createNamePermits(permits);
-        TryAcquirekValues tryAcquirekValues = TryAcquirekValues.newBuilder().
-                setNamePermits(namePermits).
-                build();
-        BoolValue response = getStub().tryAcquire(tryAcquirekValues);
+        BoolValue response = getStub().tryAcquire(namePermits);
         return response.getValue();
     }
 
-    public boolean tryAcquire(long timeOut, TimeUnit timeUnit) {
-        return tryAcquire(1, timeOut, timeUnit);
+    public boolean tryAcquireWithTimeOut(long timeOut) {
+        return tryAcquireWithTimeOut(1, timeOut, TimeUnit.MILLISECONDS);
     }
 
-    public boolean tryAcquire(int permits, long timeOut, TimeUnit timeUnit) {
+    public boolean tryAcquireWithTimeOut(long timeOut, TimeUnit timeUnit) {
+        return tryAcquireWithTimeOut(1, timeOut, timeUnit);
+    }
+
+    public boolean tryAcquireWithTimeOut(int permits, long timeOut) {
+        return this.tryAcquireWithTimeOut(permits, timeOut, TimeUnit.MILLISECONDS);
+    }
+
+    public boolean tryAcquireWithTimeOut(int permits, long timeOut, TimeUnit timeUnit) {
         NamePermitsWithTimeout namePermitsWithTimeout = NamePermitsWithTimeout.newBuilder().
                 setName(getName()).
                 setPermits(permits).
-                setTime(timeOut).
+                setTimeOut(timeOut).
                 setTimeUnit(fromJavaToGrpc(timeUnit)).
                 build();
-        TryAcquirekValues tryAcquirekValues = TryAcquirekValues.newBuilder().
-                setNamePermitsWithTimeout(namePermitsWithTimeout).
-                build();
-        BoolValue response = getStub().tryAcquire(tryAcquirekValues);
+        BoolValue response = getStub().tryAcquireWithTimeOut(namePermitsWithTimeout);
         return response.getValue();
     }
 

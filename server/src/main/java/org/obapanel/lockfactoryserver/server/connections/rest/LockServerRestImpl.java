@@ -31,17 +31,18 @@ public class LockServerRestImpl {
 
     public void tryLock(Context context) {
         String name = context.getPathTokens().get("name");
-        String response;
-        if (context.getPathTokens().get("time") == null) {
-            LOGGER.info("rest server> lock tryLock {}", name);
-            response = lockService.tryLock(name);
-        } else {
-            long time = Long.parseLong(context.getPathTokens().get("time"));
-            String timeUnitName = context.getPathTokens().getOrDefault("timeUnit", TimeUnit.MILLISECONDS.name());
-            TimeUnit timeUnit = TimeUnit.valueOf(timeUnitName.toUpperCase());
-            LOGGER.info("rest server> lock tryLock {} {} {}", name, time, timeUnit);
-            response = lockService.tryLock(name, time, timeUnit);
-        }
+        LOGGER.info("rest server> lock tryLock {}", name);
+        String response = lockService.tryLock(name);
+        context.getResponse().send(response);
+    }
+
+    public void tryLockWithTimeout(Context context) {
+        String name = context.getPathTokens().get("name");
+        long timeOut = Long.parseLong(context.getPathTokens().get("timeOut"));
+        String timeUnitName = context.getPathTokens().getOrDefault("timeUnit", TimeUnit.MILLISECONDS.name());
+        TimeUnit timeUnit = TimeUnit.valueOf(timeUnitName.toUpperCase());
+        LOGGER.info("rest server> lock tryLockWithTimeout {} {} {}", name, timeOut, timeUnit);
+        String response = lockService.tryLockWithTimeOut(name, timeOut, timeUnit);
         context.getResponse().send(response);
     }
 

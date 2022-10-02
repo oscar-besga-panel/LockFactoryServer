@@ -4,7 +4,10 @@ import com.google.protobuf.BoolValue;
 import com.google.protobuf.StringValue;
 import io.grpc.stub.StreamObserver;
 import org.obapanel.lockfactoryserver.core.LockStatus;
-import org.obapanel.lockfactoryserver.core.grpc.*;
+import org.obapanel.lockfactoryserver.core.grpc.LockServerGrpc;
+import org.obapanel.lockfactoryserver.core.grpc.LockStatusValues;
+import org.obapanel.lockfactoryserver.core.grpc.NameTokenValues;
+import org.obapanel.lockfactoryserver.core.grpc.TryLockWithTimeout;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,24 +44,30 @@ public class LockServerGrpcImpl extends LockServerGrpc.LockServerImplBase {
         responseObserver.onCompleted();
     }
 
-    public void tryLock(TrylockValues request,
-                        StreamObserver<StringValue> responseObserver) {
-        String result;
-        TrylockValues.TrylockValuesOneofCase caseValues =  request.getTrylockValuesOneofCase();
-        if (caseValues == TrylockValues.TrylockValuesOneofCase.NAME) {
-            String name = request.getName();
-            LOGGER.info("grpc server> tryLock {}",name);
-            result = lockService.tryLock(name);
-        } else if (caseValues == TrylockValues.TrylockValuesOneofCase.TRYLOCKVALUESWITHTIMEOUT) {
-            TrylockValuesWithTimeout trylockValuesWithTimeout = request.getTryLockValuesWithTimeout();
-            LOGGER.info("grpc server> tryLock {}", trylockValuesWithTimeout);
-            java.util.concurrent.TimeUnit timeUnit = fromGrpcToJava(trylockValuesWithTimeout.getTimeUnit());
-            result = lockService.tryLock(trylockValuesWithTimeout.getName(), trylockValuesWithTimeout.getTime(), timeUnit);
+    @Override
+    public void tryLock(StringValue request, StreamObserver<StringValue> responseObserver) {
+        String name = request.getValue();
+        LOGGER.info("grpc server> tryLock {}",name);
+        String result = lockService.tryLock(name);
+        responseObserver.onNext(StringValue.of(result));
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void tryLockWithTimeOut(TryLockWithTimeout request, StreamObserver<StringValue> responseObserver) {
+        String result = "";
+        String name = request.getName();
+        long timeOut = request.getTimeOut();
+        org.obapanel.lockfactoryserver.core.grpc.TimeUnitGrpc timeUnitGrpc = request.getTimeUnit();
+        if (timeUnitGrpc == null) {
+            LOGGER.info("grpc server> tryLockWithTimeOut {} {}", name, timeOut);
+            result = lockService.tryLockWithTimeOut(name, timeOut);
         } else {
-            throw new IllegalArgumentException("Error tryLock request " + request);
+            java.util.concurrent.TimeUnit timeUnit = fromGrpcToJava(timeUnitGrpc);
+            LOGGER.info("grpc server> tryLockWithTimeOut {} {} {}", name, timeOut, timeUnit);
+            result = lockService.tryLockWithTimeOut(name, timeOut, timeUnit);
         }
-        StringValue response = StringValue.newBuilder().setValue(result).build();
-        responseObserver.onNext(response);
+        responseObserver.onNext(StringValue.of(result));
         responseObserver.onCompleted();
     }
 
@@ -85,20 +94,26 @@ public class LockServerGrpcImpl extends LockServerGrpc.LockServerImplBase {
     }
 
 
-    @Override
-    public void asyncLock1(StringValue request, StreamObserver<StringValue> responseObserver) {
-        asyncLockService.submit(() -> {
-            LOGGER.info("grpc server> asyncLock {}", request.getValue());
-            lock(request, responseObserver);
-        });
-    }
+//    @Override
+//    public void asyncLock1(StringValue request, StreamObserver<StringValue> responseObserver) {
+//        asyncLockService.submit(() -> {
+//            LOGGER.info("grpc server> asyncLock {}", request.getValue());
+//            lock(request, responseObserver);
+//        });
+//    }
+//
+//    @Override
+//    public void asyncLock2(StringValue request, StreamObserver<StringValue> responseObserver) {
+//        asyncLockService.submit(() -> {
+//            LOGGER.info("grpc server> asyncLock {}", request.getValue());
+//            lock(request, responseObserver);
+//        });
+//    }
 
     @Override
-    public void asyncLock2(StringValue request, StreamObserver<StringValue> responseObserver) {
-        asyncLockService.submit(() -> {
-            LOGGER.info("grpc server> asyncLock {}", request.getValue());
-            lock(request, responseObserver);
-        });
+    public void asyncLock(StringValue request, StreamObserver<StringValue> responseObserver) {
+        LOGGER.info("grpc server> asyncLock {}", request.getValue());
+        lock(request, responseObserver);
     }
 
 }

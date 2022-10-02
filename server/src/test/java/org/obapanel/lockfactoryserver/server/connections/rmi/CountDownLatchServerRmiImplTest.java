@@ -57,13 +57,26 @@ public class CountDownLatchServerRmiImplTest {
     }
 
     @Test
-    public void awaitWithTimeOutTest() throws RemoteException {
+    public void tryAwaitTest() throws RemoteException {
         String name = "codola_" + System.currentTimeMillis();
-        long time = ThreadLocalRandom.current().nextInt(100);
-        countDownLatchServerRmi.await(name, time, TimeUnit.MILLISECONDS);
-        verify(countDownLatchService).await(eq(name), eq(time), eq(TimeUnit.MILLISECONDS));
+        countDownLatchServerRmi.tryAwait(name);
+        verify(countDownLatchService).tryAwait(eq(name));
     }
 
+    @Test
+    public void tryAwaitWithTimeOut1Test() throws RemoteException {
+        String name = "codola_" + System.currentTimeMillis();
+        long time = ThreadLocalRandom.current().nextInt(100);
+        countDownLatchServerRmi.tryAwaitWithTimeOut(name, time, TimeUnit.MILLISECONDS);
+        verify(countDownLatchService).tryAwaitWithTimeOut(eq(name), eq(time), eq(TimeUnit.MILLISECONDS));
+    }
 
+    @Test
+    public void tryAwaitWithTimeOut2Test() throws RemoteException {
+        String name = "codola_" + System.currentTimeMillis();
+        long time = ThreadLocalRandom.current().nextInt(100);
+        countDownLatchServerRmi.tryAwaitWithTimeOut(name, time);
+        verify(countDownLatchService).tryAwaitWithTimeOut(eq(name), eq(time));
+    }
 
 }

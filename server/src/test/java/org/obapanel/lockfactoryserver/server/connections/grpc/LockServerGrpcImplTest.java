@@ -10,18 +10,21 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.obapanel.lockfactoryserver.core.LockStatus;
 import org.obapanel.lockfactoryserver.core.grpc.LockStatusValues;
 import org.obapanel.lockfactoryserver.core.grpc.NameTokenValues;
-import org.obapanel.lockfactoryserver.core.grpc.TrylockValues;
-import org.obapanel.lockfactoryserver.core.grpc.TrylockValuesWithTimeout;
+import org.obapanel.lockfactoryserver.core.grpc.TimeUnitGrpc;
+import org.obapanel.lockfactoryserver.core.grpc.TryLockWithTimeout;
 import org.obapanel.lockfactoryserver.server.FakeStreamObserver;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -42,8 +45,10 @@ public class LockServerGrpcImplTest {
                 thenAnswer( ioc -> ioc.getArgument(0) + "_" + System.currentTimeMillis());
         when(lockService.tryLock(anyString())).
                 thenAnswer( ioc -> ioc.getArgument(0) + "_" + System.currentTimeMillis());
-        when(lockService.tryLock(anyString(), anyLong(), any(TimeUnit.class))).
+        when(lockService.tryLockWithTimeOut(anyString(), anyLong(), any(TimeUnit.class))).
                 thenAnswer( ioc -> ioc.getArgument(0) + "_" + System.currentTimeMillis());
+        // unused when(lockService.tryLockWithTimeOut(anyString(), anyLong())).
+        //        thenAnswer( ioc -> ioc.getArgument(0) + "_" + System.currentTimeMillis());
         when(lockService.lockStatus(anyString(), anyString())).thenReturn(LockStatus.UNLOCKED);
         when(lockService.unLock(anyString(), anyString())).thenReturn(true);
         lockServerGrpc = new LockServerGrpcImpl(lockService);
@@ -62,9 +67,8 @@ public class LockServerGrpcImplTest {
     @Test
     public void tryLock1Test() {
         String lockName = "lock2" + System.currentTimeMillis();
-        TrylockValues request = TrylockValues.newBuilder().setName(lockName).build();
         FakeStreamObserver<StringValue> responseObserver = new FakeStreamObserver<>();
-        lockServerGrpc.tryLock(request, responseObserver);
+        lockServerGrpc.tryLock(StringValue.of(lockName), responseObserver);
         assertTrue(responseObserver.isCompleted());
         assertTrue(responseObserver.getNext().getValue().contains(lockName));
     }
@@ -72,24 +76,32 @@ public class LockServerGrpcImplTest {
     @Test
     public void tryLock2Test() {
         String lockName = "lock3" + System.currentTimeMillis();
-        TrylockValuesWithTimeout trylockValuesWithTimeout = TrylockValuesWithTimeout.newBuilder().
-                setTimeUnit(org.obapanel.lockfactoryserver.core.grpc.TimeUnit.MILLISECONDS).
-                setTime(1).setName(lockName).build();
-        TrylockValues request = TrylockValues.newBuilder().setTryLockValuesWithTimeout(trylockValuesWithTimeout).build();
+        long timeOut = ThreadLocalRandom.current().nextLong(1, 100);
+        TryLockWithTimeout tryLockWithTimeout = TryLockWithTimeout.newBuilder().
+                setName(lockName).
+                setTimeOut(timeOut).
+                setTimeUnit(TimeUnitGrpc.MILLISECONDS).
+                build();
         FakeStreamObserver<StringValue> responseObserver = new FakeStreamObserver<>();
-        lockServerGrpc.tryLock(request, responseObserver);
+        lockServerGrpc.tryLockWithTimeOut(tryLockWithTimeout, responseObserver);
         assertTrue(responseObserver.isCompleted());
         assertTrue(responseObserver.getNext().getValue().contains(lockName));
     }
 
-
-    @Test(expected = IllegalArgumentException.class)
-    public void tryLockErrorTest() {
-        String lockName = "locke" + System.currentTimeMillis();
-        TrylockValues request = TrylockValues.newBuilder().build();
+    @Test
+    public void tryLock3Test() {
+        String lockName = "lock4" + System.currentTimeMillis();
+        long timeOut = ThreadLocalRandom.current().nextLong(1, 100);
+        TryLockWithTimeout tryLockWithTimeout = TryLockWithTimeout.newBuilder().
+                setName(lockName).
+                setTimeOut(timeOut).
+                build();
         FakeStreamObserver<StringValue> responseObserver = new FakeStreamObserver<>();
-        lockServerGrpc.tryLock(request, responseObserver);
+        lockServerGrpc.tryLockWithTimeOut(tryLockWithTimeout, responseObserver);
+        assertTrue(responseObserver.isCompleted());
+        assertTrue(responseObserver.getNext().getValue().contains(lockName));
     }
+
 
     @Test
     public void lockStatusTest() {
@@ -116,11 +128,11 @@ public class LockServerGrpcImplTest {
     }
 
     @Test
-    public void asyncLock2Test() throws InterruptedException {
+    public void asyncLockTest() throws InterruptedException {
         String lockName = "lock6" + System.currentTimeMillis();
         StringValue request = StringValue.newBuilder().setValue(lockName).build();
         FakeStreamObserver<StringValue> responseObserver = new FakeStreamObserver<>();
-        lockServerGrpc.asyncLock2(request, responseObserver);
+        lockServerGrpc.asyncLock(request, responseObserver);
         int count = 0;
         while(!responseObserver.isCompleted()) {
             Thread.sleep(75);

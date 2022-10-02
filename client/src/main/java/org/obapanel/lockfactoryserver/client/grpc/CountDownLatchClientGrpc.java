@@ -5,8 +5,7 @@ import com.google.protobuf.BoolValue;
 import com.google.protobuf.Empty;
 import com.google.protobuf.Int32Value;
 import io.grpc.ManagedChannel;
-import org.obapanel.lockfactoryserver.core.grpc.AwaitValues;
-import org.obapanel.lockfactoryserver.core.grpc.AwaitValuesWithTimeout;
+import org.obapanel.lockfactoryserver.core.grpc.AwaitWithTimeout;
 import org.obapanel.lockfactoryserver.core.grpc.CountDownLatchServerGrpc;
 import org.obapanel.lockfactoryserver.core.grpc.NameCount;
 import org.slf4j.Logger;
@@ -68,25 +67,25 @@ public class CountDownLatchClientGrpc
     }
 
     public void await()  {
-        AwaitValues awaitValues = AwaitValues.
-                newBuilder().
-                setName(getName()).
-                build();
-        BoolValue boolValue = getStub().await(awaitValues);
+        getStub().await(getStringValueName());
     }
 
-    public boolean await(long timeOut, TimeUnit timeUnit)  {
-        AwaitValuesWithTimeout awaitValuesWithTimeout = AwaitValuesWithTimeout.
-                newBuilder().
+    public boolean tryAwait()  {
+        BoolValue boolValue = getStub().tryAwait(getStringValueName());
+        return boolValue.getValue();
+    }
+
+    public boolean tryAwaitWithTimeOut(long timeOut)  {
+        return tryAwaitWithTimeOut(timeOut, TimeUnit.MILLISECONDS);
+    }
+
+    public boolean tryAwaitWithTimeOut(long timeOut, TimeUnit timeUnit)  {
+        AwaitWithTimeout awaitWithTimeout = AwaitWithTimeout.newBuilder().
                 setName(getName()).
-                setTime(timeOut).
+                setTimeOut(timeOut).
                 setTimeUnit(fromJavaToGrpc(timeUnit)).
                 build();
-        AwaitValues awaitValues = AwaitValues.
-                newBuilder().
-                setNamePermitsWithTimeout(awaitValuesWithTimeout).
-                build();
-        BoolValue boolValue = getStub().await(awaitValues);
+        BoolValue boolValue = getStub().tryAwaitWithTimeOut(awaitWithTimeout);
         return boolValue.getValue();
     }
 

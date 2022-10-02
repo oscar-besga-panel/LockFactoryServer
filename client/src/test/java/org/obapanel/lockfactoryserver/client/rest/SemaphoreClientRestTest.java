@@ -21,7 +21,9 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -123,8 +125,51 @@ public class SemaphoreClientRestTest {
     }
 
     @Test
-    public void tryAcquireWithTimeOutTest() throws IOException {
-        boolean result = semaphoreClientRest.tryAcquire(5, 7, TimeUnit.SECONDS);
+    public void tryAcquireWithTimeOut1Test() throws IOException {
+        boolean result = semaphoreClientRest.tryAcquireWithTimeOut(7);
+        assertFalse(result);
+        verify(httpclient).execute(any(HttpGet.class));
+        String finalUrl = finalUrl();
+        assertTrue(finalUrl.contains("semaphore"));
+        assertTrue(finalUrl.contains("tryAcquire"));
+        assertTrue(finalUrl.contains("1"));
+        assertTrue(finalUrl.contains("7"));
+        assertTrue(finalUrl.contains("milliseconds"));
+        assertTrue(finalUrl.contains(name));
+    }
+
+    @Test
+    public void tryAcquireWithTimeOut2Test() throws IOException {
+        boolean result = semaphoreClientRest.tryAcquireWithTimeOut(7, TimeUnit.SECONDS);
+        assertFalse(result);
+        verify(httpclient).execute(any(HttpGet.class));
+        String finalUrl = finalUrl();
+        assertTrue(finalUrl.contains("semaphore"));
+        assertTrue(finalUrl.contains("tryAcquire"));
+        assertTrue(finalUrl.contains("1"));
+        assertTrue(finalUrl.contains("7"));
+        assertTrue(finalUrl.contains("seconds"));
+        assertTrue(finalUrl.contains(name));
+    }
+
+
+    @Test
+    public void tryAcquireWithTimeOut3Test() throws IOException {
+        boolean result = semaphoreClientRest.tryAcquireWithTimeOut(5, 7);
+        assertFalse(result);
+        verify(httpclient).execute(any(HttpGet.class));
+        String finalUrl = finalUrl();
+        assertTrue(finalUrl.contains("semaphore"));
+        assertTrue(finalUrl.contains("tryAcquire"));
+        assertTrue(finalUrl.contains("5"));
+        assertTrue(finalUrl.contains("7"));
+        assertTrue(finalUrl.contains("milliseconds"));
+        assertTrue(finalUrl.contains(name));
+    }
+
+    @Test
+    public void tryAcquireWithTimeOut4Test() throws IOException {
+        boolean result = semaphoreClientRest.tryAcquireWithTimeOut(5, 7, TimeUnit.SECONDS);
         assertFalse(result);
         verify(httpclient).execute(any(HttpGet.class));
         String finalUrl = finalUrl();

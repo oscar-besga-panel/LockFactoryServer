@@ -10,8 +10,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.obapanel.lockfactoryserver.core.grpc.AwaitValues;
-import org.obapanel.lockfactoryserver.core.grpc.AwaitValuesWithTimeout;
+import org.obapanel.lockfactoryserver.core.grpc.AwaitWithTimeout;
 import org.obapanel.lockfactoryserver.core.grpc.NameCount;
 import org.obapanel.lockfactoryserver.server.FakeStreamObserver;
 import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchService;
@@ -42,7 +41,9 @@ public class CountDownLatchServerGrpcImplTest {
     @Before
     public void setup()  {
         when(countDownLatchService.createNew(anyString(), anyInt())).thenReturn(true);
-        when(countDownLatchService.await(anyString(), anyLong(), any(TimeUnit.class))).thenReturn(true);
+        when(countDownLatchService.tryAwait(anyString())).thenReturn(true);
+        //unused: when(countDownLatchService.tryAwaitWithTimeOut(anyString(), anyLong())).thenReturn(true);
+        when(countDownLatchService.tryAwaitWithTimeOut(anyString(), anyLong(), any(TimeUnit.class))).thenReturn(true);
         countDownLatchServerGrpc = new CountDownLatchServerGrpcImpl(countDownLatchService);
     }
 
@@ -83,35 +84,52 @@ public class CountDownLatchServerGrpcImplTest {
     @Test
     public void awaitTest() throws RemoteException {
         String name = "codola_" + System.currentTimeMillis();
-        FakeStreamObserver<BoolValue> responseObserver = new FakeStreamObserver<>();
-        AwaitValues awaitValues = AwaitValues.newBuilder()
-                .setName(name)
-                .build();
-        countDownLatchServerGrpc.await(awaitValues, responseObserver);
+        FakeStreamObserver<Empty> responseObserver = new FakeStreamObserver<>();
+        countDownLatchServerGrpc.await(StringValue.of(name), responseObserver);
         verify(countDownLatchService).await(eq(name));
+        assertTrue(responseObserver.isCompleted());
+    }
+
+    @Test
+    public void tryAwaitTest() throws RemoteException {
+        String name = "codola_" + System.currentTimeMillis();
+        FakeStreamObserver<BoolValue> responseObserver = new FakeStreamObserver<>();
+        countDownLatchServerGrpc.tryAwait(StringValue.of(name), responseObserver);
+        verify(countDownLatchService).tryAwait(eq(name));
         assertTrue(responseObserver.isCompleted());
         assertTrue(responseObserver.getNext().getValue());
     }
 
     @Test
-    public void awaitWithTimeOutTest() throws RemoteException {
+    public void tryAwaitWithTimeOut1Test() throws RemoteException {
         String name = "codola_" + System.currentTimeMillis();
-        long time = ThreadLocalRandom.current().nextLong(100);
+        long timeOut = ThreadLocalRandom.current().nextLong(100);
         FakeStreamObserver<BoolValue> responseObserver = new FakeStreamObserver<>();
-        AwaitValuesWithTimeout awaitValuesWithTimeout = AwaitValuesWithTimeout.newBuilder().
+        AwaitWithTimeout awaitWithTimeout = AwaitWithTimeout.newBuilder().
                 setName(name).
-                setTime(time).
+                setTimeOut(timeOut).
                 setTimeUnit(fromJavaToGrpc(TimeUnit.MILLISECONDS)).
                 build();
-        AwaitValues awaitValues = AwaitValues.newBuilder()
-                .setNamePermitsWithTimeout(awaitValuesWithTimeout)
-                .build();
-        countDownLatchServerGrpc.await(awaitValues, responseObserver);
-        verify(countDownLatchService).await(eq(name), eq(time), eq(TimeUnit.MILLISECONDS));
+        countDownLatchServerGrpc.tryAwaitWithTimeOut(awaitWithTimeout, responseObserver);
+        verify(countDownLatchService).tryAwaitWithTimeOut(eq(name), eq(timeOut), eq(TimeUnit.MILLISECONDS));
         assertTrue(responseObserver.isCompleted());
         assertTrue(responseObserver.getNext().getValue());
     }
 
+    @Test
+    public void tryAwaitWithTimeOut2Test() throws RemoteException {
+        String name = "codola_" + System.currentTimeMillis();
+        long timeOut = ThreadLocalRandom.current().nextLong(100);
+        FakeStreamObserver<BoolValue> responseObserver = new FakeStreamObserver<>();
+        AwaitWithTimeout awaitWithTimeout = AwaitWithTimeout.newBuilder().
+                setName(name).
+                setTimeOut(timeOut).
+                build();
+        countDownLatchServerGrpc.tryAwaitWithTimeOut(awaitWithTimeout, responseObserver);
+        verify(countDownLatchService).tryAwaitWithTimeOut(eq(name), eq(timeOut), eq(TimeUnit.MILLISECONDS));
+        assertTrue(responseObserver.isCompleted());
+        assertTrue(responseObserver.getNext().getValue());
+    }
 
 
 }

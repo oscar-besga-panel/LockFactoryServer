@@ -33,7 +33,7 @@ public class SemaphoreClientRmi extends AbstractClientRmi<SemaphoreServerRmi> {
     }
 
     public void acquire() throws RemoteException {
-        acquire(1);
+        this. acquire(1);
     }
 
     public void acquire(int permits) throws RemoteException {
@@ -41,24 +41,31 @@ public class SemaphoreClientRmi extends AbstractClientRmi<SemaphoreServerRmi> {
     }
 
     public boolean tryAcquire() throws RemoteException {
-        return tryAcquire(1);
+        return this.tryAcquire(1);
     }
 
     public boolean tryAcquire(int permits) throws RemoteException {
         return getServerRmi().tryAcquire(getName(), permits);
     }
 
-
-    public boolean tryAcquire(long timeOut, TimeUnit timeUnit) throws RemoteException {
-        return tryAcquire(1, timeOut, timeUnit);
+    public boolean tryAcquireWithTimeOut(long timeOut) throws RemoteException {
+        return this.tryAcquireWithTimeOut(1, timeOut);
     }
 
-    public boolean tryAcquire(int permits, long timeOut, TimeUnit timeUnit) throws RemoteException {
-        return getServerRmi().tryAcquire(getName(), permits, timeOut, timeUnit);
+    public boolean tryAcquireWithTimeOut(int permits, long timeOut) throws RemoteException {
+        return getServerRmi().tryAcquireWithTimeOut(getName(), permits, timeOut);
+    }
+
+    public boolean tryAcquireWithTimeOut(long timeOut, TimeUnit timeUnit) throws RemoteException {
+        return this.tryAcquireWithTimeOut(1, timeOut, timeUnit);
+    }
+
+    public boolean tryAcquireWithTimeOut(int permits, long timeOut, TimeUnit timeUnit) throws RemoteException {
+        return getServerRmi().tryAcquireWithTimeOut(getName(), permits, timeOut, timeUnit);
     }
 
     public void release() throws RemoteException {
-        release(1);
+        this.release(1);
     }
 
     public void release(int permits) throws RemoteException {

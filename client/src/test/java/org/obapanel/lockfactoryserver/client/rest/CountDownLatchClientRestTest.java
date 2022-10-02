@@ -146,89 +146,44 @@ public class CountDownLatchClientRestTest {
     }
 
     @Test
-    public void awaitWithTimeoutTest() throws IOException {
-        long timeOut = ThreadLocalRandom.current().nextLong(10);
+    public void tryAwaitTest() throws IOException {
         finalResult.set(Boolean.toString(true));
-        boolean result = countDownLatchClientRest.await(timeOut, TimeUnit.MILLISECONDS);
+        boolean result = countDownLatchClientRest.tryAwait();
         String finalUrl = finalUrl();
         assertTrue(finalUrl.contains("countDownLatch"));
-        assertTrue(finalUrl.contains("await"));
+        assertTrue(finalUrl.contains("tryAwait"));
+        assertTrue(finalUrl.contains(name));
+        assertTrue(result);
+        verify(httpclient).execute(any(HttpGet.class));
+    }
+
+    @Test
+    public void tryAwaitWithTimeou1tTest() throws IOException {
+        long timeOut = ThreadLocalRandom.current().nextLong(10);
+        finalResult.set(Boolean.toString(true));
+        boolean result = countDownLatchClientRest.tryAwaitWithTimeOut(timeOut);
+        String finalUrl = finalUrl();
+        assertTrue(finalUrl.contains("countDownLatch"));
+        assertTrue(finalUrl.contains("tryAwaitWithTimeOut"));
+        assertTrue(finalUrl.contains(name));
+        assertTrue(finalUrl.contains(Long.toString(timeOut)));
+        assertTrue(result);
+        verify(httpclient).execute(any(HttpGet.class));
+    }
+
+    @Test
+    public void tryAwaitWithTimeout2Test() throws IOException {
+        long timeOut = ThreadLocalRandom.current().nextLong(10);
+        finalResult.set(Boolean.toString(true));
+        boolean result = countDownLatchClientRest.tryAwaitWithTimeOut(timeOut, TimeUnit.MILLISECONDS);
+        String finalUrl = finalUrl();
+        assertTrue(finalUrl.contains("countDownLatch"));
+        assertTrue(finalUrl.contains("tryAwaitWithTimeOut"));
         assertTrue(finalUrl.contains(name));
         assertTrue(finalUrl.contains(Long.toString(timeOut)));
         assertTrue(finalUrl.contains(TimeUnit.MILLISECONDS.name().toLowerCase()));
         assertTrue(result);
         verify(httpclient).execute(any(HttpGet.class));
     }
-
-
-/*
-    String semaphoreInit() {
-        int origin = ThreadLocalRandom.current().nextInt(7,10);
-        String result = Integer.toString(origin);
-        finalResult.set(result);
-        return result;
-    }
-
-    @Test
-    public void currentTest() throws IOException {
-        String result = semaphoreInit();
-        int currentPermits = countDownLatchClientRest.currentPermits();
-        assertEquals(result, Integer.toString(currentPermits));
-        verify(httpclient).execute(any(HttpGet.class));
-        String finalUrl = finalUrl();
-        assertTrue(finalUrl.contains("semaphore"));
-        assertTrue(finalUrl.contains("currentPermits"));
-        assertTrue(finalUrl.contains(name));
-    }
-
-    @Test
-    public void acquireTest() throws IOException {
-        countDownLatchClientRest.acquire(2);
-        verify(httpclient).execute(any(HttpGet.class));
-        String finalUrl = finalUrl();
-        assertTrue(finalUrl.contains("semaphore"));
-        assertTrue(finalUrl.contains("acquire"));
-        assertTrue(finalUrl.contains("2"));
-        assertTrue(finalUrl.contains(name));
-    }
-
-    @Test
-    public void tryAcquireTest() throws IOException {
-        boolean result = countDownLatchClientRest.tryAcquire(3);
-        assertFalse(result);
-        verify(httpclient).execute(any(HttpGet.class));
-        String finalUrl = finalUrl();
-        assertTrue(finalUrl.contains("semaphore"));
-        assertTrue(finalUrl.contains("tryAcquire"));
-        assertTrue(finalUrl.contains("3"));
-        assertTrue(finalUrl.contains(name));
-    }
-
-    @Test
-    public void tryAcquireWithTimeOutTest() throws IOException {
-        boolean result = countDownLatchClientRest.tryAcquire(5, 7, TimeUnit.SECONDS);
-        assertFalse(result);
-        verify(httpclient).execute(any(HttpGet.class));
-        String finalUrl = finalUrl();
-        assertTrue(finalUrl.contains("semaphore"));
-        assertTrue(finalUrl.contains("tryAcquire"));
-        assertTrue(finalUrl.contains("5"));
-        assertTrue(finalUrl.contains("7"));
-        assertTrue(finalUrl.contains("seconds"));
-        assertTrue(finalUrl.contains(name));
-    }
-
-    @Test
-    public void releaseTest() throws IOException {
-        countDownLatchClientRest.release(9);
-        verify(httpclient).execute(any(HttpGet.class));
-        String finalUrl = finalUrl();
-        assertTrue(finalUrl.contains("semaphore"));
-        assertTrue(finalUrl.contains("release"));
-        assertTrue(finalUrl.contains("9"));
-        assertTrue(finalUrl.contains(name));
-    }
-
- */
 
 }

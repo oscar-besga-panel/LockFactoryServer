@@ -44,9 +44,16 @@ public class CountDownLatchClientRmi extends AbstractClientRmi<CountDownLatchSer
         getServerRmi().await(getName());
     }
 
-    public boolean await(long timeOut, TimeUnit timeUnit) throws RemoteException {
-        return getServerRmi().await(getName(), timeOut, timeUnit);
+    public boolean tryAwait() throws RemoteException {
+        return getServerRmi().tryAwait(getName());
     }
 
+    public boolean tryAwaitWithTimeOut(long timeOut) throws RemoteException {
+        return getServerRmi().tryAwaitWithTimeOut(getName(), timeOut);
+    }
+
+    public boolean tryAwaitWithTimeOut(long timeOut, TimeUnit timeUnit) throws RemoteException {
+        return getServerRmi().tryAwaitWithTimeOut(getName(), timeOut, timeUnit);
+    }
 
 }

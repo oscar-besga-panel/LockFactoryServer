@@ -40,20 +40,23 @@ public class SemaphoreServerRestImpl {
     }
 
     public void tryAcquire(Context context) {
-        boolean response = false;
         String name = context.getPathTokens().get("name");
         int permits = Integer.parseInt(context.getPathTokens().getOrDefault("permits", "1"));
-        if (context.getPathTokens().get("time") == null) {
-            LOGGER.info("rest server> semaphore tryacquire name {} permits {}", name, permits);
-            response = semaphoreService.tryAcquire(name, permits);
-        } else {
-            long time = Long.parseLong(context.getPathTokens().get("time"));
-            String timeUnitName = context.getPathTokens().getOrDefault("timeUnit", TimeUnit.MILLISECONDS.name());
-            TimeUnit timeUnit = TimeUnit.valueOf(timeUnitName.toUpperCase());
-            LOGGER.info("rest server> semaphore tryacquire name {} permits {} time {} timeUnit {}",
-                    name, permits, time, timeUnit);
-            response = semaphoreService.tryAcquire(name, permits, time, timeUnit);
-        }
+        boolean response = semaphoreService.tryAcquire(name, permits);
+        LOGGER.info("rest server> semaphore tryAcquire name {} permits {}", name, permits);
+        context.getResponse().send(Boolean.toString(response));
+
+    }
+
+    public void tryAcquireWithTimeOut(Context context) {
+        String name = context.getPathTokens().get("name");
+        int permits = Integer.parseInt(context.getPathTokens().getOrDefault("permits", "1"));
+        long timeOut = Long.parseLong(context.getPathTokens().get("timeOut"));
+        String timeUnitName = context.getPathTokens().getOrDefault("timeUnit", TimeUnit.MILLISECONDS.name());
+        TimeUnit timeUnit = TimeUnit.valueOf(timeUnitName.toUpperCase());
+        LOGGER.info("rest server> semaphore tryAcquireWithTimeOut name {} permits {} timeOut {} timeUnit", name, permits,
+                timeOut, timeUnit);
+        boolean response = semaphoreService.tryAcquireWithTimeOut(name, permits, timeOut, timeUnit);
         context.getResponse().send(Boolean.toString(response));
     }
 

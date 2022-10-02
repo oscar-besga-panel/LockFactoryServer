@@ -5,7 +5,7 @@ import com.google.protobuf.Empty;
 import com.google.protobuf.Int32Value;
 import com.google.protobuf.StringValue;
 import io.grpc.stub.StreamObserver;
-import org.obapanel.lockfactoryserver.core.grpc.AwaitValues;
+import org.obapanel.lockfactoryserver.core.grpc.AwaitWithTimeout;
 import org.obapanel.lockfactoryserver.core.grpc.CountDownLatchServerGrpc;
 import org.obapanel.lockfactoryserver.core.grpc.NameCount;
 import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchService;
@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.obapanel.lockfactoryserver.core.util.TimeUnitConverter.fromGrpcToJava;
+
 
 public class CountDownLatchServerGrpcImpl extends CountDownLatchServerGrpc.CountDownLatchServerImplBase {
 
@@ -55,20 +56,36 @@ public class CountDownLatchServerGrpcImpl extends CountDownLatchServerGrpc.Count
     }
 
     @Override
-    public void await(AwaitValues request, StreamObserver<BoolValue> responseObserver) {
-        boolean result = false;
-        if (request.getAwaitValuesOneOfCase() == AwaitValues.AwaitValuesOneOfCase.NAME) {
-            String name = request.getName();
-            LOGGER.info("grpc server> await name {}", name);
-            countDownLatchService.await(name);
-            result = true;
-        } else if (request.getAwaitValuesOneOfCase() == AwaitValues.AwaitValuesOneOfCase.NAMEPERMITSWITHTIMEOUT) {
-            String name = request.getNamePermitsWithTimeout().getName();
-            long time = request.getNamePermitsWithTimeout().getTime();
-            org.obapanel.lockfactoryserver.core.grpc.TimeUnit grpcTimeUnit = request.getNamePermitsWithTimeout().getTimeUnit();
-            java.util.concurrent.TimeUnit timeUnit = fromGrpcToJava(grpcTimeUnit);
-            LOGGER.info("grpc server> await name {} timeout {} timeunit {}", name, time, timeUnit);
-            result = countDownLatchService.await(name, time, timeUnit);
+    public void await(StringValue request, StreamObserver<Empty> responseObserver) {
+        String name = request.getValue();
+        LOGGER.info("grpc server> await name {}", name);
+        countDownLatchService.await(name);
+        responseObserver.onNext(Empty.getDefaultInstance());
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void tryAwait(StringValue request, StreamObserver<BoolValue> responseObserver) {
+        String name = request.getValue();
+        LOGGER.info("grpc server> tryAwait name {}", name);
+        countDownLatchService.tryAwait(name);
+        responseObserver.onNext(BoolValue.of(true));
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void tryAwaitWithTimeOut(AwaitWithTimeout request, StreamObserver<BoolValue> responseObserver) {
+        boolean result;
+        String name = request.getName();
+        long timeOut = request.getTimeOut();
+        org.obapanel.lockfactoryserver.core.grpc.TimeUnitGrpc timeUnitGrpc = request.getTimeUnit();
+        if (timeUnitGrpc == null) {
+            LOGGER.info("grpc server> tryAwaitWithTimeOut name {} timeout {} timeunit {}", name, timeOut);
+            result = countDownLatchService.tryAwaitWithTimeOut(name, timeOut);
+        } else {
+            java.util.concurrent.TimeUnit timeUnit = fromGrpcToJava(timeUnitGrpc);
+            LOGGER.info("grpc server> tryAwaitWithTimeOut name {} timeout {} timeunit {}", name, timeOut, timeUnit);
+            result = countDownLatchService.tryAwaitWithTimeOut(name, timeOut, timeUnit);
         }
         responseObserver.onNext(BoolValue.of(result));
         responseObserver.onCompleted();

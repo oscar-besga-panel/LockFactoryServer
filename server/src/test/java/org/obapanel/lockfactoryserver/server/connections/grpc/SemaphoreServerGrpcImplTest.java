@@ -11,16 +11,23 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.obapanel.lockfactoryserver.core.grpc.NamePermits;
 import org.obapanel.lockfactoryserver.core.grpc.NamePermitsWithTimeout;
-import org.obapanel.lockfactoryserver.core.grpc.TryAcquirekValues;
 import org.obapanel.lockfactoryserver.server.FakeStreamObserver;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SemaphoreServerGrpcImplTest {
@@ -45,7 +52,8 @@ public class SemaphoreServerGrpcImplTest {
         }).when(semaphoreService).acquire(anyString(), anyInt());
         when(semaphoreService.tryAcquire(anyString(), anyInt())).
                 thenReturn(true);
-        when(semaphoreService.tryAcquire(anyString(), anyInt(), anyLong(), any(java.util.concurrent.TimeUnit.class))).
+        //unused when(semaphoreService.tryAcquireWithTimeOut(anyString(), anyInt(), anyLong())).thenReturn(true);
+        when(semaphoreService.tryAcquireWithTimeOut(anyString(), anyInt(), anyLong(), any(java.util.concurrent.TimeUnit.class))).
                 thenReturn(true);
         semaphoreServerGrpc = new SemaphoreServerGrpcImpl(semaphoreService);
     }
@@ -102,11 +110,8 @@ public class SemaphoreServerGrpcImplTest {
         String semaphoreName = "sem3" + System.currentTimeMillis();
         NamePermits namePermits = NamePermits.newBuilder().
                 setName(semaphoreName).setPermits(1).build();
-        TryAcquirekValues tryAcquirekValues = TryAcquirekValues.newBuilder().
-                setNamePermits(namePermits).
-                build();
         FakeStreamObserver<BoolValue> responseObserver = new FakeStreamObserver<>();
-        semaphoreServerGrpc.tryAcquire(tryAcquirekValues, responseObserver);
+        semaphoreServerGrpc.tryAcquire(namePermits, responseObserver);
         verify(semaphoreService).tryAcquire(anyString(), anyInt());
         assertTrue(responseObserver.isCompleted());
         assertNotNull(responseObserver.getNext());
@@ -114,19 +119,34 @@ public class SemaphoreServerGrpcImplTest {
     }
 
     @Test
-    public void tryAcquireWithTimeoutTest() {
-        String semaphoreName = "sem4" + System.currentTimeMillis();
+    public void tryAcquireWithTimeout1Test() {
+        String semaphoreName = "sem41" + System.currentTimeMillis();
+
         NamePermitsWithTimeout namePermitsWithTimeout = NamePermitsWithTimeout.newBuilder().
                 setName(semaphoreName).setPermits(1).
-                setTime(1).
-                setTimeUnit(org.obapanel.lockfactoryserver.core.grpc.TimeUnit.MILLISECONDS).
-                build();
-        TryAcquirekValues tryAcquirekValues = TryAcquirekValues.newBuilder().
-                setNamePermitsWithTimeout(namePermitsWithTimeout).
+                setTimeOut(1).
+                setTimeUnit(org.obapanel.lockfactoryserver.core.grpc.TimeUnitGrpc.MILLISECONDS).
                 build();
         FakeStreamObserver<BoolValue> responseObserver = new FakeStreamObserver<>();
-        semaphoreServerGrpc.tryAcquire(tryAcquirekValues, responseObserver);
-        verify(semaphoreService).tryAcquire(anyString(), anyInt(), anyLong(),
+        semaphoreServerGrpc.tryAcquireWithTimeOut(namePermitsWithTimeout, responseObserver);
+        verify(semaphoreService).tryAcquireWithTimeOut(anyString(), anyInt(), anyLong(),
+                any(java.util.concurrent.TimeUnit.class));
+        assertTrue(responseObserver.isCompleted());
+        assertNotNull(responseObserver.getNext());
+        assertTrue(responseObserver.getNext().getValue());
+    }
+
+    @Test
+    public void tryAcquireWithTimeout2Test() {
+        String semaphoreName = "sem42" + System.currentTimeMillis();
+
+        NamePermitsWithTimeout namePermitsWithTimeout = NamePermitsWithTimeout.newBuilder().
+                setName(semaphoreName).setPermits(1).
+                setTimeOut(1).
+                build();
+        FakeStreamObserver<BoolValue> responseObserver = new FakeStreamObserver<>();
+        semaphoreServerGrpc.tryAcquireWithTimeOut(namePermitsWithTimeout, responseObserver);
+        verify(semaphoreService).tryAcquireWithTimeOut(anyString(), anyInt(), anyLong(),
                 any(java.util.concurrent.TimeUnit.class));
         assertTrue(responseObserver.isCompleted());
         assertNotNull(responseObserver.getNext());

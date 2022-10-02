@@ -16,8 +16,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SemaphoreClientRmiTest {
@@ -49,7 +55,12 @@ public class SemaphoreClientRmiTest {
             current.set(current.get() - num);
             return true;
         });
-        when(semaphoreServerRmi.tryAcquire(anyString(), anyInt(), anyLong(), any(TimeUnit.class))).thenAnswer(ioc -> {
+        when(semaphoreServerRmi.tryAcquireWithTimeOut(anyString(), anyInt(), anyLong())).thenAnswer(ioc -> {
+            int num = ioc.getArgument(1, Integer.class);
+            current.set(current.get() - num);
+            return true;
+        });
+        when(semaphoreServerRmi.tryAcquireWithTimeOut(anyString(), anyInt(), anyLong(), any(TimeUnit.class))).thenAnswer(ioc -> {
             int num = ioc.getArgument(1, Integer.class);
             current.set(current.get() - num);
             return true;
@@ -83,7 +94,7 @@ public class SemaphoreClientRmiTest {
     }
 
     @Test
-    public void tryAcquireTest() throws RemoteException {
+    public void tryAcquire1Test() throws RemoteException {
         int num = ThreadLocalRandom.current().nextInt(5,7);
         current.set(num);
         boolean result = semaphoreClientRmi.tryAcquire();
@@ -93,13 +104,53 @@ public class SemaphoreClientRmiTest {
     }
 
     @Test
-    public void tryAcquireWithTimeoutTest() throws RemoteException {
+    public void tryAcquire2Test() throws RemoteException {
         int num = ThreadLocalRandom.current().nextInt(5,7);
         current.set(num);
-        boolean result = semaphoreClientRmi.tryAcquire(1, TimeUnit.SECONDS);
+        boolean result = semaphoreClientRmi.tryAcquire(2);
+        assertTrue(result);
+        assertEquals(num - 2, current.get());
+        verify(semaphoreServerRmi).tryAcquire(anyString(), anyInt());
+    }
+
+    @Test
+    public void tryAcquireWithTimeout1Test() throws RemoteException {
+        int num = ThreadLocalRandom.current().nextInt(5,7);
+        current.set(num);
+        boolean result = semaphoreClientRmi.tryAcquireWithTimeOut(2, 1L);
+        assertTrue(result);
+        assertEquals(num - 2, current.get());
+        verify(semaphoreServerRmi).tryAcquireWithTimeOut(anyString(), anyInt(), anyLong());
+    }
+
+    @Test
+    public void tryAcquireWithTimeout2Test() throws RemoteException {
+        int num = ThreadLocalRandom.current().nextInt(5,7);
+        current.set(num);
+        boolean result = semaphoreClientRmi.tryAcquireWithTimeOut( 1L);
         assertTrue(result);
         assertEquals(num - 1, current.get());
-        verify(semaphoreServerRmi).tryAcquire(anyString(), anyInt(), anyLong(), any(TimeUnit.class));
+        verify(semaphoreServerRmi).tryAcquireWithTimeOut(anyString(), anyInt(), anyLong());
+    }
+
+    @Test
+    public void tryAcquireWithTimeout3Test() throws RemoteException {
+        int num = ThreadLocalRandom.current().nextInt(5,7);
+        current.set(num);
+        boolean result = semaphoreClientRmi.tryAcquireWithTimeOut(1L ,TimeUnit.SECONDS);
+        assertTrue(result);
+        assertEquals(num - 1, current.get());
+        verify(semaphoreServerRmi).tryAcquireWithTimeOut(anyString(), anyInt(), anyLong(), any(TimeUnit.class));
+    }
+
+    @Test
+    public void tryAcquireWithTimeout4Test() throws RemoteException {
+        int num = ThreadLocalRandom.current().nextInt(5,7);
+        current.set(num);
+        boolean result = semaphoreClientRmi.tryAcquireWithTimeOut(2, 1L ,TimeUnit.SECONDS);
+        assertTrue(result);
+        assertEquals(num - 2, current.get());
+        verify(semaphoreServerRmi).tryAcquireWithTimeOut(anyString(), anyInt(), anyLong(), any(TimeUnit.class));
     }
 
     @Test

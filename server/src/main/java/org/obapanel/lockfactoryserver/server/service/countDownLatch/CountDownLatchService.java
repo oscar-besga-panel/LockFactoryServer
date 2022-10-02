@@ -85,9 +85,17 @@ LOGGER.debug(">> wait codola {} {} POST<", name, countDownLatch);
         }
     }
 
-    public boolean await(String name, long timeOut, TimeUnit timeUnit) {
+    public boolean tryAwait(String name) {
+        return this.tryAwaitWithTimeOut(name, 1, TimeUnit.MILLISECONDS);
+    }
+
+    public boolean tryAwaitWithTimeOut(String name, long timeOut) {
+        return this.tryAwaitWithTimeOut(name, timeOut, TimeUnit.MILLISECONDS);
+    }
+
+    public boolean tryAwaitWithTimeOut(String name, long timeOut, TimeUnit timeUnit) {
         boolean result = false;
-        LOGGER.info("service> await name {} timeOut {} timeUnit {}", name, timeOut, timeUnit);
+        LOGGER.info("service> awaitWithTimeOut name {} timeOut {} timeUnit {}", name, timeOut, timeUnit);
         CountDownLatch countDownLatch = countDownLatchCache.getData(name);
 LOGGER.debug(">> wait codola {} {}", name, countDownLatch);
         if (countDownLatch != null) {

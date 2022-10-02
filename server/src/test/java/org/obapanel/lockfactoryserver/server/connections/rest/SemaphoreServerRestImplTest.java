@@ -11,7 +11,10 @@ import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -32,7 +35,7 @@ public class SemaphoreServerRestImplTest {
                 thenAnswer( ioc -> current.get());
         when(semaphoreService.tryAcquire(anyString(), anyInt())).
                 thenReturn(true);
-        when(semaphoreService.tryAcquire(anyString(), anyInt(), anyLong(), any(java.util.concurrent.TimeUnit.class))).
+        when(semaphoreService.tryAcquireWithTimeOut(anyString(), anyInt(), anyLong(), any(java.util.concurrent.TimeUnit.class))).
                 thenReturn(true);
         semaphoreServerRest = new SemaphoreServerRestImpl(semaphoreService);
     }
@@ -70,15 +73,27 @@ public class SemaphoreServerRestImplTest {
     }
 
     @Test
-    public void tryAcquireWithTimeoutTest() {
+    public void tryAcquireWithTimeout1Test() {
         String semaphoreName = "sem4" + System.currentTimeMillis();
         FakeContext fakeContext = new FakeContext();
         fakeContext.getPathTokens().put("name", semaphoreName);
         fakeContext.getPathTokens().put("permits", "1");
-        fakeContext.getPathTokens().put("time", "1");
+        fakeContext.getPathTokens().put("timeOut", "1");
         fakeContext.getPathTokens().put("timeUnit", java.util.concurrent.TimeUnit.MILLISECONDS.name());
-        semaphoreServerRest.tryAcquire(fakeContext);
-        verify(semaphoreService).tryAcquire(anyString(), anyInt(), anyLong(), any(java.util.concurrent.TimeUnit.class));
+        semaphoreServerRest.tryAcquireWithTimeOut(fakeContext);
+        verify(semaphoreService).tryAcquireWithTimeOut(anyString(), anyInt(), anyLong(), any(java.util.concurrent.TimeUnit.class));
+        assertEquals("true", fakeContext.getFakeSentResponse());
+    }
+
+    @Test
+    public void tryAcquireWithTimeout2Test() {
+        String semaphoreName = "sem4" + System.currentTimeMillis();
+        FakeContext fakeContext = new FakeContext();
+        fakeContext.getPathTokens().put("name", semaphoreName);
+        fakeContext.getPathTokens().put("permits", "1");
+        fakeContext.getPathTokens().put("timeOut", "1");
+        semaphoreServerRest.tryAcquireWithTimeOut(fakeContext);
+        verify(semaphoreService).tryAcquireWithTimeOut(anyString(), anyInt(), anyLong(), any(java.util.concurrent.TimeUnit.class));
         assertEquals("true", fakeContext.getFakeSentResponse());
     }
 

@@ -13,7 +13,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -33,7 +36,9 @@ public class SemaphoreServerRmiImplTest {
                 thenAnswer( ioc -> current.get());
         when(semaphoreService.tryAcquire(anyString(), anyInt())).
                 thenReturn(true);
-        when(semaphoreService.tryAcquire(anyString(), anyInt(), anyLong(), any(java.util.concurrent.TimeUnit.class))).
+        when(semaphoreService.tryAcquireWithTimeOut(anyString(), anyInt(), anyLong(), any(java.util.concurrent.TimeUnit.class))).
+                thenReturn(true);
+        when(semaphoreService.tryAcquireWithTimeOut(anyString(), anyInt(), anyLong())).
                 thenReturn(true);
         semaphoreServerRmi = new SemaphoreServerRmiImpl(semaphoreService);
     }
@@ -62,12 +67,21 @@ public class SemaphoreServerRmiImplTest {
     }
 
     @Test
-    public void tryAcquireWithTimeoutTest() throws RemoteException {
+    public void tryAcquireWithTimeout1Test() throws RemoteException {
         String semaphoreName = "sem4" + System.currentTimeMillis();
-        boolean result = semaphoreServerRmi.tryAcquire(semaphoreName, 1, 1L, TimeUnit.MILLISECONDS);
-        verify(semaphoreService).tryAcquire(anyString(), anyInt(), anyLong(), any(TimeUnit.class));
+        boolean result = semaphoreServerRmi.tryAcquireWithTimeOut(semaphoreName, 1, 1L, TimeUnit.MILLISECONDS);
+        verify(semaphoreService).tryAcquireWithTimeOut(anyString(), anyInt(), anyLong(), any(TimeUnit.class));
         assertTrue(result);
     }
+
+    @Test
+    public void tryAcquireWithTimeout2Test() throws RemoteException {
+        String semaphoreName = "sem4" + System.currentTimeMillis();
+        boolean result = semaphoreServerRmi.tryAcquireWithTimeOut(semaphoreName, 1, 1L);
+        verify(semaphoreService).tryAcquireWithTimeOut(anyString(), anyInt(), anyLong());
+        assertTrue(result);
+    }
+
 
     @Test
     public void releaseTest() throws RemoteException {

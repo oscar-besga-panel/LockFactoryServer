@@ -10,7 +10,7 @@ option java_package = "org.obapanel.lockfactoryserver.core.grpc";
 option java_outer_classname = "LockFactoryServer";
 
 /**
- * Servic that defines management services for GRPC
+ * Service that defines management services for GRPC
  */
 service ManagementServer {
 
@@ -26,53 +26,63 @@ service ManagementServer {
 
 
 }
-/*
 
+/**
+ * Service that makes a lock avalible
  */
-
-// for LockServerGrpc java class
 service LockServer {
 
   rpc lock(google.protobuf.StringValue) returns (google.protobuf.StringValue) {}
 
-  rpc tryLock(TrylockValues) returns (google.protobuf.StringValue) {}
+  rpc tryLock(google.protobuf.StringValue) returns (google.protobuf.StringValue) {}
+
+  rpc tryLockWithTimeOut(TryLockWithTimeout) returns (google.protobuf.StringValue) {}
 
   rpc lockStatus(NameTokenValues) returns (LockStatusValues) {}
 
   rpc unLock(NameTokenValues) returns (google.protobuf.BoolValue) {}
 
-  rpc asyncLock1(google.protobuf.StringValue) returns (stream google.protobuf.StringValue) {}
-
-  rpc asyncLock2(google.protobuf.StringValue) returns (google.protobuf.StringValue) {}
+  rpc asyncLock(google.protobuf.StringValue) returns (google.protobuf.StringValue) {}
 
 }
 
-// for SemaphoreServerGrpc java class
+/**
+ * Service that makes a semaphore avalible
+ */
 service SemaphoreServer {
 
   rpc currentPermits(google.protobuf.StringValue) returns (google.protobuf.Int32Value) {}
 
   rpc acquire(NamePermits) returns (google.protobuf.Empty) {}
 
-  rpc asyncAcquire(NamePermits) returns (google.protobuf.Empty) {}
+  rpc tryAcquire(NamePermits) returns (google.protobuf.BoolValue) {}
 
-  rpc tryAcquire(TryAcquirekValues) returns (google.protobuf.BoolValue) {}
+  rpc tryAcquireWithTimeOut(NamePermitsWithTimeout) returns (google.protobuf.BoolValue) {}
 
   rpc release(NamePermits) returns (google.protobuf.Empty) {}
 
+  rpc asyncAcquire(NamePermits) returns (google.protobuf.Empty) {}
+
 }
 
+/**
+ * Service that makes a countdoenlatch avalible
+ */
 service CountDownLatchServer {
 
-    rpc createNew(NameCount) returns (google.protobuf.BoolValue) {}
+  rpc createNew(NameCount) returns (google.protobuf.BoolValue) {}
 
-    rpc countDown(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
+  rpc countDown(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
 
-    rpc getCount(google.protobuf.StringValue) returns (google.protobuf.Int32Value) {}
+  rpc getCount(google.protobuf.StringValue) returns (google.protobuf.Int32Value) {}
 
-    rpc await(AwaitValues) returns (google.protobuf.BoolValue) {}
+  rpc await(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
 
-    rpc asyncAwait(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
+  rpc tryAwait(google.protobuf.StringValue) returns (google.protobuf.BoolValue) {}
+
+  rpc tryAwaitWithTimeOut(AwaitWithTimeout) returns (google.protobuf.BoolValue) {}
+
+  rpc asyncAwait(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
 
 }
 
@@ -81,17 +91,10 @@ message NameTokenValues {
   string token = 2;
 }
 
-message TrylockValues {
-  oneof TrylockValuesOneof {
-    string name = 1;
-    TrylockValuesWithTimeout tryLockValuesWithTimeout = 2;
-  }
-}
-
-message TrylockValuesWithTimeout {
+message TryLockWithTimeout {
   string name = 1;
-  uint64 time = 2;
-  TimeUnit timeUnit = 3;
+  uint64 timeOut = 2;
+  optional TimeUnitGrpc timeUnit = 3;
 }
 
 message LockStatusValues {
@@ -103,19 +106,11 @@ message NamePermits {
   uint32 permits = 2;
 }
 
-
 message NamePermitsWithTimeout {
   string name = 1;
   uint32 permits = 2;
-  uint64 time = 3;
-  TimeUnit timeUnit = 4;
-}
-
-message TryAcquirekValues {
-  oneof TryAcquireValuesOneof {
-    NamePermits namePermits = 1;
-    NamePermitsWithTimeout namePermitsWithTimeout = 2;
-  }
+  uint64 timeOut = 3;
+  optional TimeUnitGrpc timeUnit = 4;
 }
 
 message NameCount {
@@ -123,17 +118,10 @@ message NameCount {
   uint32 permits = 2;
 }
 
-message AwaitValues {
-  oneof AwaitValuesOneOf {
-    string name = 1;
-    AwaitValuesWithTimeout namePermitsWithTimeout = 2;
-  }
-}
-
-message AwaitValuesWithTimeout {
+message AwaitWithTimeout {
   string name = 1;
-  uint64 time = 2;
-  TimeUnit timeUnit = 3;
+  uint64 timeOut = 2;
+  optional TimeUnitGrpc timeUnit = 3;
 }
 
 enum LockStatus {
@@ -143,7 +131,7 @@ enum LockStatus {
     OTHER = 3; // Lock exists, is locked by other
 }
 
-enum TimeUnit {
+enum TimeUnitGrpc {
     MILLISECONDS = 0;
     SECONDS = 1;
     MINUTES = 2;

@@ -158,11 +158,11 @@ public class SemaphoreRmiTest {
             }
             inner.release();
         });
-        boolean resulttry1 = semaphoreClientRmi.tryAcquire(3500, TimeUnit.MILLISECONDS);
+        boolean resulttry1 = semaphoreClientRmi.tryAcquireWithTimeOut(3500, TimeUnit.MILLISECONDS);
         LOGGER.debug("}tryAcquireWithTimeOutTest} obtained resulttry1 {}", resulttry1);
         boolean resulttrya = inner.tryAcquire(10, TimeUnit.SECONDS);
         LOGGER.debug("}tryAcquireWithTimeOutTest} obtained resulttrya {}", resulttrya);
-        boolean resulttry2 = semaphoreClientRmi.tryAcquire(2,500, TimeUnit.MILLISECONDS);
+        boolean resulttry2 = semaphoreClientRmi.tryAcquireWithTimeOut(2,500, TimeUnit.MILLISECONDS);
         LOGGER.debug("}tryAcquireWithTimeOutTest} obtained resulttry2 {}", resulttry2);
         int result2 = semaphoreClientRmi.currentPermits();
         assertEquals(0, result1);

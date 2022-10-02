@@ -24,7 +24,9 @@ public interface SemaphoreServerRmi extends Remote {
 
     boolean tryAcquire(String name, int permits) throws RemoteException;
 
-    boolean tryAcquire(String name, int permits, long timeOut, TimeUnit timeUnit) throws RemoteException;
+    boolean tryAcquireWithTimeOut(String name, int permits, long timeOut) throws RemoteException;
+
+    boolean tryAcquireWithTimeOut(String name, int permits, long timeOut, TimeUnit timeUnit) throws RemoteException;
 
     void release(String name, int permits) throws RemoteException;
 

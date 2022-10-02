@@ -40,9 +40,15 @@ public class SemaphoreServerRmiImpl implements SemaphoreServerRmi {
     }
 
     @Override
-    public boolean tryAcquire(String name, int permits, long timeOut, TimeUnit timeUnit) throws RemoteException {
-        LOGGER.info("rmi  server> tryAcquire name {} permits {} timeOut {} timeUnit {}", name, permits, timeOut, timeUnit);
-        return semaphoreService.tryAcquire(name, permits, timeOut, timeUnit);
+    public boolean tryAcquireWithTimeOut(String name, int permits, long timeOut) throws RemoteException {
+        LOGGER.info("rmi  server> tryAcquireWithTimeOut name {} permits {} timeOut {}", name, permits, timeOut);
+        return semaphoreService.tryAcquireWithTimeOut(name, permits, timeOut);
+    }
+
+    @Override
+    public boolean tryAcquireWithTimeOut(String name, int permits, long timeOut, TimeUnit timeUnit) throws RemoteException {
+        LOGGER.info("rmi  server> tryAcquireWithTimeOut name {} permits {} timeOut {} timeUnit {}", name, permits, timeOut, timeUnit);
+        return semaphoreService.tryAcquireWithTimeOut(name, permits, timeOut, timeUnit);
     }
 
     @Override
@@ -50,4 +56,5 @@ public class SemaphoreServerRmiImpl implements SemaphoreServerRmi {
         LOGGER.info("rmi  server> release name {} permits {}", name, permits);
         semaphoreService.release(name, permits);
     }
+
 }

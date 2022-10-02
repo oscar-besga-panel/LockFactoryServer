@@ -14,7 +14,9 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -31,7 +33,7 @@ public class LockServerRestImplTest {
                 thenAnswer( ioc -> ioc.getArgument(0) + "_" + System.currentTimeMillis());
         when(lockService.tryLock(anyString())).
                 thenAnswer( ioc -> ioc.getArgument(0) + "_" + System.currentTimeMillis());
-        when(lockService.tryLock(anyString(), anyLong(), any(TimeUnit.class))).
+        when(lockService.tryLockWithTimeOut(anyString(), anyLong(), any(TimeUnit.class))).
                 thenAnswer( ioc -> ioc.getArgument(0) + "_" + System.currentTimeMillis());
         when(lockService.lockStatus(anyString(), anyString())).thenReturn(LockStatus.ABSENT);
         when(lockService.unLock(anyString(), anyString())).thenReturn(true);
@@ -61,15 +63,25 @@ public class LockServerRestImplTest {
         String lockName = "lock3" + System.currentTimeMillis();
         FakeContext fakeContext = new FakeContext();
         fakeContext.getPathTokens().put("name", lockName);
-        fakeContext.getPathTokens().put("time", Long.toString(1));
+        fakeContext.getPathTokens().put("timeOut", Long.toString(1));
         fakeContext.getPathTokens().put("timeUnit", TimeUnit.MILLISECONDS.name().toUpperCase());
-        lockServerRest.tryLock(fakeContext);
+        lockServerRest.tryLockWithTimeout(fakeContext);
+        assertTrue(fakeContext.getFakeSentResponse().contains(lockName));
+    }
+
+    @Test
+    public void tryLock3Test() throws RemoteException {
+        String lockName = "lock4" + System.currentTimeMillis();
+        FakeContext fakeContext = new FakeContext();
+        fakeContext.getPathTokens().put("name", lockName);
+        fakeContext.getPathTokens().put("timeOut", Long.toString(1));
+        lockServerRest.tryLockWithTimeout(fakeContext);
         assertTrue(fakeContext.getFakeSentResponse().contains(lockName));
     }
 
     @Test
     public void lockStatusTest() {
-        String lockName = "lock4" + System.currentTimeMillis();
+        String lockName = "lock5" + System.currentTimeMillis();
         String token = "token_" + lockName;
         FakeContext fakeContext = new FakeContext();
         fakeContext.getPathTokens().put("name", lockName);
@@ -80,7 +92,7 @@ public class LockServerRestImplTest {
 
     @Test
     public void unlock() {
-        String lockName = "lock5" + System.currentTimeMillis();
+        String lockName = "lock6" + System.currentTimeMillis();
         String token = "token_" + lockName;
         FakeContext fakeContext = new FakeContext();
         fakeContext.getPathTokens().put("name", lockName);

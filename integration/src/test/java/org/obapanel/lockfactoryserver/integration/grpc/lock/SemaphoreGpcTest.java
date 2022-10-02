@@ -158,9 +158,9 @@ public class SemaphoreGpcTest {
             semaphoreClientGrpc.release(3);
             inner.release();
         });
-        boolean resulttry1 = semaphoreClientGrpc.tryAcquire(3500, TimeUnit.MILLISECONDS);
+        boolean resulttry1 = semaphoreClientGrpc.tryAcquireWithTimeOut(3500, TimeUnit.MILLISECONDS);
         boolean resulttrya = inner.tryAcquire(10, TimeUnit.SECONDS);
-        boolean resulttry2 = semaphoreClientGrpc.tryAcquire(2,500, TimeUnit.MILLISECONDS);
+        boolean resulttry2 = semaphoreClientGrpc.tryAcquireWithTimeOut(2,500, TimeUnit.MILLISECONDS);
         int result2 = semaphoreClientGrpc.currentPermits();
         assertEquals(0, result1);
         assertEquals(0, result2);

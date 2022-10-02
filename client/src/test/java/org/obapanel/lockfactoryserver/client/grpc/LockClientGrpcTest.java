@@ -15,7 +15,7 @@ import org.obapanel.lockfactoryserver.core.LockStatus;
 import org.obapanel.lockfactoryserver.core.grpc.LockServerGrpc;
 import org.obapanel.lockfactoryserver.core.grpc.LockStatusValues;
 import org.obapanel.lockfactoryserver.core.grpc.NameTokenValues;
-import org.obapanel.lockfactoryserver.core.grpc.TrylockValues;
+import org.obapanel.lockfactoryserver.core.grpc.TryLockWithTimeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,29 +58,29 @@ public class LockClientGrpcTest {
         mockedStaticLockServerGrpc.when(() -> LockServerGrpc.newFutureStub(any(ManagedChannel.class))).
                 thenReturn(futureStub);
         when(stub.lock(any(StringValue.class))).thenAnswer(ioc ->
-            generateTokenFromRequest(ioc.getArgument(0))
+            generateTokenFromRequest((StringValue)ioc.getArgument(0))
         );
-        when(stub.tryLock(any(TrylockValues.class))).thenAnswer(ioc -> {
-            TrylockValues trylockValues = ioc.getArgument(0);
-            if (trylockValues.getTrylockValuesOneofCase() == TrylockValues.TrylockValuesOneofCase.TRYLOCKVALUESWITHTIMEOUT) {
-                return generateToken(trylockValues.getTryLockValuesWithTimeout().getName());
-            } else if (trylockValues.getTrylockValuesOneofCase() == TrylockValues.TrylockValuesOneofCase.NAME) {
-                return generateToken(trylockValues.getName());
-            } else {
-                LOGGER.error("TrylockValues error {}", trylockValues);
-                throw new IllegalArgumentException("TrylockValues error " + trylockValues);
-            }
-        });
+        when(stub.tryLock(any(StringValue.class))).thenAnswer(ioc ->
+                generateTokenFromRequest((StringValue)ioc.getArgument(0))
+        );
+        when(stub.tryLockWithTimeOut(any(TryLockWithTimeout.class))).thenAnswer(ioc ->
+                generateTokenFromRequest((TryLockWithTimeout)ioc.getArgument(0))
+        );
         LockStatusValues lockStatusValues = LockStatusValues.newBuilder().
                         setLockStatus(org.obapanel.lockfactoryserver.core.grpc.LockStatus.OWNER).
                         build();
         when(stub.lockStatus(any(NameTokenValues.class))).thenReturn(lockStatusValues);
         when(stub.unLock(any(NameTokenValues.class))).thenReturn(BoolValue.of(true));
-        when(futureStub.asyncLock2(any(StringValue.class))).thenAnswer(ioc -> {
-            StringValue result = generateTokenFromRequest(ioc.getArgument(0));
+        when(futureStub.asyncLock(any(StringValue.class))).thenAnswer(ioc -> {
+            StringValue result = generateTokenFromRequest((StringValue)ioc.getArgument(0));
             return new FakeListenableFuture<>(result).execute();
         });
         lockClientGrpc = new LockClientGrpc(managedChannel, name);
+    }
+
+
+    StringValue generateTokenFromRequest(TryLockWithTimeout request) {
+        return generateToken(request.getName());
     }
 
     StringValue generateTokenFromRequest(StringValue request) {
@@ -117,16 +117,25 @@ public class LockClientGrpcTest {
         boolean result = lockClientGrpc.tryLock();
         assertTrue(result);
         assertTrue(lockClientGrpc.getToken().contains(name));
-        verify(stub).tryLock(any(TrylockValues.class));
+        verify(stub).tryLock(any(StringValue.class));
     }
 
     @Test
-    public void tryLockWithTimeoutTest() {
-        boolean result = lockClientGrpc.tryLock(1L, TimeUnit.MILLISECONDS);
+    public void tryLockWithTimeout1Test() {
+        boolean result = lockClientGrpc.tryLockWithTimeOut(1L, TimeUnit.MILLISECONDS);
         assertTrue(result);
         assertTrue(lockClientGrpc.getToken().contains(name));
-        verify(stub).tryLock(any(TrylockValues.class));
+        verify(stub).tryLockWithTimeOut(any(TryLockWithTimeout.class));
     }
+
+    @Test
+    public void tryLockWithTimeout2Test() {
+        boolean result = lockClientGrpc.tryLockWithTimeOut(1L);
+        assertTrue(result);
+        assertTrue(lockClientGrpc.getToken().contains(name));
+        verify(stub).tryLockWithTimeOut(any(TryLockWithTimeout.class));
+    }
+
 
     @Test
     public void isLockedTest() {
@@ -175,7 +184,7 @@ public class LockClientGrpcTest {
             }
         }
         assertTrue(lockClientGrpc.getToken().contains(name));
-        verify(futureStub).asyncLock2(any(StringValue.class));
+        verify(futureStub).asyncLock(any(StringValue.class));
     }
 
     @Test
@@ -187,7 +196,7 @@ public class LockClientGrpcTest {
         boolean acquired = semaphore.tryAcquire(3, TimeUnit.SECONDS);
         assertTrue(acquired);
         assertTrue(lockClientGrpc.getToken().contains(name));
-        verify(futureStub).asyncLock2(any(StringValue.class));
+        verify(futureStub).asyncLock(any(StringValue.class));
     }
 
 }

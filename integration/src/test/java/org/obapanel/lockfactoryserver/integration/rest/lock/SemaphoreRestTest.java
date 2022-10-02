@@ -144,9 +144,9 @@ public class SemaphoreRestTest {
     }
 
     @Test
-    public void tryAcquireWithTimeOutTest() throws InterruptedException {
+    public void tryAcquireWithTimeOut1Test() throws InterruptedException {
         Semaphore inner = new Semaphore(0);
-        LOGGER.debug("test tryAcquireWithTimeOutTest ini >>>");
+        LOGGER.debug("test tryAcquireWithTimeOut1Test ini >>>");
         SemaphoreClientRest semaphoreClientRest1 = generateSemaphoreClientRest();
         SemaphoreClientRest semaphoreClientRest2 = generateSemaphoreClientRest(semaphoreClientRest1.getName());
         SemaphoreClientRest semaphoreClientRest3 = generateSemaphoreClientRest(semaphoreClientRest1.getName());
@@ -160,16 +160,45 @@ public class SemaphoreRestTest {
             semaphoreClientRest2.release(3);
             inner.release();
         });
-        boolean resulttry1 = semaphoreClientRest1.tryAcquire(3500, TimeUnit.MILLISECONDS);
+        boolean resulttry1 = semaphoreClientRest1.tryAcquireWithTimeOut(3500, TimeUnit.MILLISECONDS);
         boolean resulttrya = inner.tryAcquire(10, TimeUnit.SECONDS);
-        boolean resulttry2 = semaphoreClientRest2.tryAcquire(2,500, TimeUnit.MILLISECONDS);
+        boolean resulttry2 = semaphoreClientRest2.tryAcquireWithTimeOut(2,500, TimeUnit.MILLISECONDS);
         int result2 = semaphoreClientRest3.currentPermits();
         assertEquals(0, result1);
         assertEquals(0, result2);
         assertTrue(resulttry1);
         assertTrue(resulttrya);
         assertTrue(resulttry2);
-        LOGGER.debug("test tryAcquireWithTimeOutTest fin <<<");
+        LOGGER.debug("test tryAcquireWithTimeOut1Test fin <<<");
+    }
+
+    @Test
+    public void tryAcquireWithTimeOut2Test() throws InterruptedException {
+        Semaphore inner = new Semaphore(0);
+        LOGGER.debug("test tryAcquireWithTimeOut2Test ini >>>");
+        SemaphoreClientRest semaphoreClientRest1 = generateSemaphoreClientRest();
+        SemaphoreClientRest semaphoreClientRest2 = generateSemaphoreClientRest(semaphoreClientRest1.getName());
+        SemaphoreClientRest semaphoreClientRest3 = generateSemaphoreClientRest(semaphoreClientRest1.getName());
+        int result1 = semaphoreClientRest1.currentPermits();
+        Executors.newSingleThreadExecutor().execute(() -> {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            semaphoreClientRest2.release(3);
+            inner.release();
+        });
+        boolean resulttry1 = semaphoreClientRest1.tryAcquireWithTimeOut(3500);
+        boolean resulttrya = inner.tryAcquire(10, TimeUnit.SECONDS);
+        boolean resulttry2 = semaphoreClientRest2.tryAcquireWithTimeOut(2,500);
+        int result2 = semaphoreClientRest3.currentPermits();
+        assertEquals(0, result1);
+        assertEquals(0, result2);
+        assertTrue(resulttry1);
+        assertTrue(resulttrya);
+        assertTrue(resulttry2);
+        LOGGER.debug("test tryAcquireWithTimeOut2Test fin <<<");
     }
 
 }

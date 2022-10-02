@@ -46,15 +46,23 @@ public class SemaphoreClientRest extends AbstractClientRest {
         return result;
     }
 
-    public boolean tryAcquire(long timeOut, TimeUnit timeUnit) {
-        return tryAcquire(1, timeOut, timeUnit);
+    public boolean tryAcquireWithTimeOut(long timeOut) {
+        return tryAcquireWithTimeOut(1, timeOut, TimeUnit.MILLISECONDS);
     }
 
-    public boolean tryAcquire(int permits, long timeOut, TimeUnit timeUnit) {
-        String response = requestWithUrl( "tryAcquire", getName(), Integer.toString(permits),
+    public boolean tryAcquireWithTimeOut(long timeOut, TimeUnit timeUnit) {
+        return tryAcquireWithTimeOut(1, timeOut, timeUnit);
+    }
+
+    public boolean tryAcquireWithTimeOut(int permits, long timeOut) {
+        return tryAcquireWithTimeOut(permits, timeOut, TimeUnit.MILLISECONDS);
+    }
+
+    public boolean tryAcquireWithTimeOut(int permits, long timeOut, TimeUnit timeUnit) {
+        String response = requestWithUrl( "tryAcquireWithTimeOut", getName(), Integer.toString(permits),
                 Long.toString(timeOut), timeUnit.name().toLowerCase());
         boolean result = Boolean.parseBoolean(response);
-        LOGGER.debug("tryAcquire name {} permits {}  timeOut {} timeUnit {} response {}", getName(),
+        LOGGER.debug("tryAcquireWithTimeOut name {} permits {}  timeOut {} timeUnit {} response {}", getName(),
                 permits, timeOut, timeUnit, result);
         return result;
     }

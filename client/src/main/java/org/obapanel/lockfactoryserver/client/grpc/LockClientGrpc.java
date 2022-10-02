@@ -10,13 +10,13 @@ import org.obapanel.lockfactoryserver.core.LockStatus;
 import org.obapanel.lockfactoryserver.core.grpc.LockServerGrpc;
 import org.obapanel.lockfactoryserver.core.grpc.LockStatusValues;
 import org.obapanel.lockfactoryserver.core.grpc.NameTokenValues;
-import org.obapanel.lockfactoryserver.core.grpc.TrylockValues;
-import org.obapanel.lockfactoryserver.core.grpc.TrylockValuesWithTimeout;
+import org.obapanel.lockfactoryserver.core.grpc.TryLockWithTimeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 import static org.obapanel.lockfactoryserver.core.util.LockStatusConverter.fromGrpcToJava;
 import static org.obapanel.lockfactoryserver.core.util.TimeUnitConverter.fromJavaToGrpc;
@@ -66,30 +66,28 @@ public class LockClientGrpc
     }
 
     public boolean tryLock() {
-        TrylockValues trylockValues = TrylockValues.newBuilder().
-                setName(getName()).
-                build();
-        StringValue response = getStub().tryLock(trylockValues);
+        StringValue response = getStub().tryLock(getStringValueName());
         token = response.getValue();
         boolean result = currentlyBlocked();
         LOGGER.debug("trylock name {} token {} currentluBlocked {}", getName(), token, result);
         return result;
     }
 
-    public boolean tryLock(long time, java.util.concurrent.TimeUnit timeUnit) {
-        TrylockValuesWithTimeout trylockValuesWithTimeout = TrylockValuesWithTimeout.newBuilder().
-                setTime(time).
-                setTimeUnit(fromJavaToGrpc(timeUnit)).
-                setName(getName()).
-                build();
-        TrylockValues trylockValues = TrylockValues.newBuilder().
-                setTryLockValuesWithTimeout(trylockValuesWithTimeout).
-                build();
-        StringValue response = getStub().tryLock(trylockValues);
+    public boolean tryLockWithTimeOut(long timeOut) {
+        return this.tryLockWithTimeOut(timeOut, TimeUnit.MILLISECONDS);
+    }
+
+    public boolean tryLockWithTimeOut(long timeOut, java.util.concurrent.TimeUnit timeUnit) {
+        TryLockWithTimeout tryLockWithTimeout = TryLockWithTimeout.newBuilder()
+                .setName(getName())
+                .setTimeOut(timeOut)
+                .setTimeUnit(fromJavaToGrpc(timeUnit))
+                .build();
+        StringValue response = getStub().tryLockWithTimeOut(tryLockWithTimeout);
         token = response.getValue();
         boolean result = currentlyBlocked();
-        LOGGER.debug("trylock name {} token {} currentluBlocked {}", getName(), token, result);
-          return result;
+        LOGGER.debug("tryLockWithTimeOut name {} token {} currentluBlocked {}", getName(), token, result);
+        return result;
     }
 
     protected boolean currentlyBlocked() {
@@ -124,7 +122,7 @@ public class LockClientGrpc
     }
 
     public void asyncLock1(Executor executor, Runnable onLock){
-            LockServerGrpc.newStub(getManagedChannel()).asyncLock1(StringValue.of(getName()), new StreamObserver<StringValue>() {
+            LockServerGrpc.newStub(getManagedChannel()).asyncLock(StringValue.of(getName()), new StreamObserver<StringValue>() {
 
             @Override
             public void onNext(StringValue value) {
@@ -162,7 +160,7 @@ public class LockClientGrpc
 
     public void asyncLock2(Executor executor, Runnable onLock) {
         ListenableFuture<StringValue> listenableFuture = getAsyncStub().
-                asyncLock2(StringValue.of(getName()));
+                asyncLock(StringValue.of(getName()));
         listenableFuture.addListener(() -> {
             try {
                 token = listenableFuture.get().getValue();

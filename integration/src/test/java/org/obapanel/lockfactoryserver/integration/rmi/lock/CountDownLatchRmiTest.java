@@ -118,7 +118,7 @@ public class CountDownLatchRmiTest {
                 throw new RuntimeException(e);
             }
         });
-        boolean result = countDownLatchClientRmi.await(1500, TimeUnit.MILLISECONDS);
+        boolean result = countDownLatchClientRmi.tryAwaitWithTimeOut(1500, TimeUnit.MILLISECONDS);
         assertTrue(created);
         assertTrue(result);
         assertFalse(countDownLatchClientRmi.isActive());
@@ -146,7 +146,7 @@ public class CountDownLatchRmiTest {
             t.setDaemon(true);
             t.start();
         });
-        boolean result = countDownLatchClientRmi.await(3500, TimeUnit.MILLISECONDS);
+        boolean result = countDownLatchClientRmi.tryAwaitWithTimeOut(3500, TimeUnit.MILLISECONDS);
         assertTrue(created);
         assertTrue(result);
         assertFalse(countDownLatchClientRmi.isActive());

@@ -14,10 +14,14 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.obapanel.lockfactoryserver.core.grpc.NamePermits;
+import org.obapanel.lockfactoryserver.core.grpc.NamePermitsWithTimeout;
 import org.obapanel.lockfactoryserver.core.grpc.SemaphoreServerGrpc;
-import org.obapanel.lockfactoryserver.core.grpc.TryAcquirekValues;
 
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
@@ -67,14 +71,12 @@ public class SemaphoreClientGrpcTest {
             current.set( current.get() - namePermits.getPermits());
             return new FakeListenableFuture<Empty>(Empty.newBuilder().build()).execute();
         });
-        when(stub.tryAcquire(any(TryAcquirekValues.class))).thenAnswer(ioc -> {
-            TryAcquirekValues tryAcquirekValues = ioc.getArgument(0,TryAcquirekValues.class);
-            if (tryAcquirekValues.getTryAcquireValuesOneofCase() == TryAcquirekValues.TryAcquireValuesOneofCase.NAMEPERMITS) {
-                current.set( current.get() - tryAcquirekValues.getNamePermits().getPermits());
-            }
-            if (tryAcquirekValues.getTryAcquireValuesOneofCase() == TryAcquirekValues.TryAcquireValuesOneofCase.NAMEPERMITSWITHTIMEOUT) {
-                current.set( current.get() - tryAcquirekValues.getNamePermitsWithTimeout().getPermits());
-            }
+        when(stub.tryAcquire(any(NamePermits.class))).thenAnswer(ioc -> {
+            current.set( current.get() - ioc.getArgument(0, NamePermits.class).getPermits());
+            return BoolValue.of(true);
+        });
+        when(stub.tryAcquireWithTimeOut(any(NamePermitsWithTimeout.class))).thenAnswer(ioc -> {
+            current.set( current.get() - ioc.getArgument(0, NamePermitsWithTimeout.class).getPermits());
             return BoolValue.of(true);
         });
         when(stub.release(any(NamePermits.class))).thenAnswer(ioc -> {
@@ -82,7 +84,6 @@ public class SemaphoreClientGrpcTest {
             current.set( current.get() + namePermits.getPermits());
             return null;
         });
-
         semaphoreClientGrpc = new SemaphoreClientGrpc(managedChannel, name);
     }
 
@@ -130,24 +131,65 @@ public class SemaphoreClientGrpcTest {
     }
 
     @Test
+    public void tryAcquireOneTest() {
+        int origin = semaphoreInit();
+        boolean response = semaphoreClientGrpc.tryAcquire();
+        assertTrue(response);
+        assertEquals(origin - 1, current.get());
+        assertEquals(origin - 1, semaphoreClientGrpc.currentPermits());
+        verify(stub).tryAcquire(any(NamePermits.class));
+    }
+
+    @Test
     public void tryAcquireTest() {
         int origin = semaphoreInit();
         boolean response = semaphoreClientGrpc.tryAcquire(2);
         assertTrue(response);
         assertEquals(origin - 2, current.get());
         assertEquals(origin - 2, semaphoreClientGrpc.currentPermits());
-        verify(stub).tryAcquire(any(TryAcquirekValues.class));
+        verify(stub).tryAcquire(any(NamePermits.class));
     }
 
     @Test
-    public void tryAcquireWithTimeOutTest() {
+    public void tryAcquireWithTimeOut1Test() {
         int origin = semaphoreInit();
-        boolean response = semaphoreClientGrpc.tryAcquire(3, 1, TimeUnit.SECONDS);
+        boolean response = semaphoreClientGrpc.tryAcquireWithTimeOut(3, 1, TimeUnit.SECONDS);
         assertTrue(response);
         assertEquals(origin - 3, current.get());
         assertEquals(origin - 3, semaphoreClientGrpc.currentPermits());
-        verify(stub).tryAcquire(any(TryAcquirekValues.class));
+        verify(stub).tryAcquireWithTimeOut(any(NamePermitsWithTimeout.class));
     }
+
+    @Test
+    public void tryAcquireWithTimeOut2Test() {
+        int origin = semaphoreInit();
+        boolean response = semaphoreClientGrpc.tryAcquireWithTimeOut(3, 1);
+        assertTrue(response);
+        assertEquals(origin - 3, current.get());
+        assertEquals(origin - 3, semaphoreClientGrpc.currentPermits());
+        verify(stub).tryAcquireWithTimeOut(any(NamePermitsWithTimeout.class));
+    }
+
+    @Test
+    public void tryAcquireWithTimeOut3Test() {
+        int origin = semaphoreInit();
+        boolean response = semaphoreClientGrpc.tryAcquireWithTimeOut( 1, TimeUnit.MILLISECONDS);
+        assertTrue(response);
+        assertEquals(origin - 1, current.get());
+        assertEquals(origin - 1, semaphoreClientGrpc.currentPermits());
+        verify(stub).tryAcquireWithTimeOut(any(NamePermitsWithTimeout.class));
+    }
+
+    @Test
+    public void tryAcquireWithTimeOut4Test() {
+        int origin = semaphoreInit();
+        boolean response = semaphoreClientGrpc.tryAcquireWithTimeOut( 1);
+        assertTrue(response);
+        assertEquals(origin - 1, current.get());
+        assertEquals(origin - 1, semaphoreClientGrpc.currentPermits());
+        verify(stub).tryAcquireWithTimeOut(any(NamePermitsWithTimeout.class));
+    }
+
 
     @Test
     public void releaseTest() {

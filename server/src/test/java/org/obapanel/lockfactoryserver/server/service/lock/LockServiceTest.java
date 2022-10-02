@@ -12,7 +12,10 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class LockServiceTest {
 
@@ -64,12 +67,16 @@ public class LockServiceTest {
         String lock2 = "lock2_" + System.currentTimeMillis();
         String token21 = lockService.lock(lock2);
         String token22 = lockService.tryLock(lock2);
-        String token23 = lockService.tryLock(lock2, 125, TimeUnit.MILLISECONDS);
+        String token23 = lockService.tryLockWithTimeOut(lock2, 125, TimeUnit.MILLISECONDS);
+        String token24 = lockService.tryLockWithTimeOut(lock2, 250);
         assertNotNull(token21);
         assertTrue(token22 == null || token22.isEmpty());
         assertTrue(token23 == null || token23.isEmpty());
+        assertTrue(token24 == null || token24.isEmpty());
         assertEquals(LockStatus.OWNER, lockService.lockStatus(lock2, token21));
         assertEquals(LockStatus.OTHER, lockService.lockStatus(lock2, token22));
+        assertEquals(LockStatus.OTHER, lockService.lockStatus(lock2, token23));
+        assertEquals(LockStatus.OTHER, lockService.lockStatus(lock2, token24));
         assertTrue(lockService.unLock(lock2, token21));
     }
 

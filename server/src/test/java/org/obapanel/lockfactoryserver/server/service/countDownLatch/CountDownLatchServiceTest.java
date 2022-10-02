@@ -104,7 +104,19 @@ public class CountDownLatchServiceTest {
     }
 
     @Test
-    public void awaitWithTimeOutTest() throws InterruptedException {
+    public void tryAwait() throws InterruptedException {
+        String name = "codola_" + System.currentTimeMillis();
+        countDownLatchService.createNew(name, 1);
+        boolean result1 = countDownLatchService.tryAwait(name);
+        countDownLatchService.countDown(name);
+        boolean result2 = countDownLatchService.tryAwait(name);
+        assertFalse(result1);
+        assertTrue(result2);
+    }
+
+
+        @Test
+    public void tryAwaitWithTimeOutTest() throws InterruptedException {
         AtomicBoolean awaitTerminated1 = new AtomicBoolean(false);
         AtomicBoolean awaitTerminated2 = new AtomicBoolean(false);
         AtomicBoolean countDownTerminated = new AtomicBoolean(false);
@@ -124,7 +136,7 @@ public class CountDownLatchServiceTest {
         t1.setDaemon(true);
         Thread t2 = new Thread(() -> {
             try {
-                boolean awaited = countDownLatchService.await(name, 100, TimeUnit.MILLISECONDS);
+                boolean awaited = countDownLatchService.tryAwaitWithTimeOut(name, 100, TimeUnit.MILLISECONDS);
                 awaitTerminated1.set(awaited);
                 inner.release();
             } catch (Exception e) {
@@ -135,7 +147,7 @@ public class CountDownLatchServiceTest {
         t2.setDaemon(true);
         Thread t3 = new Thread(() -> {
             try {
-                boolean awaited = countDownLatchService.await(name, 500, TimeUnit.MILLISECONDS);
+                boolean awaited = countDownLatchService.tryAwaitWithTimeOut(name, 500);
                 awaitTerminated2.set(awaited);
                 inner.release();
             } catch (Exception e) {

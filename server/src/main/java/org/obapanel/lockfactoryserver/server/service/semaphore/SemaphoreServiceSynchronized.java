@@ -52,20 +52,24 @@ public final class SemaphoreServiceSynchronized extends SemaphoreService {
     }
 
     @Override
-    public synchronized boolean tryAcquire(String name, int permits, long timeout, TimeUnit unit) {
-        //boolean result = super.tryAcquire(name, permits, timeout, unit);
-        LOGGER.debug("]]] tryAcquire wtimeout  ]]] init {}", System.currentTimeMillis());
+    public synchronized boolean tryAcquireWithTimeOut(String name, int permits, long timeOut) {
+        return this.tryAcquireWithTimeOut(name, permits, timeOut, TimeUnit.MILLISECONDS);
+    }
+
+    @Override
+    public synchronized boolean tryAcquireWithTimeOut(String name, int permits, long timeOut, TimeUnit unit) {
+        LOGGER.debug("]]] tryAcquireWithTimeOut  ]]] init {}", System.currentTimeMillis());
         boolean result = super.tryAcquire(name, permits);
-        long t = System.currentTimeMillis() + unit.toMillis(timeout);
+        long t = System.currentTimeMillis() + unit.toMillis(timeOut);
         while(!result && t > System.currentTimeMillis() ) {
-            LOGGER.debug("]]] tryAcquire wtimeout  ]]] into while {}", System.currentTimeMillis());
-            doWithRuntime(() -> SemaphoreServiceSynchronized.this.wait(unit.toMillis(timeout) + 1));
-            LOGGER.debug("]]] tryAcquire wtimeout  ]]] into while wait {}", System.currentTimeMillis());
+            LOGGER.debug("]]] tryAcquireWithTimeOut  ]]] into while {}", System.currentTimeMillis());
+            doWithRuntime(() -> SemaphoreServiceSynchronized.this.wait(unit.toMillis(timeOut) + 1));
+            LOGGER.debug("]]] tryAcquireWithTimeOut  ]]] into while wait {}", System.currentTimeMillis());
             result = super.tryAcquire(name, permits);
         }
-        LOGGER.debug("]]] tryAcquire wtimeout  ]]] into gotoend wait {}", System.currentTimeMillis());
+        LOGGER.debug("]]] tryAcquireWithTimeOut  ]]] into gotoend wait {}", System.currentTimeMillis());
         notifyAllIfPermits(name);
-        LOGGER.debug("] tryAcquire wtimeout  result {}", result);
+        LOGGER.debug("] tryAcquireWithTimeOut  result {}", result);
         return result;
     }
 

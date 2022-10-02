@@ -13,7 +13,9 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -30,7 +32,9 @@ public class LockServerRmiImplTest {
                 thenAnswer( ioc -> ioc.getArgument(0) + "_" + System.currentTimeMillis());
         when(lockService.tryLock(anyString())).
                 thenAnswer( ioc -> ioc.getArgument(0) + "_" + System.currentTimeMillis());
-        when(lockService.tryLock(anyString(), anyLong(), any(TimeUnit.class))).
+        when(lockService.tryLockWithTimeOut(anyString(), anyLong(), any(TimeUnit.class))).
+                thenAnswer( ioc -> ioc.getArgument(0) + "_" + System.currentTimeMillis());
+        when(lockService.tryLockWithTimeOut(anyString(), anyLong())).
                 thenAnswer( ioc -> ioc.getArgument(0) + "_" + System.currentTimeMillis());
         when(lockService.lockStatus(anyString(), anyString())).thenReturn(LockStatus.UNLOCKED);
         when(lockService.unLock(anyString(), anyString())).thenReturn(true);
@@ -54,9 +58,17 @@ public class LockServerRmiImplTest {
     @Test
     public void tryLock2Test() throws RemoteException {
         String lockName = "lock3" + System.currentTimeMillis();
-        String token = lockServerRmi.tryLock(lockName, 1, TimeUnit.MILLISECONDS);
+        String token = lockServerRmi.tryLockWithTimeOut(lockName, 1, TimeUnit.MILLISECONDS);
         assertTrue(token.contains(lockName));
     }
+
+    @Test
+    public void tryLock3Test() throws RemoteException {
+        String lockName = "lock4" + System.currentTimeMillis();
+        String token = lockServerRmi.tryLockWithTimeOut(lockName, 1);
+        assertTrue(token.contains(lockName));
+    }
+
 
     @Test
     public void isLocked() {

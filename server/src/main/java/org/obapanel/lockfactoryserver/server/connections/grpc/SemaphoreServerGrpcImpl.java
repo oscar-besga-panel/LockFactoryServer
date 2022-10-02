@@ -6,8 +6,8 @@ import com.google.protobuf.Int32Value;
 import com.google.protobuf.StringValue;
 import io.grpc.stub.StreamObserver;
 import org.obapanel.lockfactoryserver.core.grpc.NamePermits;
+import org.obapanel.lockfactoryserver.core.grpc.NamePermitsWithTimeout;
 import org.obapanel.lockfactoryserver.core.grpc.SemaphoreServerGrpc;
-import org.obapanel.lockfactoryserver.core.grpc.TryAcquirekValues;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,26 +60,34 @@ public class SemaphoreServerGrpcImpl extends SemaphoreServerGrpc.SemaphoreServer
     }
 
     @Override
-    public void tryAcquire(TryAcquirekValues request, StreamObserver<BoolValue> responseObserver) {
-        boolean result;
-        if (request.getTryAcquireValuesOneofCase() == TryAcquirekValues.TryAcquireValuesOneofCase.NAMEPERMITS) {
-            String name = request.getNamePermits().getName();
-            int permits = request.getNamePermits().getPermits();
-            LOGGER.info("grpc server> tryAcquire name {} permits {} ", name, permits);
-            result = semaphoreService.tryAcquire(name, permits);
-        } else if (request.getTryAcquireValuesOneofCase() == TryAcquirekValues.TryAcquireValuesOneofCase.NAMEPERMITSWITHTIMEOUT) {
-            String name = request.getNamePermitsWithTimeout().getName();
-            int permits = request.getNamePermitsWithTimeout().getPermits();
-            long timeOut = request.getNamePermitsWithTimeout().getTime();
-            org.obapanel.lockfactoryserver.core.grpc.TimeUnit grpcTimeUnit = request.getNamePermitsWithTimeout().getTimeUnit();
-            java.util.concurrent.TimeUnit timeUnit = fromGrpcToJava(grpcTimeUnit);
-            LOGGER.info("grpc server> tryAcquire name {} permits {} timeout {} timeunit {}", name, permits, timeOut, timeUnit);
-            result = semaphoreService.tryAcquire(name, permits, timeOut, timeUnit);
-        } else {
-            throw new IllegalArgumentException("Error tryAcquire request " + request);
-        }
-        responseObserver.onNext(BoolValue.newBuilder().setValue(result).build());
+    public void tryAcquire(NamePermits request, StreamObserver<BoolValue> responseObserver) {
+        String name = request.getName();
+        int permits = request.getPermits();
+        LOGGER.info("grpc server> tryAcquire name {} permits {} ", name, permits);
+        boolean result = semaphoreService.tryAcquire(name, permits);
+        responseObserver.onNext(BoolValue.of(result));
         responseObserver.onCompleted();
+    }
+
+    @Override
+    public void tryAcquireWithTimeOut(NamePermitsWithTimeout request, StreamObserver<BoolValue> responseObserver) {
+        boolean result;
+        String name = request.getName();
+        int permits = request.getPermits();
+        long timeOut = request.getTimeOut();
+        org.obapanel.lockfactoryserver.core.grpc.TimeUnitGrpc timeUnitGrpc = request.getTimeUnit();
+        if (timeUnitGrpc == null) {
+            LOGGER.info("grpc server> tryAcquireWithTimeOut name {} permits {} timeout {}", name, permits, timeOut);
+            result = semaphoreService.tryAcquireWithTimeOut(name, permits, timeOut);
+        } else {
+            java.util.concurrent.TimeUnit timeUnit = fromGrpcToJava(timeUnitGrpc);
+            LOGGER.info("grpc server> tryAcquireWithTimeOut name {} permits {} timeout {} timeunit {}", name, permits, timeOut, timeUnit);
+            result = semaphoreService.tryAcquireWithTimeOut(name, permits, timeOut, timeUnit);
+        }
+        responseObserver.onNext(BoolValue.of(result));
+        responseObserver.onCompleted();
+
+        super.tryAcquireWithTimeOut(request, responseObserver);
     }
 
     @Override

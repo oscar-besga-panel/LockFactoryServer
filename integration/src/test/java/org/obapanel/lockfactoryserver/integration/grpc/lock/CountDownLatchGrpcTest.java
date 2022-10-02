@@ -119,7 +119,7 @@ public class CountDownLatchGrpcTest {
                 throw new RuntimeException(e);
             }
         });
-        boolean result = countDownLatchClientGrpc.await(1500, TimeUnit.MILLISECONDS);
+        boolean result = countDownLatchClientGrpc.tryAwaitWithTimeOut(1500, TimeUnit.MILLISECONDS);
         assertTrue(created);
         assertTrue(result);
         assertFalse(countDownLatchClientGrpc.isActive());
@@ -147,7 +147,7 @@ public class CountDownLatchGrpcTest {
             t.setDaemon(true);
             t.start();
         });
-        boolean result = countDownLatchClientGrpc.await(3500, TimeUnit.MILLISECONDS);
+        boolean result = countDownLatchClientGrpc.tryAwaitWithTimeOut(3500, TimeUnit.MILLISECONDS);
         assertTrue(created);
         assertTrue(result);
         assertFalse(countDownLatchClientGrpc.isActive());

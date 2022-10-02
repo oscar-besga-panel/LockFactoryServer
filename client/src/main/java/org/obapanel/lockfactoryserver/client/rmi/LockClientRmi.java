@@ -44,8 +44,13 @@ public class LockClientRmi extends AbstractClientRmi<LockServerRmi>
         return currentlyHasToken();
     }
 
-    public boolean tryLock(long time, TimeUnit timeUnit) throws RemoteException {
-        token = getServerRmi().tryLock(getName(), time, timeUnit);
+    public boolean tryLockWithTimeOut(long time) throws RemoteException {
+        token = getServerRmi().tryLockWithTimeOut(getName(), time);
+        return currentlyHasToken();
+    }
+
+    public boolean tryLockWithTimeOut(long time, TimeUnit timeUnit) throws RemoteException {
+        token = getServerRmi().tryLockWithTimeOut(getName(), time, timeUnit);
         return currentlyHasToken();
     }
 
