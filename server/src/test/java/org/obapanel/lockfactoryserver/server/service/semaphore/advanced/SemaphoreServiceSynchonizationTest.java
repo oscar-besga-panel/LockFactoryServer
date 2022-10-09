@@ -14,6 +14,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class SemaphoreServiceSynchonizationTest {
 
@@ -51,13 +52,21 @@ public class SemaphoreServiceSynchonizationTest {
     }
 
     @Test
-    public void testSemaphoreServiceNormal() throws InterruptedException {
-        doTest(semaphoreServiceNormal);
+    public void testSemaphoreServiceNormal() {
+        try {
+            doTest(semaphoreServiceNormal);
+        } catch (Exception e) {
+            fail("Error in test " + e);
+        }
     }
 
     @Test
-    public void testSemaphoreServiceOrdered() throws InterruptedException {
-        doTest(semaphoreServiceSynchronized);
+    public void testSemaphoreServiceOrdered() {
+        try {
+            doTest(semaphoreServiceSynchronized);
+        } catch (Exception e) {
+            fail("Error in test " + e);
+        }
     }
 
     private void doTest(SemaphoreService semaphoreService) throws InterruptedException {
@@ -96,6 +105,5 @@ public class SemaphoreServiceSynchonizationTest {
         assertTrue(t3Ended.get());
         LOGGER.debug("doTest fin <<<");
     }
-
 
 }

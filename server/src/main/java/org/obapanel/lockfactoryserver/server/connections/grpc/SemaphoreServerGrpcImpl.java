@@ -8,12 +8,14 @@ import io.grpc.stub.StreamObserver;
 import org.obapanel.lockfactoryserver.core.grpc.NamePermits;
 import org.obapanel.lockfactoryserver.core.grpc.NamePermitsWithTimeout;
 import org.obapanel.lockfactoryserver.core.grpc.SemaphoreServerGrpc;
+import org.obapanel.lockfactoryserver.core.grpc.TimeUnitGrpc;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static org.obapanel.lockfactoryserver.core.util.TimeUnitConverter.fromGrpcToJava;
 
@@ -75,12 +77,12 @@ public class SemaphoreServerGrpcImpl extends SemaphoreServerGrpc.SemaphoreServer
         String name = request.getName();
         int permits = request.getPermits();
         long timeOut = request.getTimeOut();
-        org.obapanel.lockfactoryserver.core.grpc.TimeUnitGrpc timeUnitGrpc = request.getTimeUnit();
+        TimeUnitGrpc timeUnitGrpc = request.getTimeUnit();
         if (timeUnitGrpc == null) {
             LOGGER.info("grpc server> tryAcquireWithTimeOut name {} permits {} timeout {}", name, permits, timeOut);
             result = semaphoreService.tryAcquireWithTimeOut(name, permits, timeOut);
         } else {
-            java.util.concurrent.TimeUnit timeUnit = fromGrpcToJava(timeUnitGrpc);
+            TimeUnit timeUnit = fromGrpcToJava(timeUnitGrpc);
             LOGGER.info("grpc server> tryAcquireWithTimeOut name {} permits {} timeout {} timeunit {}", name, permits, timeOut, timeUnit);
             result = semaphoreService.tryAcquireWithTimeOut(name, permits, timeOut, timeUnit);
         }

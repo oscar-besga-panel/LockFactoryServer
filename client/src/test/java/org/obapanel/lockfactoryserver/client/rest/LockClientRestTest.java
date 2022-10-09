@@ -26,7 +26,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LockClientRestTest {
@@ -57,7 +59,7 @@ public class LockClientRestTest {
     @Before
     public void setup() throws IOException {
         mockedStaticHttpClient = Mockito.mockStatic(HttpClients.class);
-        mockedStaticHttpClient.when(() -> HttpClients.createDefault() ).thenReturn(httpclient);
+        mockedStaticHttpClient.when(HttpClients::createDefault).thenReturn(httpclient);
         when(httpclient.execute(any(HttpGet.class))).thenAnswer(ioc ->{
             finalRequest.set(ioc.getArgument(0));
             return httpResponse;

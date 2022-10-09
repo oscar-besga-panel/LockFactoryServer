@@ -1,14 +1,16 @@
 package org.obapanel.lockfactoryserver.server.service.countDownLatch;
 
+import org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.service.LockFactoryServices;
 import org.obapanel.lockfactoryserver.server.service.Services;
-import org.obapanel.lockfactoryserver.server.utils.RuntimeInterruptedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import static org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException.doWithRuntime;
 
 public class CountDownLatchService implements LockFactoryServices {
 
@@ -75,13 +77,9 @@ public class CountDownLatchService implements LockFactoryServices {
         CountDownLatch countDownLatch = countDownLatchCache.getData(name);
 LOGGER.debug(">> wait codola {} {}", name, countDownLatch);
         if (countDownLatch != null) {
-            try {
-LOGGER.debug(">> wait codola {} {} PRE>", name, countDownLatch);
-                countDownLatch.await();
-LOGGER.debug(">> wait codola {} {} POST<", name, countDownLatch);
-            } catch (InterruptedException e) {
-                throw RuntimeInterruptedException.getToThrowWhenInterrupted(e);
-            }
+            LOGGER.debug(">> wait codola {} {} PRE>", name, countDownLatch);
+            doWithRuntime(countDownLatch::await);
+            LOGGER.debug(">> wait codola {} {} POST<", name, countDownLatch);
         }
     }
 

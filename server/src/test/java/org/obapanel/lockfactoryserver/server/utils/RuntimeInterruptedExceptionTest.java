@@ -1,6 +1,7 @@
 package org.obapanel.lockfactoryserver.server.utils;
 
 import org.junit.Test;
+import org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

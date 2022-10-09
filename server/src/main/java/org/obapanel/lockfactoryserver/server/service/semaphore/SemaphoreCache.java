@@ -26,7 +26,7 @@ public final class SemaphoreCache extends PrimitivesCache<Semaphore> {
     }
 
     @Override
-    public Semaphore getOrCreateData(String name, Supplier<java.util.concurrent.Semaphore> creator) {
+    public Semaphore getOrCreateData(String name, Supplier<Semaphore> creator) {
         throw new UnsupportedOperationException("Not allowed create with supplier for semaphore");
     }
 

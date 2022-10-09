@@ -68,7 +68,7 @@ public class CountDownLatchClientRest extends AbstractClientRest {
     public boolean tryAwaitWithTimeOut(long timeOut) {
         String response = requestWithUrl( "tryAwaitWithTimeOut", getName(), Long.toString(timeOut));
         boolean result = Boolean.parseBoolean(response);
-        LOGGER.debug("tryAwaitWithTimeOut name {} timeOut {} timeUnit {} response {}", getName(), timeOut, result);
+        LOGGER.debug("tryAwaitWithTimeOut name {} timeOut(ms) {} response {}", getName(), timeOut, result);
         return result;
     }
 }

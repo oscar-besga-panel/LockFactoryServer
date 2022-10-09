@@ -8,15 +8,12 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class AbstractClientRmi<K extends Remote> implements AutoCloseable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractClientRmi.class);
 
 
-    private final AtomicBoolean isRegistryPrivate = new AtomicBoolean(false);
-    private final Registry registry;
     private final K serverRmi;
     private final String name;
 
@@ -24,12 +21,10 @@ public abstract class AbstractClientRmi<K extends Remote> implements AutoCloseab
 
     public AbstractClientRmi(String host, int port, String name) throws NotBoundException, RemoteException {
         this(LocateRegistry.getRegistry(host, port), name);
-        isRegistryPrivate.set(true);
     }
 
 
     public AbstractClientRmi(Registry registry, String name) throws NotBoundException, RemoteException {
-        this.registry = registry;
         this.serverRmi = (K) registry.lookup(registryLookupName());;
         this.name = name;
     }

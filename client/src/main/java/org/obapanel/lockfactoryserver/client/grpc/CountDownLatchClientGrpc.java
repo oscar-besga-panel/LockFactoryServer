@@ -11,8 +11,6 @@ import org.obapanel.lockfactoryserver.core.grpc.NameCount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
@@ -93,11 +91,8 @@ public class CountDownLatchClientGrpc
         asyncAwait(null, onAcquire);
     }
 
-    private List<ListenableFuture<Empty>> lista = new ArrayList<>();
-
     public void asyncAwait(Executor executor, Runnable onAcquire) {
         ListenableFuture<Empty> listenableFuture = getAsyncStub().asyncAwait(getStringValueName());
-        lista.add(listenableFuture);
         listenableFuture.addListener(() -> {
             LOGGER.debug("doExecuteOnLock is future ");
             doExecuteOnLock(executor, onAcquire);

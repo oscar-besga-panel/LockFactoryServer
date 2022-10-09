@@ -6,7 +6,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
-import static org.obapanel.lockfactoryserver.server.utils.RuntimeInterruptedException.doWithRuntime;
+import static org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException.doWithRuntime;
+
 
 public final class SemaphoreServiceSynchronized extends SemaphoreService {
 
@@ -40,7 +41,7 @@ public final class SemaphoreServiceSynchronized extends SemaphoreService {
             acquired = super.tryAcquire(name, permits);
         }
         notifyAllIfPermits(name);
-        LOGGER.debug("] acquire result {}", acquired);
+        LOGGER.debug("] acquire result TRUE");
     }
 
     @Override
@@ -72,12 +73,6 @@ public final class SemaphoreServiceSynchronized extends SemaphoreService {
         LOGGER.debug("] tryAcquireWithTimeOut  result {}", result);
         return result;
     }
-
-//    @Override
-//    public synchronized void release(String name, int permits) {
-//        super.release(name, permits);
-//
-//    }
 
     @Override
     public synchronized void release(String name, int permits) {

@@ -7,6 +7,7 @@ import org.obapanel.lockfactoryserver.core.LockStatus;
 import org.obapanel.lockfactoryserver.core.grpc.LockServerGrpc;
 import org.obapanel.lockfactoryserver.core.grpc.LockStatusValues;
 import org.obapanel.lockfactoryserver.core.grpc.NameTokenValues;
+import org.obapanel.lockfactoryserver.core.grpc.TimeUnitGrpc;
 import org.obapanel.lockfactoryserver.core.grpc.TryLockWithTimeout;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
 import org.slf4j.Logger;
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static org.obapanel.lockfactoryserver.core.util.LockStatusConverter.fromJavaToGrpc;
 import static org.obapanel.lockfactoryserver.core.util.TimeUnitConverter.fromGrpcToJava;
@@ -58,12 +60,12 @@ public class LockServerGrpcImpl extends LockServerGrpc.LockServerImplBase {
         String result = "";
         String name = request.getName();
         long timeOut = request.getTimeOut();
-        org.obapanel.lockfactoryserver.core.grpc.TimeUnitGrpc timeUnitGrpc = request.getTimeUnit();
+        TimeUnitGrpc timeUnitGrpc = request.getTimeUnit();
         if (timeUnitGrpc == null) {
             LOGGER.info("grpc server> tryLockWithTimeOut {} {}", name, timeOut);
             result = lockService.tryLockWithTimeOut(name, timeOut);
         } else {
-            java.util.concurrent.TimeUnit timeUnit = fromGrpcToJava(timeUnitGrpc);
+            TimeUnit timeUnit = fromGrpcToJava(timeUnitGrpc);
             LOGGER.info("grpc server> tryLockWithTimeOut {} {} {}", name, timeOut, timeUnit);
             result = lockService.tryLockWithTimeOut(name, timeOut, timeUnit);
         }

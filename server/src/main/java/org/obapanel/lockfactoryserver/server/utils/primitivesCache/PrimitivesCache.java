@@ -1,7 +1,7 @@
 package org.obapanel.lockfactoryserver.server.utils.primitivesCache;
 
+import org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
-import org.obapanel.lockfactoryserver.server.utils.RuntimeInterruptedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 /**
  * A cache that expires its own elements if the time to live is reached and deletion it can not be avoided
  * Every X time, a check is done to remove elements and to check if the data is correct
- *
  * This cache servers to store the synchronization primitives in use
  *
  * @param <K> Type of the data included
@@ -182,8 +181,7 @@ public abstract class PrimitivesCache<K> {
      * @return primitive or null if not exists
      */
     public K getData(String name) {
-        K data = dataMap.get(name);
-        return data;
+        return dataMap.get(name);
     }
 
     /**

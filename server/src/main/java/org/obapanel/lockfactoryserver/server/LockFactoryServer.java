@@ -1,5 +1,6 @@
 package org.obapanel.lockfactoryserver.server;
 
+import org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException;
 import org.obapanel.lockfactoryserver.server.connections.Connections;
 import org.obapanel.lockfactoryserver.server.connections.LockFactoryConnection;
 import org.obapanel.lockfactoryserver.server.connections.grpc.GrpcConnection;
@@ -15,7 +16,6 @@ import org.obapanel.lockfactoryserver.server.service.management.ManagementServic
 import org.obapanel.lockfactoryserver.server.service.management.ManagementServiceSynchronized;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreServiceSynchronized;
-import org.obapanel.lockfactoryserver.server.utils.RuntimeInterruptedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +29,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * It initializes and maintains servers and services; and binds ones with others
  * It also stops and shutdowns components gracefully
  * Also, can make a thread wait to the ending of the shutdown process whenever it takes
- *
  * It can be embeded it other applications/programs/servers and can give access
  *   to the current components of the server
  */

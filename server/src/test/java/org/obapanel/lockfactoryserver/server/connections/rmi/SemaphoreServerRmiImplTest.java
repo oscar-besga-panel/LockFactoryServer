@@ -36,7 +36,7 @@ public class SemaphoreServerRmiImplTest {
                 thenAnswer( ioc -> current.get());
         when(semaphoreService.tryAcquire(anyString(), anyInt())).
                 thenReturn(true);
-        when(semaphoreService.tryAcquireWithTimeOut(anyString(), anyInt(), anyLong(), any(java.util.concurrent.TimeUnit.class))).
+        when(semaphoreService.tryAcquireWithTimeOut(anyString(), anyInt(), anyLong(), any(TimeUnit.class))).
                 thenReturn(true);
         when(semaphoreService.tryAcquireWithTimeOut(anyString(), anyInt(), anyLong())).
                 thenReturn(true);

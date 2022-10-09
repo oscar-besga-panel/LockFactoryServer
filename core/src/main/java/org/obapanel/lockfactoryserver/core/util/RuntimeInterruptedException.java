@@ -1,6 +1,5 @@
-package org.obapanel.lockfactoryserver.server.utils;
+package org.obapanel.lockfactoryserver.core.util;
 
-import org.obapanel.lockfactoryserver.server.LockFactoryServerMain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,9 +8,7 @@ import org.slf4j.LoggerFactory;
  */
 public class RuntimeInterruptedException extends RuntimeException {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LockFactoryServerMain.class);
-
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(RuntimeInterruptedException.class);
 
     public static void doWithRuntime(InterruptibleRunnable runnable) {
         try {
@@ -47,37 +44,36 @@ public class RuntimeInterruptedException extends RuntimeException {
         L call() throws Exception;
     }
 
-
-    /**
-     * Maintains the interrupted state and launches a new runtime exception containing the original one
-     * USAGE: throw RuntimeInterruptedException.throwWhenInterrupted(e);
-     * @param cause origiinal interrupted exception
-     */
-    public static void throwWhenInterrupted(InterruptedException cause) {
-        Thread.currentThread().interrupt();
-        throw new RuntimeInterruptedException(cause);
-    }
-
     /**
      * Maintains the interrupted state and launches a new runtime exception containing the original one
      * USAGE: throw RuntimeInterruptedException.throwWhenInterrupted(e);
      * @param cause origiinal interrupted exception
      */
     public static RuntimeInterruptedException getToThrowWhenInterrupted(InterruptedException cause) {
+        LOGGER.error("getToThrowWhenInterrupted interrupted error", cause);
         Thread.currentThread().interrupt();
         return new RuntimeInterruptedException(cause);
     }
 
     /**
      * Make a new exception from an Interrupted one
-     * @param cause
+     * @param cause Interrupted exception to make runtime
      */
     public RuntimeInterruptedException(InterruptedException cause) {
-        super(cause);
+        super(checkCauseNotNull(cause));
     }
 
     public String getMessage() {
         return String.format("Interrupted by %s", getCause().getMessage());
+    }
+
+    private static InterruptedException checkCauseNotNull(InterruptedException cause) {
+        if (cause == null) {
+            LOGGER.error("Cause can NOT be null, never. Period.");
+            throw new IllegalArgumentException("Cause can NOT be null, never. Period.");
+        } else {
+            return cause;
+        }
     }
 
 }

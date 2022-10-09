@@ -1,6 +1,5 @@
 package org.obapanel.lockfactoryserver.server.connections.rest;
 
-import com.google.protobuf.Empty;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,10 +18,6 @@ import static org.obapanel.lockfactoryserver.server.connections.rest.ManagementS
 
 @RunWith(MockitoJUnitRunner.class)
 public class ManagerServerRestImplTest {
-
-    private final static Empty EMPTY = Empty.newBuilder().build();
-
-
 
     @Mock
     private ManagementService managementService;

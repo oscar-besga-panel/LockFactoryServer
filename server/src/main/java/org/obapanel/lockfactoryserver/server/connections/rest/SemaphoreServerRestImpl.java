@@ -16,7 +16,6 @@ public class SemaphoreServerRestImpl {
 
     public final static String OK = "ok";
 
-
     private final SemaphoreService semaphoreService;
 
     public SemaphoreServerRestImpl(SemaphoreService semaphoreService) {
@@ -54,8 +53,8 @@ public class SemaphoreServerRestImpl {
         long timeOut = Long.parseLong(context.getPathTokens().get("timeOut"));
         String timeUnitName = context.getPathTokens().getOrDefault("timeUnit", TimeUnit.MILLISECONDS.name());
         TimeUnit timeUnit = TimeUnit.valueOf(timeUnitName.toUpperCase());
-        LOGGER.info("rest server> semaphore tryAcquireWithTimeOut name {} permits {} timeOut {} timeUnit", name, permits,
-                timeOut, timeUnit);
+        LOGGER.info("rest server> semaphore tryAcquireWithTimeOut name {} permits {} timeOut {} timeUnit {}",
+                name, permits, timeOut, timeUnit);
         boolean response = semaphoreService.tryAcquireWithTimeOut(name, permits, timeOut, timeUnit);
         context.getResponse().send(Boolean.toString(response));
     }

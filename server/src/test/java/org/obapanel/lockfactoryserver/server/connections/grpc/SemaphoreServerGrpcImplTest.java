@@ -11,9 +11,11 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.obapanel.lockfactoryserver.core.grpc.NamePermits;
 import org.obapanel.lockfactoryserver.core.grpc.NamePermitsWithTimeout;
+import org.obapanel.lockfactoryserver.core.grpc.TimeUnitGrpc;
 import org.obapanel.lockfactoryserver.server.FakeStreamObserver;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
 
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -53,7 +55,7 @@ public class SemaphoreServerGrpcImplTest {
         when(semaphoreService.tryAcquire(anyString(), anyInt())).
                 thenReturn(true);
         //unused when(semaphoreService.tryAcquireWithTimeOut(anyString(), anyInt(), anyLong())).thenReturn(true);
-        when(semaphoreService.tryAcquireWithTimeOut(anyString(), anyInt(), anyLong(), any(java.util.concurrent.TimeUnit.class))).
+        when(semaphoreService.tryAcquireWithTimeOut(anyString(), anyInt(), anyLong(), any(TimeUnit.class))).
                 thenReturn(true);
         semaphoreServerGrpc = new SemaphoreServerGrpcImpl(semaphoreService);
     }
@@ -125,12 +127,12 @@ public class SemaphoreServerGrpcImplTest {
         NamePermitsWithTimeout namePermitsWithTimeout = NamePermitsWithTimeout.newBuilder().
                 setName(semaphoreName).setPermits(1).
                 setTimeOut(1).
-                setTimeUnit(org.obapanel.lockfactoryserver.core.grpc.TimeUnitGrpc.MILLISECONDS).
+                setTimeUnit(TimeUnitGrpc.MILLISECONDS).
                 build();
         FakeStreamObserver<BoolValue> responseObserver = new FakeStreamObserver<>();
         semaphoreServerGrpc.tryAcquireWithTimeOut(namePermitsWithTimeout, responseObserver);
         verify(semaphoreService).tryAcquireWithTimeOut(anyString(), anyInt(), anyLong(),
-                any(java.util.concurrent.TimeUnit.class));
+                any(TimeUnit.class));
         assertTrue(responseObserver.isCompleted());
         assertNotNull(responseObserver.getNext());
         assertTrue(responseObserver.getNext().getValue());
@@ -147,7 +149,7 @@ public class SemaphoreServerGrpcImplTest {
         FakeStreamObserver<BoolValue> responseObserver = new FakeStreamObserver<>();
         semaphoreServerGrpc.tryAcquireWithTimeOut(namePermitsWithTimeout, responseObserver);
         verify(semaphoreService).tryAcquireWithTimeOut(anyString(), anyInt(), anyLong(),
-                any(java.util.concurrent.TimeUnit.class));
+                any(TimeUnit.class));
         assertTrue(responseObserver.isCompleted());
         assertNotNull(responseObserver.getNext());
         assertTrue(responseObserver.getNext().getValue());

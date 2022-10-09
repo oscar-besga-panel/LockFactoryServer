@@ -11,11 +11,14 @@ import org.obapanel.lockfactoryserver.core.grpc.LockServerGrpc;
 import org.obapanel.lockfactoryserver.core.grpc.LockStatusValues;
 import org.obapanel.lockfactoryserver.core.grpc.NameTokenValues;
 import org.obapanel.lockfactoryserver.core.grpc.TryLockWithTimeout;
+import org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static org.obapanel.lockfactoryserver.core.util.LockStatusConverter.fromGrpcToJava;
@@ -30,6 +33,8 @@ public class LockClientGrpc
     private static final String EMPTY_TOKEN = "";
 
     private String token = EMPTY_TOKEN;
+
+    private ExecutorService lazyLocalExecutor;
 
     public LockClientGrpc(String address, int port, String name) {
         super(address, port, name);
@@ -77,7 +82,7 @@ public class LockClientGrpc
         return this.tryLockWithTimeOut(timeOut, TimeUnit.MILLISECONDS);
     }
 
-    public boolean tryLockWithTimeOut(long timeOut, java.util.concurrent.TimeUnit timeUnit) {
+    public boolean tryLockWithTimeOut(long timeOut, TimeUnit timeUnit) {
         TryLockWithTimeout tryLockWithTimeout = TryLockWithTimeout.newBuilder()
                 .setName(getName())
                 .setTimeOut(timeOut)
@@ -148,14 +153,12 @@ public class LockClientGrpc
         });
     }
 
-
-
     public void asyncLock2() {
-        asyncLock2(null, null);
+        asyncLock2(lazyLocalExecutor(), null);
     }
 
     public void asyncLock2(Runnable onLock) {
-        asyncLock2(null, onLock);
+        asyncLock2(lazyLocalExecutor(), onLock);
     }
 
     public void asyncLock2(Executor executor, Runnable onLock) {
@@ -167,7 +170,7 @@ public class LockClientGrpc
                 LOGGER.debug("Token is future {}", token);
                 doExecuteOnLock(executor, onLock);
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                throw RuntimeInterruptedException.getToThrowWhenInterrupted(e);
             } catch (ExecutionException e) {
                 throw new RuntimeException(e);
             }
@@ -183,4 +186,27 @@ public class LockClientGrpc
         }
     }
 
+
+    private ExecutorService lazyLocalExecutor() {
+        if (lazyLocalExecutor == null) {
+            lazyLocalExecutor = createLazyLocalExecutor();
+        }
+        return lazyLocalExecutor;
+    }
+
+    private synchronized ExecutorService createLazyLocalExecutor() {
+        if (lazyLocalExecutor == null) {
+            lazyLocalExecutor = Executors.newSingleThreadExecutor();
+        }
+        return lazyLocalExecutor;
+    }
+
+    @Override
+    public void close() {
+        super.close();
+        if (lazyLocalExecutor != null) {
+            lazyLocalExecutor.shutdown();
+            lazyLocalExecutor.shutdownNow();
+        }
+    }
 }

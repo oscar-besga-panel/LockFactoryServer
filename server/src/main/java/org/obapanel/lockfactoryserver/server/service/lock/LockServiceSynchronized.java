@@ -7,7 +7,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
-import static org.obapanel.lockfactoryserver.server.utils.RuntimeInterruptedException.doWithRuntime;
+import static org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException.doWithRuntime;
+
 
 public final class LockServiceSynchronized extends LockService {
 

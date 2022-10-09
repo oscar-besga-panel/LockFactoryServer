@@ -8,6 +8,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.obapanel.lockfactoryserver.server.FakeContext;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
 
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
@@ -35,7 +36,7 @@ public class SemaphoreServerRestImplTest {
                 thenAnswer( ioc -> current.get());
         when(semaphoreService.tryAcquire(anyString(), anyInt())).
                 thenReturn(true);
-        when(semaphoreService.tryAcquireWithTimeOut(anyString(), anyInt(), anyLong(), any(java.util.concurrent.TimeUnit.class))).
+        when(semaphoreService.tryAcquireWithTimeOut(anyString(), anyInt(), anyLong(), any(TimeUnit.class))).
                 thenReturn(true);
         semaphoreServerRest = new SemaphoreServerRestImpl(semaphoreService);
     }
@@ -79,9 +80,9 @@ public class SemaphoreServerRestImplTest {
         fakeContext.getPathTokens().put("name", semaphoreName);
         fakeContext.getPathTokens().put("permits", "1");
         fakeContext.getPathTokens().put("timeOut", "1");
-        fakeContext.getPathTokens().put("timeUnit", java.util.concurrent.TimeUnit.MILLISECONDS.name());
+        fakeContext.getPathTokens().put("timeUnit", TimeUnit.MILLISECONDS.name());
         semaphoreServerRest.tryAcquireWithTimeOut(fakeContext);
-        verify(semaphoreService).tryAcquireWithTimeOut(anyString(), anyInt(), anyLong(), any(java.util.concurrent.TimeUnit.class));
+        verify(semaphoreService).tryAcquireWithTimeOut(anyString(), anyInt(), anyLong(), any(TimeUnit.class));
         assertEquals("true", fakeContext.getFakeSentResponse());
     }
 
@@ -93,7 +94,7 @@ public class SemaphoreServerRestImplTest {
         fakeContext.getPathTokens().put("permits", "1");
         fakeContext.getPathTokens().put("timeOut", "1");
         semaphoreServerRest.tryAcquireWithTimeOut(fakeContext);
-        verify(semaphoreService).tryAcquireWithTimeOut(anyString(), anyInt(), anyLong(), any(java.util.concurrent.TimeUnit.class));
+        verify(semaphoreService).tryAcquireWithTimeOut(anyString(), anyInt(), anyLong(), any(TimeUnit.class));
         assertEquals("true", fakeContext.getFakeSentResponse());
     }
 

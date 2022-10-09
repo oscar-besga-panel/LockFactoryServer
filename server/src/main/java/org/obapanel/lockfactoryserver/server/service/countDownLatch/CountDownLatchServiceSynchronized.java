@@ -1,16 +1,12 @@
 package org.obapanel.lockfactoryserver.server.service.countDownLatch;
 
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
-import static org.obapanel.lockfactoryserver.server.utils.RuntimeInterruptedException.doWithRuntime;
+import static org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException.doWithRuntime;
 
 public final class CountDownLatchServiceSynchronized extends CountDownLatchService {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(CountDownLatchServiceSynchronized.class);
 
     public CountDownLatchServiceSynchronized(LockFactoryConfiguration configuration) {
         super(configuration);
@@ -42,7 +38,7 @@ public final class CountDownLatchServiceSynchronized extends CountDownLatchServi
     public synchronized void await(String name) {
         while(getCount(name) > 0) {
             super.tryAwait(name);
-            doWithRuntime(() -> CountDownLatchServiceSynchronized.this.wait());
+            doWithRuntime(CountDownLatchServiceSynchronized.this::wait);
         }
     }
 

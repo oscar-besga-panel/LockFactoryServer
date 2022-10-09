@@ -8,9 +8,12 @@ import io.grpc.stub.StreamObserver;
 import org.obapanel.lockfactoryserver.core.grpc.AwaitWithTimeout;
 import org.obapanel.lockfactoryserver.core.grpc.CountDownLatchServerGrpc;
 import org.obapanel.lockfactoryserver.core.grpc.NameCount;
+import org.obapanel.lockfactoryserver.core.grpc.TimeUnitGrpc;
 import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.TimeUnit;
 
 import static org.obapanel.lockfactoryserver.core.util.TimeUnitConverter.fromGrpcToJava;
 
@@ -78,12 +81,12 @@ public class CountDownLatchServerGrpcImpl extends CountDownLatchServerGrpc.Count
         boolean result;
         String name = request.getName();
         long timeOut = request.getTimeOut();
-        org.obapanel.lockfactoryserver.core.grpc.TimeUnitGrpc timeUnitGrpc = request.getTimeUnit();
+        TimeUnitGrpc timeUnitGrpc = request.getTimeUnit();
         if (timeUnitGrpc == null) {
-            LOGGER.info("grpc server> tryAwaitWithTimeOut name {} timeout {} timeunit {}", name, timeOut);
+            LOGGER.info("grpc server> tryAwaitWithTimeOut name {} timeout {}", name, timeOut);
             result = countDownLatchService.tryAwaitWithTimeOut(name, timeOut);
         } else {
-            java.util.concurrent.TimeUnit timeUnit = fromGrpcToJava(timeUnitGrpc);
+            TimeUnit timeUnit = fromGrpcToJava(timeUnitGrpc);
             LOGGER.info("grpc server> tryAwaitWithTimeOut name {} timeout {} timeunit {}", name, timeOut, timeUnit);
             result = countDownLatchService.tryAwaitWithTimeOut(name, timeOut, timeUnit);
         }
