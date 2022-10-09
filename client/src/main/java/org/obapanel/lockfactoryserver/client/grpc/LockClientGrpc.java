@@ -17,8 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static org.obapanel.lockfactoryserver.core.util.LockStatusConverter.fromGrpcToJava;
@@ -33,8 +31,6 @@ public class LockClientGrpc
     private static final String EMPTY_TOKEN = "";
 
     private String token = EMPTY_TOKEN;
-
-    private ExecutorService lazyLocalExecutor;
 
     public LockClientGrpc(String address, int port, String name) {
         super(address, port, name);
@@ -168,45 +164,13 @@ public class LockClientGrpc
             try {
                 token = listenableFuture.get().getValue();
                 LOGGER.debug("Token is future {}", token);
-                doExecuteOnLock(executor, onLock);
+                onLock.run();
             } catch (InterruptedException e) {
                 throw RuntimeInterruptedException.getToThrowWhenInterrupted(e);
             } catch (ExecutionException e) {
                 throw new RuntimeException(e);
             }
         }, executor);
-        //}, Executors.newSingleThreadExecutor());
     }
 
-    private void doExecuteOnLock(Executor executor, Runnable onLock) {
-        if (executor != null && onLock != null) {
-            executor.execute(onLock);
-        } else if (onLock != null) {
-            onLock.run();
-        }
-    }
-
-
-    private ExecutorService lazyLocalExecutor() {
-        if (lazyLocalExecutor == null) {
-            lazyLocalExecutor = createLazyLocalExecutor();
-        }
-        return lazyLocalExecutor;
-    }
-
-    private synchronized ExecutorService createLazyLocalExecutor() {
-        if (lazyLocalExecutor == null) {
-            lazyLocalExecutor = Executors.newSingleThreadExecutor();
-        }
-        return lazyLocalExecutor;
-    }
-
-    @Override
-    public void close() {
-        super.close();
-        if (lazyLocalExecutor != null) {
-            lazyLocalExecutor.shutdown();
-            lazyLocalExecutor.shutdownNow();
-        }
-    }
 }

@@ -88,34 +88,16 @@ public class CountDownLatchClientGrpc
     }
 
     public void asyncAwait(Runnable onAcquire) {
-        asyncAwait(null, onAcquire);
+        asyncAwait(lazyLocalExecutor(), onAcquire);
     }
 
-    public void asyncAwait(Executor executor, Runnable onAcquire) {
+    public void asyncAwait(Executor executor, Runnable onAwaited) {
         ListenableFuture<Empty> listenableFuture = getAsyncStub().asyncAwait(getStringValueName());
         listenableFuture.addListener(() -> {
-            LOGGER.debug("doExecuteOnLock is future ");
-            doExecuteOnLock(executor, onAcquire);
-//            try {
-//                //listenableFuture.get();
-//                //LOGGER.debug("Empty is future ");
-//                doExecuteOnLock(executor, onAcquire);
-//            } catch (InterruptedException e) {
-//                throw new RuntimeException(e);
-//            } catch (ExecutionException e) {
-//                throw new RuntimeException(e);
-//            }
-            }, executor);
-//        }, Executors.newSingleThreadExecutor());
-    }
-
-
-    private void doExecuteOnLock(Executor executor, Runnable onAcquire) {
-        if (executor != null && onAcquire != null) {
-            executor.execute(onAcquire);
-        } else if (onAcquire != null) {
-            onAcquire.run();
-        }
+                LOGGER.debug("doExecuteOnLock is future ");
+                onAwaited.run();
+            },
+            executor);
     }
 
 }

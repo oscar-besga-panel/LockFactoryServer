@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static org.obapanel.lockfactoryserver.core.util.TimeUnitConverter.fromJavaToGrpc;
@@ -70,7 +69,7 @@ public class SemaphoreClientGrpc
     }
 
     public void asyncAcquire(Runnable onAcquire) {
-        asyncAcquire(1, null, onAcquire);
+        asyncAcquire(1, lazyLocalExecutor(), onAcquire);
     }
 
     public void asyncAcquire(Executor executor, Runnable onAcquire) {
@@ -78,7 +77,7 @@ public class SemaphoreClientGrpc
     }
 
     public void asyncAcquire(int permits, Runnable onAcquire) {
-        asyncAcquire(permits, null, onAcquire);
+        asyncAcquire(permits, lazyLocalExecutor(), onAcquire);
     }
 
     public void asyncAcquire(int permits, Executor executor, Runnable onAcquire) {
@@ -88,21 +87,13 @@ public class SemaphoreClientGrpc
             try {
                 listenableFuture.get();
                 LOGGER.debug("Empty is future ");
-                doExecuteOnLock(executor, onAcquire);
+                onAcquire.run();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             } catch (ExecutionException e) {
                 throw new RuntimeException(e);
             }
-        }, Executors.newSingleThreadExecutor());
-    }
-
-    private void doExecuteOnLock(Executor executor, Runnable onAcquire) {
-        if (executor != null && onAcquire != null) {
-            executor.execute(onAcquire);
-        } else if (onAcquire != null) {
-            onAcquire.run();
-        }
+        }, executor);
     }
 
     public boolean tryAcquire() {
