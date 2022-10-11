@@ -164,13 +164,6 @@ service CountDownLatchServer {
   */
   rpc await(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
 
- /*
-  * Checks if the count is zero without waiting (only waits one millisecond)
-  * requires name of the countDownLatch
-  * returns true if zero or non-existen, false otherwise
-  */
-  rpc tryAwait(google.protobuf.StringValue) returns (google.protobuf.BoolValue) {}
-
   /**
    * Waits until the timeOut time is consumed or the countDownlatch reaches zero
    * requires Name of the countDownLatc, timeOut as time to wait and optionally timeUnit as unit of the timeOut; if not is milliseconds

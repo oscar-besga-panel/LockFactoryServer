@@ -37,15 +37,10 @@ public final class CountDownLatchServiceSynchronized extends CountDownLatchServi
 
     public synchronized void await(String name) {
         while(getCount(name) > 0) {
-            super.tryAwait(name);
+            super.tryAwaitWithTimeOut(name, 1, TimeUnit.MILLISECONDS);
             doWithRuntime(CountDownLatchServiceSynchronized.this::wait);
         }
     }
-
-    public synchronized boolean tryAwait(String name) {
-        return this.tryAwaitWithTimeOut(name, 1, TimeUnit.MILLISECONDS);
-    }
-
 
     public synchronized boolean tryAwaitWithTimeOut(String name, long timeOut) {
         return this.tryAwaitWithTimeOut(name, timeOut, TimeUnit.MILLISECONDS);
@@ -55,7 +50,7 @@ public final class CountDownLatchServiceSynchronized extends CountDownLatchServi
     public synchronized boolean tryAwaitWithTimeOut(String name, long timeOut, TimeUnit timeUnit) {
         long t = timeUnit.toMillis(timeOut) + System.currentTimeMillis();
         while(getCount(name) > 0 && t > System.currentTimeMillis()) {
-            super.tryAwait(name);
+            super.tryAwaitWithTimeOut(name, timeOut, timeUnit);
             doWithRuntime(() -> CountDownLatchServiceSynchronized.this.wait(timeUnit.toMillis(timeOut) + 1));
         }
         //TODO ¿???

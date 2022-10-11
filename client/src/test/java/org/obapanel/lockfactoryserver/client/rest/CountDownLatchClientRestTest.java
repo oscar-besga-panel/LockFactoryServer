@@ -146,18 +146,6 @@ public class CountDownLatchClientRestTest {
     }
 
     @Test
-    public void tryAwaitTest() throws IOException {
-        finalResult.set(Boolean.toString(true));
-        boolean result = countDownLatchClientRest.tryAwait();
-        String finalUrl = finalUrl();
-        assertTrue(finalUrl.contains("countDownLatch"));
-        assertTrue(finalUrl.contains("tryAwait"));
-        assertTrue(finalUrl.contains(name));
-        assertTrue(result);
-        verify(httpclient).execute(any(HttpGet.class));
-    }
-
-    @Test
     public void tryAwaitWithTimeou1tTest() throws IOException {
         long timeOut = ThreadLocalRandom.current().nextLong(10);
         finalResult.set(Boolean.toString(true));

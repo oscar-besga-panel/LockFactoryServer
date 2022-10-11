@@ -49,7 +49,6 @@ public class CountDownLatchClientRmiTest {
         when(registry.lookup(eq(CountDownLatchServerRmi.RMI_NAME))).thenReturn(countDownLatchServerRmi);
         when(countDownLatchServerRmi.createNew(anyString(), anyInt())).thenReturn(true);
         when(countDownLatchServerRmi.getCount(anyString())).thenReturn(count);
-        when(countDownLatchServerRmi.tryAwait(anyString())).thenReturn(true);
         when(countDownLatchServerRmi.tryAwaitWithTimeOut(anyString(), anyLong())).thenReturn(true);
         when(countDownLatchServerRmi.tryAwaitWithTimeOut(anyString(), anyLong(), any(TimeUnit.class))).thenReturn(true);
         countDownLatchClientRmi = new CountDownLatchClientRmi(registry, name);
@@ -79,13 +78,6 @@ public class CountDownLatchClientRmiTest {
     public void awaitTest() throws RemoteException {
         countDownLatchClientRmi.await();
         verify(countDownLatchServerRmi).await(eq(name));
-    }
-
-    @Test
-    public void tryAwaitTest() throws RemoteException {
-        boolean result = countDownLatchClientRmi.tryAwait();
-        verify(countDownLatchServerRmi).tryAwait(eq(name));
-        assertTrue(result);
     }
 
     @Test

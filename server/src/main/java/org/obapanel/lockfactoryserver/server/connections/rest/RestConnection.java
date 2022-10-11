@@ -178,8 +178,6 @@ public class RestConnection implements LockFactoryConnection {
             chain.get("getCount/:name", countDownLatchServerRest::getCount);
             chain.get("getcount/:name", countDownLatchServerRest::getCount);
             chain.get("await/:name", countDownLatchServerRest::await);
-            chain.get("tryawait/:name", countDownLatchServerRest::tryAwait);
-            chain.get("tryAwait/:name", countDownLatchServerRest::tryAwait);
             chain.get("tryawaitwithtimeout/:name/:time", countDownLatchServerRest::tryAwaitWithTimeOut);
             chain.get("tryAwaitWithTimeOut/:name/:time", countDownLatchServerRest::tryAwaitWithTimeOut);
             chain.get("tryawaitwithtimeout/:name/:time/:timeUnit", countDownLatchServerRest::tryAwaitWithTimeOut);

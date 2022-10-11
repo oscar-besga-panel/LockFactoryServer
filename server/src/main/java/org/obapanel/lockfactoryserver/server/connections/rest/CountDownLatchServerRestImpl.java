@@ -53,13 +53,6 @@ public class CountDownLatchServerRestImpl {
         context.getResponse().send(OK);
     }
 
-    public void tryAwait(Context context) {
-        String name = context.getPathTokens().get("name");
-        LOGGER.info("rest server> tryAwait name {}", name);
-        boolean result = countDownLatchService.tryAwait(name);
-        context.getResponse().send(Boolean.toString(result));
-    }
-
     public void tryAwaitWithTimeOut(Context context) {
         boolean result = false;
         String name = context.getPathTokens().get("name");

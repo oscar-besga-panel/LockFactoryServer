@@ -49,14 +49,6 @@ public class CountDownLatchClientRest extends AbstractClientRest {
         LOGGER.debug("await name {} response {}", getName(), response);
     }
 
-    public boolean tryAwait() {
-        String response = requestWithUrl( "tryAwait", getName());
-        boolean result = Boolean.parseBoolean(response);
-        LOGGER.debug("tryAwait name {} result {}", getName(), result);
-        return result;
-    }
-
-
     public boolean tryAwaitWithTimeOut(long timeOut, TimeUnit timeUnit) {
         String response = requestWithUrl( "tryAwaitWithTimeOut", getName(), Long.toString(timeOut), timeUnit.name().toLowerCase());
         boolean result = Boolean.parseBoolean(response);
@@ -64,11 +56,11 @@ public class CountDownLatchClientRest extends AbstractClientRest {
         return result;
     }
 
-
     public boolean tryAwaitWithTimeOut(long timeOut) {
         String response = requestWithUrl( "tryAwaitWithTimeOut", getName(), Long.toString(timeOut));
         boolean result = Boolean.parseBoolean(response);
         LOGGER.debug("tryAwaitWithTimeOut name {} timeOut(ms) {} response {}", getName(), timeOut, result);
         return result;
     }
+
 }

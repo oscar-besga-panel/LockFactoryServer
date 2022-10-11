@@ -43,14 +43,6 @@ public interface CountDownLatchServerRmi extends Remote {
     void await(String name) throws RemoteException;
 
     /**
-     * Checks if the count is zero without waiting (only waits one millisecond)
-     * @param name Name of the countDownLatch
-     * @return true if zero or non-existen, false otherwise
-     * @throws RemoteException if anything goes wrong
-     */
-    boolean tryAwait(String name) throws RemoteException;
-
-    /**
      * Waits until the timeOut time is consumed or the countDownlatch reaches zero
      * @param name Name of the countDownLatch
      * @param timeOut Time in millis to wait

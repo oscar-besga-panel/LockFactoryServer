@@ -68,15 +68,6 @@ public class CountDownLatchServerGrpcImpl extends CountDownLatchServerGrpc.Count
     }
 
     @Override
-    public void tryAwait(StringValue request, StreamObserver<BoolValue> responseObserver) {
-        String name = request.getValue();
-        LOGGER.info("grpc server> tryAwait name {}", name);
-        countDownLatchService.tryAwait(name);
-        responseObserver.onNext(BoolValue.of(true));
-        responseObserver.onCompleted();
-    }
-
-    @Override
     public void tryAwaitWithTimeOut(AwaitWithTimeout request, StreamObserver<BoolValue> responseObserver) {
         boolean result;
         String name = request.getName();

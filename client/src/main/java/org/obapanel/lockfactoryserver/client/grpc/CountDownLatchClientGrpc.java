@@ -68,11 +68,6 @@ public class CountDownLatchClientGrpc
         getStub().await(getStringValueName());
     }
 
-    public boolean tryAwait()  {
-        BoolValue boolValue = getStub().tryAwait(getStringValueName());
-        return boolValue.getValue();
-    }
-
     public boolean tryAwaitWithTimeOut(long timeOut)  {
         return tryAwaitWithTimeOut(timeOut, TimeUnit.MILLISECONDS);
     }

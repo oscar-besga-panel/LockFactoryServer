@@ -41,7 +41,6 @@ public class CountDownLatchServerGrpcImplTest {
     @Before
     public void setup()  {
         when(countDownLatchService.createNew(anyString(), anyInt())).thenReturn(true);
-        when(countDownLatchService.tryAwait(anyString())).thenReturn(true);
         //unused: when(countDownLatchService.tryAwaitWithTimeOut(anyString(), anyLong())).thenReturn(true);
         when(countDownLatchService.tryAwaitWithTimeOut(anyString(), anyLong(), any(TimeUnit.class))).thenReturn(true);
         countDownLatchServerGrpc = new CountDownLatchServerGrpcImpl(countDownLatchService);
@@ -88,16 +87,6 @@ public class CountDownLatchServerGrpcImplTest {
         countDownLatchServerGrpc.await(StringValue.of(name), responseObserver);
         verify(countDownLatchService).await(eq(name));
         assertTrue(responseObserver.isCompleted());
-    }
-
-    @Test
-    public void tryAwaitTest() throws RemoteException {
-        String name = "codola_" + System.currentTimeMillis();
-        FakeStreamObserver<BoolValue> responseObserver = new FakeStreamObserver<>();
-        countDownLatchServerGrpc.tryAwait(StringValue.of(name), responseObserver);
-        verify(countDownLatchService).tryAwait(eq(name));
-        assertTrue(responseObserver.isCompleted());
-        assertTrue(responseObserver.getNext().getValue());
     }
 
     @Test

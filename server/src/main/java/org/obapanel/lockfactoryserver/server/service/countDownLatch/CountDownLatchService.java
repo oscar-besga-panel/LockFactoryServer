@@ -83,10 +83,6 @@ LOGGER.debug(">> wait codola {} {}", name, countDownLatch);
         }
     }
 
-    public boolean tryAwait(String name) {
-        return this.tryAwaitWithTimeOut(name, 1, TimeUnit.MILLISECONDS);
-    }
-
     public boolean tryAwaitWithTimeOut(String name, long timeOut) {
         return this.tryAwaitWithTimeOut(name, timeOut, TimeUnit.MILLISECONDS);
     }

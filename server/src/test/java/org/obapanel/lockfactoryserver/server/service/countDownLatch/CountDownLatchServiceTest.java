@@ -104,18 +104,6 @@ public class CountDownLatchServiceTest {
     }
 
     @Test
-    public void tryAwait() throws InterruptedException {
-        String name = "codola_" + System.currentTimeMillis();
-        countDownLatchService.createNew(name, 1);
-        boolean result1 = countDownLatchService.tryAwait(name);
-        countDownLatchService.countDown(name);
-        boolean result2 = countDownLatchService.tryAwait(name);
-        assertFalse(result1);
-        assertTrue(result2);
-    }
-
-
-        @Test
     public void tryAwaitWithTimeOutTest() throws InterruptedException {
         AtomicBoolean awaitTerminated1 = new AtomicBoolean(false);
         AtomicBoolean awaitTerminated2 = new AtomicBoolean(false);

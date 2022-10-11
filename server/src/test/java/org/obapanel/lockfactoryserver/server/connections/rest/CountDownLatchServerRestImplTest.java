@@ -32,7 +32,6 @@ public class CountDownLatchServerRestImplTest {
     @Before
     public void setup()  {
         when(countDownLatchService.createNew(anyString(), anyInt())).thenReturn(true);
-        when(countDownLatchService.tryAwait(anyString())).thenReturn(true);
         //unused when(countDownLatchService.tryAwaitWithTimeOut(anyString(), anyLong())).thenReturn(true);
         when(countDownLatchService.tryAwaitWithTimeOut(anyString(), anyLong(), any(TimeUnit.class))).thenReturn(true);
         countDownLatchServerRest = new CountDownLatchServerRestImpl(countDownLatchService);
@@ -78,16 +77,6 @@ public class CountDownLatchServerRestImplTest {
         countDownLatchServerRest.await(fakeContext);
         verify(countDownLatchService).await(eq(name));
         assertEquals("ok", fakeContext.getFakeSentResponse());
-    }
-
-    @Test
-    public void tryAwaitTest() {
-        String name = "codola_" + System.currentTimeMillis();
-        FakeContext fakeContext = new FakeContext();
-        fakeContext.getPathTokens().put("name", name);
-        countDownLatchServerRest.tryAwait(fakeContext);
-        verify(countDownLatchService).tryAwait(eq(name));
-        assertEquals("true", fakeContext.getFakeSentResponse());
     }
 
     @Test

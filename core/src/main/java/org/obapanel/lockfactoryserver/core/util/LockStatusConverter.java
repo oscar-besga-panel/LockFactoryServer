@@ -7,7 +7,6 @@ public class LockStatusConverter {
 
     private LockStatusConverter() {}
 
-
     /**
      * Converts java LockStatus to grpc LockStatus
      * A null input will throw exception
@@ -48,7 +47,7 @@ public class LockStatusConverter {
             case OTHER:
                 return org.obapanel.lockfactoryserver.core.LockStatus.OTHER;
             default:
-                throw new IllegalArgumentException("Error fromGrpcToJava convert locSstatus " + lockStatusGrpc);
+                throw new IllegalArgumentException("Error fromGrpcToJava convert locStatus " + lockStatusGrpc);
         }
     }
 
