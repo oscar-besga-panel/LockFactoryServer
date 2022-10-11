@@ -1,5 +1,8 @@
 package org.obapanel.lockfactoryserver.core.util;
 
+/**
+ * Static utility claass to convertt from/to TimeUnit types
+ */
 public class TimeUnitConverter {
 
     private TimeUnitConverter() {}

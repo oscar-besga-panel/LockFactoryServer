@@ -20,14 +20,50 @@ public interface SemaphoreServerRmi extends Remote {
      */
     int currentPermits(String name) throws RemoteException;
 
+    /**
+     * Acquire N permits, waiting until acquired
+     * @param name Semaphore name
+     * @param permits Number of permits to acquire
+     * @throws RemoteException if error
+     */
     void acquire(String name, int permits) throws RemoteException;
 
+    /**
+     * Try to acquire N permits, without waiting
+     * @param name Semaphore name
+     * @param permits Number of permits to acquire
+     * @return true if acquired, false if not
+     * @throws RemoteException if error
+     */
     boolean tryAcquire(String name, int permits) throws RemoteException;
 
+    /**
+     * Wait a time to acquire N permits, returning if acquired ot time passed
+     * @param name Semaphore name
+     * @param permits Number of permits to release
+     * @param timeOut Time out to wait until released or not, in milliseconds
+     * @return true if the permits have been released before the timeOut, false otherwise
+     * @throws RemoteException if error
+     */
     boolean tryAcquireWithTimeOut(String name, int permits, long timeOut) throws RemoteException;
 
+    /**
+     * Wait a time to acquire N permits, returning if acquired ot time passed
+     * @param name Semaphore name
+     * @param permits Number of permits to acquire
+     * @param timeOut Time out to wait until released or not
+     * @param timeUnit Time unit of the timeOut
+     * @return true if the permits have been released before the timeOut, false otherwise
+     * @throws RemoteException if error
+     */
     boolean tryAcquireWithTimeOut(String name, int permits, long timeOut, TimeUnit timeUnit) throws RemoteException;
 
+    /**
+     * Release N permits from this semaphore
+     * @param name Semaphore name
+     * @param permits Number of permits to release
+     * @throws RemoteException if error
+     */
     void release(String name, int permits) throws RemoteException;
 
 }

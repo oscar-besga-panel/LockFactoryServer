@@ -23,9 +23,9 @@ public abstract class AbstractClientRmi<K extends Remote> implements AutoCloseab
         this(LocateRegistry.getRegistry(host, port), name);
     }
 
-
+    @SuppressWarnings("unchecked")
     public AbstractClientRmi(Registry registry, String name) throws NotBoundException, RemoteException {
-        this.serverRmi = (K) registry.lookup(registryLookupName());;
+        this.serverRmi = (K) registry.lookup(registryLookupName());
         this.name = name;
     }
 

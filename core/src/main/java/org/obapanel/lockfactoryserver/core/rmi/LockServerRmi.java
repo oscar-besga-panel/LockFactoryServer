@@ -60,7 +60,7 @@ public interface LockServerRmi extends Remote {
      * @param name Name of the lock
      * @param token Current token or null/empy if doesnt have one
      * @return LockStatus for current lock
-     * @throws RemoteException
+     * @throws RemoteException if anything goes wrong
      */
     LockStatus lockStatus(String name, String token) throws RemoteException;
 

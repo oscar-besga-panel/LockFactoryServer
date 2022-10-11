@@ -147,10 +147,10 @@ public class LockFactoryServerTest {
     }
 
     @Test
-    public void shutdowntServerTest() {
+    public void shutdownServerTest() {
         lockFactoryServer.startServer();
         assertTrue(lockFactoryServer.isRunning());
-        lockFactoryServer.shutdown();;
+        lockFactoryServer.shutdown();
         assertFalse(lockFactoryServer.isRunning());
     }
 

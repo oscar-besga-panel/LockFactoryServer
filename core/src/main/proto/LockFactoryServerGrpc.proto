@@ -32,16 +32,55 @@ service ManagementServer {
  */
 service LockServer {
 
+
+  /*
+   * Try to obtain a lock, waiting if needed
+   * expects the name of the lock
+   * return a non-null non-empty string with the token of the lock when acquired
+   */
   rpc lock(google.protobuf.StringValue) returns (google.protobuf.StringValue) {}
 
+  /*
+   * Try to obain a lock, without waiting
+   * expects name Name of the lock
+   * return a non-null non-empty string with the token of the lock if acquired, or an empty/null string if not
+   */
   rpc tryLock(google.protobuf.StringValue) returns (google.protobuf.StringValue) {}
 
+  /*
+   * Try to obain a lock, waiting a defined time
+   * expects name Name of the lock, timeOut as wuantity of time to wait in miliseconds if timeUnit nor given
+   *   or the timeUnit of the timeOut
+   * return a non-null non-empty string with the token of the lock if acquired, or an empty/null string if not
+   */
   rpc tryLockWithTimeOut(TryLockWithTimeout) returns (google.protobuf.StringValue) {}
 
+  /*
+   * Check if a lock is locked and how, status options are:
+   * -   ERROR: In case an error happens
+   * -   ABSENT: No lock has been found
+   * -   UNLOCKED: Lock exists and its unlocked
+   * -   OWNER: Lock exists, is locked by caller
+   * -   OTHER: Lock exists, is locked by other
+   *
+   * expects Name of the lock and the current token or null/empy if doesnt have one
+   * return LockStatus for current lock
+   */
   rpc lockStatus(NameTokenValues) returns (LockStatusValues) {}
 
+  /*
+   * Unlock previously locked lock
+   * expects Name of the lock and obtained token when locking
+   * return true if lock exists and was unlocked by token
+   */
   rpc unLock(NameTokenValues) returns (google.protobuf.BoolValue) {}
 
+  /*
+   * Try to obtain a lock, waiting the response if needed
+   * This is used in asynch clients
+   * expects the name of the lock
+   * return a non-null non-empty string with the token of the lock when acquired
+   */
   rpc asyncLock(google.protobuf.StringValue) returns (google.protobuf.StringValue) {}
 
 }
@@ -51,16 +90,45 @@ service LockServer {
  */
 service SemaphoreServer {
 
+  /*
+   * Current permits of the semaphore
+   * requires name Name of the semaphore
+   * returns permits of the semaphore, zero if not exists
+   */
   rpc currentPermits(google.protobuf.StringValue) returns (google.protobuf.Int32Value) {}
 
+  /*
+   * Acquire N permits, waiting until acquired
+   * requires Semaphore name and number of permits to acquire
+   * @throws RemoteException if error
+   */
   rpc acquire(NamePermits) returns (google.protobuf.Empty) {}
 
+  /*
+   * Try to acquire N permits, without waiting
+   * requires Semaphore name and number of permits to acquire
+   * returns true if acquired, false if not
+   */
   rpc tryAcquire(NamePermits) returns (google.protobuf.BoolValue) {}
 
+  /*
+   * Wait a time to acquire N permits, returning if acquired ot time passed
+   * requires Semaphore name and number of permits to release and timeOut to wait until released or not, in milliseconds or other unit
+   * returns true if the permits have been released before the timeOut, false otherwise
+   */
   rpc tryAcquireWithTimeOut(NamePermitsWithTimeout) returns (google.protobuf.BoolValue) {}
 
+  /*
+   * Release N permits from this semaphore
+   * requires Semaphore name and number of permits to release
+   */
   rpc release(NamePermits) returns (google.protobuf.Empty) {}
 
+  /*
+   * Acquire N permits, waiting asynchronously until acquired
+   * requires Semaphore name and number of permits to acquire
+   * @throws RemoteException if error
+   */
   rpc asyncAcquire(NamePermits) returns (google.protobuf.Empty) {}
 
 }
@@ -70,18 +138,50 @@ service SemaphoreServer {
  */
 service CountDownLatchServer {
 
+ /*
+  * Creates a new countDownLatch with the specified count
+  * requires Name of the countDownLatch and count to release
+  * returns true if created, false if already exists
+  */
   rpc createNew(NameCount) returns (google.protobuf.BoolValue) {}
 
+  /*
+   * Decreases the count of the countDownLatch by 1
+   * requires Name of the countDownLatch
+   */
   rpc countDown(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
 
+  /*
+   * Get the current count
+   * requires Name of the countDownLatch
+   * returns current count of the countDownLatch, 0 if non existen
+   */
   rpc getCount(google.protobuf.StringValue) returns (google.protobuf.Int32Value) {}
 
+ /*
+  * Await to the count to be zero
+  * requires name of the countDownLatch
+  */
   rpc await(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
 
+ /*
+  * Checks if the count is zero without waiting (only waits one millisecond)
+  * requires name of the countDownLatch
+  * returns true if zero or non-existen, false otherwise
+  */
   rpc tryAwait(google.protobuf.StringValue) returns (google.protobuf.BoolValue) {}
 
+  /**
+   * Waits until the timeOut time is consumed or the countDownlatch reaches zero
+   * requires Name of the countDownLatc, timeOut as time to wait and optionally timeUnit as unit of the timeOut; if not is milliseconds
+   * returns true if zero reached, false if time consumed
+   */
   rpc tryAwaitWithTimeOut(AwaitWithTimeout) returns (google.protobuf.BoolValue) {}
 
+  /*
+   * Await to the count to be zero, responding asynchronoously
+   * requires name of the countDownLatch
+   */
   rpc asyncAwait(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
 
 }
