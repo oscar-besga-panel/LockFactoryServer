@@ -128,10 +128,10 @@ public class RestConnection implements LockFactoryConnection {
             chain.get("lock/:name", lockServerRest::lock);
             chain.get("tryLock/:name", lockServerRest::tryLock);
             chain.get("trylock/:name", lockServerRest::tryLock);
-            chain.get("tryLockWithTimeOut/:name/:time", lockServerRest::tryLockWithTimeout);
-            chain.get("trylockwithtimeout/:name/:time", lockServerRest::tryLockWithTimeout);
-            chain.get("tryLockWithTimeOut/:name/:time/:timeUnit", lockServerRest::tryLockWithTimeout);
-            chain.get("trylockwithtimeout/:name/:time/:timeUnit", lockServerRest::tryLockWithTimeout);
+            chain.get("tryLockWithTimeOut/:name/:timeOut", lockServerRest::tryLockWithTimeout);
+            chain.get("trylockwithtimeout/:name/:timeOut", lockServerRest::tryLockWithTimeout);
+            chain.get("tryLockWithTimeOut/:name/:timeOut/:timeUnit", lockServerRest::tryLockWithTimeout);
+            chain.get("trylockwithtimeout/:name/:timeOut/:timeUnit", lockServerRest::tryLockWithTimeout);
             chain.get("lockStatus/:name/:token", lockServerRest::lockStatus);
             chain.get("lockstatus/:name/:token", lockServerRest::lockStatus);
             chain.get("lockStatus/:name", lockServerRest::lockStatus);
@@ -178,10 +178,10 @@ public class RestConnection implements LockFactoryConnection {
             chain.get("getCount/:name", countDownLatchServerRest::getCount);
             chain.get("getcount/:name", countDownLatchServerRest::getCount);
             chain.get("await/:name", countDownLatchServerRest::await);
-            chain.get("tryawaitwithtimeout/:name/:time", countDownLatchServerRest::tryAwaitWithTimeOut);
-            chain.get("tryAwaitWithTimeOut/:name/:time", countDownLatchServerRest::tryAwaitWithTimeOut);
-            chain.get("tryawaitwithtimeout/:name/:time/:timeUnit", countDownLatchServerRest::tryAwaitWithTimeOut);
-            chain.get("tryAwaitWithTimeOut/:name/:time/:timeUnit", countDownLatchServerRest::tryAwaitWithTimeOut);
+            chain.get("tryawaitwithtimeout/:name/:timeOut", countDownLatchServerRest::tryAwaitWithTimeOut);
+            chain.get("tryAwaitWithTimeOut/:name/:timeOut", countDownLatchServerRest::tryAwaitWithTimeOut);
+            chain.get("tryawaitwithtimeout/:name/:timeOut/:timeUnit", countDownLatchServerRest::tryAwaitWithTimeOut);
+            chain.get("tryAwaitWithTimeOut/:name/:timeOut/:timeUnit", countDownLatchServerRest::tryAwaitWithTimeOut);
         };
     }
 

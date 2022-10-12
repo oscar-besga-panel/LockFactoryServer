@@ -2,6 +2,7 @@ package org.obapanel.lockfactoryserver.client.rest;
 
 
 import org.apache.http.HttpEntity;
+import org.apache.http.StatusLine;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -26,6 +27,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -65,6 +67,9 @@ public class SemaphoreClientRestTest {
         mockedStaticEntityUtils = Mockito.mockStatic(EntityUtils.class);
         mockedStaticEntityUtils.when(() -> EntityUtils.toString(eq(httpEntity))).
                 thenAnswer(ioc -> finalResult.toString());
+        StatusLine statusLine = mock(StatusLine.class);
+        when(httpResponse.getStatusLine()).thenReturn(statusLine);
+        when(statusLine.getStatusCode()).thenReturn(200);
         semaphoreClientRest = new SemaphoreClientRest("http://localhost:8080/", name);
     }
 

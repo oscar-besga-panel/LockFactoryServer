@@ -14,6 +14,8 @@ public abstract class AbstractClientRest implements AutoCloseable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractClientRest.class);
 
+    public static final int HTTP_OK = 200;
+
     private final String baseUrl;
     private final String name;
 
@@ -40,10 +42,25 @@ public abstract class AbstractClientRest implements AutoCloseable {
         try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
             HttpGet httpGet = new HttpGet(baseUrl + operation);
             try (CloseableHttpResponse response = httpclient.execute(httpGet)) {
-                return EntityUtils.toString(response.getEntity());
+                return processResponse(operation, response);
             }
         } catch (IOException e) {
-            throw new IllegalStateException("Error in requesrt", e);
+            throw new IllegalStateException("Error in request", e);
+        }
+    }
+
+    String processResponse(String operation, CloseableHttpResponse response) throws IOException {
+        String responseResult = EntityUtils.toString(response.getEntity());
+        int code = response.getStatusLine().getStatusCode();
+        if (code == HTTP_OK) {
+            LOGGER.debug("response baseUrl {} operation {} httpCode {} responseResult {}",
+                    baseUrl, operation, code, responseResult);
+            return responseResult;
+        } else {
+            LOGGER.error("ERROR in response baseUrl {} operation {} httpCode {} responseResult {}",
+                    baseUrl, operation, code, responseResult);
+            throw new IllegalStateException(String.format("ERROR in response baseUrl %s operation %s httpCode %d responseResult %s",
+                    baseUrl, operation, code, responseResult));
         }
     }
 

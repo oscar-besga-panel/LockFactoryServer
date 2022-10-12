@@ -1,6 +1,5 @@
 package org.obapanel.lockfactoryserver.client.rest;
 
-
 import org.apache.http.HttpEntity;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -18,17 +17,16 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ManagementClientRestTest {
+public class AbstractClientRestTest {
 
     @Mock
     private CloseableHttpClient httpclient;
@@ -37,17 +35,21 @@ public class ManagementClientRestTest {
     private CloseableHttpResponse httpResponse;
 
     @Mock
+    private StatusLine statusLine;
+
+    @Mock
     private HttpEntity httpEntity;
+
 
     private MockedStatic<HttpClients> mockedStaticHttpClient;
 
     private MockedStatic<EntityUtils> mockedStaticEntityUtils;
 
-    private ManagementClientRest managementClientRest;
-
     private final AtomicReference<HttpGet> finalRequest = new AtomicReference<>(null);
 
     private final AtomicReference<String> finalResult = new AtomicReference<>("");
+
+    private final AtomicInteger finalStatus = new AtomicInteger(0);
 
     @Before
     public void setup() throws IOException {
@@ -61,10 +63,9 @@ public class ManagementClientRestTest {
         mockedStaticEntityUtils = Mockito.mockStatic(EntityUtils.class);
         mockedStaticEntityUtils.when(() -> EntityUtils.toString(eq(httpEntity))).
                 thenAnswer(ioc -> finalResult.toString());
-        StatusLine statusLine = mock(StatusLine.class);
         when(httpResponse.getStatusLine()).thenReturn(statusLine);
-        when(statusLine.getStatusCode()).thenReturn(200);
-        managementClientRest = new ManagementClientRest("http://localhost:8080/");
+        when(statusLine.getStatusCode()).thenAnswer(ioc -> finalStatus.get());
+
     }
 
     private String finalUrl() {
@@ -82,24 +83,31 @@ public class ManagementClientRestTest {
     }
 
     @Test
-    public void isRunningTest() throws IOException {
-        finalResult.set("true");
-        boolean result = managementClientRest.isRunning();
-        assertTrue(result);
-        verify(httpclient).execute(any(HttpGet.class));
-        String finalUrl = finalUrl();
-        assertTrue(finalUrl.contains("management"));
-        assertTrue(finalUrl.contains("isRunning"));
+    public void testResponse200Test() {
+        finalResult.set(Boolean.toString(true));
+        finalStatus.set(200);
+        TestAbstractClientRest testAbstractClientRest1 = new TestAbstractClientRest();
+        String response = testAbstractClientRest1.requestWithUrl("test/1");
+        assertEquals("true", response);
     }
 
-    @Test
-    public void shutdownServerTest() throws IOException {
-        finalResult.set("ok");
-        managementClientRest.shutdownServer();
-        verify(httpclient).execute(any(HttpGet.class));
-        String finalUrl = finalUrl();
-        assertTrue(finalUrl.contains("management"));
-        assertTrue(finalUrl.contains("shutdownServer"));
+    @Test(expected = IllegalStateException.class)
+    public void testResponse500Test() {
+        finalResult.set(Boolean.toString(true));
+        finalStatus.set(500);
+        TestAbstractClientRest testAbstractClientRest1 = new TestAbstractClientRest();
+        String response = testAbstractClientRest1.requestWithUrl("test/1");
     }
 
+    private class TestAbstractClientRest extends AbstractClientRest {
+
+        public TestAbstractClientRest() {
+            super("http://127.0.0.1/", "TestAbstractClientRest");
+        }
+
+        @Override
+        String serviceUrlName() {
+            return "serviceUrlName";
+        }
+    }
 }
