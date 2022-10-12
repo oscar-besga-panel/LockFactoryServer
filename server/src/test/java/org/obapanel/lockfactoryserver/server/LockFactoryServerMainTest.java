@@ -1,53 +1,43 @@
 package org.obapanel.lockfactoryserver.server;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.MockedConstruction;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mockConstruction;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 
 @RunWith(MockitoJUnitRunner.class)
 public class LockFactoryServerMainTest {
 
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
-
-
     @Test
-    public void readTestWithFile() throws IOException {
-        String name = "name_" + System.currentTimeMillis();
-        String data = "data_" + System.currentTimeMillis();
-        StringBuilder fileContent = new StringBuilder().
-                append(name).append("=").append(data).append("\n").
-                append("cacheCheckDataPeriodSeconds=99").append("\n");
-        temporaryFolder.create();
-        File propetiesFile = temporaryFolder.newFile("lockFactoryConfReaderTest.2.properties");
-        Files.write(propetiesFile.toPath(), fileContent.toString().getBytes());
-        LockFactoryServerMain lockFactoryServerMain = new LockFactoryServerMain();
-        Properties properties = lockFactoryServerMain.readFromFile(propetiesFile.getAbsolutePath());
-        assertNotNull(properties);
-        assertFalse(properties.stringPropertyNames().isEmpty());
-        assertEquals(data, properties.getProperty(name));
-        assertEquals("99", properties.getProperty("cacheCheckDataPeriodSeconds"));
+    public void mainTest() {
+        try(MockedConstruction<LockFactoryServerMain> mocked = Mockito.mockConstruction(LockFactoryServerMain.class)) {
+            LockFactoryServerMain.main(new String[]{});
+            LockFactoryServerMain constructedMock = mocked.constructed().get(0);
+            verify(constructedMock, never()).setPath(anyString());
+            verify(constructedMock).execute();
+        }
     }
 
     @Test
-    public void readTestWithBadFile() throws IOException {
-        temporaryFolder.create();
-        File propetiesFile = temporaryFolder.newFile("lockFactoryConfReaderTest.3.properties");
-        LockFactoryServerMain lockFactoryServerMain = new LockFactoryServerMain();
-        Properties properties = lockFactoryServerMain.readFromFile(propetiesFile.getAbsolutePath() + ".nofile");
-        assertNull(properties);
+    public void mainTestWithParameters() {
+        try(MockedConstruction<LockFactoryServerMain> mocked = Mockito.mockConstruction(LockFactoryServerMain.class)) {
+            LockFactoryServerMain.main(new String[]{"test.properties"});
+            LockFactoryServerMain constructedMock = mocked.constructed().get(0);
+            verify(constructedMock).setPath(anyString());
+            verify(constructedMock).execute();
+        }
     }
 
     @Test
@@ -69,27 +59,6 @@ public class LockFactoryServerMainTest {
         assertNotNull(configuration);
         assertTrue(properties.stringPropertyNames().isEmpty());
         assertEquals(10, configuration.getCacheCheckDataPeriodSeconds());
-    }
-
-    @Test
-    public void generateLockFactoryConfigurationWithFileTest() throws IOException {
-        String name = "name_" + System.currentTimeMillis();
-        String data = "data_" + System.currentTimeMillis();
-        StringBuilder fileContent = new StringBuilder().
-                append(name).append("=").append(data).append("\n").
-                append("cacheCheckDataPeriodSeconds=99").append("\n");
-        temporaryFolder.create();
-        File propetiesFile = temporaryFolder.newFile("lockFactoryConfReaderTest.3.properties");
-        Files.write(propetiesFile.toPath(), fileContent.toString().getBytes());
-        LockFactoryServerMain lockFactoryServerMain = new LockFactoryServerMain();
-        lockFactoryServerMain.setPath(propetiesFile.getAbsolutePath());
-        LockFactoryConfiguration configuration = lockFactoryServerMain.generateLockFactoryConfiguration();
-        Properties properties = configuration.getProperties();
-        assertNotNull(configuration);
-        assertEquals(99, configuration.getCacheCheckDataPeriodSeconds());
-        assertFalse(properties.stringPropertyNames().isEmpty());
-        assertEquals(data, properties.getProperty(name));
-        assertEquals("99", properties.getProperty("cacheCheckDataPeriodSeconds"));
     }
 
 }

@@ -7,7 +7,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class PrimitivesCacheTest {
 
@@ -129,6 +133,30 @@ public class PrimitivesCacheTest {
         assertNotNull(data2);
         assertNotNull(data3);
         assertNull(data4);
+    }
+
+    @Test
+    public void removeDataIfNotAvoidableNotDeleteTest() throws InterruptedException {
+        MyPrimitivesCache myPrimitivesCache = new MyPrimitivesCache(30, 30, false,
+                (name, data) -> name.equalsIgnoreCase("100") );
+        myPrimitivesCache.getOrCreateData("100");
+        String data1 = myPrimitivesCache.getData("100");
+        myPrimitivesCache.removeDataIfNotAvoidable("100");
+        String data2 = myPrimitivesCache.getData("100");
+        assertNotNull(data1);
+        assertNotNull(data2);
+    }
+
+    @Test
+    public void removeDataIfNotAvoidableDeleteTest() throws InterruptedException {
+        MyPrimitivesCache myPrimitivesCache = new MyPrimitivesCache(30, 30, false,
+                (name, data) -> name.equalsIgnoreCase("100") );
+        myPrimitivesCache.getOrCreateData("101");
+        String data1 = myPrimitivesCache.getData("101");
+        myPrimitivesCache.removeDataIfNotAvoidable("101");
+        String data2 = myPrimitivesCache.getData("101");
+        assertNotNull(data1);
+        assertNull(data2);
     }
 
     @Test

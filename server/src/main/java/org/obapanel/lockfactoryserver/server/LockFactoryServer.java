@@ -101,7 +101,7 @@ public class LockFactoryServer {
         }
     }
 
-    private void createSynchronizedServices() {
+    final void createSynchronizedServices() {
         LOGGER.debug("createOrderedSingleThreadServices");
         if (configuration.isManagementEnabled()) {
             LOGGER.debug("createServices management");

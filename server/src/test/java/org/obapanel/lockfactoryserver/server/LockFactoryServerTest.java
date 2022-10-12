@@ -13,6 +13,8 @@ import org.obapanel.lockfactoryserver.server.connections.rest.RestConnection;
 import org.obapanel.lockfactoryserver.server.connections.rmi.RmiConnection;
 import org.obapanel.lockfactoryserver.server.service.LockFactoryServices;
 import org.obapanel.lockfactoryserver.server.service.Services;
+import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchService;
+import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchServiceSynchronized;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
 import org.obapanel.lockfactoryserver.server.service.lock.LockServiceSynchronized;
 import org.obapanel.lockfactoryserver.server.service.management.ManagementService;
@@ -29,6 +31,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.when;
+import static org.obapanel.lockfactoryserver.server.UtilsForTest.createLockFactoryConfiguration;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LockFactoryServerTest {
@@ -44,6 +47,8 @@ public class LockFactoryServerTest {
     static MockedConstruction<LockServiceSynchronized> lockServiceOrderedMocked;
     static MockedConstruction<SemaphoreService> semaphoreServiceMocked;
     static MockedConstruction<SemaphoreServiceSynchronized> semaphoreServiceOrderedMocked;
+    static MockedConstruction<CountDownLatchService> countDownLatchServiceMocked;
+    static MockedConstruction<CountDownLatchServiceSynchronized> countDownLatchServiceOrderedMocked;
 
     @BeforeClass
     public static void setupAll() {
@@ -72,6 +77,12 @@ public class LockFactoryServerTest {
         semaphoreServiceOrderedMocked = mockConstruction(SemaphoreServiceSynchronized.class, (mock, context) -> {
             when(mock.getType()).thenReturn(Services.SEMAPHORE);
         });
+        countDownLatchServiceMocked =  mockConstruction(CountDownLatchService.class, (mock, context) -> {
+            when(mock.getType()).thenReturn(Services.COUNTDOWNLATCH);
+        });
+        countDownLatchServiceOrderedMocked =  mockConstruction(CountDownLatchServiceSynchronized.class, (mock, context) -> {
+            when(mock.getType()).thenReturn(Services.COUNTDOWNLATCH);
+        });
     }
 
     @AfterClass
@@ -93,7 +104,10 @@ public class LockFactoryServerTest {
         semaphoreServiceMocked = null;
         semaphoreServiceOrderedMocked.close();
         semaphoreServiceOrderedMocked = null;
-
+        countDownLatchServiceMocked.close();
+        countDownLatchServiceMocked = null;
+        countDownLatchServiceOrderedMocked.close();
+        countDownLatchServiceOrderedMocked = null;
         //Mockito.clearAllCaches();
     }
 
@@ -124,7 +138,7 @@ public class LockFactoryServerTest {
     }
 
     @Test
-    public void createServicesTest() throws Exception {
+    public void createNormalServicesTest() throws Exception {
         lockFactoryServer.createServices();
         Map<Services, LockFactoryServices> servicesMap = lockFactoryServer.getServices();
         assertEquals(Services.values().length, servicesMap.size());
@@ -134,6 +148,23 @@ public class LockFactoryServerTest {
             assertEquals(services, servicesMap.get(services).getType());
         }
     }
+
+    @Test
+    public void createSynchronizedServicesTest() throws Exception {
+        LockFactoryConfiguration configuration = createLockFactoryConfiguration(
+                LockFactoryConfiguration.SYNCHRONIZED_SERVICES, "true"
+        );
+       LockFactoryServer lockFactoryServer = new LockFactoryServer(configuration);
+        lockFactoryServer.createServices();
+        Map<Services, LockFactoryServices> servicesMap = lockFactoryServer.getServices();
+        assertEquals(Services.values().length, servicesMap.size());
+        for(Services services: Services.values()) {
+            assertNotNull(servicesMap.get(services));
+            assertEquals(servicesMap.get(services), lockFactoryServer.getServices(services));
+            assertEquals(services, servicesMap.get(services).getType());
+        }
+    }
+
 
     @Test
     public void startServerTest() {

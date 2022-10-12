@@ -17,56 +17,56 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class CountDownLatchServiceTest {
+public class CountDownLatchServiceSynchronizedTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CountDownLatchServiceTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CountDownLatchServiceSynchronizedTest.class);
 
 
-    private CountDownLatchService countDownLatchService;
+    private CountDownLatchServiceSynchronized countDownLatchServiceSynchronized;
 
     @Before
     public void setup() {
         LOGGER.debug("before setup");
-        countDownLatchService = new CountDownLatchService(new LockFactoryConfiguration());
+        countDownLatchServiceSynchronized = new CountDownLatchServiceSynchronized(new LockFactoryConfiguration());
     }
 
     @After
     public void tearsDown() throws Exception {
         LOGGER.debug("after teardown");
-        countDownLatchService.shutdown();
-        countDownLatchService = null;
+        countDownLatchServiceSynchronized.shutdown();
+        countDownLatchServiceSynchronized = null;
     }
 
     @Test
     public void getTypeTest() {
-        Services services = countDownLatchService.getType();
+        Services services = countDownLatchServiceSynchronized.getType();
         assertEquals(Services.COUNTDOWNLATCH, services);
-        assertEquals(Services.COUNTDOWNLATCH.getServiceClass(), countDownLatchService.getClass());
     }
+
 
     @Test
     public void createNewTest() {
         String name = "codola_" + System.currentTimeMillis();
         int count = ThreadLocalRandom.current().nextInt(100);
-        boolean created = countDownLatchService.createNew(name, count);
-        boolean notCreated = countDownLatchService.createNew(name, count +1);
+        boolean created = countDownLatchServiceSynchronized.createNew(name, count);
+        boolean notCreated = countDownLatchServiceSynchronized.createNew(name, count +1);
         assertTrue(created);
         assertFalse(notCreated);
-        assertEquals(count, countDownLatchService.getCount(name));
+        assertEquals(count, countDownLatchServiceSynchronized.getCount(name));
     }
 
     @Test
     public void getCountCountDownTest() {
         String name = "codola_" + System.currentTimeMillis();
         int count = ThreadLocalRandom.current().nextInt(5, 100) ;
-        boolean created = countDownLatchService.createNew(name, count);
-        int count1 = countDownLatchService.getCount(name);
-        countDownLatchService.countDown(name);
-        int count2 = countDownLatchService.getCount(name);
+        boolean created = countDownLatchServiceSynchronized.createNew(name, count);
+        int count1 = countDownLatchServiceSynchronized.getCount(name);
+        countDownLatchServiceSynchronized.countDown(name);
+        int count2 = countDownLatchServiceSynchronized.getCount(name);
         assertTrue(created);
         assertEquals(count, count1);
         assertEquals(count - 1, count2);
-        assertEquals(0, countDownLatchService.getCount(name + "XXXX"));
+        assertEquals(0, countDownLatchServiceSynchronized.getCount(name + "XXXX"));
     }
 
     @Test
@@ -75,11 +75,11 @@ public class CountDownLatchServiceTest {
         AtomicBoolean countDownTerminated = new AtomicBoolean(false);
         Semaphore inner = new Semaphore(0);
         String name = "codola_" + System.currentTimeMillis();
-        countDownLatchService.createNew(name, 1);
+        countDownLatchServiceSynchronized.createNew(name, 1);
         Thread t1 = new Thread(() -> {
             try {
                 Thread.sleep(150);
-                countDownLatchService.countDown(name);
+                countDownLatchServiceSynchronized.countDown(name);
                 countDownTerminated.set(true);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
@@ -90,7 +90,7 @@ public class CountDownLatchServiceTest {
         Thread t2 = new Thread(() -> {
             try {
                 Thread.sleep(50);
-                countDownLatchService.await(name);
+                countDownLatchServiceSynchronized.await(name);
                 awaitTerminated.set(true);
                 inner.release();
             } catch (Exception e) {
@@ -104,7 +104,7 @@ public class CountDownLatchServiceTest {
         boolean acquired = inner.tryAcquire(1500, TimeUnit.MILLISECONDS);
         t1.join(1700);
         t2.join(1700);
-        int count = countDownLatchService.getCount(name);
+        int count = countDownLatchServiceSynchronized.getCount(name);
         assertEquals(0, count);
         assertTrue(acquired);
         assertTrue(countDownTerminated.get());
@@ -118,11 +118,11 @@ public class CountDownLatchServiceTest {
         AtomicBoolean countDownTerminated = new AtomicBoolean(false);
         Semaphore inner = new Semaphore(0);
         String name = "codola_" + System.currentTimeMillis();
-        countDownLatchService.createNew(name, 1);
+        countDownLatchServiceSynchronized.createNew(name, 1);
         Thread t1 = new Thread(() -> {
             try {
                 Thread.sleep(150);
-                countDownLatchService.countDown(name);
+                countDownLatchServiceSynchronized.countDown(name);
                 countDownTerminated.set(true);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
@@ -132,7 +132,7 @@ public class CountDownLatchServiceTest {
         t1.setDaemon(true);
         Thread t2 = new Thread(() -> {
             try {
-                boolean awaited = countDownLatchService.tryAwaitWithTimeOut(name, 100, TimeUnit.MILLISECONDS);
+                boolean awaited = countDownLatchServiceSynchronized.tryAwaitWithTimeOut(name, 100, TimeUnit.MILLISECONDS);
                 awaitTerminated1.set(awaited);
                 inner.release();
             } catch (Exception e) {
@@ -143,7 +143,7 @@ public class CountDownLatchServiceTest {
         t2.setDaemon(true);
         Thread t3 = new Thread(() -> {
             try {
-                boolean awaited = countDownLatchService.tryAwaitWithTimeOut(name, 500);
+                boolean awaited = countDownLatchServiceSynchronized.tryAwaitWithTimeOut(name, 500);
                 awaitTerminated2.set(awaited);
                 inner.release();
             } catch (Exception e) {
@@ -159,7 +159,7 @@ public class CountDownLatchServiceTest {
         t1.join(1700);
         t2.join(1700);
         t3.join(1700);
-        int count = countDownLatchService.getCount(name);
+        int count = countDownLatchServiceSynchronized.getCount(name);
         assertEquals(0, count);
         assertTrue(acquired);
         assertTrue(countDownTerminated.get());
