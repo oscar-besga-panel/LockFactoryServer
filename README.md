@@ -35,9 +35,29 @@ In really, really alpha for now...
 
 See the [wiki](https://github.com/oscar-besga-panel/LockFactoryServer/wiki) for more documentation
 
+## Structure
+
+The project has 4 sub-modules
+* **core**: it has the main proto and interface files. It also servers as documentation for the service and their methods and operations.
+All other modules depend on this one 
+* **server**: This is the server implementation, with the RMI, REST and gRPC connections that offer the core-defined services.  
+The server can run standalone or be embeeded into other services or applications.
+* **client**: A Java client implementation for each service and connection type; it offers a simplified way to use the services and a simple coding example
+* **integration**: this module depends on the server and client, and obviously the core. It has no production code, but only test code.  
+It executes integration tests, where a local server is xxx and local clients execute complex operations against it. It servers to ensure the good performance and correctness of the system.
+
+
 ## How to build
 
 This project uses JDK11 and Gradle (provided gradlew 7.4)  
 
 If you need a integration test for REST connection, you can use curl or postman
+
+
+## Rationale
+
+I made this project because I wanted to have a 100% Java implementation of a server which provides synchronization primitives as services.  
+I know you can do this with mongo, redis (as see [here](https://github.com/oscar-besga-panel/InterruptingJedisLocks)) or other servers; but I wanted a stand-alone, slimmed, only-for-this-purpose, do-one-thing-and-do-it-well implementation.  
+This is why I don't want to provide with memory-related apis, nor messaging or other utilites; as redis, rabbitmq and other are fully available out there.
+
 
