@@ -34,10 +34,10 @@ public class CountDownLatchRestTest {
 
     public static final String LOCALHOST = "127.0.0.1";
 
-    private LockFactoryConfiguration configuration;
-    private LockFactoryServer lockFactoryServer;
+    private static LockFactoryConfiguration configuration;
+    private static LockFactoryServer lockFactoryServer;
 
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private final String countDowneLatchName = "codolaRestXXXx" + System.currentTimeMillis();
 
@@ -45,6 +45,9 @@ public class CountDownLatchRestTest {
     public static void setupAll() throws InterruptedException {
         Thread.sleep(250);
         LOGGER.debug("setup all ini <<<");
+        configuration = new LockFactoryConfiguration();
+        lockFactoryServer = new LockFactoryServer();
+        lockFactoryServer.startServer();
         LOGGER.debug("setup all fin <<<");
         Thread.sleep(250);
     }
@@ -52,9 +55,7 @@ public class CountDownLatchRestTest {
     @Before
     public void setup() throws InterruptedException {
         LOGGER.debug("setup ini >>>");
-        configuration = new LockFactoryConfiguration();
-        lockFactoryServer = new LockFactoryServer();
-        lockFactoryServer.startServer();
+
         LOGGER.debug("setup fin <<<");
         Thread.sleep(250);
     }
@@ -63,7 +64,8 @@ public class CountDownLatchRestTest {
     public static void tearsDownAll() throws InterruptedException {
         Thread.sleep(250);
         LOGGER.debug("tearsDown all ini >>>");
-
+        lockFactoryServer.shutdown();
+        executorService.shutdown();
         LOGGER.debug("tearsDown all fin <<<");
         Thread.sleep(250);
     }
@@ -73,8 +75,6 @@ public class CountDownLatchRestTest {
     public void tearsDown() throws InterruptedException {
         Thread.sleep(250);
         LOGGER.debug("tearsDown ini >>>");
-        lockFactoryServer.shutdown();
-        executorService.shutdown();
         LOGGER.debug("tearsDown fin <<<");
         Thread.sleep(250);
     }
@@ -89,8 +89,6 @@ public class CountDownLatchRestTest {
         String baseUrl = "http://" + LOCALHOST + ":" + configuration.getRestServerPort() + "/";
         return new CountDownLatchClientRest(baseUrl, countDownLatchName);
     }
-
-
 
     @Test
     public void createAndGetTest() {
