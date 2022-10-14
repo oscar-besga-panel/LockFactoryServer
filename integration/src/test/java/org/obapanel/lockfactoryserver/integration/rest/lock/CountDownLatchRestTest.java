@@ -70,7 +70,6 @@ public class CountDownLatchRestTest {
         Thread.sleep(250);
     }
 
-
     @After
     public void tearsDown() throws InterruptedException {
         Thread.sleep(250);
@@ -112,7 +111,9 @@ public class CountDownLatchRestTest {
         assertEquals(count - 1, count4);
     }
 
-
+    //TODO
+    // Works in local
+   // @Ignore
     @Test
     public void awaitOneTest() throws InterruptedException {
         Semaphore inner = new Semaphore(0);
@@ -140,6 +141,9 @@ public class CountDownLatchRestTest {
         assertFalse(countDownLatchClientRest1.isActive());
     }
 
+    //TODO
+    // Works in local
+  //  @Ignore
     @Test
     public void awaitManyTest() throws InterruptedException {
         Semaphore inner = new Semaphore(0);
@@ -176,6 +180,9 @@ public class CountDownLatchRestTest {
         assertFalse(countDownLatchClientRest.isActive());
     }
 
+    //TODO
+    // Works in local
+   // @Ignore
     @Test
     public void awaitManyPreTest() throws InterruptedException {
         Semaphore inner = new Semaphore(0);

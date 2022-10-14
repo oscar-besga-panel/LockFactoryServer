@@ -4,7 +4,6 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.obapanel.lockfactoryserver.client.grpc.CountDownLatchClientGrpc;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
@@ -103,26 +102,23 @@ public class CountDownLatchAsyncGrpcTest {
         assertTrue(acquired);
     }
 
-    // TODO check test !!!
-    @Ignore
     @Test
     public void asynAwaitTest() throws InterruptedException {
         Semaphore inner = new Semaphore(0);
         CountDownLatchClientGrpc countDownLatchClientGrpc = generateCountDownLatchClientGrpc();
         countDownLatchClientGrpc.createNew(1);
-        countDownLatchClientGrpc.asyncAwait(executorService,() -> {
+        countDownLatchClientGrpc.asyncAwait(executorService, () -> {
             inner.release();
-            LOGGER.debug("}} asynAwaitManyTest inner released");
+            LOGGER.debug("asynAwaitManyTest inner released");
         });
         countDownLatchClientGrpc.countDown();
         boolean acquired = inner.tryAcquire(6500, TimeUnit.MILLISECONDS);
-        assertFalse(countDownLatchClientGrpc.isActive());
         assertTrue(acquired);
+        assertFalse(countDownLatchClientGrpc.isActive());
     }
 
 
-    // TODO check test !!!
-    @Ignore
+
     @Test
     public void asynAwaitManyTest() throws InterruptedException {
         Semaphore inner = new Semaphore(0);
@@ -134,10 +130,10 @@ public class CountDownLatchAsyncGrpcTest {
             try {
                 countDownLatchClientGrpc.asyncAwait(executorService,() -> {
                     inner.release();
-                    LOGGER.debug("}} asynAwaitManyTest inner released");
+                    LOGGER.debug("asynAwaitManyTest inner released");
                 });
                 awaited.set(true);
-                LOGGER.debug("}} asynAwaitManyTest awaited true");
+                LOGGER.debug("asynAwaitManyTest awaited true");
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -165,9 +161,7 @@ public class CountDownLatchAsyncGrpcTest {
             threads.add(t);
         });
 
-        LOGGER.debug("}} 11111111111");
         tfinal.join(6500);
-        LOGGER.debug("}} 11111111112");
         threads.forEach(t -> {
             try {
                 t.join(1500);
@@ -175,10 +169,7 @@ public class CountDownLatchAsyncGrpcTest {
                 throw new RuntimeException(e);
             }
         });
-        LOGGER.debug("}} 22222222222");
         boolean acquired = inner.tryAcquire(6500, TimeUnit.MILLISECONDS);
-        LOGGER.debug("}} 33333333333");
-
         assertTrue(created);
         assertTrue(awaited.get());
         assertFalse(countDownLatchClientGrpc.isActive());

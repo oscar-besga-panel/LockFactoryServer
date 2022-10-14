@@ -1,6 +1,10 @@
 package org.obapanel.lockfactoryserver.integration.grpc.lock;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.obapanel.lockfactoryserver.client.grpc.LockClientGrpc;
 import org.obapanel.lockfactoryserver.core.LockStatus;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
@@ -101,20 +105,25 @@ public class LockAsyncGpcTest {
     @Test
     public void lockAsync2Test() throws InterruptedException {
         Semaphore makeWait = new Semaphore(0);
-        LockClientGrpc lockClientGrpc = generateLockClientGrpc();
-        AtomicReference<LockStatus> refLockStatus = new AtomicReference<>(LockStatus.ABSENT);
+        LockClientGrpc lockClientGrpc1 = generateLockClientGrpc();
+        LockClientGrpc lockClientGrpc2 = generateLockClientGrpc(lockClientGrpc1.getName());
+        AtomicReference<LockStatus> refLockStatus1 = new AtomicReference<>(LockStatus.ABSENT);
+        AtomicReference<LockStatus> refLockStatus2 = new AtomicReference<>(LockStatus.ABSENT);
         LOGGER.debug("test lockUnlockTest ini >>>");
-        lockClientGrpc.lock();
-        lockClientGrpc.asyncLock2(executorService, () -> {
+        lockClientGrpc1.lock();
+        lockClientGrpc2.asyncLock2(executorService, () -> {
             LOGGER.debug("runnable after");
-            refLockStatus.set(lockClientGrpc.lockStatus());
+            refLockStatus1.set(lockClientGrpc1.lockStatus());
+            refLockStatus2.set(lockClientGrpc2.lockStatus());
             makeWait.release();
         });
-        LOGGER.debug(" after");
-        lockClientGrpc.unLock();
+        LOGGER.debug("async after");
+        lockClientGrpc1.unLock();
+        LOGGER.debug("unlock after");
         boolean acquired = makeWait.tryAcquire(30, TimeUnit.SECONDS);
         assertTrue(acquired);
-        assertEquals(LockStatus.OWNER, refLockStatus.get());
+        assertEquals(LockStatus.OWNER, refLockStatus2.get());
+        assertEquals(LockStatus.OTHER, refLockStatus1.get());
         LOGGER.debug("test lockUnlockTest fin <<<");
     }
 
