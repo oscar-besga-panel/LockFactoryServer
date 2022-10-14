@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 import static org.obapanel.lockfactoryserver.core.util.TimeUnitConverter.fromJavaToGrpc;
 
 public class CountDownLatchClientGrpc
-        extends AbstractClientWithAsyncGrpc<CountDownLatchServerGrpc.CountDownLatchServerBlockingStub, CountDownLatchServerGrpc.CountDownLatchServerFutureStub> {
+        extends AbstractClientGrpc<CountDownLatchServerGrpc.CountDownLatchServerBlockingStub, CountDownLatchServerGrpc.CountDownLatchServerFutureStub> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CountDownLatchClientGrpc.class);
 
@@ -87,11 +87,12 @@ public class CountDownLatchClientGrpc
 
     public void asyncAwait(Executor executor, Runnable onAwaited) {
         ListenableFuture<Empty> listenableFuture = getAsyncStub().asyncAwait(getStringValueName());
-        listenableFuture.addListener(() -> {
-                    LOGGER.debug("doExecuteOnLock is future ");
-                onAwaited.run();
-            },
-            executor);
+        listenableFuture.addListener(onAwaited, executor);
+//        listenableFuture.addListener(() -> {
+//                    LOGGER.debug("doExecuteOnLock is future ");
+//                onAwaited.run();
+//            },
+//            executor);
     }
 
 }

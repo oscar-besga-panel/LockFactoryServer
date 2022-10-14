@@ -12,14 +12,13 @@ import org.obapanel.lockfactoryserver.core.grpc.SemaphoreServerGrpc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 import static org.obapanel.lockfactoryserver.core.util.TimeUnitConverter.fromJavaToGrpc;
 
 public class SemaphoreClientGrpc
-        extends AbstractClientWithAsyncGrpc<SemaphoreServerGrpc.SemaphoreServerBlockingStub, SemaphoreServerGrpc.SemaphoreServerFutureStub> {
+        extends AbstractClientGrpc<SemaphoreServerGrpc.SemaphoreServerBlockingStub, SemaphoreServerGrpc.SemaphoreServerFutureStub> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SemaphoreClientGrpc.class);
 
@@ -83,17 +82,18 @@ public class SemaphoreClientGrpc
     public void asyncAcquire(int permits, Executor executor, Runnable onAcquire) {
         NamePermits namePermits = createNamePermits(permits);
         ListenableFuture<Empty> listenableFuture = getAsyncStub().asyncAcquire(namePermits);
-        listenableFuture.addListener(() -> {
-            try {
-                listenableFuture.get();
-                LOGGER.debug("Empty is future ");
-                onAcquire.run();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            } catch (ExecutionException e) {
-                throw new RuntimeException(e);
-            }
-        }, executor);
+        listenableFuture.addListener(onAcquire, executor);
+        //        listenableFuture.addListener(() -> {
+//            try {
+//                listenableFuture.get();
+//                LOGGER.debug("Empty is future ");
+//                onAcquire.run();
+//            } catch (InterruptedException e) {
+//                throw new RuntimeException(e);
+//            } catch (ExecutionException e) {
+//                throw new RuntimeException(e);
+//            }
+//        }, executor);
     }
 
     public boolean tryAcquire() {

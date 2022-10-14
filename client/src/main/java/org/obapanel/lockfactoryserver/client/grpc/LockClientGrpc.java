@@ -23,7 +23,7 @@ import static org.obapanel.lockfactoryserver.core.util.LockStatusConverter.fromG
 import static org.obapanel.lockfactoryserver.core.util.TimeUnitConverter.fromJavaToGrpc;
 
 public class LockClientGrpc
-        extends AbstractClientWithAsyncGrpc<LockServerGrpc.LockServerBlockingStub, LockServerGrpc.LockServerFutureStub>
+        extends AbstractClientGrpc<LockServerGrpc.LockServerBlockingStub, LockServerGrpc.LockServerFutureStub>
         implements WithLock {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LockClientGrpc.class);

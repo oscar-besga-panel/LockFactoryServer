@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ManagementClientGrpc
-        extends AbstractClientGrpc<ManagementServerGrpc.ManagementServerBlockingStub>  {
+        extends AbstractClientGrpc<ManagementServerGrpc.ManagementServerBlockingStub, ManagementServerGrpc.ManagementServerFutureStub>  {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ManagementClientGrpc.class);
 
@@ -29,6 +29,11 @@ public class ManagementClientGrpc
         return ManagementServerGrpc.newBlockingStub(managedChannel);
     }
 
+    @Override
+    ManagementServerGrpc.ManagementServerFutureStub generateAsyncStub(ManagedChannel managedChannel) {
+        return ManagementServerGrpc.newFutureStub(managedChannel);
+    }
+
     public void shutdownServer() {
         getStub().shutdownServer(EMPTY);
     }
@@ -37,5 +42,5 @@ public class ManagementClientGrpc
         BoolValue boolValue = getStub().isRunning(EMPTY);
         return boolValue.getValue();
     }
-    
+
 }

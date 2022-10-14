@@ -3,6 +3,7 @@ package org.obapanel.lockfactoryserver.client.grpc;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.AbstractBlockingStub;
+import io.grpc.stub.AbstractFutureStub;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,6 +33,9 @@ public class AbstractClientGrpcTest {
     @Mock
     private AbstractBlockingStub abstractBlockingStub;
 
+    @Mock
+    private AbstractFutureStub abstractFutureStub;
+
     private MockedStatic<ManagedChannelBuilder> mockedStaticManagedChannelBuilder;
 
     @Before
@@ -50,37 +54,45 @@ public class AbstractClientGrpcTest {
 
     @Test
     public void buildClient1() {
-        TestAbstractClientGrpc testAbstractClientGrpc1 = new TestAbstractClientGrpc();
-        testAbstractClientGrpc1.close();
-        assertEquals("TestAbstractClientGrpc", testAbstractClientGrpc1.getName());
-        assertNotNull(testAbstractClientGrpc1.getStub());
+        TestAbstractClientWithAsyncGrpc testAbstractClientWithAsyncGrpc1 = new TestAbstractClientWithAsyncGrpc();
+        testAbstractClientWithAsyncGrpc1.close();
+        assertEquals("TestAbstractClientWithAsyncGrpc", testAbstractClientWithAsyncGrpc1.getName());
+        assertNotNull(testAbstractClientWithAsyncGrpc1.getStub());
+        assertNotNull(testAbstractClientWithAsyncGrpc1.getAsyncStub());
         verify(managedChannelBuilder).build();
         verify(managedChannel).shutdown();
     }
 
     @Test
     public void buildClient2() {
-        TestAbstractClientGrpc testAbstractClientGrpc2 = new TestAbstractClientGrpc(managedChannel);
-        testAbstractClientGrpc2.close();
-        assertEquals("TestAbstractClientGrpc", testAbstractClientGrpc2.getName());
-        assertNotNull(testAbstractClientGrpc2.getStub());
+        TestAbstractClientWithAsyncGrpc testAbstractClientWithAsyncGrpc2 = new TestAbstractClientWithAsyncGrpc(managedChannel);
+        testAbstractClientWithAsyncGrpc2.close();
+        assertEquals("TestAbstractClientWithAsyncGrpc", testAbstractClientWithAsyncGrpc2.getName());
+        assertNotNull(testAbstractClientWithAsyncGrpc2.getStub());
+        assertNotNull(testAbstractClientWithAsyncGrpc2.getAsyncStub());
         verify(managedChannelBuilder, never()).build();
         verify(managedChannel, never()).shutdown();
     }
 
-    private class TestAbstractClientGrpc extends AbstractClientGrpc {
 
-        TestAbstractClientGrpc() {
-            super("127.0.0.1", 50051, "TestAbstractClientGrpc");
+    private class TestAbstractClientWithAsyncGrpc extends AbstractClientGrpc {
+
+        TestAbstractClientWithAsyncGrpc() {
+            super("127.0.0.1", 50051, "TestAbstractClientWithAsyncGrpc");
         }
 
-        TestAbstractClientGrpc(ManagedChannel managedChannel) {
-            super(managedChannel, "TestAbstractClientGrpc");
+        TestAbstractClientWithAsyncGrpc(ManagedChannel managedChannel) {
+            super(managedChannel, "TestAbstractClientWithAsyncGrpc");
         }
 
         @Override
         AbstractBlockingStub generateStub(ManagedChannel managedChannel) {
             return abstractBlockingStub;
+        }
+
+        @Override
+        AbstractFutureStub generateAsyncStub(ManagedChannel managedChannel) {
+            return abstractFutureStub;
         }
     }
 
