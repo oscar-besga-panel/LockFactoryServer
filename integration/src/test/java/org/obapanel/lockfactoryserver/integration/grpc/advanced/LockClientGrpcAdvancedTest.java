@@ -1,4 +1,4 @@
-package org.obapanel.lockfactoryserver.integration.grpc.lock.advanced;
+package org.obapanel.lockfactoryserver.integration.grpc.advanced;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -7,7 +7,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.obapanel.lockfactoryserver.client.grpc.LockClientGrpc;
 import org.obapanel.lockfactoryserver.core.LockStatus;
-import org.obapanel.lockfactoryserver.integration.grpc.lock.LockGpcTest;
+import org.obapanel.lockfactoryserver.integration.grpc.LockGpcTest;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.LockFactoryServer;
 import org.slf4j.Logger;

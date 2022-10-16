@@ -1,4 +1,4 @@
-package org.obapanel.lockfactoryserver.integration.grpc.lock;
+package org.obapanel.lockfactoryserver.integration.grpc;
 
 import org.junit.After;
 import org.junit.AfterClass;

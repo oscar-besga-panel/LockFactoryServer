@@ -42,6 +42,7 @@ public class RestConnection implements LockFactoryConnection {
         final Registry userRegistry = getRegistryWithHandlers();
         ratpackServer = RatpackServer.of(server -> server.
                 serverConfig( serverConfigBuilder -> {
+                    serverConfigBuilder.development(false);
                     serverConfigBuilder.port(configuration.getRestServerPort());
                     serverConfigBuilder.onError(throwable ->
                         LOGGER.error("Error inside RestConnection ratpackServer ", throwable)

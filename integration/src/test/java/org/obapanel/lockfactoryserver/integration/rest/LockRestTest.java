@@ -1,6 +1,10 @@
-package org.obapanel.lockfactoryserver.integration.rest.lock;
+package org.obapanel.lockfactoryserver.integration.rest;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.obapanel.lockfactoryserver.client.rest.LockClientRest;
 import org.obapanel.lockfactoryserver.core.LockStatus;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
@@ -10,7 +14,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.obapanel.lockfactoryserver.core.LockStatus.ABSENT_OR_UNLOCKED;
 
 public class LockRestTest {

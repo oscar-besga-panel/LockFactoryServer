@@ -1,7 +1,11 @@
-package org.obapanel.lockfactoryserver.integration.rest.lock;
+package org.obapanel.lockfactoryserver.integration.grpc;
 
-import org.junit.*;
-import org.obapanel.lockfactoryserver.client.rest.ManagementClientRest;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.obapanel.lockfactoryserver.client.grpc.ManagementClientGrpc;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.LockFactoryServer;
 import org.slf4j.Logger;
@@ -10,15 +14,14 @@ import org.slf4j.LoggerFactory;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-public class ManagementRestTest {
+public class ManagementGpcTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ManagementRestTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ManagementGpcTest.class);
 
-     public static final String LOCALHOST = "127.0.0.1";
+    public static final String LOCALHOST = "127.0.0.1";
 
     private LockFactoryConfiguration configuration;
     private LockFactoryServer lockFactoryServer;
-
 
 
     @BeforeClass
@@ -58,17 +61,16 @@ public class ManagementRestTest {
         Thread.sleep(250);
     }
 
-    ManagementClientRest generateManagementClientRest() {
-        String baseUrl = "http://" + LOCALHOST + ":" + configuration.getRestServerPort() + "/";
-        return new ManagementClientRest(baseUrl);
-
+    ManagementClientGrpc generateManagementClientGrpc() {
+        return new ManagementClientGrpc(LOCALHOST, configuration.getGrpcServerPort());
     }
+
 
     @Test
     public void isRunningTest() {
         LOGGER.debug("test isRunning ini >>>");
-        ManagementClientRest managementClientRest = generateManagementClientRest();
-        boolean running = managementClientRest.isRunning();
+        ManagementClientGrpc managementClientGrpc = generateManagementClientGrpc();
+        boolean running = managementClientGrpc.isRunning();
         assertTrue(running);
         LOGGER.debug("test isRunning fin <<<");
     }
@@ -76,20 +78,21 @@ public class ManagementRestTest {
     @Test
     public void shutdownTest() {
         LOGGER.debug("test shutdownTest ini >>>");
-        ManagementClientRest managementClientRest = generateManagementClientRest();
+        ManagementClientGrpc managementClientGrpc = generateManagementClientGrpc();
         try {
-            managementClientRest.shutdownServer();
+            managementClientGrpc.shutdownServer();
         } catch (Exception e) {
             fail("test shutdownTest error fail " + e);
         }
         try {
             Thread.sleep(1000);
-            managementClientRest.isRunning();
+            managementClientGrpc.isRunning();
             fail("test shutdownTest error fail" );
         } catch (Exception e) {
             LOGGER.debug("test shutdownTest controlled error e {}", e);
         }
         LOGGER.debug("test shutdownTest fin <<<");
     }
+
 
 }

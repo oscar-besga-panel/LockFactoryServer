@@ -1,10 +1,9 @@
-package org.obapanel.lockfactoryserver.integration.rest.lock;
+package org.obapanel.lockfactoryserver.integration.rest;
 
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.obapanel.lockfactoryserver.client.rest.CountDownLatchClientRest;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
@@ -112,9 +111,8 @@ public class CountDownLatchRestTest {
         assertEquals(count - 1, count4);
     }
 
-    //TODO
-    // Works in local
-    @Ignore
+    //TODO Works in local
+    //@Ignore
     @Test
     public void awaitOneTest() throws InterruptedException {
         Semaphore inner = new Semaphore(0);
@@ -142,9 +140,8 @@ public class CountDownLatchRestTest {
         assertFalse(countDownLatchClientRest1.isActive());
     }
 
-    //TODO
-    // Works in local
-    @Ignore
+    //TODO Works in local
+    //@Ignore
     @Test
     public void awaitManyTest() throws InterruptedException {
         Semaphore inner = new Semaphore(0);
@@ -181,9 +178,8 @@ public class CountDownLatchRestTest {
         assertFalse(countDownLatchClientRest.isActive());
     }
 
-    //TODO
-    // Works in local
-    @Ignore
+    //TODO Works in local
+    //@Ignore
     @Test
     public void awaitManyPreTest() throws InterruptedException {
         Semaphore inner = new Semaphore(0);

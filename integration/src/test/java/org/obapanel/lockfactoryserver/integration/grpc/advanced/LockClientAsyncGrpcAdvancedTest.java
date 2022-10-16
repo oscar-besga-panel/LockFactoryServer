@@ -1,9 +1,13 @@
-package org.obapanel.lockfactoryserver.integration.grpc.lock.advanced;
+package org.obapanel.lockfactoryserver.integration.grpc.advanced;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.obapanel.lockfactoryserver.client.grpc.LockClientGrpc;
 import org.obapanel.lockfactoryserver.core.LockStatus;
-import org.obapanel.lockfactoryserver.integration.grpc.lock.LockGpcTest;
+import org.obapanel.lockfactoryserver.integration.grpc.LockGpcTest;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.LockFactoryServer;
 import org.slf4j.Logger;
@@ -12,7 +16,11 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.assertFalse;

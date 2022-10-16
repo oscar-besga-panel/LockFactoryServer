@@ -1,6 +1,10 @@
-package org.obapanel.lockfactoryserver.integration.rmi.lock;
+package org.obapanel.lockfactoryserver.integration.rmi;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.obapanel.lockfactoryserver.client.rmi.ManagementClientRmi;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.LockFactoryServer;

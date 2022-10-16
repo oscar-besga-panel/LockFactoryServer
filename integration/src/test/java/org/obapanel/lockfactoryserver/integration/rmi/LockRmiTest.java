@@ -1,6 +1,10 @@
-package org.obapanel.lockfactoryserver.integration.rmi.lock;
+package org.obapanel.lockfactoryserver.integration.rmi;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.obapanel.lockfactoryserver.client.rmi.LockClientRmi;
 import org.obapanel.lockfactoryserver.core.LockStatus;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
@@ -12,7 +16,9 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.obapanel.lockfactoryserver.core.LockStatus.ABSENT_OR_UNLOCKED;
 
 public class LockRmiTest {

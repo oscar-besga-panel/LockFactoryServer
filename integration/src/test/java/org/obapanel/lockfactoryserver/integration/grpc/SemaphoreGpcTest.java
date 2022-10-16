@@ -1,18 +1,16 @@
-package org.obapanel.lockfactoryserver.integration.rmi.lock;
+package org.obapanel.lockfactoryserver.integration.grpc;
 
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.obapanel.lockfactoryserver.client.rmi.SemaphoreClientRmi;
+import org.obapanel.lockfactoryserver.client.grpc.SemaphoreClientGrpc;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.LockFactoryServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -22,9 +20,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class SemaphoreRmiTest {
+public class SemaphoreGpcTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SemaphoreRmiTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SemaphoreGpcTest.class);
 
     private static final AtomicInteger SEMAPHORE_COUNT = new AtomicInteger(0);
 
@@ -34,7 +32,7 @@ public class SemaphoreRmiTest {
     private LockFactoryServer lockFactoryServer;
 
 
-    private final String semaphoreBaseName = "semaphoreRmiXXXx" + System.currentTimeMillis();
+    private final String semaphoreBaseName = "semaphoreGrpcXXXx" + System.currentTimeMillis();
 
     @BeforeClass
     public static void setupAll() throws InterruptedException {
@@ -73,68 +71,70 @@ public class SemaphoreRmiTest {
         Thread.sleep(250);
     }
 
-    SemaphoreClientRmi generateSemaphoreClientRmi() throws NotBoundException, RemoteException {
+    SemaphoreClientGrpc generateSemaphoreClientGrpc() {
         int num = SEMAPHORE_COUNT.incrementAndGet();
         String semaphoreName = semaphoreBaseName.replace("XXX", String.format("%03d", num) );
-        return generateSemaphoreClientRmi(semaphoreName);
+        return generateSemaphoreClientGrpc(semaphoreName);
     }
 
-    SemaphoreClientRmi generateSemaphoreClientRmi(String semaphoreName) throws NotBoundException, RemoteException {
-        return new SemaphoreClientRmi(LOCALHOST ,configuration.getRmiServerPort(), semaphoreName);
+    SemaphoreClientGrpc generateSemaphoreClientGrpc(String semaphoreName) {
+        return new SemaphoreClientGrpc(LOCALHOST ,configuration.getGrpcServerPort(), semaphoreName);
     }
 
     @Test
-    public void currentPermitsTest() throws NotBoundException, RemoteException {
+    public void currentPermitsTest() {
         LOGGER.debug("test currentTest ini >>>");
-        SemaphoreClientRmi semaphoreClientRmi = generateSemaphoreClientRmi();
-        int result1 = semaphoreClientRmi.currentPermits();
-        semaphoreClientRmi.release(5);
-        semaphoreClientRmi.acquire(3);
-        int result2 = semaphoreClientRmi.currentPermits();
+        SemaphoreClientGrpc semaphoreClientGrpc = generateSemaphoreClientGrpc();
+        int result = semaphoreClientGrpc.currentPermits();
+        assertEquals(0, result);
+        int result1 = semaphoreClientGrpc.currentPermits();
+        semaphoreClientGrpc.release(5);
+        semaphoreClientGrpc.acquire(3);
+        int result2 = semaphoreClientGrpc.currentPermits();
         assertEquals(0, result1);
         assertEquals(2, result2);
         LOGGER.debug("test currentTest fin <<<");
     }
 
     @Test
-    public void accquireAndReleaseTest() throws RemoteException, NotBoundException {
+    public void accquireAndReleaseTest() {
         LOGGER.debug("test accquireTest ini >>>");
-        SemaphoreClientRmi semaphoreClientRmi = generateSemaphoreClientRmi();
-        int result1 = semaphoreClientRmi.currentPermits();
+        SemaphoreClientGrpc semaphoreClientGrpc = generateSemaphoreClientGrpc();
+        int result1 = semaphoreClientGrpc.currentPermits();
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
                 Thread.sleep(500);
-                semaphoreClientRmi.release(5);
-            } catch (Exception e) {
+            } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
+            semaphoreClientGrpc.release(5);
         });
-        semaphoreClientRmi.acquire(3);
-        int result2 = semaphoreClientRmi.currentPermits();
+        semaphoreClientGrpc.acquire(3);
+        int result2 = semaphoreClientGrpc.currentPermits();
         assertEquals(0, result1);
         assertEquals(2, result2);
         LOGGER.debug("test accquireTest fin <<<");
     }
 
     @Test
-    public void tryAcquireTest() throws InterruptedException, RemoteException, NotBoundException {
+    public void tryAcquireTest() throws InterruptedException {
         Semaphore inner = new Semaphore(0);
         LOGGER.debug("test tryAcquireTest ini >>>");
-        SemaphoreClientRmi semaphoreClientRmi = generateSemaphoreClientRmi();
-        int result1 = semaphoreClientRmi.currentPermits();
+        SemaphoreClientGrpc semaphoreClientGrpc = generateSemaphoreClientGrpc();
+        int result1 = semaphoreClientGrpc.currentPermits();
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
                 Thread.sleep(500);
-                semaphoreClientRmi.release();
-            } catch (Exception e) {
+            } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
+            semaphoreClientGrpc.release();
             inner.release();
         });
-        boolean resulttry1 = semaphoreClientRmi.tryAcquire();
+        boolean resulttry1 = semaphoreClientGrpc.tryAcquire();
         boolean resulttrya = inner.tryAcquire(10, TimeUnit.SECONDS);
-        boolean resulttry2 = semaphoreClientRmi.tryAcquire();
-        int result2 = semaphoreClientRmi.currentPermits();
+        boolean resulttry2 = semaphoreClientGrpc.tryAcquire();
+        int result2 = semaphoreClientGrpc.currentPermits();
         assertEquals(0, result1);
         assertEquals(0, result2);
         assertFalse(resulttry1);
@@ -144,27 +144,24 @@ public class SemaphoreRmiTest {
     }
 
     @Test
-    public void tryAcquireWithTimeOutTest() throws InterruptedException, RemoteException, NotBoundException {
+    public void tryAcquireWithTimeOutTest() throws InterruptedException {
         Semaphore inner = new Semaphore(0);
         LOGGER.debug("test tryAcquireWithTimeOutTest ini >>>");
-        SemaphoreClientRmi semaphoreClientRmi = generateSemaphoreClientRmi();
-        int result1 = semaphoreClientRmi.currentPermits();
+        SemaphoreClientGrpc semaphoreClientGrpc = generateSemaphoreClientGrpc();
+        int result1 = semaphoreClientGrpc.currentPermits();
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
                 Thread.sleep(500);
-                semaphoreClientRmi.release(3);
-            } catch (Exception e) {
+            } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
+            semaphoreClientGrpc.release(3);
             inner.release();
         });
-        boolean resulttry1 = semaphoreClientRmi.tryAcquireWithTimeOut(3500, TimeUnit.MILLISECONDS);
-        LOGGER.debug("}tryAcquireWithTimeOutTest} obtained resulttry1 {}", resulttry1);
+        boolean resulttry1 = semaphoreClientGrpc.tryAcquireWithTimeOut(3500, TimeUnit.MILLISECONDS);
         boolean resulttrya = inner.tryAcquire(10, TimeUnit.SECONDS);
-        LOGGER.debug("}tryAcquireWithTimeOutTest} obtained resulttrya {}", resulttrya);
-        boolean resulttry2 = semaphoreClientRmi.tryAcquireWithTimeOut(2,500, TimeUnit.MILLISECONDS);
-        LOGGER.debug("}tryAcquireWithTimeOutTest} obtained resulttry2 {}", resulttry2);
-        int result2 = semaphoreClientRmi.currentPermits();
+        boolean resulttry2 = semaphoreClientGrpc.tryAcquireWithTimeOut(2,500, TimeUnit.MILLISECONDS);
+        int result2 = semaphoreClientGrpc.currentPermits();
         assertEquals(0, result1);
         assertEquals(0, result2);
         assertTrue(resulttry1);
@@ -172,5 +169,4 @@ public class SemaphoreRmiTest {
         assertTrue(resulttry2);
         LOGGER.debug("test tryAcquireWithTimeOutTest fin <<<");
     }
-
 }

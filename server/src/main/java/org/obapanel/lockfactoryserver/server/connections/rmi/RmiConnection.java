@@ -55,49 +55,18 @@ public class RmiConnection implements LockFactoryConnection {
         if (configuration.isManagementEnabled()) {
             addService(servicesMap, port, Services.MANAGEMENT, ManagementServerRmi.RMI_NAME,
                     t -> ( new ManagementServerRmiImpl((ManagementService) t))  );
-
-//            ManagementService managementService = (ManagementService) servicesMap.get(Services.MANAGEMENT);
-//            ManagementServerRmiImpl managementServerRmi = new ManagementServerRmiImpl(managementService);
-//            rmiRemotes.add(managementServerRmi);
-//            ManagementServerRmi managementRmiStub = (ManagementServerRmi) UnicastRemoteObject
-//                    .exportObject(managementServerRmi, port);
-//            rmiStubs.add(managementRmiStub);
-//            rmiRegistry.rebind(ManagementServerRmi.RMI_NAME, managementRmiStub);
         }
         if (configuration.isLockEnabled()) {
             addService(servicesMap, port, Services.LOCK, LockServerRmi.RMI_NAME,
                     t -> ( new LockServerRmiImpl((LockService) t))  );
-
-//            LockService lockService = (LockService) servicesMap.get(Services.LOCK);
-//            LockServerRmiImpl lockServerRmi = new LockServerRmiImpl(lockService);
-//            rmiRemotes.add(lockServerRmi);
-//            LockServerRmi lockServerRmiStub = (LockServerRmi) UnicastRemoteObject
-//                    .exportObject(lockServerRmi, port);
-//            rmiStubs.add(lockServerRmiStub);
-//            rmiRegistry.rebind(LockServerRmi.RMI_NAME, lockServerRmiStub);
         }
         if (configuration.isSemaphoreEnabled()) {
             addService(servicesMap, port, Services.SEMAPHORE, SemaphoreServerRmi.RMI_NAME,
                     t -> ( new SemaphoreServerRmiImpl((SemaphoreService) t))  );
-
-//            SemaphoreService semaphoreService = (SemaphoreService) servicesMap.get(Services.SEMAPHORE);
-//            SemaphoreServerRmiImpl semaphoreServerRmi = new SemaphoreServerRmiImpl(semaphoreService);
-//            rmiRemotes.add(semaphoreServerRmi);
-//            SemaphoreServerRmi semaphoreServerRmiStub = (SemaphoreServerRmi) UnicastRemoteObject
-//                    .exportObject(semaphoreServerRmi, port);
-//            rmiStubs.add(semaphoreServerRmiStub);
-//            rmiRegistry.rebind(SemaphoreServerRmi.RMI_NAME, semaphoreServerRmiStub);
         }
         if (configuration.isCountDownLatchEnabled()) {
             addService(servicesMap, port, Services.COUNTDOWNLATCH, CountDownLatchServerRmi.RMI_NAME,
                     t -> ( new CountDownLatchServerRmiImpl((CountDownLatchService) t))  );
-//            CountDownLatchService countDownLatchService = (CountDownLatchService) services.get(Services.COUNTDOWNLATCH);
-//            CountDownLatchServerRmiImpl countDownLatchServerRmi = new CountDownLatchServerRmiImpl(countDownLatchService);
-//            rmiRemotes.add(countDownLatchServerRmi);
-//            CountDownLatchServerRmi countDownLatchServerRmiStub = (CountDownLatchServerRmi) UnicastRemoteObject
-//                    .exportObject(countDownLatchServerRmi, port);
-//            rmiStubs.add(countDownLatchServerRmiStub);
-//            rmiRegistry.rebind(CountDownLatchServerRmi.RMI_NAME, countDownLatchServerRmiStub);
         }
         LOGGER.debug("RmiConnection activated");
     }
@@ -134,7 +103,6 @@ public class RmiConnection implements LockFactoryConnection {
         }
         return registry;
     }
-
 
     @Override
     public void shutdown() throws Exception {

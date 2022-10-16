@@ -1,11 +1,11 @@
-package org.obapanel.lockfactoryserver.integration.grpc.lock;
+package org.obapanel.lockfactoryserver.integration.rmi;
 
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.obapanel.lockfactoryserver.client.grpc.CountDownLatchClientGrpc;
+import org.obapanel.lockfactoryserver.client.rmi.CountDownLatchClientRmi;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.LockFactoryServer;
 import org.slf4j.Logger;
@@ -26,9 +26,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class CountDownLatchGrpcTest {
+public class CountDownLatchRmiTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CountDownLatchGrpcTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CountDownLatchRmiTest.class);
 
     private static final AtomicInteger COUNT_DOWN_LATCH_COUNT = new AtomicInteger(0);
 
@@ -39,7 +39,7 @@ public class CountDownLatchGrpcTest {
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-    private final String countDowneLatchName = "codolaGrpcXXXx" + System.currentTimeMillis();
+    private final String countDowneLatchName = "codolaRmiXXXx" + System.currentTimeMillis();
 
     @BeforeClass
     public static void setupAll() throws InterruptedException {
@@ -79,28 +79,27 @@ public class CountDownLatchGrpcTest {
         Thread.sleep(250);
     }
 
-    CountDownLatchClientGrpc generateCountDownLatchClientGrpc() {
+    CountDownLatchClientRmi generateCountDownLatchClientRmi() throws NotBoundException, RemoteException {
         int num = COUNT_DOWN_LATCH_COUNT.incrementAndGet();
-        String countDownLatchName = countDowneLatchName.replace("XXX", String.format("%03d", num) );
-        return generateCountDownLatchClientGrpc(countDownLatchName);
+        String semaphoreName = countDowneLatchName.replace("XXX", String.format("%03d", num) );
+        return generateCountDownLatchClientRmi(semaphoreName);
     }
 
-    CountDownLatchClientGrpc generateCountDownLatchClientGrpc(String countDowneLatchName) {
-        return new CountDownLatchClientGrpc(LOCALHOST ,configuration.getGrpcServerPort(), countDowneLatchName);
+    CountDownLatchClientRmi generateCountDownLatchClientRmi(String countDownLatchName) throws NotBoundException, RemoteException {
+        return new CountDownLatchClientRmi(LOCALHOST ,configuration.getRmiServerPort(), countDownLatchName);
     }
-
 
     @Test
-    public void createAndGetTest() {
+    public void createAndGetTest() throws NotBoundException, RemoteException {
         int count = ThreadLocalRandom.current().nextInt(5,100);
-        CountDownLatchClientGrpc countDownLatchClientGrpc = generateCountDownLatchClientGrpc();
-        int count1 = countDownLatchClientGrpc.getCount();
-        countDownLatchClientGrpc.createNew(count);
-        int count2 = countDownLatchClientGrpc.getCount();
-        countDownLatchClientGrpc.createNew(3);
-        int count3 = countDownLatchClientGrpc.getCount();
-        countDownLatchClientGrpc.countDown();
-        int count4 = countDownLatchClientGrpc.getCount();
+        CountDownLatchClientRmi countDownLatchClientRmi = generateCountDownLatchClientRmi();
+        int count1 = countDownLatchClientRmi.getCount();
+        countDownLatchClientRmi.createNew(count);
+        int count2 = countDownLatchClientRmi.getCount();
+        countDownLatchClientRmi.createNew(3);
+        int count3 = countDownLatchClientRmi.getCount();
+        countDownLatchClientRmi.countDown();
+        int count4 = countDownLatchClientRmi.getCount();
         assertEquals(0, count1);
         assertEquals(count, count2);
         assertEquals(count, count3);
@@ -109,34 +108,34 @@ public class CountDownLatchGrpcTest {
 
     @Test
     public void awaitOneTest() throws NotBoundException, RemoteException {
-        CountDownLatchClientGrpc countDownLatchClientGrpc = generateCountDownLatchClientGrpc();
-        boolean created = countDownLatchClientGrpc.createNew(1);
+        CountDownLatchClientRmi countDownLatchClientRmi = generateCountDownLatchClientRmi();
+        boolean created = countDownLatchClientRmi.createNew(1);
         executorService.submit(() -> {
             try {
                 Thread.sleep(500);
-                countDownLatchClientGrpc.countDown();
-            } catch (InterruptedException e) {
+                countDownLatchClientRmi.countDown();
+            } catch (InterruptedException | RemoteException e) {
                 throw new RuntimeException(e);
             }
         });
-        boolean result = countDownLatchClientGrpc.tryAwaitWithTimeOut(1500, TimeUnit.MILLISECONDS);
+        boolean result = countDownLatchClientRmi.tryAwaitWithTimeOut(1500, TimeUnit.MILLISECONDS);
         assertTrue(created);
         assertTrue(result);
-        assertFalse(countDownLatchClientGrpc.isActive());
+        assertFalse(countDownLatchClientRmi.isActive());
     }
 
     @Test
-    public void awaitManyTest() {
+    public void awaitManyTest() throws NotBoundException, RemoteException {
         int count = ThreadLocalRandom.current().nextInt(5,15);
-        CountDownLatchClientGrpc countDownLatchClientGrpc = generateCountDownLatchClientGrpc();
-        boolean created = countDownLatchClientGrpc.createNew(count);
+        CountDownLatchClientRmi countDownLatchClientRmi = generateCountDownLatchClientRmi();
+        boolean created = countDownLatchClientRmi.createNew(count);
         List<Runnable> runnables = new ArrayList<>(count);
         for(int i=0; i < count; i++) {
             runnables.add(() -> {
                 try {
                     Thread.sleep(200 + ThreadLocalRandom.current().nextInt(300));
-                    countDownLatchClientGrpc.countDown();
-                } catch (InterruptedException e) {
+                    countDownLatchClientRmi.countDown();
+                } catch (InterruptedException | RemoteException e) {
                     throw new RuntimeException(e);
                 }
             });
@@ -147,23 +146,23 @@ public class CountDownLatchGrpcTest {
             t.setDaemon(true);
             t.start();
         });
-        boolean result = countDownLatchClientGrpc.tryAwaitWithTimeOut(3500, TimeUnit.MILLISECONDS);
+        boolean result = countDownLatchClientRmi.tryAwaitWithTimeOut(3500, TimeUnit.MILLISECONDS);
         assertTrue(created);
         assertTrue(result);
-        assertFalse(countDownLatchClientGrpc.isActive());
+        assertFalse(countDownLatchClientRmi.isActive());
     }
 
     @Test
-    public void awaitManyPreTest() throws InterruptedException {
+    public void awaitManyPreTest() throws InterruptedException, NotBoundException, RemoteException {
         int count = ThreadLocalRandom.current().nextInt(5,15);
-        CountDownLatchClientGrpc countDownLatchClientGrpc = generateCountDownLatchClientGrpc();
-        boolean created = countDownLatchClientGrpc.createNew(count);
+        CountDownLatchClientRmi countDownLatchClientRmi = generateCountDownLatchClientRmi();
+        boolean created = countDownLatchClientRmi.createNew(count);
         AtomicBoolean awaited = new AtomicBoolean(false);
         Thread tfinal = new Thread(() -> {
             try {
-                countDownLatchClientGrpc.await();
+                countDownLatchClientRmi.await();
                 awaited.set(true);
-            } catch (Exception e) {
+            } catch (RemoteException e) {
                 throw new RuntimeException(e);
             }
         });
@@ -175,8 +174,8 @@ public class CountDownLatchGrpcTest {
             runnables.add(() -> {
                 try {
                     Thread.sleep(200 + ThreadLocalRandom.current().nextInt(300));
-                    countDownLatchClientGrpc.countDown();
-                } catch (InterruptedException e) {
+                    countDownLatchClientRmi.countDown();
+                } catch (InterruptedException | RemoteException e) {
                     throw new RuntimeException(e);
                 }
             });
@@ -199,7 +198,7 @@ public class CountDownLatchGrpcTest {
         });
         assertTrue(created);
         assertTrue(awaited.get());
-        assertFalse(countDownLatchClientGrpc.isActive());
+        assertFalse(countDownLatchClientRmi.isActive());
     }
 
 }
