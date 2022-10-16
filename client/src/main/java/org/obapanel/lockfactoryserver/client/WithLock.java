@@ -9,11 +9,13 @@ public interface WithLock {
 
     boolean unLock() throws Exception;
 
-    default void doWithinLock(Runnable lamda) throws Exception {
+    boolean tryLock() throws Exception;
+
+    default void doWithinLock(Runnable runnable) throws Exception {
         try {
             boolean locked = lock();
             if (locked) {
-                lamda.run();
+                runnable.run();
             }
         } finally {
             unLock();

@@ -14,6 +14,16 @@ import org.slf4j.LoggerFactory;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
@@ -31,6 +41,7 @@ public class LockRmiTest {
 
     private LockFactoryConfiguration configuration;
     private LockFactoryServer lockFactoryServer;
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
 
     private final String lockBaseName = "lockRmiXXXx" + System.currentTimeMillis();
@@ -68,6 +79,7 @@ public class LockRmiTest {
         Thread.sleep(250);
         LOGGER.debug("tearsDown ini >>>");
         lockFactoryServer.shutdown();
+        executorService.shutdown();
         LOGGER.debug("tearsDown fin <<<");
         Thread.sleep(250);
     }
@@ -116,6 +128,52 @@ public class LockRmiTest {
         assertFalse(locked2);
         assertEquals(LockStatus.OTHER, status2);
         LOGGER.debug("test lockTwolocksTest fin <<<");
+    }
+
+    @Test
+    public void doWithLockSimpleTest() throws InterruptedException {
+        String currentLockName =  generateLockClientRmi().getName() + "_1_simple";
+        Semaphore inner = new Semaphore(0);
+        int lockNums = 3;
+        for(int i=0; i < lockNums; i++) {
+            int sleep = (i + 1) * ThreadLocalRandom.current().nextInt(60, 120);
+            executorService.submit(() -> {
+                Thread.sleep(sleep);
+                LockClientRmi lockClientRmi = generateLockClientRmi(currentLockName);
+                lockClientRmi.doWithinLock(() -> {
+                    inner.release();
+                });
+                return Void.class;
+            });
+        }
+        boolean acquired = inner.tryAcquire(lockNums, 1500, TimeUnit.MILLISECONDS);
+        assertTrue(acquired);
+    }
+
+    @Test
+    public void doGetWithLockSimpleTest() throws InterruptedException, ExecutionException, TimeoutException {
+        String currentLockName =  generateLockClientRmi().getName() + "_2_simple";
+        Semaphore inner = new Semaphore(0);
+        List<Future<String>> futures = new ArrayList<>();
+        int lockNums = 3;
+        for(int i=0; i < lockNums; i++) {
+            int sleep = (i + 1) * ThreadLocalRandom.current().nextInt(60, 120);
+            Future<String> f = executorService.submit(() -> {
+                Thread.sleep(sleep);
+                LockClientRmi lockClientRmi = generateLockClientRmi(currentLockName);
+                String partialResult = lockClientRmi.doGetWithinLock(() -> {
+                    inner.release();
+                    return "x";
+                });
+                return partialResult;
+            });
+            futures.add(f);
+        }
+        boolean acquired = inner.tryAcquire(lockNums, 1500, TimeUnit.MILLISECONDS);
+        assertTrue(acquired);
+        for(Future<String> f: futures) {
+            assertEquals("x", f.get(500, TimeUnit.MILLISECONDS));
+        }
     }
 
 }

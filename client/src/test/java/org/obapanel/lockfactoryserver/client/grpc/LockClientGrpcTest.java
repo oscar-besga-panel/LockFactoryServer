@@ -172,7 +172,7 @@ public class LockClientGrpcTest {
 
     @Test
     public void asyncLock2Simple1Test() throws InterruptedException {
-        lockClientGrpc.asyncLock2();
+        lockClientGrpc.asyncLock();
         int count = 0;
         while(lockClientGrpc.getToken() == null ||
                 lockClientGrpc.getToken().isEmpty()) {
@@ -190,7 +190,7 @@ public class LockClientGrpcTest {
     @Test
     public void asyncLock2Simple2Test() throws InterruptedException {
         Semaphore semaphore = new Semaphore(0);
-        lockClientGrpc.asyncLock2(() -> {
+        lockClientGrpc.asyncLock(() -> {
             semaphore.release();
         });
         boolean acquired = semaphore.tryAcquire(3, TimeUnit.SECONDS);

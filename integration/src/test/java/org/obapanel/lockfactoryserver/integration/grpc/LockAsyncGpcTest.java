@@ -12,10 +12,16 @@ import org.obapanel.lockfactoryserver.server.LockFactoryServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -90,7 +96,7 @@ public class LockAsyncGpcTest {
         LockClientGrpc lockClientGrpc = generateLockClientGrpc();
         AtomicReference<LockStatus> refLockStatus = new AtomicReference<>(LockStatus.ABSENT);
         LOGGER.debug("test lockUnlockTest ini >>>");
-        lockClientGrpc.asyncLock1(executorService, () -> {
+        lockClientGrpc.asyncLock(executorService, () -> {
             LOGGER.debug("runnable after");
             refLockStatus.set(lockClientGrpc.lockStatus());
             makeWait.release();
@@ -111,7 +117,7 @@ public class LockAsyncGpcTest {
         AtomicReference<LockStatus> refLockStatus2 = new AtomicReference<>(LockStatus.ABSENT);
         LOGGER.debug("test lockUnlockTest ini >>>");
         lockClientGrpc1.lock();
-        lockClientGrpc2.asyncLock2(executorService, () -> {
+        lockClientGrpc2.asyncLock(executorService, () -> {
             LOGGER.debug("runnable after");
             refLockStatus1.set(lockClientGrpc1.lockStatus());
             refLockStatus2.set(lockClientGrpc2.lockStatus());
@@ -125,6 +131,52 @@ public class LockAsyncGpcTest {
         assertEquals(LockStatus.OWNER, refLockStatus2.get());
         assertEquals(LockStatus.OTHER, refLockStatus1.get());
         LOGGER.debug("test lockUnlockTest fin <<<");
+    }
+
+    @Test
+    public void doWithLockSimpleTest() throws InterruptedException {
+        String currentLockName =  generateLockClientGrpc().getName() + "_1_simple";
+        Semaphore inner = new Semaphore(0);
+        int lockNums = 3;
+        for(int i=0; i < lockNums; i++) {
+            int sleep = (i + 1) * ThreadLocalRandom.current().nextInt(60, 120);
+            executorService.submit(() -> {
+                Thread.sleep(sleep);
+                LockClientGrpc lockClientGrpc = generateLockClientGrpc(currentLockName);
+                lockClientGrpc.doWithinLock(() -> {
+                    inner.release();
+                });
+                return Void.class;
+            });
+        }
+        boolean acquired = inner.tryAcquire(lockNums, 1500, TimeUnit.MILLISECONDS);
+        assertTrue(acquired);
+    }
+
+    @Test
+    public void doGetWithLockSimpleTest() throws InterruptedException, ExecutionException, TimeoutException {
+        String currentLockName =  generateLockClientGrpc().getName() + "_2_simple";
+        Semaphore inner = new Semaphore(0);
+        List<Future<String>> futures = new ArrayList<>();
+        int lockNums = 3;
+        for(int i=0; i < lockNums; i++) {
+            int sleep = (i + 1) * ThreadLocalRandom.current().nextInt(60, 120);
+            Future<String> f = executorService.submit(() -> {
+                Thread.sleep(sleep);
+                LockClientGrpc lockClientGrpc = generateLockClientGrpc(currentLockName);
+                String partialResult = lockClientGrpc.doGetWithinLock(() -> {
+                    inner.release();
+                    return "x";
+                });
+                return partialResult;
+            });
+            futures.add(f);
+        }
+        boolean acquired = inner.tryAcquire(lockNums, 1500, TimeUnit.MILLISECONDS);
+        assertTrue(acquired);
+        for(Future<String> f: futures) {
+            assertEquals("x", f.get(500, TimeUnit.MILLISECONDS));
+        }
     }
 
 }

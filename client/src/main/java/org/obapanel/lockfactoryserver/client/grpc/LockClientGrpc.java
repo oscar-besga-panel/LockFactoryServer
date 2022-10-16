@@ -4,7 +4,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.BoolValue;
 import com.google.protobuf.StringValue;
 import io.grpc.ManagedChannel;
-import io.grpc.stub.StreamObserver;
 import org.obapanel.lockfactoryserver.client.WithLock;
 import org.obapanel.lockfactoryserver.core.LockStatus;
 import org.obapanel.lockfactoryserver.core.grpc.LockServerGrpc;
@@ -114,50 +113,15 @@ public class LockClientGrpc
         return token;
     }
 
-    public void asyncLock1() {
-        asyncLock1(null);
+    public void asyncLock() {
+        asyncLock(lazyLocalExecutor(), null);
     }
 
-    public void asyncLock1(Runnable onLock) {
-        asyncLock1(null, onLock);
+    public void asyncLock(Runnable onLock) {
+        asyncLock(lazyLocalExecutor(), onLock);
     }
 
-    public void asyncLock1(Executor executor, Runnable onLock){
-            LockServerGrpc.newStub(getManagedChannel()).asyncLock(StringValue.of(getName()), new StreamObserver<StringValue>() {
-
-            @Override
-            public void onNext(StringValue value) {
-                token = value.getValue();
-                LOGGER.debug("Token is onNext {}", token);
-            }
-
-            @Override
-            public void onError(Throwable t) {
-                token = EMPTY_TOKEN;
-                LOGGER.debug("Token is empty onError {}", token, t);
-            }
-
-            @Override
-            public void onCompleted() {
-                LOGGER.debug("Token is onCompleted {}", token);
-                if (executor != null && onLock != null) {
-                    executor.execute(onLock);
-                } else if (onLock != null) {
-                    onLock.run();
-                }
-            }
-        });
-    }
-
-    public void asyncLock2() {
-        asyncLock2(lazyLocalExecutor(), null);
-    }
-
-    public void asyncLock2(Runnable onLock) {
-        asyncLock2(lazyLocalExecutor(), onLock);
-    }
-
-    public void asyncLock2(Executor executor, Runnable onLock) {
+    public void asyncLock(Executor executor, Runnable onLock) {
         ListenableFuture<StringValue> listenableFuture = getAsyncStub().
                 asyncLock(StringValue.of(getName()));
         listenableFuture.addListener(() -> {
