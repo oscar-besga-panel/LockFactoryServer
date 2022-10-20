@@ -1,30 +1,19 @@
 package org.obapanel.lockfactoryserver.integration.grpc;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.obapanel.lockfactoryserver.client.grpc.CountDownLatchClientGrpc;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.LockFactoryServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class CountDownLatchGrpcTest {
 
@@ -34,8 +23,8 @@ public class CountDownLatchGrpcTest {
 
     public static final String LOCALHOST = "127.0.0.1";
 
-    private LockFactoryConfiguration configuration;
-    private LockFactoryServer lockFactoryServer;
+    private static LockFactoryConfiguration configuration;
+    private static LockFactoryServer lockFactoryServer;
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
@@ -45,6 +34,9 @@ public class CountDownLatchGrpcTest {
     public static void setupAll() throws InterruptedException {
         Thread.sleep(250);
         LOGGER.debug("setup all ini <<<");
+        configuration = new LockFactoryConfiguration();
+        lockFactoryServer = new LockFactoryServer(configuration);
+        lockFactoryServer.startServer();
         LOGGER.debug("setup all fin <<<");
         Thread.sleep(250);
     }
@@ -52,9 +44,6 @@ public class CountDownLatchGrpcTest {
     @Before
     public void setup() throws InterruptedException {
         LOGGER.debug("setup ini >>>");
-        configuration = new LockFactoryConfiguration();
-        lockFactoryServer = new LockFactoryServer();
-        lockFactoryServer.startServer();
         LOGGER.debug("setup fin <<<");
         Thread.sleep(250);
     }
@@ -63,7 +52,7 @@ public class CountDownLatchGrpcTest {
     public static void tearsDownAll() throws InterruptedException {
         Thread.sleep(250);
         LOGGER.debug("tearsDown all ini >>>");
-
+        lockFactoryServer.shutdown();
         LOGGER.debug("tearsDown all fin <<<");
         Thread.sleep(250);
     }
@@ -73,7 +62,6 @@ public class CountDownLatchGrpcTest {
     public void tearsDown() throws InterruptedException {
         Thread.sleep(250);
         LOGGER.debug("tearsDown ini >>>");
-        lockFactoryServer.shutdown();
         executorService.shutdown();
         LOGGER.debug("tearsDown fin <<<");
         Thread.sleep(250);
@@ -108,7 +96,34 @@ public class CountDownLatchGrpcTest {
     }
 
     @Test
-    public void awaitOneTest() throws NotBoundException, RemoteException {
+    public void awaitOneTest() throws InterruptedException {
+        Semaphore inner = new Semaphore(0);
+        CountDownLatchClientGrpc countDownLatchClientGrpc1 = generateCountDownLatchClientGrpc();
+        String name = countDownLatchClientGrpc1.getName();
+        boolean created = countDownLatchClientGrpc1.createNew(1);
+        AtomicBoolean countedDown = new AtomicBoolean(false);
+        executorService.submit(() -> {
+            try {
+                Thread.sleep(300);
+                CountDownLatchClientGrpc countDownLatchClientGrpc2 = generateCountDownLatchClientGrpc(name);
+                countDownLatchClientGrpc2.countDown();
+                countedDown.set(true);
+                inner.release();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        boolean result = countDownLatchClientGrpc1.tryAwaitWithTimeOut(3000, TimeUnit.MILLISECONDS);
+        boolean innerAcquired = inner.tryAcquire(5000, TimeUnit.MILLISECONDS);
+        assertTrue(innerAcquired);
+        assertTrue(created);
+        assertTrue(countedDown.get());
+        assertTrue(result);
+        assertFalse(countDownLatchClientGrpc1.isActive());
+    }
+
+    @Test
+    public void awaitOneTest2()  {
         CountDownLatchClientGrpc countDownLatchClientGrpc = generateCountDownLatchClientGrpc();
         boolean created = countDownLatchClientGrpc.createNew(1);
         executorService.submit(() -> {
