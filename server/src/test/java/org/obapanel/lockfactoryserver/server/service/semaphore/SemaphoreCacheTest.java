@@ -50,7 +50,7 @@ public class SemaphoreCacheTest {
                 throw new RuntimeException(e);
             }
         });
-        Thread.sleep(100);
+        Thread.sleep(150);
         boolean result1 = semaphoreCache.avoidExpiration(sem1, ssem1);
         boolean result2 = semaphoreCache.avoidExpiration(sem2, ssem2);
         boolean result3 = semaphoreCache.avoidExpiration(sem3, ssem3);
