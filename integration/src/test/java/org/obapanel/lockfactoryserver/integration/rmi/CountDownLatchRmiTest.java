@@ -1,10 +1,6 @@
 package org.obapanel.lockfactoryserver.integration.rmi;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.obapanel.lockfactoryserver.client.rmi.CountDownLatchClientRmi;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.LockFactoryServer;
@@ -15,16 +11,11 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class CountDownLatchRmiTest {
 
@@ -34,8 +25,8 @@ public class CountDownLatchRmiTest {
 
     public static final String LOCALHOST = "127.0.0.1";
 
-    private LockFactoryConfiguration configuration;
-    private LockFactoryServer lockFactoryServer;
+    private static LockFactoryConfiguration configuration;
+    private static LockFactoryServer lockFactoryServer;
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
@@ -45,6 +36,9 @@ public class CountDownLatchRmiTest {
     public static void setupAll() throws InterruptedException {
         Thread.sleep(250);
         LOGGER.debug("setup all ini <<<");
+        configuration = new LockFactoryConfiguration();
+        lockFactoryServer = new LockFactoryServer(configuration);
+        lockFactoryServer.startServer();
         LOGGER.debug("setup all fin <<<");
         Thread.sleep(250);
     }
@@ -52,9 +46,6 @@ public class CountDownLatchRmiTest {
     @Before
     public void setup() throws InterruptedException {
         LOGGER.debug("setup ini >>>");
-        configuration = new LockFactoryConfiguration();
-        lockFactoryServer = new LockFactoryServer();
-        lockFactoryServer.startServer();
         LOGGER.debug("setup fin <<<");
         Thread.sleep(250);
     }
@@ -63,7 +54,7 @@ public class CountDownLatchRmiTest {
     public static void tearsDownAll() throws InterruptedException {
         Thread.sleep(250);
         LOGGER.debug("tearsDown all ini >>>");
-
+        lockFactoryServer.shutdown();
         LOGGER.debug("tearsDown all fin <<<");
         Thread.sleep(250);
     }
@@ -73,7 +64,6 @@ public class CountDownLatchRmiTest {
     public void tearsDown() throws InterruptedException {
         Thread.sleep(250);
         LOGGER.debug("tearsDown ini >>>");
-        lockFactoryServer.shutdown();
         executorService.shutdown();
         LOGGER.debug("tearsDown fin <<<");
         Thread.sleep(250);
@@ -107,7 +97,34 @@ public class CountDownLatchRmiTest {
     }
 
     @Test
-    public void awaitOneTest() throws NotBoundException, RemoteException {
+    public void awaitOneTest() throws InterruptedException, RemoteException, NotBoundException {
+        Semaphore inner = new Semaphore(0);
+        CountDownLatchClientRmi countDownLatchClientRmi1 = generateCountDownLatchClientRmi();
+        String name = countDownLatchClientRmi1.getName();
+        boolean created = countDownLatchClientRmi1.createNew(1);
+        AtomicBoolean countedDown = new AtomicBoolean(false);
+        executorService.submit(() -> {
+            try {
+                Thread.sleep(300);
+                CountDownLatchClientRmi countDownLatchClientRmi2 = generateCountDownLatchClientRmi(name);
+                countDownLatchClientRmi2.countDown();
+                countedDown.set(true);
+                inner.release();
+            } catch (InterruptedException | RemoteException | NotBoundException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        boolean result = countDownLatchClientRmi1.tryAwaitWithTimeOut(3000, TimeUnit.MILLISECONDS);
+        boolean innerAcquired = inner.tryAcquire(5000, TimeUnit.MILLISECONDS);
+        assertTrue(innerAcquired);
+        assertTrue(created);
+        assertTrue(countedDown.get());
+        assertTrue(result);
+        assertFalse(countDownLatchClientRmi1.isActive());
+    }
+
+    @Test
+    public void awaitOneTest2() throws NotBoundException, RemoteException {
         CountDownLatchClientRmi countDownLatchClientRmi = generateCountDownLatchClientRmi();
         boolean created = countDownLatchClientRmi.createNew(1);
         executorService.submit(() -> {
