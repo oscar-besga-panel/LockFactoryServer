@@ -88,7 +88,7 @@ LOGGER.debug(">> wait codola {} {}", name, countDownLatch);
     }
 
     public boolean tryAwaitWithTimeOut(String name, long timeOut, TimeUnit timeUnit) {
-        boolean result = false;
+        boolean result;
         LOGGER.info("service> awaitWithTimeOut name {} timeOut {} timeUnit {}", name, timeOut, timeUnit);
         CountDownLatch countDownLatch = countDownLatchCache.getData(name);
 LOGGER.debug(">> wait codola {} {}", name, countDownLatch);
@@ -98,6 +98,8 @@ LOGGER.debug(">> wait codola {} {}", name, countDownLatch);
             } catch (InterruptedException e) {
                 throw RuntimeInterruptedException.getToThrowWhenInterrupted(e);
             }
+        } else {
+            result = true; // There is no countDownLatch, we have permission to proceed without waiting
         }
         return result;
     }

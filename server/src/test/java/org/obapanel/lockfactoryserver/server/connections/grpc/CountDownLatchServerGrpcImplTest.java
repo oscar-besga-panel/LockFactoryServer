@@ -16,6 +16,7 @@ import org.obapanel.lockfactoryserver.server.FakeStreamObserver;
 import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchService;
 
 import java.rmi.RemoteException;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
@@ -48,7 +49,7 @@ public class CountDownLatchServerGrpcImplTest {
 
     @Test
     public void createNewTest() {
-        String name = "codola_" + System.currentTimeMillis();
+        String name = "codola1_" + System.currentTimeMillis();
         int count = ThreadLocalRandom.current().nextInt(100);
         NameCount nameCount = NameCount.newBuilder().
                 setName(name).
@@ -63,7 +64,7 @@ public class CountDownLatchServerGrpcImplTest {
 
     @Test
     public void countDownTest() {
-        String name = "codola_" + System.currentTimeMillis();
+        String name = "codola2_" + System.currentTimeMillis();
         FakeStreamObserver<Empty> responseObserver = new FakeStreamObserver<>();
         countDownLatchServerGrpc.countDown(StringValue.of(name), responseObserver);
         verify(countDownLatchService).countDown(eq(name));
@@ -72,7 +73,7 @@ public class CountDownLatchServerGrpcImplTest {
 
     @Test
     public void getCountTest() {
-        String name = "codola_" + System.currentTimeMillis();
+        String name = "codola3_" + System.currentTimeMillis();
         FakeStreamObserver<Int32Value> responseObserver = new FakeStreamObserver<>();
         countDownLatchServerGrpc.getCount(StringValue.of(name), responseObserver);
         verify(countDownLatchService).getCount(eq(name));
@@ -82,7 +83,7 @@ public class CountDownLatchServerGrpcImplTest {
 
     @Test
     public void awaitTest() throws RemoteException {
-        String name = "codola_" + System.currentTimeMillis();
+        String name = "codola4_" + System.currentTimeMillis();
         FakeStreamObserver<Empty> responseObserver = new FakeStreamObserver<>();
         countDownLatchServerGrpc.await(StringValue.of(name), responseObserver);
         verify(countDownLatchService).await(eq(name));
@@ -91,7 +92,7 @@ public class CountDownLatchServerGrpcImplTest {
 
     @Test
     public void tryAwaitWithTimeOut1Test() throws RemoteException {
-        String name = "codola_" + System.currentTimeMillis();
+        String name = "codola5_" + System.currentTimeMillis();
         long timeOut = ThreadLocalRandom.current().nextLong(100);
         FakeStreamObserver<BoolValue> responseObserver = new FakeStreamObserver<>();
         AwaitWithTimeout awaitWithTimeout = AwaitWithTimeout.newBuilder().
@@ -107,7 +108,7 @@ public class CountDownLatchServerGrpcImplTest {
 
     @Test
     public void tryAwaitWithTimeOut2Test() throws RemoteException {
-        String name = "codola_" + System.currentTimeMillis();
+        String name = "codola6_" + System.currentTimeMillis();
         long timeOut = ThreadLocalRandom.current().nextLong(100);
         FakeStreamObserver<BoolValue> responseObserver = new FakeStreamObserver<>();
         AwaitWithTimeout awaitWithTimeout = AwaitWithTimeout.newBuilder().
@@ -120,5 +121,28 @@ public class CountDownLatchServerGrpcImplTest {
         assertTrue(responseObserver.getNext().getValue());
     }
 
+    @Test
+    public void asyncAwaitTest() throws RemoteException, InterruptedException {
+        Semaphore inner = new Semaphore(0);
+        String name = "codola7_" + System.currentTimeMillis();
+        FakeStreamObserver<Empty> responseObserver = new FakeStreamObserver<>();
+        Thread daemonThread = new Thread(() -> {
+            try {
+                Thread.sleep(200);
+                countDownLatchServerGrpc.asyncAwait(StringValue.of(name), responseObserver);
+                inner.release();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        daemonThread.setName("asyncAwaitTest");
+        daemonThread.setDaemon(true);
+        daemonThread.start();
+        boolean acquired = inner.tryAcquire(1, 1500, TimeUnit.MILLISECONDS);
+        daemonThread.join(1500);
+        assertTrue(acquired);
+        verify(countDownLatchService).await(eq(name));
+        assertTrue(responseObserver.isCompleted());
+    }
 
 }

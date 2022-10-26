@@ -101,7 +101,7 @@ public class CountDownLatchRestTest {
     }
 
     //TODO Sometimes Works in local
-    @Ignore
+    //@Ignore
     @Test
     public void awaitOneTest() throws InterruptedException {
         Semaphore inner = new Semaphore(0);
@@ -147,13 +147,11 @@ public class CountDownLatchRestTest {
         assertFalse(countDownLatchClientRest.isActive());
     }
 
-    //TODO Sometimes Works in local
-    @Ignore
     @Test
     public void awaitManyTest() throws InterruptedException {
         Semaphore inner = new Semaphore(0);
         //TODO why more result in error ( server does not respond ?)
-        int count = 2; //ThreadLocalRandom.current().nextInt(2,5);
+        int count = 3; //ThreadLocalRandom.current().nextInt(2,5);
         LOGGER.debug("awaitManyTest count {}", count);
         CountDownLatchClientRest countDownLatchClientRest = generateCountDownLatchClientRest();
         String name = countDownLatchClientRest.getName();
@@ -185,13 +183,11 @@ public class CountDownLatchRestTest {
         assertFalse(countDownLatchClientRest.isActive());
     }
 
-    //TODO Sometimes Works in local
-    @Ignore
     @Test
     public void awaitManyPreTest() throws InterruptedException {
         Semaphore inner = new Semaphore(0);
         //TODO why more result in error ( server does not respond ?)
-        int count = 2; // ThreadLocalRandom.current().nextInt(2,5);
+        int count = 3; // ThreadLocalRandom.current().nextInt(2,5);
         CountDownLatchClientRest countDownLatchClientRest = generateCountDownLatchClientRest();
         String name = countDownLatchClientRest.getName();
         boolean created = countDownLatchClientRest.createNew(count);

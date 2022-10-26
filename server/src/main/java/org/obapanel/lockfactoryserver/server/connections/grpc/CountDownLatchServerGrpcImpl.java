@@ -88,8 +88,7 @@ public class CountDownLatchServerGrpcImpl extends CountDownLatchServerGrpc.Count
     @Override
     public void asyncAwait(StringValue request, StreamObserver<Empty> responseObserver) {
         LOGGER.info("grpc server> asyncAwait name {}", request.getValue());
-System.out.println("&&& server asyncAwait 1");
         await(request, responseObserver);
-System.out.println("&&& server asyncAwait 2");
     }
+
 }
