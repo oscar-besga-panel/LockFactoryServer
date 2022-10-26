@@ -1,6 +1,10 @@
 package org.obapanel.lockfactoryserver.integration.rest;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.obapanel.lockfactoryserver.client.rest.CountDownLatchClientRest;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.LockFactoryServer;
@@ -9,11 +13,18 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class CountDownLatchRestTest {
 
@@ -151,7 +162,7 @@ public class CountDownLatchRestTest {
     public void awaitManyTest() throws InterruptedException {
         Semaphore inner = new Semaphore(0);
         //TODO why more result in error ( server does not respond ?)
-        int count = 3; //ThreadLocalRandom.current().nextInt(2,5);
+        int count = 2; //ThreadLocalRandom.current().nextInt(2,5);
         LOGGER.debug("awaitManyTest count {}", count);
         CountDownLatchClientRest countDownLatchClientRest = generateCountDownLatchClientRest();
         String name = countDownLatchClientRest.getName();
@@ -187,7 +198,7 @@ public class CountDownLatchRestTest {
     public void awaitManyPreTest() throws InterruptedException {
         Semaphore inner = new Semaphore(0);
         //TODO why more result in error ( server does not respond ?)
-        int count = 3; // ThreadLocalRandom.current().nextInt(2,5);
+        int count = 2; // ThreadLocalRandom.current().nextInt(2,5);
         CountDownLatchClientRest countDownLatchClientRest = generateCountDownLatchClientRest();
         String name = countDownLatchClientRest.getName();
         boolean created = countDownLatchClientRest.createNew(count);
