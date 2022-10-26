@@ -12,7 +12,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-class FakeListenableFuture<K> implements ListenableFuture<K> {
+class FakeListenableFuture<K> implements ListenableFuture<K>, AutoCloseable {
 
 
     private final Map<Runnable, Executor> listeners = new HashMap<>();
@@ -21,11 +21,11 @@ class FakeListenableFuture<K> implements ListenableFuture<K> {
     private Future<K> valueFuture;
 
 
-    FakeListenableFuture(K result) {
+    public FakeListenableFuture(K result) {
         this.result = result;
     }
 
-    public FakeListenableFuture execute() {
+    public FakeListenableFuture<K> execute() {
         valueFuture = innerExecutor.submit(() -> {
             Thread.sleep(150);
             innerExecutor.submit(() -> {
@@ -74,5 +74,11 @@ class FakeListenableFuture<K> implements ListenableFuture<K> {
     @Override
     public K get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
         return valueFuture.get(timeout, unit);
+    }
+
+    public void close() {
+        innerExecutor.shutdown();
+        innerExecutor.shutdownNow();
+        listeners.clear();
     }
 }

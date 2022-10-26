@@ -17,6 +17,8 @@ import org.obapanel.lockfactoryserver.core.grpc.NamePermits;
 import org.obapanel.lockfactoryserver.core.grpc.NamePermitsWithTimeout;
 import org.obapanel.lockfactoryserver.core.grpc.SemaphoreServerGrpc;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
@@ -50,7 +52,9 @@ public class SemaphoreClientGrpcTest {
 
     private final AtomicInteger current = new AtomicInteger(1);
 
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+
+    private final List<FakeListenableFuture<Empty>> listenableFutures = new ArrayList<>();
 
     @Before
     public void setup() {
@@ -69,7 +73,9 @@ public class SemaphoreClientGrpcTest {
         when(futureStub.asyncAcquire(any(NamePermits.class))).thenAnswer(ioc -> {
             NamePermits namePermits = ioc.getArgument(0,NamePermits.class);
             current.set( current.get() - namePermits.getPermits());
-            return new FakeListenableFuture<Empty>(Empty.newBuilder().build()).execute();
+            FakeListenableFuture<Empty> f = new FakeListenableFuture<>(Empty.newBuilder().build()).execute();
+            listenableFutures.add(f);
+            return f;
         });
         when(stub.tryAcquire(any(NamePermits.class))).thenAnswer(ioc -> {
             current.set( current.get() - ioc.getArgument(0, NamePermits.class).getPermits());
@@ -89,6 +95,7 @@ public class SemaphoreClientGrpcTest {
 
     @After
     public void tearsDown() {
+        listenableFutures.forEach(FakeListenableFuture::close);
         mockedStaticSemaphoreServerGrpc.close();
     }
 

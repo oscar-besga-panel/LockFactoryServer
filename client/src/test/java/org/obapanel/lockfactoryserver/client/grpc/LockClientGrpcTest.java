@@ -19,6 +19,8 @@ import org.obapanel.lockfactoryserver.core.grpc.TryLockWithTimeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -47,6 +49,8 @@ public class LockClientGrpcTest {
 
     private final String name = "lock" + System.currentTimeMillis();
 
+    private final List<FakeListenableFuture<StringValue>> listenableFutures = new ArrayList<>();
+
     private LockClientGrpc lockClientGrpc;
 
 
@@ -73,7 +77,9 @@ public class LockClientGrpcTest {
         when(stub.unLock(any(NameTokenValues.class))).thenReturn(BoolValue.of(true));
         when(futureStub.asyncLock(any(StringValue.class))).thenAnswer(ioc -> {
             StringValue result = generateTokenFromRequest((StringValue)ioc.getArgument(0));
-            return new FakeListenableFuture<>(result).execute();
+            FakeListenableFuture<StringValue> f = new FakeListenableFuture<>(result).execute();
+            listenableFutures.add(f);
+            return f;
         });
         lockClientGrpc = new LockClientGrpc(managedChannel, name);
     }
@@ -94,6 +100,7 @@ public class LockClientGrpcTest {
 
     @After
     public void tearsDown() {
+        listenableFutures.forEach(FakeListenableFuture::close);
         mockedStaticLockServerGrpc.close();
     }
 

@@ -13,11 +13,8 @@ public abstract class AbstractClientRmi<K extends Remote> implements AutoCloseab
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractClientRmi.class);
 
-
     private final K serverRmi;
     private final String name;
-
-
 
     public AbstractClientRmi(String host, int port, String name) throws NotBoundException, RemoteException {
         this(LocateRegistry.getRegistry(host, port), name);

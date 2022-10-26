@@ -45,9 +45,9 @@ The server can run standalone or be embeeded into other services or applications
 * **client**: A Java client implementation for each service and connection type; it offers a simplified way to use the services and a simple coding example
 * **integration**: this module depends on the server and client, and obviously the core. It has no production code, but only test code.  
 It executes integration tests, where a local server is started and local clients execute complex operations against it. It servers to ensure the good performance and correctness of the system.  
-There are more than 50 integration tests to ensure the correctness of the project.
-
-There are also more than 235 unit test to ensure a working project and resilence againts changes.
+There are more than 55 integration tests to ensure the correctness of the project. 
+ 
+There are more than 250 unit test to ensure a working project.
 
 ## How to build
 

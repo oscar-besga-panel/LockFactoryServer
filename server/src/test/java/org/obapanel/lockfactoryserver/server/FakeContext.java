@@ -38,26 +38,31 @@ public class FakeContext implements Context {
 
     @Override
     public Context getContext() {
+        // Empty on purpose
         return null;
     }
 
     @Override
     public Execution getExecution() {
+        // Empty on purpose
         return null;
     }
 
     @Override
     public ServerConfig getServerConfig() {
+        // Empty on purpose
         return null;
     }
 
     @Override
     public Request getRequest() {
+        // Empty on purpose
         return null;
     }
 
     @Override
     public FakeResponse getResponse() {
+        // Empty on purpose
         return response;
     }
 
@@ -73,121 +78,132 @@ public class FakeContext implements Context {
 
     @Override
     public void next() {
-
+        // Empty on purpose
     }
 
     @Override
     public void next(Registry registry) {
-
+        // Empty on purpose
     }
 
     @Override
     public void insert(Handler... handlers) {
-
+        // Empty on purpose
     }
 
     @Override
     public void insert(Registry registry, Handler... handlers) {
-
+        // Empty on purpose
     }
 
     @Override
     public void byMethod(Action<? super ByMethodSpec> action) throws Exception {
-
+        // Empty on purpose
     }
 
     @Override
     public void byContent(Action<? super ByContentSpec> action) throws Exception {
-
+        // Empty on purpose
     }
 
     @Override
     public void error(Throwable throwable) {
-
+        // Empty on purpose
     }
 
     @Override
     public void clientError(int statusCode) throws NotInRegistryException {
-
+        // Empty on purpose
     }
 
     @Override
     public void render(Object object) throws NoSuchRendererException {
-
+        // Empty on purpose
     }
 
     @Override
     public void redirect(Object to) {
-
+        // Empty on purpose
     }
 
     @Override
     public void redirect(int code, Object to) {
-
+        // Empty on purpose
     }
 
     @Override
     public void lastModified(Instant lastModified, Runnable serve) {
-
+        // Empty on purpose
     }
 
     @Override
     public <T> Promise<T> parse(Class<T> type) {
+        // Empty on purpose
         return null;
     }
 
     @Override
     public <T> Promise<T> parse(TypeToken<T> type) {
+        // Empty on purpose
         return null;
     }
 
     @Override
     public <T, O> Promise<T> parse(Class<T> type, O options) {
+        // Empty on purpose
         return null;
     }
 
     @Override
     public <T, O> Promise<T> parse(TypeToken<T> type, O options) {
+        // Empty on purpose
         return null;
     }
 
     @Override
     public <T, O> Promise<T> parse(Parse<T, O> parse) {
+        // Empty on purpose
         return null;
     }
 
     @Override
     public <T, O> T parse(TypedData body, Parse<T, O> parse) throws Exception {
+        // Empty on purpose
         return null;
     }
 
     @Override
     public DirectChannelAccess getDirectChannelAccess() {
+        // Empty on purpose
         return null;
     }
 
     @Override
     public PathBinding getPathBinding() {
+        // Empty on purpose
         return null;
     }
 
     @Override
     public void onClose(Action<? super RequestOutcome> onClose) {
-
+        // Empty on purpose
     }
 
     @Override
     public Path file(String path) throws NotInRegistryException {
+        // Empty on purpose
         return null;
     }
 
     @Override
     public <O> Optional<O> maybeGet(TypeToken<O> type) {
+        // Empty on purpose
         return Optional.empty();
     }
 
     @Override
     public <O> Iterable<? extends O> getAll(TypeToken<O> type) {
+        // Empty on purpose
         return null;
     }
 
@@ -293,41 +309,48 @@ public class FakeContext implements Context {
 
         @Override
         public Cookie cookie(String name, String value) {
+            // Empty on purpose
             return null;
         }
 
         @Override
         public Cookie expireCookie(String name) {
+            // Empty on purpose
             return null;
         }
 
         @Override
         public Set<Cookie> getCookies() {
+            // Empty on purpose
             return null;
         }
 
         @Override
         public MutableHeaders getHeaders() {
+            // Empty on purpose
             return null;
         }
 
         @Override
         public Status getStatus() {
+            // Empty on purpose
             return null;
         }
 
         @Override
         public Response status(Status status) {
+            // Empty on purpose
             return null;
         }
 
         @Override
         public void send() {
-
+            // Empty on purpose
         }
 
         @Override
         public Response contentTypeIfNotSet(Supplier<CharSequence> contentType) {
+            // Empty on purpose
             return null;
         }
 
@@ -338,27 +361,27 @@ public class FakeContext implements Context {
 
         @Override
         public void send(CharSequence contentType, String body) {
-
+            // Empty on purpose
         }
 
         @Override
         public void send(byte[] bytes) {
-
+            // Empty on purpose
         }
 
         @Override
         public void send(CharSequence contentType, byte[] bytes) {
-
+            // Empty on purpose
         }
 
         @Override
         public void send(ByteBuf buffer) {
-
+            // Empty on purpose
         }
 
         @Override
         public void send(CharSequence contentType, ByteBuf buffer) {
-
+            // Empty on purpose
         }
 
         @Override
@@ -368,21 +391,23 @@ public class FakeContext implements Context {
 
         @Override
         public void sendFile(Path file) {
-
+            // Empty on purpose
         }
 
         @Override
         public void sendStream(Publisher<? extends ByteBuf> stream) {
-
+            // Empty on purpose
         }
 
         @Override
         public Response beforeSend(Action<? super Response> responseFinalizer) {
+            // Empty on purpose
             return null;
         }
 
         @Override
         public Response noCompress() {
+            // Empty on purpose
             return null;
         }
     }

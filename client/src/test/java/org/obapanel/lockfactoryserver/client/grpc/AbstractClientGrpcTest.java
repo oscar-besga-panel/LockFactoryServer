@@ -13,8 +13,12 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
@@ -64,6 +68,23 @@ public class AbstractClientGrpcTest {
     }
 
     @Test
+    public void buildClientTry1() {
+        String name;
+        AbstractBlockingStub stub;
+        AbstractFutureStub asyncStub;
+        try(TestAbstractClientWithAsyncGrpc testAbstractClientWithAsyncGrpcTry1 = new TestAbstractClientWithAsyncGrpc()){
+            name = testAbstractClientWithAsyncGrpcTry1.getName();
+            stub = testAbstractClientWithAsyncGrpcTry1.getStub();
+            asyncStub = testAbstractClientWithAsyncGrpcTry1.getAsyncStub();
+        };
+        assertEquals("TestAbstractClientWithAsyncGrpc", name);
+        assertNotNull(stub);
+        assertNotNull(asyncStub);
+        verify(managedChannelBuilder).build();
+        verify(managedChannel).shutdown();
+    }
+
+    @Test
     public void buildClient2() {
         TestAbstractClientWithAsyncGrpc testAbstractClientWithAsyncGrpc2 = new TestAbstractClientWithAsyncGrpc(managedChannel);
         testAbstractClientWithAsyncGrpc2.close();
@@ -74,6 +95,23 @@ public class AbstractClientGrpcTest {
         verify(managedChannel, never()).shutdown();
     }
 
+
+    @Test
+    public void buildClient3() throws InterruptedException {
+        Semaphore inner = new Semaphore(0);
+        TestAbstractClientWithAsyncGrpc testAbstractClientWithAsyncGrpc3 = new TestAbstractClientWithAsyncGrpc(managedChannel);
+        testAbstractClientWithAsyncGrpc3.lazyLocalExecutor().submit(() -> {
+            inner.release();
+        });
+        boolean acquired = inner.tryAcquire(1, 1500, TimeUnit.MILLISECONDS);
+        testAbstractClientWithAsyncGrpc3.close();
+        assertEquals("TestAbstractClientWithAsyncGrpc", testAbstractClientWithAsyncGrpc3.getName());
+        assertNotNull(testAbstractClientWithAsyncGrpc3.getStub());
+        assertNotNull(testAbstractClientWithAsyncGrpc3.getAsyncStub());
+        assertTrue(acquired);
+        verify(managedChannelBuilder, never()).build();
+        verify(managedChannel, never()).shutdown();
+    }
 
     private class TestAbstractClientWithAsyncGrpc extends AbstractClientGrpc {
 

@@ -18,6 +18,8 @@ import org.obapanel.lockfactoryserver.core.grpc.AwaitWithTimeout;
 import org.obapanel.lockfactoryserver.core.grpc.CountDownLatchServerGrpc;
 import org.obapanel.lockfactoryserver.core.grpc.NameCount;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
@@ -51,7 +53,9 @@ public class CountDownLatchClientGrpcTest {
 
     private final int currentCount = ThreadLocalRandom.current().nextInt(5,100);;
 
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+
+    private final List<FakeListenableFuture> listenableFutures = new ArrayList<>();
 
     @Before
     public void setup() {
@@ -64,14 +68,17 @@ public class CountDownLatchClientGrpcTest {
         when(stub.getCount(any(StringValue.class))).thenReturn(Int32Value.of(currentCount));
         when(stub.await(any(StringValue.class))).thenReturn(Empty.getDefaultInstance());
         when(stub.tryAwaitWithTimeOut(any(AwaitWithTimeout.class))).thenReturn(BoolValue.of(true));
-        when(futureStub.asyncAwait(any(StringValue.class))).thenAnswer(ioc ->
-            new FakeListenableFuture<Empty>(Empty.newBuilder().build()).execute()
-        );
+        when(futureStub.asyncAwait(any(StringValue.class))).thenAnswer(ioc -> {
+            FakeListenableFuture f = new FakeListenableFuture<Empty>(Empty.newBuilder().build()).execute();
+            listenableFutures.add(f);
+            return f;
+        });
         countDownLatchClientGrpc = new CountDownLatchClientGrpc(managedChannel, name);
     }
 
     @After
     public void tearsDown() {
+        listenableFutures.forEach(FakeListenableFuture::close);
         mockedStaticCountDownLatchServerGrpc.close();
         executorService.shutdown();
     }
