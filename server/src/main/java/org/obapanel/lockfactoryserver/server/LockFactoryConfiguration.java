@@ -18,6 +18,9 @@ public class LockFactoryConfiguration {
     public static final String GRPC_SERVER_PORT = "grpcServerPort";
     public static final String REST_SERVER_ACTIVE = "restServerActive";
     public static final String REST_SERVER_PORT = "restServerPort";
+    public static final String REST_CONNECT_QUEUE_SIZE = "restConnectQueueSize";
+    public static final String REST_CONNECT_TIMEOUT_MILIS = "restConnectTimeoutMilis";
+    public static final String REST_SERVER_THREADS = "restServerThreads";
 
     public static final String LOCK_ENABLED = "lockEnabled";
     public static final String SEMAPHORE_ENABLED = "semaphoreEnabled";
@@ -36,6 +39,9 @@ public class LockFactoryConfiguration {
     public static final String DEFAULT_GRPC_SERVER_PORT = "50051";
     public static final String DEFAULT_REST_SERVER_ACTIVE = TRUE;
     public static final String DEFAULT_REST_SERVER_PORT = "8080";
+    public static final String DEFAULT_REST_CONNECT_QUEUE_SIZE = "200";
+    public static final String DEFAULT_REST_CONNECT_TIMEOUT_MILIS = "30000";
+    public static final String DEFAULT_REST_SERVER_THREADS = "4"; //DEFAULT_THREADS = Runtime.getRuntime().availableProcessors() * 2
 
     public static final String DEFAULT_LOCK_ENABLED = TRUE;
     public static final String DEFAULT_SEMAPHORE_ENABLED = TRUE;
@@ -48,8 +54,8 @@ public class LockFactoryConfiguration {
     public static final String DEFAULT_CACHE_CHECK_CONTINUOUSLY = TRUE;
 
 //     checking
-    public static final String DEFAULT_SYNCHRONIZED_SERVICES = FALSE;
-//    public static final String DEFAULT_SYNCHRONIZED_SERVICES = TRUE;
+//    public static final String DEFAULT_SYNCHRONIZED_SERVICES = FALSE;
+    public static final String DEFAULT_SYNCHRONIZED_SERVICES = TRUE;
 
 
 
@@ -103,6 +109,18 @@ public class LockFactoryConfiguration {
         return Integer.parseInt(properties.getProperty(REST_SERVER_PORT, DEFAULT_REST_SERVER_PORT));
     }
 
+    public int getRestConnectQueueSize() {
+        return Integer.parseInt(properties.getProperty(REST_CONNECT_QUEUE_SIZE, DEFAULT_REST_CONNECT_QUEUE_SIZE));
+    }
+
+    public int getRestConnectTimeoutMilis() {
+        return Integer.parseInt(properties.getProperty(REST_CONNECT_TIMEOUT_MILIS, DEFAULT_REST_CONNECT_TIMEOUT_MILIS));
+    }
+
+    public int getRestServerThreads() {
+        return Integer.parseInt(properties.getProperty(REST_SERVER_THREADS, DEFAULT_REST_SERVER_THREADS));
+    }
+
     public boolean isLockEnabled() {
         return Boolean.parseBoolean(properties.getProperty(LOCK_ENABLED, DEFAULT_LOCK_ENABLED));
     }
@@ -136,5 +154,6 @@ public class LockFactoryConfiguration {
     public boolean isSynchronizedServices() {
         return Boolean.parseBoolean(properties.getProperty(SYNCHRONIZED_SERVICES, DEFAULT_SYNCHRONIZED_SERVICES));
     }
+
 
 }

@@ -44,6 +44,9 @@ public class RestConnection implements LockFactoryConnection {
                 serverConfig( serverConfigBuilder -> {
                     serverConfigBuilder.development(false);
                     serverConfigBuilder.port(configuration.getRestServerPort());
+                    serverConfigBuilder.connectQueueSize(configuration.getRestConnectQueueSize());
+                    serverConfigBuilder.connectTimeoutMillis(configuration.getRestConnectTimeoutMilis());
+                    serverConfigBuilder.threads( configuration.getRestServerThreads());
                     serverConfigBuilder.onError(throwable ->
                         LOGGER.error("Error inside RestConnection ratpackServer ", throwable)
                     );

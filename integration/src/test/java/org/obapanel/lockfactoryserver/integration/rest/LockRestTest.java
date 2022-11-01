@@ -132,7 +132,7 @@ public class LockRestTest {
         Semaphore inner = new Semaphore(0);
         int lockNums = 3;
         for(int i=0; i < lockNums; i++) {
-            int sleep = (i + 1) * ThreadLocalRandom.current().nextInt(60, 120);
+            int sleep = (i + 1) * ThreadLocalRandom.current().nextInt(20, 120);
             executorService.submit(() -> {
                 Thread.sleep(sleep);
                 LockClientRest lockClientRest = generateLockClientRest(currentLockName);
@@ -142,7 +142,7 @@ public class LockRestTest {
                 return Void.class;
             });
         }
-        boolean acquired = inner.tryAcquire(lockNums, 1500, TimeUnit.MILLISECONDS);
+        boolean acquired = inner.tryAcquire(lockNums, 2500, TimeUnit.MILLISECONDS);
         assertTrue(acquired);
     }
 
@@ -165,7 +165,7 @@ public class LockRestTest {
             });
             futures.add(f);
         }
-        boolean acquired = inner.tryAcquire(lockNums, 1500, TimeUnit.MILLISECONDS);
+        boolean acquired = inner.tryAcquire(lockNums, 3500, TimeUnit.MILLISECONDS);
         assertTrue(acquired);
         for(Future<String> f: futures) {
             assertEquals("x", f.get(500, TimeUnit.MILLISECONDS));

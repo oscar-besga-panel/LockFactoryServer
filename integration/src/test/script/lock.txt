@@ -33,3 +33,7 @@ curl http://localhost:8080/semaphore/current/semaphoreGrpc999x1663252407692
 curl http://localhost:8080/management/shutdownServer
 
 curl http://localhost:8080/management/isRunning
+
+curl http://127.0.0.1:8080/countDownLatch/countDown/codolaRest001x1666890843705
+
+curl http://127.0.0.1:8080/countDownLatch/countDown/codolaRest001x1666890987319

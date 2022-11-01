@@ -3,9 +3,11 @@ package org.obapanel.lockfactoryserver.client.rest;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.StatusLine;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.junit.After;
@@ -35,6 +37,9 @@ import static org.mockito.Mockito.when;
 public class SemaphoreClientRestTest {
 
     @Mock
+    private HttpClientBuilder httpClientBuilder;
+
+    @Mock
     private CloseableHttpClient httpclient;
 
     @Mock
@@ -42,6 +47,8 @@ public class SemaphoreClientRestTest {
 
     @Mock
     private HttpEntity httpEntity;
+
+    private MockedStatic<HttpClientBuilder> mockedStaticHttpClientBuilder;
 
     private MockedStatic<HttpClients> mockedStaticHttpClient;
 
@@ -59,6 +66,10 @@ public class SemaphoreClientRestTest {
     public void setup() throws IOException {
         mockedStaticHttpClient = Mockito.mockStatic(HttpClients.class);
         mockedStaticHttpClient.when(() -> HttpClients.createDefault() ).thenReturn(httpclient);
+        mockedStaticHttpClientBuilder = Mockito.mockStatic(HttpClientBuilder.class);
+        mockedStaticHttpClientBuilder.when(() -> HttpClientBuilder.create() ).thenReturn(httpClientBuilder);
+        when(httpClientBuilder.setDefaultRequestConfig(any(RequestConfig.class))).thenReturn(httpClientBuilder);
+        when(httpClientBuilder.build()).thenReturn(httpclient);
         when(httpclient.execute(any(HttpGet.class))).thenAnswer(ioc ->{
             finalRequest.set(ioc.getArgument(0));
             return httpResponse;
@@ -92,6 +103,7 @@ public class SemaphoreClientRestTest {
     public void tearsDown() {
         mockedStaticHttpClient.close();
         mockedStaticEntityUtils.close();
+        mockedStaticHttpClientBuilder.close();
     }
 
     @Test
