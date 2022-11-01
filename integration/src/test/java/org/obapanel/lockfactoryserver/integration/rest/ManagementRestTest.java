@@ -11,6 +11,12 @@ import org.obapanel.lockfactoryserver.server.LockFactoryServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -75,6 +81,46 @@ public class ManagementRestTest {
         boolean running = managementClientRest.isRunning();
         assertTrue(running);
         LOGGER.debug("test isRunning fin <<<");
+    }
+
+    @Test
+    public void isRunningMultipleTest() {
+        LOGGER.debug("test isRunningMultipleTest ini >>>");
+        final int count = ThreadLocalRandom.current().nextInt(5,12);
+        LOGGER.debug("test isRunningMultipleTest count >>> {}", count);
+        final List<Thread> threadList = new ArrayList<>(count);
+        final List<AtomicBoolean> results = Collections.synchronizedList(new ArrayList<>(count));
+        for(int i = 0; i < count; i++) {
+            final int num = i + 1;
+            Thread ti = new Thread(() -> {
+                final AtomicBoolean running = new AtomicBoolean(false);
+                try {
+                    int sleep = ThreadLocalRandom.current().nextInt(1, 5 + num );
+                    Thread.sleep(sleep);
+                    ManagementClientRest managementClientRest = generateManagementClientRest();
+                    boolean response = managementClientRest.isRunning();
+                    running.set(response);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                } finally {
+                    results.add(running);
+                }
+            });
+            ti.setName("ti_" + num);
+            threadList.add(ti);
+        }
+        threadList.forEach(Thread::start);
+        threadList.forEach(thread -> {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        results.forEach( running -> {
+            assertTrue(running.get());
+        });
+        LOGGER.debug("test isRunningMultipleTest fin <<<");
     }
 
     @Test
