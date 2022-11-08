@@ -74,6 +74,7 @@ public abstract class AbstractClientRest implements AutoCloseable {
 
     private String innerRequest(String operation, CloseableHttpClient httpclient) {
         HttpGet httpGet = new HttpGet(baseUrl + operation);
+        // httpGet.setHeader("Connection", "close");
         LOGGER.debug("{}] created get {}", _num, httpGet);
         try (CloseableHttpResponse response = httpclient.execute(httpGet)) {
             LOGGER.debug("{}] executed get {}", _num, response);

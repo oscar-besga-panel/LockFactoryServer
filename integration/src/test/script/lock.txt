@@ -27,13 +27,16 @@ curl http://localhost:8080/semaphore/release/mySemaphore_1Rest
 
 curl http://localhost:8080/semaphore/release/mySemaphore_1Rest/11
 
-
 curl http://localhost:8080/semaphore/current/semaphoreGrpc999x1663252407692
 
 curl http://localhost:8080/management/shutdownServer
 
 curl http://localhost:8080/management/isRunning
 
-curl http://127.0.0.1:8080/countDownLatch/countDown/codolaRest001x1666890843705
+curl http://127.0.0.1:8080/countDownLatch/createNew/codolaRest001x001/2
 
-curl http://127.0.0.1:8080/countDownLatch/countDown/codolaRest001x1666890987319
+curl http://127.0.0.1:8080/countDownLatch/await/codolaRest001x001
+
+curl http://127.0.0.1:8080/countDownLatch/countDown/codolaRest001x001
+
+curl http://127.0.0.1:8080/countDownLatch/countDown/codolaRest001x001

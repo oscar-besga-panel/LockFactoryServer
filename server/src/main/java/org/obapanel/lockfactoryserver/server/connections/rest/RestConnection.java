@@ -42,7 +42,7 @@ public class RestConnection implements LockFactoryConnection {
         final Registry userRegistry = getRegistryWithHandlers();
         ratpackServer = RatpackServer.of(server -> server.
                 serverConfig( serverConfigBuilder -> {
-                    serverConfigBuilder.development(false);
+                    // serverConfigBuilder.development(true);
                     serverConfigBuilder.port(configuration.getRestServerPort());
                     serverConfigBuilder.connectQueueSize(configuration.getRestConnectQueueSize());
                     serverConfigBuilder.connectTimeoutMillis(configuration.getRestConnectTimeoutMilis());
@@ -87,6 +87,7 @@ public class RestConnection implements LockFactoryConnection {
      */
     Action<Chain> getAction(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices> services) {
         return (chain) -> {
+            // chain.all(RequestLogger.ncsa());
             chain.get("", ctx -> ctx.getResponse().send("LockFactoryServer"));
             if (configuration.isManagementEnabled()) {
                 chain.prefix("management", getActionManagement((ManagementService) services.get(Services.MANAGEMENT)));
@@ -98,9 +99,10 @@ public class RestConnection implements LockFactoryConnection {
                 chain.prefix("semaphore", getActionSemaphore((SemaphoreService) services.get(Services.SEMAPHORE)));
             }
             if (configuration.isCountDownLatchEnabled()) {
-                Action<Chain> actionChain = getActionCountDownLatch((CountDownLatchService) services.get(Services.COUNTDOWNLATCH));
-                chain.prefix("countdownlatch", actionChain);
-                chain.prefix("countDownLatch", actionChain);
+                Action<Chain> actionChain1 = getActionCountDownLatch((CountDownLatchService) services.get(Services.COUNTDOWNLATCH));
+                chain.prefix("countdownlatch", actionChain1);
+                Action<Chain> actionChain2 = getActionCountDownLatch((CountDownLatchService) services.get(Services.COUNTDOWNLATCH));
+                chain.prefix("countDownLatch", actionChain2);
             }
             chain.get("about", ctx -> ctx.getResponse().send("LockFactoryServer (t " + System.currentTimeMillis() + ")"));
         };
