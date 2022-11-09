@@ -11,8 +11,8 @@ import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.connections.Connections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ratpack.core.server.RatpackServer;
 import ratpack.func.Action;
-import ratpack.server.RatpackServer;
 
 import java.util.concurrent.atomic.AtomicReference;
 

@@ -11,12 +11,12 @@ import org.obapanel.lockfactoryserver.server.service.management.ManagementServic
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ratpack.error.ClientErrorHandler;
-import ratpack.error.ServerErrorHandler;
+import ratpack.core.error.ClientErrorHandler;
+import ratpack.core.error.ServerErrorHandler;
+import ratpack.core.handling.Chain;
+import ratpack.core.server.RatpackServer;
+import ratpack.exec.registry.Registry;
 import ratpack.func.Action;
-import ratpack.handling.Chain;
-import ratpack.registry.Registry;
-import ratpack.server.RatpackServer;
 
 import java.util.Map;
 

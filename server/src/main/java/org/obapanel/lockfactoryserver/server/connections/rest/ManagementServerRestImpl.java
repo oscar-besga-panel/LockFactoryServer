@@ -3,7 +3,7 @@ package org.obapanel.lockfactoryserver.server.connections.rest;
 import org.obapanel.lockfactoryserver.server.service.management.ManagementService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ratpack.handling.Context;
+import ratpack.core.handling.Context;
 
 /**
  * Class that connects a REST petition with the management service

@@ -4,7 +4,7 @@ import org.obapanel.lockfactoryserver.core.LockStatus;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ratpack.handling.Context;
+import ratpack.core.handling.Context;
 
 import java.util.concurrent.TimeUnit;
 

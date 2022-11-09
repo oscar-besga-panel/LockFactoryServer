@@ -55,6 +55,7 @@ public class CountDownLatchService implements LockFactoryServices {
         CountDownLatch countDownLatch = countDownLatchCache.getData(name);
         if (countDownLatch != null) {
             countDownLatch.countDown();
+            LOGGER.info("service> countDown name {} done now {}", name, countDownLatch.getCount());
         }
     }
 
