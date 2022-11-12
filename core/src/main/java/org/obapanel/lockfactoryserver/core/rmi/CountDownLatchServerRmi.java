@@ -12,6 +12,14 @@ public interface CountDownLatchServerRmi extends Remote {
     String RMI_NAME = "CountDownLatchServerRmi";
 
     /**
+     * Creates a new countDownLatch with the count of 1
+     * @param name Name of the countDownLatch
+     * @return true if created, false if already exists
+     * @throws RemoteException if anything goes wrong
+     */
+    boolean createNew(String name) throws RemoteException;
+
+    /**
      * Creates a new countDownLatch with the specified count
      * @param name Name of the countDownLatch
      * @param count Count to release
@@ -26,6 +34,14 @@ public interface CountDownLatchServerRmi extends Remote {
      * @throws RemoteException if anything goes wrong
      */
     void countDown(String name)  throws RemoteException;
+
+    /**
+     * Decreases the count of the countDownLatch by count
+     * @param name Name of the countDownLatch
+     * @param count Counts to decrease
+     * @throws RemoteException if anything goes wrong
+     */
+    void countDown(String name, int count)  throws RemoteException;
 
     /**
      * Get the current count

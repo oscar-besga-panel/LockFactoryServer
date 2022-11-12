@@ -151,6 +151,18 @@ public class CountDownLatchClientRestTest {
     }
 
     @Test
+    public void countDown2Test() throws IOException {
+        finalResult.set("ok");
+        countDownLatchClientRest.countDown(3);
+        String finalUrl = finalUrl();
+        assertTrue(finalUrl.contains("countDownLatch"));
+        assertTrue(finalUrl.contains("countDown"));
+        assertTrue(finalUrl.contains("3"));
+        assertTrue(finalUrl.contains(name));
+        verify(httpclient).execute(any(HttpGet.class));
+    }
+
+    @Test
     public void awaitTest() throws IOException {
         finalResult.set("ok");
         countDownLatchClientRest.await();

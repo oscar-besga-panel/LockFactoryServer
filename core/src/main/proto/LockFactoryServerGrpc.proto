@@ -149,7 +149,7 @@ service CountDownLatchServer {
    * Decreases the count of the countDownLatch by 1
    * requires Name of the countDownLatch
    */
-  rpc countDown(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
+  rpc countDown(NameCount) returns (google.protobuf.Empty) {}
 
   /*
    * Get the current count
@@ -208,7 +208,7 @@ message NamePermitsWithTimeout {
 
 message NameCount {
   string name = 1;
-  uint32 permits = 2;
+  optional uint32 permits = 2;
 }
 
 message AwaitWithTimeout {

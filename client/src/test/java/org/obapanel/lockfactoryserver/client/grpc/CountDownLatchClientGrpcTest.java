@@ -96,10 +96,19 @@ public class CountDownLatchClientGrpcTest {
 
     @Test
     public void countDownTest() {
-        ArgumentCaptor<StringValue> captor = ArgumentCaptor.forClass(StringValue.class);
+        ArgumentCaptor<NameCount> captor = ArgumentCaptor.forClass(NameCount.class);
         countDownLatchClientGrpc.countDown();
         verify(stub).countDown(captor.capture());
-        assertEquals(name, captor.getValue().getValue());
+        assertEquals(name, captor.getValue().getName());
+    }
+
+    @Test
+    public void countDown2Test() {
+        ArgumentCaptor<NameCount> captor = ArgumentCaptor.forClass(NameCount.class);
+        countDownLatchClientGrpc.countDown(5);
+        verify(stub).countDown(captor.capture());
+        assertEquals(name, captor.getValue().getName());
+        assertEquals(5, captor.getValue().getPermits());
     }
 
     @Test

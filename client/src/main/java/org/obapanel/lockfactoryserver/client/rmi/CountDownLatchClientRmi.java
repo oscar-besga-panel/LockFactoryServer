@@ -32,6 +32,10 @@ public class CountDownLatchClientRmi extends AbstractClientRmi<CountDownLatchSer
         getServerRmi().countDown(getName());
     }
 
+    public void countDown(int count) throws RemoteException {
+        getServerRmi().countDown(getName(), count);
+    }
+
     public boolean isActive() throws RemoteException {
         return getServerRmi().getCount(getName()) > 0;
     }

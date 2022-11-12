@@ -50,8 +50,20 @@ public class CountDownLatchClientGrpc
     }
 
     public void countDown() {
-        getStub().countDown(getStringValueName());
+        NameCount nameCount = NameCount.newBuilder().
+                setName(getName()).
+                build();
+        getStub().countDown(nameCount);
     }
+
+    public void countDown(int count) {
+        NameCount nameCount = NameCount.newBuilder().
+                setName(getName()).
+                setPermits(count).
+                build();
+        getStub().countDown(nameCount);
+    }
+
 
     public boolean isActive() {
         Int32Value int32Value = getStub().getCount(getStringValueName());

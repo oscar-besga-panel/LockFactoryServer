@@ -68,6 +68,12 @@ public class CountDownLatchClientRmiTest {
     }
 
     @Test
+    public void countDown2Test() throws RemoteException {
+        countDownLatchClientRmi.countDown(3);
+        verify(countDownLatchServerRmi).countDown(eq(name), eq(3));
+    }
+
+    @Test
     public void getCountTest() throws RemoteException {
         int result = countDownLatchClientRmi.getCount();
         assertEquals(count, result);

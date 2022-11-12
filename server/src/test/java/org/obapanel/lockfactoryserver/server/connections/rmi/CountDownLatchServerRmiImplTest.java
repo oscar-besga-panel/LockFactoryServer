@@ -43,6 +43,14 @@ public class CountDownLatchServerRmiImplTest {
     }
 
     @Test
+    public void countDown2Test() throws RemoteException {
+        String name = "codola_" + System.currentTimeMillis();
+        int count = ThreadLocalRandom.current().nextInt(3,7);
+        countDownLatchServerRmi.countDown(name, count);
+        verify(countDownLatchService).countDown(eq(name), eq(count));
+    }
+
+    @Test
     public void getCountTest() throws RemoteException {
         String name = "codola_" + System.currentTimeMillis();
         countDownLatchServerRmi.getCount(name);

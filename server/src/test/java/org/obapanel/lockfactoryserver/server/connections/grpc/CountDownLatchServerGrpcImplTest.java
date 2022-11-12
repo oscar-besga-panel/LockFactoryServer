@@ -4,7 +4,6 @@ import com.google.protobuf.BoolValue;
 import com.google.protobuf.Empty;
 import com.google.protobuf.Int32Value;
 import com.google.protobuf.StringValue;
-import io.netty.util.internal.ThreadLocalRandom;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,6 +16,7 @@ import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLat
 
 import java.rmi.RemoteException;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
@@ -65,9 +65,26 @@ public class CountDownLatchServerGrpcImplTest {
     @Test
     public void countDownTest() {
         String name = "codola2_" + System.currentTimeMillis();
+        NameCount nameCount = NameCount.newBuilder().
+                setName(name).
+                build();
         FakeStreamObserver<Empty> responseObserver = new FakeStreamObserver<>();
-        countDownLatchServerGrpc.countDown(StringValue.of(name), responseObserver);
+        countDownLatchServerGrpc.countDown(nameCount, responseObserver);
         verify(countDownLatchService).countDown(eq(name));
+        assertTrue(responseObserver.isCompleted());
+    }
+
+    @Test
+    public void countDown2Test() {
+        String name = "codola2_" + System.currentTimeMillis();
+        int count = ThreadLocalRandom.current().nextInt(3, 5);
+        NameCount nameCount = NameCount.newBuilder().
+                setName(name).
+                setPermits(count).
+                build();
+        FakeStreamObserver<Empty> responseObserver = new FakeStreamObserver<>();
+        countDownLatchServerGrpc.countDown(nameCount, responseObserver);
+        verify(countDownLatchService).countDown(eq(name), eq(count));
         assertTrue(responseObserver.isCompleted());
     }
 

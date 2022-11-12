@@ -33,7 +33,12 @@ public class CountDownLatchServerGrpcImpl extends CountDownLatchServerGrpc.Count
     @Override
     public void createNew(NameCount request, StreamObserver<BoolValue> responseObserver) {
         String name = request.getName();
-        int count = request.getPermits();
+        int count;
+        if (request.hasPermits()) {
+            count = request.getPermits();
+        } else {
+            count = 1;
+        }
         LOGGER.info("grpc server> cretateNew name {} count {}", name, count);
         boolean result = countDownLatchService.createNew(name, count);
         responseObserver.onNext(BoolValue.of(result));
@@ -41,10 +46,16 @@ public class CountDownLatchServerGrpcImpl extends CountDownLatchServerGrpc.Count
     }
 
     @Override
-    public void countDown(StringValue request, StreamObserver<Empty> responseObserver) {
-        String name = request.getValue();
-        LOGGER.info("grpc server> countDown name {}", name);
-        countDownLatchService.countDown(name);
+    public void countDown(NameCount request, StreamObserver<Empty> responseObserver) {
+        String name = request.getName();
+        if (request.hasPermits()) {
+            int count = request.getPermits();
+            LOGGER.info("grpc server> countDown name {} count {}", name, count);
+            countDownLatchService.countDown(name, count);
+        } else {
+            LOGGER.info("grpc server> countDown name {}", name);
+            countDownLatchService.countDown(name);
+        }
         responseObserver.onNext(Empty.getDefaultInstance());
         responseObserver.onCompleted();
     }

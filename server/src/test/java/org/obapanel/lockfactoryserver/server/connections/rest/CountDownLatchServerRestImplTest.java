@@ -60,11 +60,11 @@ public class CountDownLatchServerRestImplTest {
     @Test
     public void countDown2Test() {
         String name = "codola_" + System.currentTimeMillis();
-        String response = countDownLatchServerRest.countDown("/countdown", Arrays.asList(name, "2"), HttpRequest.EMPTY_REQUEST);
-        verify(countDownLatchService).countDown(eq(name), anyInt());
+        int count = ThreadLocalRandom.current().nextInt(3, 5);
+        String response = countDownLatchServerRest.countDown("/countdown", Arrays.asList(name, "" + count), HttpRequest.EMPTY_REQUEST);
+        verify(countDownLatchService).countDown(eq(name), eq(count));
         assertEquals("ok", response);
     }
-
 
     @Test
     public void getCountTest() {

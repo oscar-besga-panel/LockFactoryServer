@@ -19,6 +19,12 @@ public class CountDownLatchServerRmiImpl implements CountDownLatchServerRmi {
     }
 
     @Override
+    public boolean createNew(String name) throws RemoteException {
+        LOGGER.info("rmi  server> createNew name {} count 1", name);
+        return countDownLatchService.createNew(name, 1);
+    }
+
+    @Override
     public boolean createNew(String name, int count) throws RemoteException {
         LOGGER.info("rmi  server> createNew name {} count {}", name, count);
         return countDownLatchService.createNew(name, count);
@@ -28,6 +34,12 @@ public class CountDownLatchServerRmiImpl implements CountDownLatchServerRmi {
     public void countDown(String name) throws RemoteException {
         LOGGER.info("rmi  server> countDown name {}", name);
         countDownLatchService.countDown(name);
+    }
+
+    @Override
+    public void countDown(String name, int count) throws RemoteException {
+        LOGGER.info("rmi  server> countDown name {} count {}", name, count);
+        countDownLatchService.countDown(name, count);
     }
 
     @Override

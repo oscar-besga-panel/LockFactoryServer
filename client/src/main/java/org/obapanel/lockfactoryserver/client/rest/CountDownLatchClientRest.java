@@ -33,6 +33,11 @@ public class CountDownLatchClientRest extends AbstractClientRest {
         LOGGER.debug("countDown name {} response {}", getName(), response);
     }
 
+    public void countDown(int count) {
+        String response = requestWithUrl( "countDown", getName(), Integer.toString(count));
+        LOGGER.debug("countDown name {} response {}", getName(), response);
+    }
+
     public boolean isActive() {
         return getCount() > 0;
     }
