@@ -1,5 +1,7 @@
 curl http://localhost:8080/about
 
+curl http://localhost:8080/lock/status/myLock_1Rest
+
 curl http://localhost:8080/lock/lock/myLock_1Rest
 curl http://localhost:8080/lock/tryLock/myLock_2Rest
 

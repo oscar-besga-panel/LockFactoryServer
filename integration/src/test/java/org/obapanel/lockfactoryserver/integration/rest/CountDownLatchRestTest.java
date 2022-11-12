@@ -4,7 +4,6 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.obapanel.lockfactoryserver.client.rest.CountDownLatchClientRest;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
@@ -25,7 +24,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 public class CountDownLatchRestTest {
 
@@ -97,12 +95,7 @@ public class CountDownLatchRestTest {
         int count1 = countDownLatchClientRest.getCount();
         countDownLatchClientRest.createNew(count);
         int count2 = countDownLatchClientRest.getCount();
-        try {
-            countDownLatchClientRest.createNew(3);
-            fail("IllegalStateException expected");
-        } catch (IllegalStateException e) {
-            assertTrue(e.getMessage().contains("ERROR in response baseUrl"));
-        }
+        boolean recreate = countDownLatchClientRest.createNew(3);
         int count3 = countDownLatchClientRest.getCount();
         countDownLatchClientRest.countDown();
         int count4 = countDownLatchClientRest.getCount();
@@ -110,8 +103,8 @@ public class CountDownLatchRestTest {
         assertEquals(count, count2);
         assertEquals(count, count3);
         assertEquals(count - 1, count4);
+        assertFalse(recreate);
     }
-
 
     @Test
     public void awaitOneTest() throws InterruptedException {
@@ -158,8 +151,6 @@ public class CountDownLatchRestTest {
         assertFalse(countDownLatchClientRest.isActive());
     }
 
-    //TODO Sometimes Works in local
-    @Ignore
     @Test
     public void awaitManyTest() throws InterruptedException {
         Semaphore inner = new Semaphore(0);
@@ -196,8 +187,6 @@ public class CountDownLatchRestTest {
         assertFalse(countDownLatchClientRest.isActive());
     }
 
-    //TODO Sometimes Works in local
-    @Ignore
     @Test
     public void awaitManyPreTest() throws InterruptedException {
         Semaphore inner = new Semaphore(0);

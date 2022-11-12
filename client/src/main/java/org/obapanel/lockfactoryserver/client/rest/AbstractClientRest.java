@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class AbstractClientRest implements AutoCloseable {
@@ -73,7 +74,9 @@ public abstract class AbstractClientRest implements AutoCloseable {
     }
 
     private String innerRequest(String operation, CloseableHttpClient httpclient) {
-        HttpGet httpGet = new HttpGet(baseUrl + operation);
+        int num = ThreadLocalRandom.current().nextInt(1_000_0000);
+        HttpGet httpGet = new HttpGet(baseUrl + operation + "?_=" + System.currentTimeMillis() + "_" + num);
+        httpGet.addHeader("_", System.currentTimeMillis() +  "_" + num);
         // httpGet.setHeader("Connection", "close");
         LOGGER.debug("{}] created get {}", _num, httpGet);
         try (CloseableHttpResponse response = httpclient.execute(httpGet)) {

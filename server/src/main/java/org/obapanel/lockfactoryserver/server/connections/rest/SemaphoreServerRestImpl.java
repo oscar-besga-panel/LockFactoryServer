@@ -1,10 +1,11 @@
 package org.obapanel.lockfactoryserver.server.connections.rest;
 
+import com.github.arteam.embedhttp.HttpRequest;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ratpack.handling.Context;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -22,49 +23,78 @@ public class SemaphoreServerRestImpl {
         this.semaphoreService = semaphoreService;
     }
 
+//    public String lock(String prefix, List<String> parameters, HttpRequest request) {
 
-    public void currentPermits(Context context) {
-        String name = context.getPathTokens().get("name");
+    public String currentPermits(String prefix, List<String> parameters, HttpRequest request) {
+        String name = parameters.get(0);
         LOGGER.info("rest server> semaphore currentPermits name {}", name);
         int response = semaphoreService.currentPermits(name);
-        context.getResponse().send(Integer.toString(response));
+        return Integer.toString(response);
     }
 
-    public void acquire(Context context) {
-        String name = context.getPathTokens().get("name");
-        int permits = Integer.parseInt(context.getPathTokens().getOrDefault("permits","1"));
+    public String acquire(String prefix, List<String> parameters, HttpRequest request) {
+        String name = parameters.get(0);
+        int permits;
+        if (parameters.size() > 1) {
+            permits = Integer.parseInt(parameters.get(1));
+        }  else {
+            permits = 1;
+        }
         LOGGER.info("rest server> semaphore acquire name {} permits {}", name, permits);
         semaphoreService.acquire(name, permits);
-        context.getResponse().send(OK);
+        return OK;
     }
 
-    public void tryAcquire(Context context) {
-        String name = context.getPathTokens().get("name");
-        int permits = Integer.parseInt(context.getPathTokens().getOrDefault("permits", "1"));
-        boolean response = semaphoreService.tryAcquire(name, permits);
+    public String tryAcquire(String prefix, List<String> parameters, HttpRequest request) {
+        String name = parameters.get(0);
+        int permits;
+        if (parameters.size() > 1) {
+            permits = Integer.parseInt(parameters.get(1));
+        }  else {
+            permits = 1;
+        }
         LOGGER.info("rest server> semaphore tryAcquire name {} permits {}", name, permits);
-        context.getResponse().send(Boolean.toString(response));
-
+        boolean response = semaphoreService.tryAcquire(name, permits);
+        return Boolean.toString(response);
     }
 
-    public void tryAcquireWithTimeOut(Context context) {
-        String name = context.getPathTokens().get("name");
-        int permits = Integer.parseInt(context.getPathTokens().getOrDefault("permits", "1"));
-        long timeOut = Long.parseLong(context.getPathTokens().get("timeOut"));
-        String timeUnitName = context.getPathTokens().getOrDefault("timeUnit", TimeUnit.MILLISECONDS.name());
-        TimeUnit timeUnit = TimeUnit.valueOf(timeUnitName.toUpperCase());
+    public String tryAcquireWithTimeOut(String prefix, List<String> parameters, HttpRequest request) {
+        String name = parameters.get(0);
+        int permits;
+        if (parameters.size() > 1) {
+            permits = Integer.parseInt(parameters.get(1));
+        }  else {
+            permits = 1;
+        }
+        long timeOut;
+        if (parameters.size() > 2) {
+            timeOut = Long.parseLong(parameters.get(2));
+        }  else {
+            timeOut = 1;
+        }
+        TimeUnit timeUnit;
+        if (parameters.size() > 3) {
+            timeUnit = TimeUnit.valueOf(parameters.get(3).toUpperCase());
+        }  else {
+            timeUnit = TimeUnit.MILLISECONDS;
+        }
         LOGGER.info("rest server> semaphore tryAcquireWithTimeOut name {} permits {} timeOut {} timeUnit {}",
                 name, permits, timeOut, timeUnit);
         boolean response = semaphoreService.tryAcquireWithTimeOut(name, permits, timeOut, timeUnit);
-        context.getResponse().send(Boolean.toString(response));
+        return Boolean.toString(response);
     }
 
-    public void release(Context context) {
-        String name = context.getPathTokens().get("name");
-        int permits = Integer.parseInt(context.getPathTokens().getOrDefault("permits","1"));
+    public String release(String prefix, List<String> parameters, HttpRequest request) {
+        String name = parameters.get(0);
+        int permits;
+        if (parameters.size() > 1) {
+            permits = Integer.parseInt(parameters.get(1));
+        }  else {
+            permits = 1;
+        }
         LOGGER.info("rest server> semaphore release name {} permits {}", name, permits);
         semaphoreService.release(name, permits);
-        context.getResponse().send(OK);
+        return OK;
     }
 
 }

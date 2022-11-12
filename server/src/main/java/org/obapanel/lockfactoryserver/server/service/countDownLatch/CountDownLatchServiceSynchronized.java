@@ -25,6 +25,12 @@ public final class CountDownLatchServiceSynchronized extends CountDownLatchServi
     }
 
     @Override
+    public synchronized void countDown(String name, int count) {
+        super.countDown(name, count);
+        this.notifyAll();
+    }
+
+    @Override
     public synchronized void countDown(String name) {
         super.countDown(name);
         this.notifyAll();

@@ -1,5 +1,7 @@
 package org.obapanel.lockfactoryserver.server.connections.rest;
 
+import com.github.arteam.embedhttp.EmbeddedHttpServer;
+import com.github.arteam.embedhttp.EmbeddedHttpServerBuilder;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,16 +13,14 @@ import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.connections.Connections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ratpack.func.Action;
-import ratpack.server.RatpackServer;
 
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.ExecutorService;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.obapanel.lockfactoryserver.server.UtilsForTest.mapOfMockServices;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -28,10 +28,11 @@ public class RestConnectionTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RestConnectionTest.class);
 
-//    private static Registry currentRmiRegistry;
+    @Mock
+    private EmbeddedHttpServerBuilder embeddedHttpServerBuilder;
 
     @Mock
-    private RatpackServer ratpackServer;
+    private EmbeddedHttpServer embeddedHttpServer;
 
     private RestConnection restConnection;
 
@@ -51,28 +52,25 @@ public class RestConnectionTest {
 
     @Test
     public void activateTest() throws Exception {
-        try (MockedStatic<RatpackServer> mockedStatic = Mockito.mockStatic(RatpackServer.class)) {
-            final AtomicReference<Action> actionHolder = new AtomicReference<>();
-            mockedStatic.when(() -> RatpackServer.of(any(Action.class))).
-                    thenAnswer(ioc -> {
-                        Action action = ioc.getArgument(0);
-                        actionHolder.set(action);
-                        return ratpackServer;
-                    });
+        try (MockedStatic<EmbeddedHttpServerBuilder> mockedStatic = Mockito.mockStatic(EmbeddedHttpServerBuilder.class)) {
+            mockedStatic.when(() -> EmbeddedHttpServerBuilder.createNew() ).thenReturn(embeddedHttpServerBuilder);
+            when(embeddedHttpServerBuilder.buildAndRun()).thenReturn(embeddedHttpServer);
             restConnection.activate(configuration, mapOfMockServices());
-            assertNotNull(actionHolder.get());
-            verify(ratpackServer, times(1)).start();
+            verify(embeddedHttpServerBuilder, times(1)).withExecutor(any(ExecutorService.class));
+            verify(embeddedHttpServerBuilder, times(1)).buildAndRun();
         }
     }
 
     @Test
     public void shutdownTest() throws Exception {
-        try (MockedStatic<RatpackServer> mockedStatic = Mockito.mockStatic(RatpackServer.class)) {
-            mockedStatic.when(() -> RatpackServer.of(any(Action.class))).
-                    thenAnswer(ioc -> ratpackServer);
+        try (MockedStatic<EmbeddedHttpServerBuilder> mockedStatic = Mockito.mockStatic(EmbeddedHttpServerBuilder.class)) {
+            mockedStatic.when(() -> EmbeddedHttpServerBuilder.createNew() ).thenReturn(embeddedHttpServerBuilder);
+            when(embeddedHttpServerBuilder.buildAndRun()).thenReturn(embeddedHttpServer);
             restConnection.activate(configuration, mapOfMockServices());
             restConnection.shutdown();
-            verify(ratpackServer, times(1)).stop();
+            verify(embeddedHttpServerBuilder, times(1)).withExecutor(any(ExecutorService.class));
+            verify(embeddedHttpServerBuilder, times(1)).buildAndRun();
+            verify(embeddedHttpServer, times(1)).stop();
         }
     }
 }

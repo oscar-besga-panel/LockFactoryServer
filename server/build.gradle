@@ -12,7 +12,6 @@ dependencies {
     implementation "io.netty:netty-handler-proxy:${nettyVersion}"
     implementation "io.netty:netty-resolver-dns:${nettyVersion}"
     implementation "io.grpc:grpc-netty:${grpcVersion}"
-    implementation "io.ratpack:ratpack-core:${ratpackVersion}"
 }
 
 group 'org.obapanel.lockfactoryserver.server'

@@ -1,13 +1,15 @@
 package org.obapanel.lockfactoryserver.server.connections.rest;
 
+import com.github.arteam.embedhttp.HttpRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.obapanel.lockfactoryserver.server.FakeContext;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -43,70 +45,52 @@ public class SemaphoreServerRestImplTest {
 
     @Test
     public void currentPermitsTest() {
-        String semaphoreName = "sem1" + System.currentTimeMillis();
-        FakeContext fakeContext = new FakeContext();
-        fakeContext.getPathTokens().put("name", semaphoreName);
-        semaphoreServerRest.currentPermits(fakeContext);
+        String semName = "sem1" + System.currentTimeMillis();
+        String result = semaphoreServerRest.currentPermits("sem/currentPermits", Arrays.asList(semName), HttpRequest.EMPTY_REQUEST);
         verify(semaphoreService).currentPermits(anyString());
-        assertEquals(0, Integer.parseInt(fakeContext.getFakeSentResponse()));
+        assertEquals(0, Integer.parseInt(result));
     }
 
     @Test
     public void acquireTest() {
-        String semaphoreName = "sem2" + System.currentTimeMillis();
-        FakeContext fakeContext = new FakeContext();
-        fakeContext.getPathTokens().put("name", semaphoreName);
-        fakeContext.getPathTokens().put("permits", "1");
-        semaphoreServerRest.acquire(fakeContext);
+        String semName = "sem2" + System.currentTimeMillis();
+        String result = semaphoreServerRest.acquire("sem/acquire", Arrays.asList(semName, "2"), HttpRequest.EMPTY_REQUEST);
         verify(semaphoreService).acquire(anyString(), anyInt());
-        assertEquals("ok", fakeContext.getFakeSentResponse());
+        assertEquals("ok", result);
     }
 
     @Test
     public void tryAcquireTest() {
-        String semaphoreName = "sem3" + System.currentTimeMillis();
-        FakeContext fakeContext = new FakeContext();
-        fakeContext.getPathTokens().put("name", semaphoreName);
-        fakeContext.getPathTokens().put("permits", "1");
-        semaphoreServerRest.tryAcquire(fakeContext);
+        String semName = "sem3" + System.currentTimeMillis();
+        String result = semaphoreServerRest.tryAcquire("sem/tryacquire", Arrays.asList(semName, "2"), HttpRequest.EMPTY_REQUEST);
         verify(semaphoreService).tryAcquire(anyString(), anyInt());
-        assertEquals("true", fakeContext.getFakeSentResponse());
+        assertEquals("true", result);
     }
 
     @Test
     public void tryAcquireWithTimeout1Test() {
-        String semaphoreName = "sem4" + System.currentTimeMillis();
-        FakeContext fakeContext = new FakeContext();
-        fakeContext.getPathTokens().put("name", semaphoreName);
-        fakeContext.getPathTokens().put("permits", "1");
-        fakeContext.getPathTokens().put("timeOut", "1");
-        fakeContext.getPathTokens().put("timeUnit", TimeUnit.MILLISECONDS.name());
-        semaphoreServerRest.tryAcquireWithTimeOut(fakeContext);
+        String semName = "sem4" + System.currentTimeMillis();
+        List<String> params = Arrays.asList(semName, "2", "1", TimeUnit.SECONDS.name());
+        String result = semaphoreServerRest.tryAcquireWithTimeOut("sem/tryacquire", params , HttpRequest.EMPTY_REQUEST);
         verify(semaphoreService).tryAcquireWithTimeOut(anyString(), anyInt(), anyLong(), any(TimeUnit.class));
-        assertEquals("true", fakeContext.getFakeSentResponse());
+        assertEquals("true", result);
     }
 
     @Test
     public void tryAcquireWithTimeout2Test() {
-        String semaphoreName = "sem4" + System.currentTimeMillis();
-        FakeContext fakeContext = new FakeContext();
-        fakeContext.getPathTokens().put("name", semaphoreName);
-        fakeContext.getPathTokens().put("permits", "1");
-        fakeContext.getPathTokens().put("timeOut", "1");
-        semaphoreServerRest.tryAcquireWithTimeOut(fakeContext);
+        String semName = "sem4" + System.currentTimeMillis();
+        List<String> params = Arrays.asList(semName, "2", "1");
+        String result = semaphoreServerRest.tryAcquireWithTimeOut("sem/tryacquire", params , HttpRequest.EMPTY_REQUEST);
         verify(semaphoreService).tryAcquireWithTimeOut(anyString(), anyInt(), anyLong(), any(TimeUnit.class));
-        assertEquals("true", fakeContext.getFakeSentResponse());
+        assertEquals("true", result);
     }
 
     @Test
     public void releaseTest() {
-        String semaphoreName = "semr" + System.currentTimeMillis();
-        FakeContext fakeContext = new FakeContext();
-        fakeContext.getPathTokens().put("name", semaphoreName);
-        fakeContext.getPathTokens().put("permits", "1");
-        semaphoreServerRest.release(fakeContext);
+        String semName = "sem5" + System.currentTimeMillis();
+        String result = semaphoreServerRest.release("sem/release", Arrays.asList(semName, "2"), HttpRequest.EMPTY_REQUEST);
         verify(semaphoreService).release(anyString(), anyInt());
-        assertEquals("ok", fakeContext.getFakeSentResponse());
+        assertEquals("ok", result);
     }
 
 }

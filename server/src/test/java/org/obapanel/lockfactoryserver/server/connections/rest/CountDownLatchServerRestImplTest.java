@@ -1,13 +1,15 @@
 package org.obapanel.lockfactoryserver.server.connections.rest;
 
+import com.github.arteam.embedhttp.HttpRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.obapanel.lockfactoryserver.server.FakeContext;
 import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchService;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
@@ -41,65 +43,70 @@ public class CountDownLatchServerRestImplTest {
     public void createNewTest() {
         String name = "codola_" + System.currentTimeMillis();
         int count = ThreadLocalRandom.current().nextInt(100);
-        FakeContext fakeContext = new FakeContext();
-        fakeContext.getPathTokens().put("name", name);
-        fakeContext.getPathTokens().put("count", Integer.toString(count));
-        countDownLatchServerRest.createNew(fakeContext);
+        List<String> parameters = Arrays.asList(name, "" + count);
+        String response = countDownLatchServerRest.createNew("/createNew", parameters, HttpRequest.EMPTY_REQUEST);
         verify(countDownLatchService).createNew(eq(name), eq(count));
-        assertEquals("true", fakeContext.getFakeSentResponse());
+        assertEquals("true", response);
     }
 
     @Test
     public void countDownTest() {
         String name = "codola_" + System.currentTimeMillis();
-        FakeContext fakeContext = new FakeContext();
-        fakeContext.getPathTokens().put("name", name);
-        countDownLatchServerRest.countDown(fakeContext);
+        String response = countDownLatchServerRest.countDown("/countdown", Arrays.asList(name), HttpRequest.EMPTY_REQUEST);
         verify(countDownLatchService).countDown(eq(name));
-        assertEquals("ok", fakeContext.getFakeSentResponse());
+        assertEquals("ok", response);
     }
+
+    @Test
+    public void countDown2Test() {
+        String name = "codola_" + System.currentTimeMillis();
+        String response = countDownLatchServerRest.countDown("/countdown", Arrays.asList(name, "2"), HttpRequest.EMPTY_REQUEST);
+        verify(countDownLatchService).countDown(eq(name), anyInt());
+        assertEquals("ok", response);
+    }
+
 
     @Test
     public void getCountTest() {
         String name = "codola_" + System.currentTimeMillis();
-        FakeContext fakeContext = new FakeContext();
-        fakeContext.getPathTokens().put("name", name);
-        countDownLatchServerRest.getCount(fakeContext);
+        String response = countDownLatchServerRest.getCount("/getcount", Arrays.asList(name), HttpRequest.EMPTY_REQUEST);
         verify(countDownLatchService).getCount(eq(name));
-        assertEquals("0", fakeContext.getFakeSentResponse());
+        assertEquals("0", response);
     }
 
     @Test
     public void awaitTest() {
         String name = "codola_" + System.currentTimeMillis();
-        FakeContext fakeContext = new FakeContext();
-        fakeContext.getPathTokens().put("name", name);
-        countDownLatchServerRest.await(fakeContext);
+        String response = countDownLatchServerRest.await("/await", Arrays.asList(name), HttpRequest.EMPTY_REQUEST);
         verify(countDownLatchService).await(eq(name));
-        assertEquals("ok", fakeContext.getFakeSentResponse());
+        assertEquals("ok", response);
     }
 
     @Test
     public void tryAwaitWithTimeout1Test() {
         String name = "codola_" + System.currentTimeMillis();
-        FakeContext fakeContext = new FakeContext();
-        fakeContext.getPathTokens().put("name", name);
-        fakeContext.getPathTokens().put("timeOut", Long.toString(1L));
-        fakeContext.getPathTokens().put("timeUnit", TimeUnit.MILLISECONDS.name().toLowerCase());
-        countDownLatchServerRest.tryAwaitWithTimeOut(fakeContext);
-        verify(countDownLatchService).tryAwaitWithTimeOut(eq(name), eq(1L), eq(TimeUnit.MILLISECONDS));
-        assertEquals("true", fakeContext.getFakeSentResponse());
+        List<String> parameters = Arrays.asList(name, Long.toString(2L),  TimeUnit.SECONDS.name().toLowerCase());
+        String response = countDownLatchServerRest.tryAwaitWithTimeOut("trywaitwithtimeout", parameters, HttpRequest.EMPTY_REQUEST);
+        verify(countDownLatchService).tryAwaitWithTimeOut(eq(name), eq(2L), eq(TimeUnit.SECONDS));
+        assertEquals("true", response);
     }
 
     @Test
     public void tryAwaitWithTimeout2Test() {
         String name = "codola_" + System.currentTimeMillis();
-        FakeContext fakeContext = new FakeContext();
-        fakeContext.getPathTokens().put("name", name);
-        fakeContext.getPathTokens().put("timeOut", Long.toString(1L));
-        countDownLatchServerRest.tryAwaitWithTimeOut(fakeContext);
+        List<String> parameters = Arrays.asList(name, Long.toString(2L));
+        String response = countDownLatchServerRest.tryAwaitWithTimeOut("trywaitwithtimeout", parameters, HttpRequest.EMPTY_REQUEST);
+        verify(countDownLatchService).tryAwaitWithTimeOut(eq(name), eq(2L), eq(TimeUnit.MILLISECONDS));
+        assertEquals("true", response);
+    }
+
+    @Test
+    public void tryAwaitWithTimeout3Test() {
+        String name = "codola_" + System.currentTimeMillis();
+        List<String> parameters = Arrays.asList(name);
+        String response = countDownLatchServerRest.tryAwaitWithTimeOut("trywaitwithtimeout", parameters, HttpRequest.EMPTY_REQUEST);
         verify(countDownLatchService).tryAwaitWithTimeOut(eq(name), eq(1L), eq(TimeUnit.MILLISECONDS));
-        assertEquals("true", fakeContext.getFakeSentResponse());
+        assertEquals("true", response);
     }
 
 }

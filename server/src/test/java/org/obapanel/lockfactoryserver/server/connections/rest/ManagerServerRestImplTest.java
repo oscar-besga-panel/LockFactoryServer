@@ -1,11 +1,11 @@
 package org.obapanel.lockfactoryserver.server.connections.rest;
 
+import com.github.arteam.embedhttp.HttpRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.obapanel.lockfactoryserver.server.FakeContext;
 import org.obapanel.lockfactoryserver.server.service.management.ManagementService;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -38,20 +38,18 @@ public class ManagerServerRestImplTest {
 
     @Test
     public void shutdownServerTest() {
-        FakeContext fakeContext = new FakeContext();
         boolean before = isRunning.get();
-        managementServerRest.shutdownServer(fakeContext);
+        String response = managementServerRest.shutdownServer(HttpRequest.EMPTY_REQUEST);
         boolean after = isRunning.get();
-        assertTrue(OK.equalsIgnoreCase(fakeContext.getFakeSentResponse()));
+        assertTrue(OK.equalsIgnoreCase(response));
         assertTrue(before);
         assertFalse(after);
     }
 
     @Test
     public void isRunningTest() {
-        FakeContext fakeContext = new FakeContext();
-        managementServerRest.isRunning(fakeContext);
-        assertTrue(Boolean.parseBoolean(fakeContext.getFakeSentResponse()));
+        String response = managementServerRest.isRunning(HttpRequest.EMPTY_REQUEST);
+        assertTrue(Boolean.parseBoolean(response));
     }
     
 }
