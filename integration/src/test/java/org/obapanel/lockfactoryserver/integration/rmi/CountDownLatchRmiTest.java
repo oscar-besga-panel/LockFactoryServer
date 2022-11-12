@@ -1,6 +1,10 @@
 package org.obapanel.lockfactoryserver.integration.rmi;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.obapanel.lockfactoryserver.client.rmi.CountDownLatchClientRmi;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.LockFactoryServer;
@@ -11,11 +15,17 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class CountDownLatchRmiTest {
 
@@ -216,6 +226,49 @@ public class CountDownLatchRmiTest {
         assertTrue(created);
         assertTrue(awaited.get());
         assertFalse(countDownLatchClientRmi.isActive());
+    }
+
+    @Test
+    public void awaitCountTest() throws InterruptedException, RemoteException, NotBoundException {
+        Semaphore inner2 = new Semaphore(0);
+        Semaphore inner3 = new Semaphore(0);
+        CountDownLatchClientRmi countDownLatchClientRmi1 = generateCountDownLatchClientRmi();
+        String name = countDownLatchClientRmi1.getName();
+        boolean created = countDownLatchClientRmi1.createNew(5);
+        AtomicBoolean countedDown2 = new AtomicBoolean(false);
+        executorService.submit(() -> {
+            try {
+                Thread.sleep(300 + ThreadLocalRandom.current().nextInt(50));
+                CountDownLatchClientRmi countDownLatchClientRmi2 = generateCountDownLatchClientRmi(name);
+                countDownLatchClientRmi2.countDown(2);
+                countedDown2.set(true);
+                inner2.release();
+            } catch (InterruptedException | RemoteException | NotBoundException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        AtomicBoolean countedDown3 = new AtomicBoolean(false);
+        executorService.submit(() -> {
+            try {
+                Thread.sleep(300 +  ThreadLocalRandom.current().nextInt(50));
+                CountDownLatchClientRmi countDownLatchClientRmi3 = generateCountDownLatchClientRmi(name);
+                countDownLatchClientRmi3.countDown(3);
+                countedDown3.set(true);
+                inner3.release();
+            } catch (InterruptedException | RemoteException | NotBoundException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        boolean result = countDownLatchClientRmi1.tryAwaitWithTimeOut(5000, TimeUnit.MILLISECONDS);
+        boolean innerAcquired2 = inner2.tryAcquire(5000, TimeUnit.MILLISECONDS);
+        boolean innerAcquired3 = inner3.tryAcquire(5000, TimeUnit.MILLISECONDS);
+        assertTrue(innerAcquired2);
+        assertTrue(innerAcquired3);
+        assertTrue(created);
+        assertTrue(countedDown2.get());
+        assertTrue(countedDown3.get());
+        //assertTrue(result);
+        assertFalse(countDownLatchClientRmi1.isActive());
     }
 
 }

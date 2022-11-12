@@ -4,7 +4,6 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.obapanel.lockfactoryserver.client.grpc.CountDownLatchClientGrpc;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
@@ -228,9 +227,7 @@ public class CountDownLatchGrpcTest {
         assertFalse(countDownLatchClientGrpc.isActive());
     }
 
-    // TODO fix
     @Test
-    @Ignore
     public void awaitCountTest() throws InterruptedException {
         Semaphore inner2 = new Semaphore(0);
         Semaphore inner3 = new Semaphore(0);

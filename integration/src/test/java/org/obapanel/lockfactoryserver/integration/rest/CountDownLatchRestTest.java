@@ -245,4 +245,47 @@ public class CountDownLatchRestTest {
         assertFalse(countDownLatchClientRest0.isActive());
     }
 
+    @Test
+    public void awaitCountTest() throws InterruptedException {
+        Semaphore inner2 = new Semaphore(0);
+        Semaphore inner3 = new Semaphore(0);
+        CountDownLatchClientRest countDownLatchClientRest1 = generateCountDownLatchClientRest();
+        String name = countDownLatchClientRest1.getName();
+        boolean created = countDownLatchClientRest1.createNew(5);
+        AtomicBoolean countedDown2 = new AtomicBoolean(false);
+        executorService.submit(() -> {
+            try {
+                Thread.sleep(300 + ThreadLocalRandom.current().nextInt(50));
+                CountDownLatchClientRest countDownLatchClientRest2 = generateCountDownLatchClientRest(name);
+                countDownLatchClientRest2.countDown(2);
+                countedDown2.set(true);
+                inner2.release();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        AtomicBoolean countedDown3 = new AtomicBoolean(false);
+        executorService.submit(() -> {
+            try {
+                Thread.sleep(300 + ThreadLocalRandom.current().nextInt(50));
+                CountDownLatchClientRest countDownLatchClientRest3 = generateCountDownLatchClientRest(name);
+                countDownLatchClientRest3.countDown(3);
+                countedDown3.set(true);
+                inner3.release();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        boolean result = countDownLatchClientRest1.tryAwaitWithTimeOut(5000, TimeUnit.MILLISECONDS);
+        boolean innerAcquired2 = inner2.tryAcquire(5000, TimeUnit.MILLISECONDS);
+        boolean innerAcquired3 = inner3.tryAcquire(5000, TimeUnit.MILLISECONDS);
+        assertTrue(innerAcquired2);
+        assertTrue(innerAcquired3);
+        assertTrue(created);
+        assertTrue(countedDown2.get());
+        assertTrue(countedDown3.get());
+        assertTrue(result);
+        assertFalse(countDownLatchClientRest1.isActive());
+    }
+
 }

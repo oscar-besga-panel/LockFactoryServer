@@ -10,10 +10,16 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class CountDownLatchServiceTest {
 
@@ -58,7 +64,7 @@ public class CountDownLatchServiceTest {
     }
 
     @Test
-    public void getCountCountDownTest() {
+    public void getCountCountDown1Test() {
         String name = "codola5_" + System.currentTimeMillis();
         int count = ThreadLocalRandom.current().nextInt(5, 100) ;
         boolean created = countDownLatchService.createNew(name, count);
@@ -70,6 +76,21 @@ public class CountDownLatchServiceTest {
         assertEquals(count - 1, count2);
         assertEquals(0, countDownLatchService.getCount(name + "XXXX"));
     }
+
+    @Test
+    public void getCountCountDown2Test() {
+        String name = "codola5_" + System.currentTimeMillis();
+        int count = ThreadLocalRandom.current().nextInt(5, 100) ;
+        boolean created = countDownLatchService.createNew(name, count);
+        int count1 = countDownLatchService.getCount(name);
+        countDownLatchService.countDown(name, count);
+        int count2 = countDownLatchService.getCount(name);
+        assertTrue(created);
+        assertEquals(count, count1);
+        assertEquals(0, count2);
+        assertEquals(0, countDownLatchService.getCount(name));
+    }
+
 
     @Test
     public void awaitOneTest() throws InterruptedException {
