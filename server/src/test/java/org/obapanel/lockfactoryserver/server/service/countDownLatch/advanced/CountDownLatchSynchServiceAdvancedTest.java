@@ -27,8 +27,6 @@ public class CountDownLatchSynchServiceAdvancedTest {
     private final AtomicBoolean otherErrors = new AtomicBoolean(false);
     private final AtomicBoolean isNotZeroError = new AtomicBoolean(false);
 
-
-
     private final String countDownLatchName = "codolasyG999x" + System.currentTimeMillis();
 
     private CountDownLatchServiceSynchronized countDownLatchService;
@@ -51,7 +49,6 @@ public class CountDownLatchSynchServiceAdvancedTest {
         Thread.sleep(250);
     }
 
-//    @Ignore
     @Test
     public void accessToCriticalZoneTest() throws InterruptedException {
             intoCriticalZone.set(false);

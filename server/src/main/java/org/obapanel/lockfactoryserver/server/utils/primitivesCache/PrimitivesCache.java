@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  *
  * @param <K> Type of the data included
  */
-public abstract class PrimitivesCache<K> {
+public abstract class PrimitivesCache<K> implements AutoCloseable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PrimitivesCache.class);
 
@@ -252,6 +252,10 @@ public abstract class PrimitivesCache<K> {
         if (checkDataContinuouslyThread != null) {
             checkDataContinuouslyThread.interrupt();
         }
+    }
+
+    public void close() throws Exception {
+        clearAndShutdown();
     }
     
     public boolean checkIsRunning(){

@@ -10,7 +10,7 @@ import java.util.Map;
  * Every connection thay offers the services to the external world must implement this interface
  * It serves to initialize and close the connection from the main server class
  */
-public interface LockFactoryConnection {
+public interface LockFactoryConnection extends AutoCloseable {
 
     /**
      * Return the type of the connection
@@ -32,5 +32,10 @@ public interface LockFactoryConnection {
      * @throws Exception if there's an error closing the connection
      */
     void shutdown() throws Exception;
+
+    @Override
+    default void close() throws Exception {
+        shutdown();
+    }
 
 }

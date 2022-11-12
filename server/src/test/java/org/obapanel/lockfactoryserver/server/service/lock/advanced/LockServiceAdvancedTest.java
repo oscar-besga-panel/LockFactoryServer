@@ -54,33 +54,20 @@ public class LockServiceAdvancedTest {
         Thread.sleep(250);
     }
 
-//    @Ignore
     @Test
     public void testIfInterruptedFor5SecondsLock() throws InterruptedException {
-            intoCriticalZone.set(false);
-            errorInCriticalZone.set(false);
-            otherErrors.set(false);
-            List<Thread> threadList = new ArrayList<>();
-            for(int i= 0; i < 5; i++) {
-                int sleepTime = ThreadLocalRandom.current().nextInt(0,5) + i;
-                Thread t = new Thread(() -> accessLockOfCriticalZone(sleepTime));
-                t.setName(String.format("prueba_t%d",i));
-                threadList.add(t);
-            }
-//            Thread t2 = new Thread(() -> accesLockOfCriticalZone(7));
-//            t2.setName("prueba_t2");
-//            Thread t3 = new Thread(() -> accesLockOfCriticalZone(3));
-//            t3.setName("prueba_t3");
-//            List<Thread> threadList = Arrays.asList(t1,t2,t3);
-            Collections.shuffle(threadList);
-            threadList.forEach(Thread::start);
-//            t1.start();
-//            t2.start();
-//            t3.start();
-            //Thread.sleep(TimeUnit.SECONDS.toMillis(5));
-//            t1.join();
-//            t2.join();
-//            t3.join();
+        intoCriticalZone.set(false);
+        errorInCriticalZone.set(false);
+        otherErrors.set(false);
+        List<Thread> threadList = new ArrayList<>();
+        for(int i= 0; i < 5; i++) {
+            int sleepTime = ThreadLocalRandom.current().nextInt(0,5) + i;
+            Thread t = new Thread(() -> accessLockOfCriticalZone(sleepTime));
+            t.setName(String.format("prueba_t%d",i));
+            threadList.add(t);
+        }
+        Collections.shuffle(threadList);
+        threadList.forEach(Thread::start);
         threadList.forEach(t -> {
             try {
                 t.join();
@@ -88,10 +75,9 @@ public class LockServiceAdvancedTest {
                 throw new RuntimeException(e);
             }
         });
-
-            assertFalse(errorInCriticalZone.get());
-            assertFalse(otherErrors.get());
-            assertFalse(lockList.stream().anyMatch(this::isLockInUse));
+        assertFalse(errorInCriticalZone.get());
+        assertFalse(otherErrors.get());
+        assertFalse(lockList.stream().anyMatch(this::isLockInUse));
     }
 
     private boolean isLockInUse(LockInfo lockInfo) {
@@ -205,4 +191,5 @@ public class LockServiceAdvancedTest {
                     '}';
         }
     }
+
 }

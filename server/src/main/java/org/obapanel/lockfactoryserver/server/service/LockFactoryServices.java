@@ -3,7 +3,7 @@ package org.obapanel.lockfactoryserver.server.service;
 /**
  * LockFactory services common interface
  */
-public interface LockFactoryServices {
+public interface LockFactoryServices extends AutoCloseable {
 
     /**
      * The enum type of the service
@@ -17,5 +17,10 @@ public interface LockFactoryServices {
      * @throws Exception In case of error
      */
     void shutdown() throws Exception;
+
+    @Override
+    default void close() throws Exception {
+        shutdown();
+    }
 
 }

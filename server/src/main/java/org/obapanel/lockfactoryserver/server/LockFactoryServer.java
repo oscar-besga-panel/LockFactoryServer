@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * It can be embeded it other applications/programs/servers and can give access
  *   to the current components of the server
  */
-public class LockFactoryServer {
+public class LockFactoryServer implements AutoCloseable {
 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LockFactoryServerMain.class);
@@ -277,6 +277,11 @@ public class LockFactoryServer {
         } catch (Exception e) {
             LOGGER.error("Error in shutdown process", e);
         }
+    }
+
+    @Override
+    public void close() throws Exception {
+        shutdown();
     }
 
 }
