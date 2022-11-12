@@ -1,15 +1,17 @@
 package org.obapanel.lockfactoryserver.server.connections.rest;
 
+import com.github.arteam.embedhttp.HttpRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.obapanel.lockfactoryserver.core.LockStatus;
-import org.obapanel.lockfactoryserver.server.FakeContext;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
 
 import java.rmi.RemoteException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
@@ -43,62 +45,49 @@ public class LockServerRestImplTest {
     @Test
     public void lockTest() {
         String lockName = "lock1" + System.currentTimeMillis();
-        FakeContext fakeContext = new FakeContext();
-        fakeContext.getPathTokens().put("name", lockName);
-        lockServerRest.lock(fakeContext);
-        assertTrue(fakeContext.getFakeSentResponse().contains(lockName));
+        String response = lockServerRest.lock("/lock", Arrays.asList(lockName), HttpRequest.EMPTY_REQUEST);
+        assertTrue(response.contains(lockName));
     }
 
     @Test
-    public void tryLock1Test() throws RemoteException {
+    public void tryLock1Test() {
         String lockName = "lock2" + System.currentTimeMillis();
-        FakeContext fakeContext = new FakeContext();
-        fakeContext.getPathTokens().put("name", lockName);
-        lockServerRest.tryLock(fakeContext);
-        assertTrue(fakeContext.getFakeSentResponse().contains(lockName));
+        String response = lockServerRest.tryLock("/trylock", Arrays.asList(lockName), HttpRequest.EMPTY_REQUEST);
+        assertTrue(response.contains(lockName));
     }
 
     @Test
-    public void tryLock2Test() throws RemoteException {
+    public void tryLock2Test() {
         String lockName = "lock3" + System.currentTimeMillis();
-        FakeContext fakeContext = new FakeContext();
-        fakeContext.getPathTokens().put("name", lockName);
-        fakeContext.getPathTokens().put("timeOut", Long.toString(1));
-        fakeContext.getPathTokens().put("timeUnit", TimeUnit.MILLISECONDS.name().toUpperCase());
-        lockServerRest.tryLockWithTimeout(fakeContext);
-        assertTrue(fakeContext.getFakeSentResponse().contains(lockName));
+        List<String> parameters = Arrays.asList(lockName, Long.toString(1), TimeUnit.MILLISECONDS.name().toLowerCase());
+        String response = lockServerRest.tryLockWithTimeout("/trylock", parameters, HttpRequest.EMPTY_REQUEST);
+        assertTrue(response.contains(lockName));
     }
 
     @Test
     public void tryLock3Test() throws RemoteException {
         String lockName = "lock4" + System.currentTimeMillis();
-        FakeContext fakeContext = new FakeContext();
-        fakeContext.getPathTokens().put("name", lockName);
-        fakeContext.getPathTokens().put("timeOut", Long.toString(1));
-        lockServerRest.tryLockWithTimeout(fakeContext);
-        assertTrue(fakeContext.getFakeSentResponse().contains(lockName));
+        List<String> parameters = Arrays.asList(lockName, Long.toString(1));
+        String response = lockServerRest.tryLockWithTimeout("/trylock", parameters, HttpRequest.EMPTY_REQUEST);
+        assertTrue(response.contains(lockName));
     }
 
     @Test
     public void lockStatusTest() {
         String lockName = "lock5" + System.currentTimeMillis();
         String token = "token_" + lockName;
-        FakeContext fakeContext = new FakeContext();
-        fakeContext.getPathTokens().put("name", lockName);
-        fakeContext.getPathTokens().put("token", token);
-        lockServerRest.lockStatus(fakeContext);
-        assertEquals(LockStatus.ABSENT.name().toLowerCase(), fakeContext.getFakeSentResponse());
+        List<String> parameters = Arrays.asList(lockName, token);
+        String response = lockServerRest.lockStatus("/lockstatus", parameters, HttpRequest.EMPTY_REQUEST);
+        assertEquals(LockStatus.ABSENT.name().toLowerCase(), response);
     }
 
     @Test
     public void unlock() {
         String lockName = "lock6" + System.currentTimeMillis();
         String token = "token_" + lockName;
-        FakeContext fakeContext = new FakeContext();
-        fakeContext.getPathTokens().put("name", lockName);
-        fakeContext.getPathTokens().put("token", token);
-        lockServerRest.unlock(fakeContext);
-        assertTrue(Boolean.parseBoolean(fakeContext.getFakeSentResponse()));
+        List<String> parameters = Arrays.asList(lockName, token);
+        String response = lockServerRest.unlock("/unlock", parameters, HttpRequest.EMPTY_REQUEST);
+        assertTrue(Boolean.parseBoolean(response));
     }
 
 

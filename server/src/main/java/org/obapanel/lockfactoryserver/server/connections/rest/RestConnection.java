@@ -1,5 +1,7 @@
 package org.obapanel.lockfactoryserver.server.connections.rest;
 
+import com.github.arteam.embedhttp.EmbeddedHttpServer;
+import com.github.arteam.embedhttp.EmbeddedHttpServerBuilder;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.connections.Connections;
 import org.obapanel.lockfactoryserver.server.connections.LockFactoryConnection;
@@ -11,14 +13,11 @@ import org.obapanel.lockfactoryserver.server.service.management.ManagementServic
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ratpack.error.ClientErrorHandler;
-import ratpack.error.ServerErrorHandler;
-import ratpack.func.Action;
-import ratpack.handling.Chain;
-import ratpack.registry.Registry;
-import ratpack.server.RatpackServer;
 
+import java.util.Arrays;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Class that provides a REST connection for the services and binds them
@@ -29,7 +28,7 @@ public class RestConnection implements LockFactoryConnection {
 
     public static final Connections TYPE = Connections.REST;
 
-    private RatpackServer ratpackServer;
+    private EmbeddedHttpServer embeddedHttpServer;
 
     @Override
     public Connections getType() {
@@ -38,165 +37,93 @@ public class RestConnection implements LockFactoryConnection {
 
     @Override
     public void activate(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices> services) throws Exception {
-        final Action<Chain> action = getAction(configuration, services);
-        final Registry userRegistry = getRegistryWithHandlers();
-        ratpackServer = RatpackServer.of(server -> server.
-                serverConfig( serverConfigBuilder -> {
-                    // serverConfigBuilder.development(true);
-                    serverConfigBuilder.port(configuration.getRestServerPort());
-                    serverConfigBuilder.connectQueueSize(configuration.getRestConnectQueueSize());
-                    serverConfigBuilder.connectTimeoutMillis(configuration.getRestConnectTimeoutMilis());
-                    serverConfigBuilder.threads( configuration.getRestServerThreads());
-                    serverConfigBuilder.onError(throwable ->
-                        LOGGER.error("Error inside RestConnection ratpackServer ", throwable)
-                    );
-                }).
-                handlers(action).
-                registry(userRegistry));
-        ratpackServer.start();
+        EmbeddedHttpServerBuilder builder = EmbeddedHttpServerBuilder.createNew();
+        builder.withPort(configuration.getRestServerPort());
+        builder.withBackLog(configuration.getRestConnectQueueSize());
+        ExecutorService executor = Executors.newFixedThreadPool(configuration.getRestServerThreads());
+        builder.withExecutor(executor);
+        if (configuration.isManagementEnabled()) {
+            chainManagement(builder, (ManagementService) services.get(Services.MANAGEMENT));
+        }
+        if (configuration.isLockEnabled()) {
+            chainLock(builder, (LockService) services.get(Services.LOCK));
+        }
+        if (configuration.isSemaphoreEnabled()) {
+            chainSemaphore(builder, (SemaphoreService) services.get(Services.SEMAPHORE));
+        }
+        if (configuration.isCountDownLatchEnabled()) {
+            chainCountDownLatch(builder, (CountDownLatchService) services.get(Services.COUNTDOWNLATCH));
+        }
+        embeddedHttpServer = builder.buildAndRun();
         LOGGER.debug("RestConnection activated");
     }
 
-    /**
-     * Generates a registry for errors and common responsed
-     * @return registry
-     */
-    static Registry getRegistryWithHandlers() {
-        final ClientErrorHandler clientErrorHandler = (context, statusCode) -> {
-            LOGGER.warn("RestConnection clientErrorHandler context {} error {}", context.getRequest().getPath(), statusCode);
-            context.getResponse().status(statusCode);
-            context.getResponse().send(statusCode + " error");
-        };
-        final ServerErrorHandler serverErrorHandler = (context, throwable) -> {
-            LOGGER.error("RestConnection serverErrorHandler context {} INTERNAL ERROR", context.getRequest().getPath(), throwable);
-            context.getResponse().status(500);
-            context.getResponse().send(String.format("500 error [%s]", throwable.toString()));
-        };
-        return Registry.builder().
-                add(ClientErrorHandler.class, clientErrorHandler).
-                add(ServerErrorHandler.class, serverErrorHandler).
-                build();
+    private void chainManagement(EmbeddedHttpServerBuilder builder, ManagementService managementService) {
+        ManagementServerRestImpl managementServerRest = new ManagementServerRestImpl(managementService);
+        addPlainTextHandler(builder, "/management/shutdownServer", managementServerRest::shutdownServer);
+        addPlainTextHandler(builder,"/management/shutdownserver", managementServerRest::shutdownServer);
+        addPlainTextHandler(builder,"/management/isRunning", managementServerRest::isRunning);
+        addPlainTextHandler(builder,"/management/isrunning", managementServerRest::isRunning);
     }
 
-    /**
-     * Generates actions to bind services to URLS
-     * Only alloed services are bind to urls
-     * @param configuration global configuration
-     * @param services all services
-     * @return action with avalible services to urls
-     */
-    Action<Chain> getAction(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices> services) {
-        return (chain) -> {
-            // chain.all(RequestLogger.ncsa());
-            chain.get("", ctx -> ctx.getResponse().send("LockFactoryServer"));
-            if (configuration.isManagementEnabled()) {
-                chain.prefix("management", getActionManagement((ManagementService) services.get(Services.MANAGEMENT)));
-            }
-            if (configuration.isLockEnabled()) {
-                chain.prefix("lock", getActionLock((LockService) services.get(Services.LOCK)));
-            }
-            if (configuration.isSemaphoreEnabled()) {
-                chain.prefix("semaphore", getActionSemaphore((SemaphoreService) services.get(Services.SEMAPHORE)));
-            }
-            if (configuration.isCountDownLatchEnabled()) {
-                Action<Chain> actionChain1 = getActionCountDownLatch((CountDownLatchService) services.get(Services.COUNTDOWNLATCH));
-                chain.prefix("countdownlatch", actionChain1);
-                Action<Chain> actionChain2 = getActionCountDownLatch((CountDownLatchService) services.get(Services.COUNTDOWNLATCH));
-                chain.prefix("countDownLatch", actionChain2);
-            }
-            chain.get("about", ctx -> ctx.getResponse().send("LockFactoryServer (t " + System.currentTimeMillis() + ")"));
-        };
+    private void chainLock(EmbeddedHttpServerBuilder builder, LockService lockService) {
+        LockServerRestImpl lockServerRest = new LockServerRestImpl(lockService);
+        addPlainTextHandlerWithPrefix(builder, "/lock/lock", lockServerRest::lock );
+        addPlainTextHandlerWithPrefix(builder, "/lock/unlock", lockServerRest::unlock );
+        addPlainTextHandlerWithPrefix(builder, "/lock/unLock", lockServerRest::unlock );
+        addPlainTextHandlerWithPrefix(builder, "/lock/tryLock", lockServerRest::tryLock);
+        addPlainTextHandlerWithPrefix(builder, "/lock/trylock", lockServerRest::tryLock);
+        addPlainTextHandlerWithPrefix(builder, "/lock/tryLockWithTimeout", lockServerRest::tryLockWithTimeout);
+        addPlainTextHandlerWithPrefix(builder, "/lock/trylockwithtimeout", lockServerRest::tryLockWithTimeout);
+        addPlainTextHandlerWithPrefix(builder, "/lock/lockStatus", lockServerRest::lockStatus);
+        addPlainTextHandlerWithPrefix(builder, "/lock/lockstatus", lockServerRest::lockStatus);
+        addPlainTextHandlerWithPrefix(builder, "/lock/unLock", lockServerRest::unlock );
+        addPlainTextHandlerWithPrefix(builder, "/lock/unlock", lockServerRest::unlock );
     }
 
-    /**
-     * Binds urls to management services
-     * @param managementService Service to bind
-     * @return action with urls - management
-     */
-    Action<Chain> getActionManagement(final ManagementService managementService) {
-        return (chain) -> {
-            ManagementServerRestImpl managementServerRest = new ManagementServerRestImpl(managementService);
-            chain.get("shutdownServer", managementServerRest::shutdownServer);
-            chain.get("shutdownserver", managementServerRest::shutdownServer);
-            chain.get("isRunning", managementServerRest::isRunning);
-            chain.get("isrunning", managementServerRest::isRunning);
-        };
+    private void chainSemaphore(EmbeddedHttpServerBuilder builder, SemaphoreService semaphoreService) {
+        SemaphoreServerRestImpl semaphoreServerRest = new SemaphoreServerRestImpl(semaphoreService);
+        addPlainTextHandlerWithPrefix(builder, "/semaphore/currentPermits", semaphoreServerRest::currentPermits );
+        addPlainTextHandlerWithPrefix(builder, "/semaphore/currentpermits", semaphoreServerRest::currentPermits );
+        addPlainTextHandlerWithPrefix(builder, "/semaphore/acquire", semaphoreServerRest::acquire );
+        addPlainTextHandlerWithPrefix(builder, "/semaphore/tryAcquire", semaphoreServerRest::tryAcquire );
+        addPlainTextHandlerWithPrefix(builder, "/semaphore/tryacquire", semaphoreServerRest::tryAcquire );
+        addPlainTextHandlerWithPrefix(builder, "/semaphore/tryAcquireWithTimeOut", semaphoreServerRest::tryAcquireWithTimeOut );
+        addPlainTextHandlerWithPrefix(builder, "/semaphore/tryacquirewithtimeout", semaphoreServerRest::tryAcquireWithTimeOut );
+        addPlainTextHandlerWithPrefix(builder, "/semaphore/release", semaphoreServerRest::release );
     }
 
-    /**
-     * Binds urls to lock services
-     * @param lockService Service to bind
-     * @return action with urls - lock
-     */
-    Action<Chain> getActionLock(final LockService lockService) {
-        return (chain) -> {
-            LockServerRestImpl lockServerRest = new LockServerRestImpl(lockService);
-            chain.get("lock/:name", lockServerRest::lock);
-            chain.get("tryLock/:name", lockServerRest::tryLock);
-            chain.get("trylock/:name", lockServerRest::tryLock);
-            chain.get("tryLockWithTimeOut/:name/:timeOut", lockServerRest::tryLockWithTimeout);
-            chain.get("trylockwithtimeout/:name/:timeOut", lockServerRest::tryLockWithTimeout);
-            chain.get("tryLockWithTimeOut/:name/:timeOut/:timeUnit", lockServerRest::tryLockWithTimeout);
-            chain.get("trylockwithtimeout/:name/:timeOut/:timeUnit", lockServerRest::tryLockWithTimeout);
-            chain.get("lockStatus/:name/:token", lockServerRest::lockStatus);
-            chain.get("lockstatus/:name/:token", lockServerRest::lockStatus);
-            chain.get("lockStatus/:name", lockServerRest::lockStatus);
-            chain.get("lockstatus/:name", lockServerRest::lockStatus);
-            chain.get("unLock/:name/:token", lockServerRest::unlock);
-            chain.get("unlock/:name/:token", lockServerRest::unlock);
-            chain.get("unLock/:name", lockServerRest::unlock);
-            chain.get("unlock/:name", lockServerRest::unlock);
-        };
+    private void chainCountDownLatch(EmbeddedHttpServerBuilder builder, CountDownLatchService countDownLatchService) {
+        CountDownLatchServerRestImpl countDownLatchServerRest = new CountDownLatchServerRestImpl(countDownLatchService);
+        for(String prefix: Arrays.asList("/countDownLatch", "/countdownlatch")) {
+            addPlainTextHandlerWithPrefix(builder, prefix + "/createNew", countDownLatchServerRest::createNew );
+            addPlainTextHandlerWithPrefix(builder, prefix + "/createnew", countDownLatchServerRest::createNew );
+            addPlainTextHandlerWithPrefix(builder, prefix + "/countDown", countDownLatchServerRest::countDown );
+            addPlainTextHandlerWithPrefix(builder, prefix + "/countdown", countDownLatchServerRest::countDown );
+            addPlainTextHandlerWithPrefix(builder, prefix + "/getCount", countDownLatchServerRest::getCount );
+            addPlainTextHandlerWithPrefix(builder, prefix + "/getcount", countDownLatchServerRest::getCount );
+            addPlainTextHandlerWithPrefix(builder, prefix + "/await", countDownLatchServerRest::await );
+            addPlainTextHandlerWithPrefix(builder, prefix + "/tryAwaitWithTimeOut", countDownLatchServerRest::tryAwaitWithTimeOut );
+            addPlainTextHandlerWithPrefix(builder, prefix + "/tryawaitwithtimeout", countDownLatchServerRest::tryAwaitWithTimeOut );
+        }
     }
 
-    /**
-     * Binds urls to semaphore services
-     * @param semaphoreService Service to bind
-     * @return action with urls - semaphore
-     */
-    Action<Chain> getActionSemaphore(final SemaphoreService semaphoreService) {
-        return (chain) -> {
-            SemaphoreServerRestImpl semaphoreServerRest = new SemaphoreServerRestImpl(semaphoreService);
-            chain.get("currentPermits/:name", semaphoreServerRest::currentPermits);
-            chain.get("currentpermits/:name", semaphoreServerRest::currentPermits);
-            chain.get("acquire/:name/:permits", semaphoreServerRest::acquire);
-            chain.get("acquire/:name", semaphoreServerRest::acquire);
-            chain.get("tryacquire/:name", semaphoreServerRest::tryAcquire);
-            chain.get("tryAcquire/:name", semaphoreServerRest::tryAcquire);
-            chain.get("tryacquire/:name/:permits", semaphoreServerRest::tryAcquire);
-            chain.get("tryAcquire/:name/:permits", semaphoreServerRest::tryAcquire);
-            chain.get("tryacquirewithtimeout/:name/:permits/:timeOut", semaphoreServerRest::tryAcquireWithTimeOut);
-            chain.get("tryAcquireWithTimeOut/:name/:permits/:timeOut", semaphoreServerRest::tryAcquireWithTimeOut);
-            chain.get("tryacquirewithtimeout/:name/:permits/:timeOut/:timeUnit", semaphoreServerRest::tryAcquireWithTimeOut);
-            chain.get("tryAcquireWithTimeOut/:name/:permits/:timeOut/:timeUnit", semaphoreServerRest::tryAcquireWithTimeOut);
-            chain.get("release/:name/:permits", semaphoreServerRest::release);
-            chain.get("release/:name", semaphoreServerRest::release);
-        };
+    private void addPlainTextHandlerWithPrefix(EmbeddedHttpServerBuilder builder, String prefix, RestConnectionHelper.PlainTextHandlerWithPrefix handler) {
+        builder.addHandler(prefix, (RestConnectionHelper.PlainTextHandler) request -> handler.execute(prefix, request));
     }
 
-    Action<Chain> getActionCountDownLatch(final CountDownLatchService countDownLatchService) {
-        return (chain) -> {
-            CountDownLatchServerRestImpl countDownLatchServerRest = new CountDownLatchServerRestImpl(countDownLatchService);
-            chain.get("createNew/:name/:count", countDownLatchServerRest::createNew);
-            chain.get("createnew/:name/:count", countDownLatchServerRest::createNew);
-            chain.get("countDown/:name", countDownLatchServerRest::countDown);
-            chain.get("countdown/:name", countDownLatchServerRest::countDown);
-            chain.get("getCount/:name", countDownLatchServerRest::getCount);
-            chain.get("getcount/:name", countDownLatchServerRest::getCount);
-            chain.get("await/:name", countDownLatchServerRest::await);
-            chain.get("tryawaitwithtimeout/:name/:timeOut", countDownLatchServerRest::tryAwaitWithTimeOut);
-            chain.get("tryAwaitWithTimeOut/:name/:timeOut", countDownLatchServerRest::tryAwaitWithTimeOut);
-            chain.get("tryawaitwithtimeout/:name/:timeOut/:timeUnit", countDownLatchServerRest::tryAwaitWithTimeOut);
-            chain.get("tryAwaitWithTimeOut/:name/:timeOut/:timeUnit", countDownLatchServerRest::tryAwaitWithTimeOut);
-        };
+    private void addPlainTextHandler(EmbeddedHttpServerBuilder builder, String prefix, RestConnectionHelper.PlainTextHandler handler) {
+        builder.addHandler(prefix, handler);
     }
 
     @Override
     public void shutdown() throws Exception {
-        if (ratpackServer != null) {
-            ratpackServer.stop();
+        if (embeddedHttpServer != null) {
+            embeddedHttpServer.stop();
         }
         LOGGER.debug("RestConnection shutdown");
     }
+
+
 
 }

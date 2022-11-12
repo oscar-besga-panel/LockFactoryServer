@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.IntStream;
 
 import static org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException.doWithRuntime;
 
@@ -48,6 +49,16 @@ public class CountDownLatchService implements LockFactoryServices {
             result = true;
         }
         return result;
+    }
+
+    public void countDown(String name, int count) {
+        LOGGER.info("service> countDown name {} count {}", name, count);
+        CountDownLatch countDownLatch = countDownLatchCache.getData(name);
+        if (countDownLatch != null) {
+            IntStream.of(count).forEach( i ->
+                    countDownLatch.countDown()
+            );
+        }
     }
 
     public void countDown(String name) {

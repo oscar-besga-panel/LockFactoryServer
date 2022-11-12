@@ -1,5 +1,6 @@
 package org.obapanel.lockfactoryserver.server.connections.rest;
 
+import com.github.arteam.embedhttp.HttpRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,7 +41,7 @@ public class ManagerServerRestImplTest {
     public void shutdownServerTest() {
         FakeContext fakeContext = new FakeContext();
         boolean before = isRunning.get();
-        managementServerRest.shutdownServer(fakeContext);
+        managementServerRest.shutdownServer(HttpRequest.EMPTY_REQUEST);
         boolean after = isRunning.get();
         assertTrue(OK.equalsIgnoreCase(fakeContext.getFakeSentResponse()));
         assertTrue(before);
@@ -50,7 +51,7 @@ public class ManagerServerRestImplTest {
     @Test
     public void isRunningTest() {
         FakeContext fakeContext = new FakeContext();
-        managementServerRest.isRunning(fakeContext);
+        managementServerRest.isRunning(HttpRequest.EMPTY_REQUEST);
         assertTrue(Boolean.parseBoolean(fakeContext.getFakeSentResponse()));
     }
     

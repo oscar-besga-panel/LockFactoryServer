@@ -39,9 +39,9 @@ public class LockFactoryConfiguration {
     public static final String DEFAULT_GRPC_SERVER_PORT = "50051";
     public static final String DEFAULT_REST_SERVER_ACTIVE = TRUE;
     public static final String DEFAULT_REST_SERVER_PORT = "8080";
-    public static final String DEFAULT_REST_CONNECT_QUEUE_SIZE = "200";
+    public static final String DEFAULT_REST_CONNECT_QUEUE_SIZE = "20";
     public static final String DEFAULT_REST_CONNECT_TIMEOUT_MILIS = "30000";
-    public static final String DEFAULT_REST_SERVER_THREADS = "4"; //DEFAULT_THREADS = Runtime.getRuntime().availableProcessors() * 2
+    public static final String DEFAULT_REST_SERVER_THREADS = "8"; //DEFAULT_THREADS = Runtime.getRuntime().availableProcessors() * 2
 
     public static final String DEFAULT_LOCK_ENABLED = TRUE;
     public static final String DEFAULT_SEMAPHORE_ENABLED = TRUE;
@@ -54,8 +54,8 @@ public class LockFactoryConfiguration {
     public static final String DEFAULT_CACHE_CHECK_CONTINUOUSLY = TRUE;
 
 //     checking
-//    public static final String DEFAULT_SYNCHRONIZED_SERVICES = FALSE;
-    public static final String DEFAULT_SYNCHRONIZED_SERVICES = TRUE;
+    public static final String DEFAULT_SYNCHRONIZED_SERVICES = FALSE;
+//    public static final String DEFAULT_SYNCHRONIZED_SERVICES = TRUE;
 
 
 
