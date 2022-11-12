@@ -151,8 +151,6 @@ public class CountDownLatchRestTest {
         assertFalse(countDownLatchClientRest.isActive());
     }
 
-    //TODO Sometimes Works in local
-    // @Ignore
     @Test
     public void awaitManyTest() throws InterruptedException {
         Semaphore inner = new Semaphore(0);
@@ -189,8 +187,6 @@ public class CountDownLatchRestTest {
         assertFalse(countDownLatchClientRest.isActive());
     }
 
-    //TODO Sometimes Works in local
-    // @Ignore
     @Test
     public void awaitManyPreTest() throws InterruptedException {
         Semaphore inner = new Semaphore(0);
