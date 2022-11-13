@@ -31,7 +31,7 @@ But once something is activated, is avalible to be used/accesed by every other a
 
 
 
-In really, really alpha for now...  
+In beta for now !  
 
 See the [wiki](https://github.com/oscar-besga-panel/LockFactoryServer/wiki) for more documentation
 
@@ -63,3 +63,4 @@ I know you can do this with mongo, redis (as see [here](https://github.com/oscar
 This is why I don't want to provide with memory-related apis, nor messaging or other utilites; as redis, rabbitmq and other are fully available out there.
 
 
+It uses [arteam embedded http server](https://github.com/arteam/embedded-http-server) to facilitate the usage of internal SUN http server.
