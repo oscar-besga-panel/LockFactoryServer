@@ -249,6 +249,21 @@ public class LockFactoryServer implements AutoCloseable {
     /**
      * Closes gracefully all server and services, waiting them to stop
      * Signals awaitTermitation to stop waiting
+     * @param waitMilis Millis to wait until shutdown
+     */
+    public final synchronized void shutdown(long waitMilis) {
+        try {
+            Thread.sleep(waitMilis);
+        } catch (InterruptedException e) {
+            LOGGER.error("Interrputed while waiting a little to shutdown {}", waitMilis, e);
+            Thread.currentThread().interrupt();
+        }
+        shutdown();
+    }
+
+    /**
+     * Closes gracefully all server and services, waiting them to stop
+     * Signals awaitTermitation to stop waiting
      */
     public final synchronized void shutdown() {
         try {

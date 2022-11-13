@@ -43,7 +43,7 @@ public class ManagementRestTest {
     public void setup() throws InterruptedException {
         LOGGER.debug("setup ini >>>");
         configuration = new LockFactoryConfiguration();
-        lockFactoryServer = new LockFactoryServer();
+        lockFactoryServer = new LockFactoryServer(configuration);
         lockFactoryServer.startServer();
         LOGGER.debug("setup fin <<<");
         Thread.sleep(250);

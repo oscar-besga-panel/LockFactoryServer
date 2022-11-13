@@ -19,6 +19,8 @@ public class ManagementService implements LockFactoryServices {
     private final LockFactoryConfiguration configuration;
     private final LockFactoryServer lockFactoryServer;
 
+    private Thread backgroundShutdownServer;
+
     public ManagementService(LockFactoryConfiguration configuration, LockFactoryServer lockFactoryServer) {
         this.configuration = configuration;
         this.lockFactoryServer = lockFactoryServer;
@@ -35,10 +37,12 @@ public class ManagementService implements LockFactoryServices {
 
     public void shutdownServer() {
         LOGGER.info("service> shutdownServer (in background)");
-        Thread backgroundShutdownServer = new Thread(lockFactoryServer::shutdown);
-        backgroundShutdownServer.setName("backgroundShutdownServer");
-        backgroundShutdownServer.setDaemon(true);
-        backgroundShutdownServer.start();
+        if (backgroundShutdownServer == null) {
+            backgroundShutdownServer = new Thread(() -> lockFactoryServer.shutdown(50));
+            backgroundShutdownServer.setName("backgroundShutdownServer");
+            backgroundShutdownServer.setDaemon(true);
+            backgroundShutdownServer.start();
+        }
     }
 
     public boolean isRunning() {

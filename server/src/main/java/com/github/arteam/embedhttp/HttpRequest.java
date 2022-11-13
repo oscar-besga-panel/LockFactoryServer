@@ -17,7 +17,7 @@ public class HttpRequest {
 
 
 
-    public final static HttpRequest EMPTY_REQUEST = new HttpRequest(null, URI.create("http://localhost/"), "", new Headers(), "");
+    public final static HttpRequest EMPTY_REQUEST = new HttpRequest("", URI.create("http://localhost/"), "", new Headers(), "");
 
     private final String method;
     private final URI uri;

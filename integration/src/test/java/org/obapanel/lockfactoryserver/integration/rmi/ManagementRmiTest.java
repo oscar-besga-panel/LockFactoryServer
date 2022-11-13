@@ -88,7 +88,7 @@ public class ManagementRmiTest {
             fail("test shutdownTest error fail " + e);
         }
         try {
-            Thread.sleep(1500);
+            Thread.sleep(1000);
             managementClientRmi.isRunning();
             fail("test shutdownTest error fail" );
         } catch (Exception e) {

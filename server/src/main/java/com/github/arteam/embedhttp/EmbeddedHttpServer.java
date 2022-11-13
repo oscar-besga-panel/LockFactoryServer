@@ -30,7 +30,7 @@ public class EmbeddedHttpServer implements Closeable {
     private HttpServer sunHttpServer;
 
     EmbeddedHttpServer() {
-        //Emtpy on purpose
+        // Empty on purpose, package-private
     }
 
     EmbeddedHttpServer createHttpServer(InetSocketAddress address, ExecutorService executor, List<HandlerConfig> handlers, int backlog) {
@@ -57,7 +57,7 @@ public class EmbeddedHttpServer implements Closeable {
 
     }
 
-    private void handleExchange(HandlerConfig config, HttpExchange httpExchange) {
+    void handleExchange(HandlerConfig config, HttpExchange httpExchange) {
         try {
             LOGGER.debug("embeddedHttpServer > handleExchange > ini >");
             HttpRequest request = requestFromExchange(httpExchange);
@@ -84,11 +84,11 @@ public class EmbeddedHttpServer implements Closeable {
         } catch (Exception e) {
             handleInternalError(httpExchange, e);
             LOGGER.error("embeddedHttpServer > handleExchaneOrError > internal error ", e);
-            throw new RuntimeException("Interal error in handleExchange", e);
+            throw new RuntimeException("Internal error in handleExchange", e);
         }
     }
 
-    private void handleInternalError(HttpExchange httpExchange, Exception e) {
+    void handleInternalError(HttpExchange httpExchange, Exception e) {
         try {
             HttpResponse response = new HttpResponse();
             response.setStatusCode(500);
@@ -100,7 +100,7 @@ public class EmbeddedHttpServer implements Closeable {
         }
     }
 
-    private static void handleResponse(HttpExchange httpExchange, HttpResponse response) throws IOException {
+    static void handleResponse(HttpExchange httpExchange, HttpResponse response) throws IOException {
         for (Map.Entry<String, List<String>> e : response.getHeaders().entrySet()) {
             httpExchange.getResponseHeaders().put(e.getKey(), e.getValue());
         }
@@ -158,18 +158,18 @@ public class EmbeddedHttpServer implements Closeable {
         stop();
     }
 
-    /**
-     * Reads the provided input stream to a string in the UTF-8 encoding
-     */
-    private static String readFromStream(InputStream inputStream) throws IOException {
-        return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-    }
-
     private static HttpRequest requestFromExchange(HttpExchange httpExchange) throws IOException {
         Headers requestHeaders = httpExchange.getRequestHeaders();
         return new HttpRequest(httpExchange.getRequestMethod(),
                 httpExchange.getRequestURI(), httpExchange.getProtocol(), requestHeaders,
                 readFromStream(httpExchange.getRequestBody()));
+    }
+
+    /**
+     * Reads the provided input stream to a string in the UTF-8 encoding
+     */
+    private static String readFromStream(InputStream inputStream) throws IOException {
+        return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
     }
 
 }

@@ -65,7 +65,6 @@ public class ManagementGpcTest {
         return new ManagementClientGrpc(LOCALHOST, configuration.getGrpcServerPort());
     }
 
-
     @Test
     public void isRunningTest() {
         LOGGER.debug("test isRunning ini >>>");
@@ -93,6 +92,5 @@ public class ManagementGpcTest {
         }
         LOGGER.debug("test shutdownTest fin <<<");
     }
-
 
 }
