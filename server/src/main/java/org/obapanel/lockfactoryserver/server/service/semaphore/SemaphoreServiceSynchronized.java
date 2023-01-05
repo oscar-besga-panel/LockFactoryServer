@@ -11,7 +11,7 @@ import static org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedExcepti
 
 public final class SemaphoreServiceSynchronized extends SemaphoreService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SemaphoreService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SemaphoreServiceSynchronized.class);
 
 
     public SemaphoreServiceSynchronized(LockFactoryConfiguration configuration) {

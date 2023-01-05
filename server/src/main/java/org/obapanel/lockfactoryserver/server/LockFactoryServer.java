@@ -10,6 +10,8 @@ import org.obapanel.lockfactoryserver.server.service.LockFactoryServices;
 import org.obapanel.lockfactoryserver.server.service.Services;
 import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchService;
 import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchServiceSynchronized;
+import org.obapanel.lockfactoryserver.server.service.holder.HolderService;
+import org.obapanel.lockfactoryserver.server.service.holder.HolderServiceSynchronized;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
 import org.obapanel.lockfactoryserver.server.service.lock.LockServiceSynchronized;
 import org.obapanel.lockfactoryserver.server.service.management.ManagementService;
@@ -114,6 +116,10 @@ public class LockFactoryServer implements AutoCloseable {
             CountDownLatchService countDownLatchService = new CountDownLatchServiceSynchronized(configuration);
             services.put(Services.COUNTDOWNLATCH, countDownLatchService);
         }
+        if (configuration.isHolderEnabled()) {
+            HolderService holderService = new HolderServiceSynchronized(configuration);
+            services.put(Services.HOLDER, holderService);
+        }
     }
 
     final void createNormalServices() {
@@ -137,6 +143,10 @@ public class LockFactoryServer implements AutoCloseable {
             LOGGER.debug("createServices countdownlatch");
             CountDownLatchService countDownLatchService = new CountDownLatchService(configuration);
             services.put(Services.COUNTDOWNLATCH, countDownLatchService);
+        }
+        if (configuration.isHolderEnabled()) {
+            HolderService holderService = new HolderService(configuration);
+            services.put(Services.HOLDER, holderService);
         }
     }
 

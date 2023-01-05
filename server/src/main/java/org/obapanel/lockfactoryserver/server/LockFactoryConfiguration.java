@@ -26,6 +26,7 @@ public class LockFactoryConfiguration {
     public static final String SEMAPHORE_ENABLED = "semaphoreEnabled";
     public static final String COUNTDOWNLATCH_ENABLED = "countDownLatchEnabled";
     public static final String MANAGEMENT_ENABLED = "managementEnabled";
+    public static final String HOLDER_ENABLED = "holderEnabled";
 
     public static final String CACHE_CHECK_DATA_PERIOD_SECONDS = "cacheCheckDataPeriodSeconds";
     public static final String CACHE_TIME_TO_LIVE_SECONDS = "cacheTimeToLiveSeconds";
@@ -47,6 +48,8 @@ public class LockFactoryConfiguration {
     public static final String DEFAULT_SEMAPHORE_ENABLED = TRUE;
     public static final String DEFAULT_COUNTDOWNLATCH_ENABLED = TRUE;
     public static final String DEFAULT_MANAGEMENT_ENABLED = TRUE;
+    public static final String DEFAULT_HOLDER_ENABLED = TRUE;
+
 
 
     public static final String DEFAULT_CACHE_CHECK_DATA_PERIOD_SECONDS = "10";
@@ -156,4 +159,7 @@ public class LockFactoryConfiguration {
     }
 
 
+    public boolean isHolderEnabled() {
+        return Boolean.parseBoolean(properties.getProperty(HOLDER_ENABLED, DEFAULT_HOLDER_ENABLED));
+    }
 }
