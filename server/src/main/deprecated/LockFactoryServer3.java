@@ -20,7 +20,9 @@ import org.obapanel.lockfactoryserver.server.utils.UnmodificableEnumMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.EnumMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -37,9 +39,9 @@ public class LockFactoryServer implements AutoCloseable {
     private static final Logger LOGGER = LoggerFactory.getLogger(LockFactoryServerMain.class);
 
 
-    private final EnumMap<Services, LockFactoryServices> services = new EnumMap<>(Services.class);
+    private EnumMap<Services, LockFactoryServices> services = new EnumMap<>(Services.class);
 
-    private final EnumMap<Connections, LockFactoryConnection> lockServerConnections = new EnumMap<>(Connections.class);
+    private EnumMap<Connections, LockFactoryConnection> lockServerConnections = new EnumMap<>(Connections.class);
 
     private final LockFactoryConfiguration configuration;
 
@@ -70,7 +72,7 @@ public class LockFactoryServer implements AutoCloseable {
             if (!isRunningServer.get()) {
                 LOGGER.info("Starting server");
                 createServices();
-                createConnectionServers();
+                createServers();
                 isRunningServer.set(true);
             } else {
                 LOGGER.info("Started server");
@@ -94,58 +96,62 @@ public class LockFactoryServer implements AutoCloseable {
 
     final void createSynchronizedServices() {
         LOGGER.debug("createOrderedSingleThreadServices");
+        EnumMap<Services, LockFactoryServices> tempServices = new EnumMap<>(Services.class);
         if (configuration.isManagementEnabled()) {
             LOGGER.debug("createServices management");
             ManagementService managementService = new ManagementServiceSynchronized(configuration, this);
-            services.put(Services.MANAGEMENT, managementService);
+            tempServices.put(Services.MANAGEMENT, managementService);
         }
         if (configuration.isLockEnabled()) {
             LOGGER.debug("createServices lock");
             LockService lockService = new LockServiceSynchronized(configuration);
-            services.put(Services.LOCK, lockService);
+            tempServices.put(Services.LOCK, lockService);
         }
         if (configuration.isSemaphoreEnabled()) {
             LOGGER.debug("createServices semaphore");
             SemaphoreService semaphoreService = new SemaphoreServiceSynchronized(configuration);
-            services.put(Services.SEMAPHORE, semaphoreService);
+            tempServices.put(Services.SEMAPHORE, semaphoreService);
         }
         if (configuration.isCountDownLatchEnabled()) {
             LOGGER.debug("createServices countdownlatch");
             CountDownLatchService countDownLatchService = new CountDownLatchServiceSynchronized(configuration);
-            services.put(Services.COUNTDOWNLATCH, countDownLatchService);
+            tempServices.put(Services.COUNTDOWNLATCH, countDownLatchService);
         }
+        services = new UnmodificableEnumMap<>(Services.class, tempServices);
     }
 
     final void createNormalServices() {
         LOGGER.debug("createNormalServices");
+        EnumMap<Services, LockFactoryServices> tempServices = new EnumMap<>(Services.class);
         if (configuration.isManagementEnabled()) {
             LOGGER.debug("createServices management");
             ManagementService managementService = new ManagementService(configuration, this);
-            services.put(Services.MANAGEMENT, managementService);
+            tempServices.put(Services.MANAGEMENT, managementService);
         }
         if (configuration.isLockEnabled()) {
             LOGGER.debug("createServices lock");
             LockService lockService = new LockService(configuration);
-            services.put(Services.LOCK, lockService);
+            tempServices.put(Services.LOCK, lockService);
         }
         if (configuration.isSemaphoreEnabled()) {
             LOGGER.debug("createServices semaphore");
             SemaphoreService semaphoreService = new SemaphoreService(configuration);
-            services.put(Services.SEMAPHORE, semaphoreService);
+            tempServices.put(Services.SEMAPHORE, semaphoreService);
         }
         if (configuration.isCountDownLatchEnabled()) {
             LOGGER.debug("createServices countdownlatch");
             CountDownLatchService countDownLatchService = new CountDownLatchService(configuration);
-            services.put(Services.COUNTDOWNLATCH, countDownLatchService);
+            tempServices.put(Services.COUNTDOWNLATCH, countDownLatchService);
         }
+        services = new UnmodificableEnumMap<>(Services.class, tempServices);
     }
 
     /**
      * Return a map of the services
      * @return Unmodificable map of services
      */
-    public final EnumMap<Services, LockFactoryServices> getServices() {
-        return new UnmodificableEnumMap<>(services);
+    public final Map<Services, LockFactoryServices> getServices() {
+        return services;
     }
 
     /**
@@ -167,11 +173,8 @@ public class LockFactoryServer implements AutoCloseable {
         return isRunningNow;
     }
 
-    /**
-     * Create connection services like RMI, gRPC and HTTP
-     * @throws Exception if anything goes brrrrrrr
-     */
-    final void createConnectionServers() throws Exception {
+    final void createServers() throws Exception {
+        EnumMap<Connections, LockFactoryConnection> tempConnections = new EnumMap<>(Connections.class);
         if (configuration.isRmiServerActive()) {
             activateRmiServer();
         }
@@ -181,6 +184,7 @@ public class LockFactoryServer implements AutoCloseable {
         if (configuration.isRestServerActive()) {
             activateRestServer();
         }
+        lockServerConnections = new UnmodificableEnumMap<>(Connections.class, tempConnections);
     }
 
 
@@ -188,40 +192,40 @@ public class LockFactoryServer implements AutoCloseable {
      * Activate RMI server and bind with services
      * @throws Exception if there's something wrong
      */
-    final void activateRmiServer() throws Exception {
+    final void activateRmiServer(EnumMap<Connections, LockFactoryConnection> tempConnections) throws Exception {
         LOGGER.debug("activate RMI server");
         RmiConnection rmiConnection = new RmiConnection();
         rmiConnection.activate(configuration, getServices());
-        lockServerConnections.put(rmiConnection.getType(), rmiConnection);
+        tempConnections.put(rmiConnection.getType(), rmiConnection);
     }
 
     /**
      * Activate GRPC server and bind with services
      * @throws Exception if there's something wrong
      */
-    final void activateGrpcServer() throws Exception {
+    final void activateGrpcServer(EnumMap<Connections, LockFactoryConnection> tempConnections) throws Exception {
         LOGGER.debug("activate GRPC server");
         GrpcConnection grpcConnection = new GrpcConnection();
         grpcConnection.activate(configuration, getServices());
-        lockServerConnections.put(grpcConnection.getType(), grpcConnection);
+        tempConnections.put(grpcConnection.getType(), grpcConnection);
     }
 
     /**
      * Activate REST server and bind with services
      * @throws Exception if there's something wrong
      */
-    final void activateRestServer() throws Exception {
+    final void activateRestServer(EnumMap<Connections, LockFactoryConnection> tempConnections) throws Exception {
         LOGGER.debug("activate REST server");
         RestConnection restConnection = new RestConnection();
         restConnection.activate(configuration, getServices());
-        lockServerConnections.put(restConnection.getType(), restConnection);
+        tempConnections.put(restConnection.getType(), restConnection);
     }
 
-    protected final EnumMap<Connections, LockFactoryConnection> getConnections() {
-        return new UnmodificableEnumMap<>(lockServerConnections);
+    final Map<Connections, LockFactoryConnection> getConnections() {
+        return lockServerConnections;
     }
 
-    protected final LockFactoryConnection getConnection(Connections type) {
+    final LockFactoryConnection getConnection(Connections type) {
         return lockServerConnections.get(type);
     }
 
