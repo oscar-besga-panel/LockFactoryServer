@@ -11,7 +11,6 @@ public class HolderCache extends PrimitivesCache<Holder> {
         super(configuration);
     }
 
-
     @Override
     public String getMapGenericName() {
         return NAME;
@@ -24,7 +23,7 @@ public class HolderCache extends PrimitivesCache<Holder> {
 
     @Override
     public boolean avoidExpiration(String name, Holder data) {
-        return data.checkExpired();
+        return !data.checkExpired();
     }
 
 }
