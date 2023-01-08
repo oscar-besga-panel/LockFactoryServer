@@ -15,6 +15,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.stream.IntStream;
 
 import static org.junit.Assert.assertEquals;
+import static org.obapanel.lockfactoryserver.server.UtilsForTest.doSleepInTest;
 
 public class HolderTest {
 
@@ -32,100 +33,6 @@ public class HolderTest {
         executorService.shutdown();
         executorService.shutdownNow();
     }
-
-    public static synchronized void doSleep(long t) {
-        try {
-            Thread.sleep(t);
-        } catch (InterruptedException e) {
-            // Empty on purpose
-        }
-    }
-//
-//    @Test
-//    public void get1Test() throws ExecutionException, InterruptedException, TimeoutException {
-//        Holder holder = new Holder();
-//        Future f = executorService.submit(() -> holder.set("value", 1000, TimeUnit.MILLISECONDS));
-//        f.get(1000, TimeUnit.MILLISECONDS);
-//        String result = holder.get();
-//        boolean cancelled = holder.checkCancelled();
-//        boolean expired = holder.checkExpired();
-//        assertEquals("value", result);
-//        assertFalse(cancelled);
-//        assertFalse(expired);
-//    }
-//
-//    @Test
-//    public void get2Test() throws ExecutionException, InterruptedException, TimeoutException {
-//        Holder holder = new Holder();
-//        Future f = executorService.submit(() -> holder.set("value", 1000));
-//        f.get(1000, TimeUnit.MILLISECONDS);
-//        String result = holder.get();
-//        boolean cancelled = holder.checkCancelled();
-//        boolean expired = holder.checkExpired();
-//        assertEquals("value", result);
-//        assertFalse(cancelled);
-//        assertFalse(expired);
-//    }
-//
-//    @Test
-//    public void get3Test() throws ExecutionException, InterruptedException, TimeoutException {
-//        Holder holder = new Holder();
-//        Future f = executorService.submit(() -> holder.set("value"));
-//        f.get(1000, TimeUnit.MILLISECONDS);
-//        String result = holder.get();
-//        boolean cancelled = holder.checkCancelled();
-//        boolean expired = holder.checkExpired();
-//        assertEquals("value", result);
-//        assertFalse(cancelled);
-//        assertTrue(expired);
-//    }
-//
-//    @Test
-//    public void get4Test() throws ExecutionException, InterruptedException, TimeoutException {
-//        Holder holder = new Holder();
-//        Future f = executorService.submit(() -> holder.cancel());
-//        f.get(1000, TimeUnit.MILLISECONDS);
-//        String result = holder.get();
-//        boolean cancelled = holder.checkCancelled();
-//        boolean expired = holder.checkExpired();
-//        assertNull(result);
-//        assertTrue(cancelled);
-//        assertTrue(expired);
-//    }
-//
-//    @Test
-//    public void getWithTimeout1Test() throws ExecutionException, InterruptedException, TimeoutException {
-//        Holder holder = new Holder();
-//        Future f = executorService.submit(() ->  {
-//            doSleep(750);
-//            holder.set("value", 1000, TimeUnit.MILLISECONDS);
-//            LOGGER.debug("Value setted");
-//        });
-//        String result = holder.getWithTimeOut(500);
-//        LOGGER.debug("result acquired");
-//        boolean cancelled = holder.checkCancelled();
-//        boolean expired = holder.checkExpired();
-//        LOGGER.debug("result: {} cancelled: {} expired: {}", result, cancelled, expired);
-//        assertNull(result);
-//        assertFalse(cancelled);
-//        assertFalse(expired);
-//    }
-//
-//    @Test
-//    public void getWithTimeout2Test() throws ExecutionException, InterruptedException, TimeoutException {
-//        Holder holder = new Holder();
-//        Future f = executorService.submit(() -> {
-//            doSleep(250);
-//            holder.set("value", 1000, TimeUnit.MILLISECONDS);
-//        });
-//        String result = holder.getWithTimeOut(750);
-//        boolean cancelled = holder.checkCancelled();
-//        boolean expired = holder.checkExpired();
-//        assertEquals("value", result);
-//        assertFalse(cancelled);
-//        assertFalse(expired);
-//    }
-
 
     @Test
     public void getResult1Test() throws ExecutionException, InterruptedException, TimeoutException {
@@ -149,7 +56,7 @@ public class HolderTest {
     public void getResult3Test() throws ExecutionException, InterruptedException, TimeoutException {
         Holder holder = new Holder();
         Future f = executorService.submit(() -> {
-            doSleep(50);
+            doSleepInTest(50);
             holder.set("value");
         });
         HolderResult result = holder.getResult();
@@ -162,7 +69,7 @@ public class HolderTest {
     public void getResult4Test() throws ExecutionException, InterruptedException, TimeoutException {
         Holder holder = new Holder();
         Future f = executorService.submit(() -> holder.set("value"));
-        doSleep(50);
+        doSleepInTest(50);
         f.get(1000, TimeUnit.MILLISECONDS);
         HolderResult result = holder.getResult();
         assertEquals(HolderResult.EXPIRED, result);
@@ -181,7 +88,7 @@ public class HolderTest {
     public void getResultWithTimeout1Test() throws ExecutionException, InterruptedException, TimeoutException {
         Holder holder = new Holder();
         Future f = executorService.submit(() ->  {
-            doSleep(750);
+            doSleepInTest(750);
             holder.set("value", 1000, TimeUnit.MILLISECONDS);
             LOGGER.debug("Value setted");
         });
@@ -195,7 +102,7 @@ public class HolderTest {
     public void getResultWithTimeout2Test() throws ExecutionException, InterruptedException, TimeoutException {
         Holder holder = new Holder();
         Future f = executorService.submit(() -> {
-            doSleep(250);
+            doSleepInTest(250);
             holder.set("value", 1000, TimeUnit.MILLISECONDS);
             LOGGER.debug("Value setted");
         });
@@ -248,7 +155,7 @@ public class HolderTest {
             LOGGER.debug("Value acquired {}", tmp);
             return tmp;
         });
-        doSleep(500);
+        doSleepInTest(500);
         holder.set("value", 1000, TimeUnit.MILLISECONDS);
         LOGGER.debug("Value setted");
         HolderResult result = f.get(1000, TimeUnit.MILLISECONDS);
@@ -265,7 +172,7 @@ public class HolderTest {
             LOGGER.debug("Value acquired {}", tmp);
             return tmp;
         });
-        doSleep(50);
+        doSleepInTest(50);
         holder.set("value");
         LOGGER.debug("Value setted");
         HolderResult result = f.get(1000, TimeUnit.MILLISECONDS);

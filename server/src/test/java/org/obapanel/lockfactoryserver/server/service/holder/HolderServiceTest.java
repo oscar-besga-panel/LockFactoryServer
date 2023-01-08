@@ -4,6 +4,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
+import org.obapanel.lockfactoryserver.server.service.Services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +20,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.obapanel.lockfactoryserver.server.UtilsForTest.doSleepInTest;
 
 public class HolderServiceTest {
 
@@ -43,18 +45,10 @@ public class HolderServiceTest {
         holderService.shutdown();
     }
 
-    public static synchronized void doSleep(long t) {
-        try {
-            Thread.sleep(t);
-        } catch (InterruptedException e) {
-            // Empty on purpose
-        }
-    }
-
     @Test
     public void get1Test() {
         executorService.submit(() -> {
-            doSleep(50);
+            doSleepInTest(50);
            holderService.set("key", "value");
         });
         HolderResult holderResult = holderService.get("key");
@@ -85,7 +79,7 @@ public class HolderServiceTest {
             holderService.get("key")
         );
         executorService.submit(() -> {
-            doSleep(1200);
+            doSleepInTest(1200);
             holderService.set("key", "value");
         });
         HolderResult result = null;
@@ -107,7 +101,7 @@ public class HolderServiceTest {
             return hr;
         });
         executorService.submit(() -> {
-            doSleep(700);
+            doSleepInTest(700);
             holderService.set("key", "value");
             LOGGER.debug("set");
         });
@@ -129,10 +123,10 @@ public class HolderServiceTest {
     @Test
     public void get6Test() throws ExecutionException, InterruptedException, TimeoutException {
         Future<HolderResult> f = executorService.submit(() ->
-                holderService.getWithTimeOut("key", 500)
+                holderService.getWithTimeOut("key", 500, TimeUnit.MILLISECONDS)
         );
         executorService.submit(() -> {
-            doSleep(300);
+            doSleepInTest(300);
             holderService.set("key", "value");
         });
 
@@ -148,11 +142,19 @@ public class HolderServiceTest {
         assertNotNull(result.getValue());
     }
 
+    @Test
+    public void getIfAvailable() {
+        holderService.set("key1", "value1", 1000, TimeUnit.MILLISECONDS);
+        HolderResult holderResult1 = holderService.getIfAvailable("key1");
+        HolderResult holderResult2 = holderService.getIfAvailable("key2");
+        assertEquals(new HolderResult("value1"), holderResult1);
+        assertNull(holderResult2);
+    }
 
     @Test
     public void cancel1Test() {
         executorService.submit(() -> {
-            doSleep(20);
+            doSleepInTest(20);
             holderService.cancel("key");
         });
         HolderResult holderResult = holderService.get("key");
@@ -164,9 +166,14 @@ public class HolderServiceTest {
         executorService.submit(() -> {
             holderService.cancel("key");
         });
-        doSleep(20);
+        doSleepInTest(20);
         HolderResult holderResult = holderService.getWithTimeOut("key", 200);
         assertEquals(HolderResult.AWAITED, holderResult);
+    }
+
+    @Test
+    public void getTypeTest() {
+        assertEquals(Services.HOLDER, holderService.getType());
     }
 
 }

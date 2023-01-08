@@ -34,4 +34,12 @@ public class UtilsForTest {
         return services;
     }
 
+    public static synchronized void doSleepInTest(long t) {
+        try {
+            Thread.sleep(t);
+        } catch (InterruptedException e) {
+            // Empty on purpose
+        }
+    }
+
 }
