@@ -1,4 +1,4 @@
-package org.obapanel.lockfactoryserver.server.service.holder;
+package org.obapanel.lockfactoryserver.core.holder;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -7,12 +7,14 @@ import java.util.StringJoiner;
 public class HolderResult implements Serializable {
 
     public enum Status {
-        RETRIEVED, EXPIRED, CANCELLED, AWAITED;
+        RETRIEVED, EXPIRED, CANCELLED, AWAITED, NOTFOUND;
     }
 
     public static final HolderResult EXPIRED = new HolderResult(null, Status.EXPIRED);
     public static final HolderResult CANCELLED = new HolderResult(null, Status.CANCELLED);
     public static final HolderResult AWAITED = new HolderResult(null, Status.AWAITED);
+    public static final HolderResult NOTFOUND = new HolderResult(null, Status.NOTFOUND);
+
 
     private final String value;
     private final Status status;

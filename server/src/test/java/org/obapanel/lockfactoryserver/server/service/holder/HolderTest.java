@@ -3,6 +3,7 @@ package org.obapanel.lockfactoryserver.server.service.holder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.obapanel.lockfactoryserver.core.holder.HolderResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +47,7 @@ public class HolderTest {
     @Test
     public void getResult2Test() throws ExecutionException, InterruptedException, TimeoutException {
         Holder holder = new Holder();
-        Future f = executorService.submit(() -> holder.set("value", 1000));
+        Future f = executorService.submit(() -> holder.set("value", 1, TimeUnit.SECONDS));
         f.get(1000, TimeUnit.MILLISECONDS);
         HolderResult result = holder.getResult();
         assertEquals(new HolderResult("value"), result);
@@ -92,7 +93,7 @@ public class HolderTest {
             holder.set("value", 1000, TimeUnit.MILLISECONDS);
             LOGGER.debug("Value setted");
         });
-        HolderResult result = holder.getResultWithTimeOut(500);
+        HolderResult result = holder.getResultWithTimeOut(500, TimeUnit.MILLISECONDS);
         LOGGER.debug("result acquired");
         LOGGER.debug("result: {} ", result);
         assertEquals(new HolderResult(null, HolderResult.Status.AWAITED), result);
@@ -106,7 +107,7 @@ public class HolderTest {
             holder.set("value", 1000, TimeUnit.MILLISECONDS);
             LOGGER.debug("Value setted");
         });
-        HolderResult result = holder.getResultWithTimeOut(750);
+        HolderResult result = holder.getResultWithTimeOut(750,TimeUnit.MILLISECONDS);
         LOGGER.debug("result acquired");
         LOGGER.debug("result: {} ", result);
         assertEquals(new HolderResult("value"), result);

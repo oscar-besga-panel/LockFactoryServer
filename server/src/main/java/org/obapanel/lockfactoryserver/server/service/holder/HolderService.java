@@ -1,5 +1,6 @@
 package org.obapanel.lockfactoryserver.server.service.holder;
 
+import org.obapanel.lockfactoryserver.core.holder.HolderResult;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.service.LockFactoryServices;
 import org.obapanel.lockfactoryserver.server.service.Services;
@@ -25,12 +26,6 @@ public class HolderService implements LockFactoryServices {
         return holder.getResult();
     }
 
-    public HolderResult getWithTimeOut(String name, long timeOutMilis) {
-        Holder holder = holderCache.getOrCreateData(name);
-        return holder.getResultWithTimeOut(timeOutMilis);
-    }
-
-
     public HolderResult getWithTimeOut(String name, long timeOut, TimeUnit timeUnit) {
         Holder holder = holderCache.getOrCreateData(name);
         return holder.getResultWithTimeOut(timeOut, timeUnit);
@@ -41,18 +36,23 @@ public class HolderService implements LockFactoryServices {
         if (holder != null) {
             return holder.getResult();
         } else {
-            return null;
+            return HolderResult.NOTFOUND;
         }
     }
 
-    public void set(String name, String newValue) {
-        Holder holder = holderCache.getOrCreateData(name);
-        holder.set(newValue);
+    public HolderResult getIfAvailableWithTimeOut(String name, long timeOut, TimeUnit timeUnit) {
+        Holder holder = holderCache.getData(name);
+        if (holder != null) {
+            return holder.getResultWithTimeOut(timeOut, timeUnit);
+        } else {
+            return HolderResult.NOTFOUND;
+        }
     }
 
-    public void set(String name, String newValue, long timeToLiveMilis) {
+
+        public void set(String name, String newValue) {
         Holder holder = holderCache.getOrCreateData(name);
-        holder.set(newValue, timeToLiveMilis);
+        holder.set(newValue);
     }
 
     public void set(String name, String newValue, long timeToLive, TimeUnit timeUnit) {

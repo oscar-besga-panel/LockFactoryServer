@@ -1,5 +1,6 @@
 package org.obapanel.lockfactoryserver.server.service.holder;
 
+import org.obapanel.lockfactoryserver.core.holder.HolderResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,17 +79,6 @@ public class Holder {
      */
     public void set(String newValue) {
         doWithLock(() -> withLockSet(newValue, 0L, TimeUnit.MILLISECONDS));
-    }
-
-    /**
-     * Sets a new value in the holder, and it will in time
-     * Waiting threads will continue returning this value
-     * New threads will rerieve this value if not expired
-     * @param newValue new value to hold
-     * @param timeToLiveMilis Time to live in milis
-     */
-    public void set(String newValue, long timeToLiveMilis) {
-        doWithLock(() -> withLockSet(newValue, timeToLiveMilis, TimeUnit.MILLISECONDS));
     }
 
     /**
@@ -189,21 +179,8 @@ public class Holder {
      * @param timeOutMillis Time to wait in milis
      * @return result with value and status
      */
-    public HolderResult getResultWithTimeOut(long timeOutMillis) {
-        return returnWithLock(() -> withLockGetWithTimeOut(timeOutMillis, TimeUnit.MILLISECONDS));
-    }
-
-
-    /**
-     * Gets the value, waiting a time
-     * If time is passed or value is cancelled, null is returned
-     * If value is already set, its returned immediately
-     * Also expired and cancelled are returned
-     * @param timeOutMillis Time to wait in milis
-     * @return result with value and status
-     */
     public HolderResult getResultWithTimeOut(long timeOutMillis, TimeUnit timeUnit) {
-        return returnWithLock(() -> withLockGetWithTimeOut(timeOutMillis, TimeUnit.MILLISECONDS));
+        return returnWithLock(() -> withLockGetWithTimeOut(timeOutMillis, timeUnit));
     }
 
 

@@ -1,6 +1,7 @@
 package org.obapanel.lockfactoryserver.server.connections.rmi;
 
 import org.obapanel.lockfactoryserver.core.rmi.CountDownLatchServerRmi;
+import org.obapanel.lockfactoryserver.core.rmi.HolderServerRmi;
 import org.obapanel.lockfactoryserver.core.rmi.LockServerRmi;
 import org.obapanel.lockfactoryserver.core.rmi.ManagementServerRmi;
 import org.obapanel.lockfactoryserver.core.rmi.SemaphoreServerRmi;
@@ -10,6 +11,7 @@ import org.obapanel.lockfactoryserver.server.connections.LockFactoryConnection;
 import org.obapanel.lockfactoryserver.server.service.LockFactoryServices;
 import org.obapanel.lockfactoryserver.server.service.Services;
 import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchService;
+import org.obapanel.lockfactoryserver.server.service.holder.HolderService;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
 import org.obapanel.lockfactoryserver.server.service.management.ManagementService;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
@@ -67,6 +69,10 @@ public class RmiConnection implements LockFactoryConnection {
         if (configuration.isCountDownLatchEnabled()) {
             addService(servicesMap, port, Services.COUNTDOWNLATCH, CountDownLatchServerRmi.RMI_NAME,
                     t -> ( new CountDownLatchServerRmiImpl((CountDownLatchService) t))  );
+        }
+        if (configuration.isHolderEnabled()) {
+            addService(servicesMap, port, Services.HOLDER, HolderServerRmi.RMI_NAME,
+                    t -> (new HolderServerRmiImpl((HolderService) t)));
         }
         LOGGER.debug("RmiConnection activated");
     }
