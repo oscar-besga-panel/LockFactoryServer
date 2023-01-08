@@ -20,34 +20,44 @@ public class HolderService implements LockFactoryServices {
         this.holderCache = new HolderCache(configuration);
     }
 
-    public String get(String name) {
+    public HolderResult get(String name) {
         Holder holder = holderCache.getOrCreateData(name);
-        return holder.get();
+        return holder.getResult();
     }
 
-    public String getWithTimeOut(String name, long timeOut) {
+    public HolderResult getWithTimeOut(String name, long timeOutMilis) {
         Holder holder = holderCache.getOrCreateData(name);
-        return holder.getWithTimeOut(timeOut);
+        return holder.getResultWithTimeOut(timeOutMilis);
     }
 
 
-    public String getWithTimeOut(String name, long timeOut, TimeUnit timeUnit) {
+    public HolderResult getWithTimeOut(String name, long timeOut, TimeUnit timeUnit) {
         Holder holder = holderCache.getOrCreateData(name);
-        return holder.getWithTimeOut(timeOut, timeUnit);
+        return holder.getResultWithTimeOut(timeOut, timeUnit);
     }
 
-    public String getIfAvailable(String name) {
+    public HolderResult getIfAvailable(String name) {
         Holder holder = holderCache.getData(name);
         if (holder != null) {
-            return holder.get();
+            return holder.getResult();
         } else {
             return null;
         }
     }
 
-    public void set(String name, String newValue, long timeToLive) {
+    public void set(String name, String newValue) {
         Holder holder = holderCache.getOrCreateData(name);
-        holder.set(newValue, timeToLive);
+        holder.set(newValue);
+    }
+
+    public void set(String name, String newValue, long timeToLiveMilis) {
+        Holder holder = holderCache.getOrCreateData(name);
+        holder.set(newValue, timeToLiveMilis);
+    }
+
+    public void set(String name, String newValue, long timeToLive, TimeUnit timeUnit) {
+        Holder holder = holderCache.getOrCreateData(name);
+        holder.set(newValue, timeToLive, timeUnit);
     }
 
     public void cancel(String name) {
@@ -57,7 +67,6 @@ public class HolderService implements LockFactoryServices {
         }
         holderCache.removeData(name);
     }
-
 
     @Override
     public Services getType() {

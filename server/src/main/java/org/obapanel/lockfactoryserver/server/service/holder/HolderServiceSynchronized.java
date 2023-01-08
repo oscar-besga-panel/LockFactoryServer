@@ -16,22 +16,22 @@ public class HolderServiceSynchronized extends HolderService {
 
     //TODO
     @Override
-    public synchronized String get(String name) {
+    public synchronized HolderResult get(String name) {
         return super.get(name);
     }
 
     @Override
-    public synchronized String getWithTimeOut(String name, long timeOut) {
+    public synchronized HolderResult getWithTimeOut(String name, long timeOut) {
         return super.getWithTimeOut(name, timeOut);
     }
 
     @Override
-    public synchronized String getWithTimeOut(String name, long timeOut, TimeUnit timeUnit) {
+    public synchronized HolderResult getWithTimeOut(String name, long timeOut, TimeUnit timeUnit) {
         return super.getWithTimeOut(name, timeOut, timeUnit);
     }
 
     @Override
-    public synchronized String getIfAvailable(String name) {
+    public synchronized HolderResult getIfAvailable(String name) {
         return super.getIfAvailable(name);
     }
 

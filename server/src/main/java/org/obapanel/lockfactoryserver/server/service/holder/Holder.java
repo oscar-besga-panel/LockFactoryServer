@@ -22,9 +22,27 @@ public class Holder {
     private final AtomicReference<String> value = new AtomicReference<>();
     private final Lock dataLock = new ReentrantLock(true);
     private final Condition dataSetCondition = dataLock.newCondition();
+    private final AtomicLong dataTimestamp = new AtomicLong(-1);
     private final AtomicLong expirationTimestamp = new AtomicLong(-1);
     private final AtomicBoolean cancelled = new AtomicBoolean(false);
 
+    private final long maximumSize;
+
+    /**
+     * Creates new and sets the maximum size of the value to 1024
+     */
+    public Holder() {
+        this(1024);
+    }
+
+    /**
+     * Creates new and sets the maximum size of the value
+     * 0 to no limit (other than JVM max string size)
+     * @param maximumSize long value
+     */
+    public Holder(long maximumSize) {
+        this.maximumSize = maximumSize;
+    }
 
     /**
      * Executes code within the lock
@@ -44,7 +62,7 @@ public class Holder {
      * @param insideLock code to execute
      * @return result to return
      */
-    String returnWithLock(Supplier<String> insideLock) {
+    HolderResult returnWithLock(Supplier<HolderResult> insideLock) {
         dataLock.lock();
         try {
             return insideLock.get();
@@ -93,14 +111,15 @@ public class Holder {
         if (newValue == null) {
             throw new IllegalArgumentException("Value can not be null");
         }
-        if (newValue.length() > 1024) {
-            throw new IllegalArgumentException("Value can not be bigger than 1024 bytes");
+        if (maximumSize > 0 && newValue.length() > maximumSize) {
+            throw new IllegalArgumentException(String.format("Value can not be bigger than %d bytes", maximumSize));
         }
         if (timeToLive < 0 ) {
             throw new IllegalArgumentException("TimeToLive must be equal or greater than zero");
         }
         cancelled.set(false);
         value.set(newValue);
+        dataTimestamp.set(System.currentTimeMillis());
         resolveExpiration(timeToLive, timeUnit);
         dataSetCondition.signalAll();
     }
@@ -120,13 +139,16 @@ public class Holder {
     void withLockCancel() {
         cancelled.set(true);
         value.set(null);
+        dataTimestamp.set(System.currentTimeMillis());
         resolveExpiration(0L, TimeUnit.MILLISECONDS);
         dataSetCondition.signalAll();
     }
 
     void resolveExpiration(long timeToLive, TimeUnit timeUnit) {
         long expiration;
-        if (timeToLive > 0) {
+        if (timeToLive < 0) {
+            throw new IllegalArgumentException("TimeToLive must be equal or greater than zero");
+        } else if (timeToLive > 0) {
             expiration = System.currentTimeMillis() + timeUnit.toMillis(timeToLive);
         } else {
             expiration = System.currentTimeMillis() - 1;
@@ -134,28 +156,28 @@ public class Holder {
         expirationTimestamp.set(expiration);
     }
 
-
     /**
      * Gets the value, waiting indefinitely for it
      * If value is cancelled, null is returned
      * If value is already set, its returned immediately
-     * @return value or null
+     * Also expired and cancelled are returned
+     * @return result with value, expired and cancelled
      */
-    public String get() {
-        return returnWithLock(this::withLockGet);
+    public HolderResult getResult() {
+        return returnWithLock(() -> withLockGet());
     }
-
 
     /**
      * Executes the get action inside the lock
-     * @return value or null
+     * @return result value
      */
-    String withLockGet() {
+    HolderResult withLockGet() {
         return getWithRuntime(() -> {
+            long getTs = System.currentTimeMillis();
             if (value.get() == null && !cancelled.get()) {
                 dataSetCondition.await();
             }
-            return value.get();
+            return generateResult(false, getTs);
         });
     }
 
@@ -163,36 +185,60 @@ public class Holder {
      * Gets the value, waiting a time
      * If time is passed or value is cancelled, null is returned
      * If value is already set, its returned immediately
-     * @param timeOutMilis Time to wait in milis
-     * @return value or null
+     * Also expired and cancelled are returned
+     * @param timeOutMillis Time to wait in milis
+     * @return result with value and status
      */
-    public String getWithTimeOut(long timeOutMilis) {
-        return getWithTimeOut(timeOutMilis, TimeUnit.MILLISECONDS);
+    public HolderResult getResultWithTimeOut(long timeOutMillis) {
+        return returnWithLock(() -> withLockGetWithTimeOut(timeOutMillis, TimeUnit.MILLISECONDS));
     }
+
 
     /**
      * Gets the value, waiting a time
      * If time is passed or value is cancelled, null is returned
      * If value is already set, its returned immediately
-     * @param timeOut Time to wait
-     * @param timeUnit Unit of timeOut
-     * @return value or null
+     * Also expired and cancelled are returned
+     * @param timeOutMillis Time to wait in milis
+     * @return result with value and status
      */
-    public String getWithTimeOut(long timeOut, TimeUnit timeUnit) {
-        return returnWithLock(() -> withLockGetWithTimeOut(timeOut, timeUnit));
+    public HolderResult getResultWithTimeOut(long timeOutMillis, TimeUnit timeUnit) {
+        return returnWithLock(() -> withLockGetWithTimeOut(timeOutMillis, TimeUnit.MILLISECONDS));
     }
+
 
     /**
      * Executes the get action inside the lock
      * @return value or null
      */
-    String withLockGetWithTimeOut(long timeOut, TimeUnit timeUnit) {
+    HolderResult withLockGetWithTimeOut(long timeOut, TimeUnit timeUnit) {
         return getWithRuntime(() -> {
+            long getTs = System.currentTimeMillis();
+            boolean awaited = false;
             if (value.get() == null && !cancelled.get()) {
-                dataSetCondition.await(timeOut, timeUnit);
+                awaited = !dataSetCondition.await(timeOut, timeUnit);
             }
-            return value.get();
+            return generateResult(awaited, getTs);
         });
+    }
+
+    /**
+     * Generates a result with the current status
+     * @param awaited if a timeout was exceed
+     * @param getTs timestamp when the get request was first done
+     * @return result with data and status
+     */
+    HolderResult generateResult(boolean awaited, long getTs) {
+        if (awaited) {
+            return HolderResult.AWAITED;
+        } else if (checkCancelled()) {
+            return HolderResult.CANCELLED;
+        } else if (checkExpired() && getTs > dataTimestamp.get()) {
+            // If the data is expired and the get request was after the data was available
+            return HolderResult.EXPIRED;
+        } else {
+            return new HolderResult(value.get());
+        }
     }
 
     /**

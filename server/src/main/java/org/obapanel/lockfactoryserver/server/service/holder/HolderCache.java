@@ -6,9 +6,11 @@ import org.obapanel.lockfactoryserver.server.utils.primitivesCache.PrimitivesCac
 public class HolderCache extends PrimitivesCache<Holder> {
 
     public final static String NAME = "HolderCache";
+    private final long holderMaximumSize;
 
     public HolderCache(LockFactoryConfiguration configuration) {
         super(configuration);
+        holderMaximumSize = configuration.getHolderMaximumSize();
     }
 
     @Override
@@ -18,7 +20,7 @@ public class HolderCache extends PrimitivesCache<Holder> {
 
     @Override
     public Holder createNew(String name) {
-        return new Holder();
+        return new Holder(holderMaximumSize);
     }
 
     @Override

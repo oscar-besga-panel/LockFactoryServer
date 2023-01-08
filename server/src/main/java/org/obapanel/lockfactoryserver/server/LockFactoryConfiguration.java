@@ -27,6 +27,8 @@ public class LockFactoryConfiguration {
     public static final String COUNTDOWNLATCH_ENABLED = "countDownLatchEnabled";
     public static final String MANAGEMENT_ENABLED = "managementEnabled";
     public static final String HOLDER_ENABLED = "holderEnabled";
+    public static final String HOLDER_MAXIMUM_SIZE = "holderMaximumSize";
+
 
     public static final String CACHE_CHECK_DATA_PERIOD_SECONDS = "cacheCheckDataPeriodSeconds";
     public static final String CACHE_TIME_TO_LIVE_SECONDS = "cacheTimeToLiveSeconds";
@@ -49,6 +51,7 @@ public class LockFactoryConfiguration {
     public static final String DEFAULT_COUNTDOWNLATCH_ENABLED = TRUE;
     public static final String DEFAULT_MANAGEMENT_ENABLED = TRUE;
     public static final String DEFAULT_HOLDER_ENABLED = TRUE;
+    public static final String DEFAULT_HOLDER_MAXIMUM_SIZE = "1024";
 
 
 
@@ -158,8 +161,11 @@ public class LockFactoryConfiguration {
         return Boolean.parseBoolean(properties.getProperty(SYNCHRONIZED_SERVICES, DEFAULT_SYNCHRONIZED_SERVICES));
     }
 
-
     public boolean isHolderEnabled() {
         return Boolean.parseBoolean(properties.getProperty(HOLDER_ENABLED, DEFAULT_HOLDER_ENABLED));
+    }
+
+    public long getHolderMaximumSize() {
+        return Long.parseLong(properties.getProperty(HOLDER_MAXIMUM_SIZE, DEFAULT_HOLDER_MAXIMUM_SIZE));
     }
 }
