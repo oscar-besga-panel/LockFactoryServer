@@ -22,16 +22,19 @@ public class HolderService implements LockFactoryServices {
     }
 
     public HolderResult get(String name) {
+        LOGGER.info("service> get name {} ", name);
         Holder holder = holderCache.getOrCreateData(name);
         return holder.getResult();
     }
 
     public HolderResult getWithTimeOut(String name, long timeOut, TimeUnit timeUnit) {
+        LOGGER.info("service> getWithTimeOut name {} timeOut {} timeUnit {}", name, timeOut, timeUnit);
         Holder holder = holderCache.getOrCreateData(name);
         return holder.getResultWithTimeOut(timeOut, timeUnit);
     }
 
     public HolderResult getIfAvailable(String name) {
+        LOGGER.info("service> getIfAvailable name {} ", name);
         Holder holder = holderCache.getData(name);
         if (holder != null) {
             return holder.getResult();
@@ -39,28 +42,21 @@ public class HolderService implements LockFactoryServices {
             return HolderResult.NOTFOUND;
         }
     }
-
-    public HolderResult getIfAvailableWithTimeOut(String name, long timeOut, TimeUnit timeUnit) {
-        Holder holder = holderCache.getData(name);
-        if (holder != null) {
-            return holder.getResultWithTimeOut(timeOut, timeUnit);
-        } else {
-            return HolderResult.NOTFOUND;
-        }
-    }
-
-
-        public void set(String name, String newValue) {
+    public void set(String name, String newValue) {
+        LOGGER.info("service> set name {} newValue {}", name, newValue);
         Holder holder = holderCache.getOrCreateData(name);
         holder.set(newValue);
     }
 
-    public void set(String name, String newValue, long timeToLive, TimeUnit timeUnit) {
+    public void setWithTimeToLive(String name, String newValue, long timeToLive, TimeUnit timeUnit) {
+        LOGGER.info("service> setWithTimeToLive name {} newValue {} timeToLive {} timeUnit {} ",
+                name, newValue, timeToLive, timeUnit);
         Holder holder = holderCache.getOrCreateData(name);
         holder.set(newValue, timeToLive, timeUnit);
     }
 
     public void cancel(String name) {
+        LOGGER.info("service> cancel name {} ", name);
         Holder holder = holderCache.getData(name);
         if (holder != null) {
             holder.cancel();

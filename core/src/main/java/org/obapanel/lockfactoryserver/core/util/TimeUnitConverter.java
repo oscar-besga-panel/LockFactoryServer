@@ -45,6 +45,7 @@ public class TimeUnitConverter {
             return java.util.concurrent.TimeUnit.MILLISECONDS;
         } else {
             switch (timeUnitGrpc) {
+                case UNRECOGNIZED:
                 case MILLISECONDS:
                     return java.util.concurrent.TimeUnit.MILLISECONDS;
                 case SECONDS:
@@ -53,7 +54,6 @@ public class TimeUnitConverter {
                     return java.util.concurrent.TimeUnit.MINUTES;
                 case HOURS:
                     return java.util.concurrent.TimeUnit.HOURS;
-                case UNRECOGNIZED:
                 default:
                     throw new IllegalArgumentException("Error fromGrpcToJava convert timeunit " + timeUnitGrpc);
             }

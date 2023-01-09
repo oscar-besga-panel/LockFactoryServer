@@ -7,7 +7,11 @@ import java.util.StringJoiner;
 public class HolderResult implements Serializable {
 
     public enum Status {
-        RETRIEVED, EXPIRED, CANCELLED, AWAITED, NOTFOUND;
+        RETRIEVED, // A non-null value is returned
+        EXPIRED, // The holder is expired, null value returned
+        CANCELLED, // The holder is cancelled, null value returned
+        AWAITED, // The time for getting a value has passed, null value returned
+        NOTFOUND; // No holder with this name has been found, null value returned
     }
 
     public static final HolderResult EXPIRED = new HolderResult(null, Status.EXPIRED);
@@ -30,6 +34,10 @@ public class HolderResult implements Serializable {
 
     public String getValue() {
         return value;
+    }
+
+    public Status getStatus() {
+        return status;
     }
 
     @Override

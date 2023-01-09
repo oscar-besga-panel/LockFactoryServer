@@ -38,21 +38,15 @@ public class HolderServerRmiImpl implements HolderServerRmi {
     }
 
     @Override
-    public HolderResult getIfAvailableWithTimeOut(String name, long timeOut, TimeUnit timeUnit) throws RemoteException {
-        LOGGER.info("rmi  server> getIfAvailableWithTimeOut {}",name);
-        return holderService.getIfAvailableWithTimeOut(name, timeOut, timeUnit);
-    }
-
-    @Override
     public void set(String name, String newValue) throws RemoteException {
         LOGGER.info("rmi  server> set {}",name);
         holderService.set(name, newValue);
     }
 
     @Override
-    public void set(String name, String newValue, long timeToLive, TimeUnit timeUnit) throws RemoteException {
-        LOGGER.info("rmi  server> set {}",name);
-        holderService.set(name, newValue, timeToLive, timeUnit);
+    public void setWithTimeToLive(String name, String newValue, long timeToLive, TimeUnit timeUnit) throws RemoteException {
+        LOGGER.info("rmi  server> setWithTimeToLive {}",name);
+        holderService.setWithTimeToLive(name, newValue, timeToLive, timeUnit);
     }
 
     @Override

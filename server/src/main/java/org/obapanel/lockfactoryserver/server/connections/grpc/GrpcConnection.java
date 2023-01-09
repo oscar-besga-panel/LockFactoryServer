@@ -8,6 +8,7 @@ import org.obapanel.lockfactoryserver.server.connections.LockFactoryConnection;
 import org.obapanel.lockfactoryserver.server.service.LockFactoryServices;
 import org.obapanel.lockfactoryserver.server.service.Services;
 import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchService;
+import org.obapanel.lockfactoryserver.server.service.holder.HolderService;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
 import org.obapanel.lockfactoryserver.server.service.management.ManagementService;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
@@ -55,6 +56,11 @@ public class GrpcConnection implements LockFactoryConnection {
             CountDownLatchService countDownLatchService = (CountDownLatchService) services.get(Services.COUNTDOWNLATCH);
             CountDownLatchServerGrpcImpl countDownLatchServerGrpc = new CountDownLatchServerGrpcImpl(countDownLatchService);
             serverBuilder.addService(countDownLatchServerGrpc);
+        }
+        if (configuration.isHolderEnabled()) {
+            HolderService holderService = (HolderService) services.get(Services.HOLDER);
+            HolderServerGrpcImpl holderServerGrpc = new HolderServerGrpcImpl(holderService);
+            serverBuilder.addService(holderServerGrpc);
         }
         grpcServer = serverBuilder.build();
         grpcServer.start();

@@ -59,7 +59,7 @@ public class HolderServiceTest {
     @Test
     public void get2Test() {
         executorService.submit(() -> {
-            holderService.set("key", "value", 2, TimeUnit.SECONDS);
+            holderService.setWithTimeToLive("key", "value", 2, TimeUnit.SECONDS);
         });
         HolderResult holderResult = holderService.get("key");
         assertEquals(new HolderResult("value"), holderResult);
@@ -68,7 +68,7 @@ public class HolderServiceTest {
     @Test
     public void get3Test() {
         executorService.submit(() -> {
-            holderService.set("key", "value", 1000, TimeUnit.MILLISECONDS);
+            holderService.setWithTimeToLive("key", "value", 1000, TimeUnit.MILLISECONDS);
         });
         HolderResult holderResult = holderService.get("key");
         assertEquals(new HolderResult("value"), holderResult);
@@ -145,32 +145,12 @@ public class HolderServiceTest {
 
     @Test
     public void getIfAvailableTest() {
-        holderService.set("key1", "value1", 1000, TimeUnit.MILLISECONDS);
+        holderService.setWithTimeToLive("key1", "value1", 1000, TimeUnit.MILLISECONDS);
         HolderResult holderResult1 = holderService.getIfAvailable("key1");
         HolderResult holderResult2 = holderService.getIfAvailable("key2");
         assertEquals(new HolderResult("value1"), holderResult1);
         assertEquals(HolderResult.NOTFOUND, holderResult2);
     }
-
-    @Test
-    public void getIfAvailableWithTimeout1Test() {
-        holderService.set("key1", "value1", 1000, TimeUnit.MILLISECONDS);
-        HolderResult holderResult1 = holderService.getIfAvailableWithTimeOut("key1", 500, TimeUnit.MILLISECONDS);
-        HolderResult holderResult2 = holderService.getIfAvailableWithTimeOut("key2", 500, TimeUnit.MILLISECONDS);
-        assertEquals(new HolderResult("value1"), holderResult1);
-        assertEquals(HolderResult.NOTFOUND, holderResult2);
-    }
-
-    @Test
-    public void getIfAvailableWithTimeout2Test() {
-        holderService.set("key1", "value1", 10, TimeUnit.MILLISECONDS);
-        doSleepInTest(100);
-        HolderResult holderResult1 = holderService.getIfAvailableWithTimeOut("key1", 500, TimeUnit.MILLISECONDS);
-        HolderResult holderResult2 = holderService.getIfAvailableWithTimeOut("key2", 500, TimeUnit.MILLISECONDS);
-        assertEquals(HolderResult.EXPIRED, holderResult1);
-        assertEquals(HolderResult.NOTFOUND, holderResult2);
-    }
-
 
     @Test
     public void cancel1Test() {

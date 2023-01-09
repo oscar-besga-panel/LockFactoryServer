@@ -13,8 +13,6 @@ import org.obapanel.lockfactoryserver.server.service.lock.LockService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static org.obapanel.lockfactoryserver.core.util.LockStatusConverter.fromJavaToGrpc;
@@ -28,9 +26,6 @@ public class LockServerGrpcImpl extends LockServerGrpc.LockServerImplBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(LockServerGrpcImpl.class);
 
     private final LockService lockService;
-
-    private ExecutorService asyncLockService = Executors.newSingleThreadExecutor();
-
 
     public LockServerGrpcImpl(LockService lockService) {
         this.lockService = lockService;
@@ -80,7 +75,8 @@ public class LockServerGrpcImpl extends LockServerGrpc.LockServerImplBase {
         LOGGER.info("grpc server> lockStatus {} {}", name, token);
         LockStatus lockStatus = lockService.lockStatus(name, token);
         LockStatusValues response = LockStatusValues.newBuilder().
-                setLockStatus(fromJavaToGrpc(lockStatus)).build();
+                setLockStatus(fromJavaToGrpc(lockStatus)).
+                build();
         responseObserver.onNext(response);
         responseObserver.onCompleted();
     }
@@ -94,23 +90,6 @@ public class LockServerGrpcImpl extends LockServerGrpc.LockServerImplBase {
         responseObserver.onNext(response);
         responseObserver.onCompleted();
     }
-
-
-//    @Override
-//    public void asyncLock1(StringValue request, StreamObserver<StringValue> responseObserver) {
-//        asyncLockService.submit(() -> {
-//            LOGGER.info("grpc server> asyncLock {}", request.getValue());
-//            lock(request, responseObserver);
-//        });
-//    }
-//
-//    @Override
-//    public void asyncLock2(StringValue request, StreamObserver<StringValue> responseObserver) {
-//        asyncLockService.submit(() -> {
-//            LOGGER.info("grpc server> asyncLock {}", request.getValue());
-//            lock(request, responseObserver);
-//        });
-//    }
 
     @Override
     public void asyncLock(StringValue request, StreamObserver<StringValue> responseObserver) {
