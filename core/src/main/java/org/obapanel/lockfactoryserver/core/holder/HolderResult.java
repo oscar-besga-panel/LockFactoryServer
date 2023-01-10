@@ -65,4 +65,34 @@ public class HolderResult implements Serializable {
                 .toString();
     }
 
+    public String toTextString() {
+        if (value == null) {
+            return new StringBuilder().append(status.name()).append(",").toString();
+        } else {
+            return new StringJoiner(",").add(status.name()).add(value).toString();
+        }
+    }
+
+    public static String toTextString(HolderResult holderResult) {
+        return holderResult.toTextString();
+    }
+
+    public static HolderResult fromTextString(String value) {
+        if (value == null) {
+            throw new IllegalArgumentException("fromTextString not valid null value");
+        }
+        int pos = value.indexOf(',');
+        if (pos <= 0) {
+            throw new IllegalArgumentException(String.format("fromTextString not valid value: %s", value));
+        }
+        Status status = Status.valueOf(value.substring(0,pos));
+        String newValue;
+        if (pos + 1 >= value.length()) {
+            newValue = "";
+        } else {
+            newValue = value.substring(pos + 1);
+        }
+        return new HolderResult(newValue, status);
+    }
+
 }
