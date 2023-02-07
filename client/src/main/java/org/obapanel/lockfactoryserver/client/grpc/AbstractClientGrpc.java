@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 abstract class AbstractClientGrpc<M extends AbstractBlockingStub, N extends AbstractFutureStub> implements AutoCloseable {
 
@@ -83,7 +84,8 @@ abstract class AbstractClientGrpc<M extends AbstractBlockingStub, N extends Abst
 
     synchronized ExecutorService createLazyLocalExecutor() {
         if (lazyLocalExecutor == null) {
-            lazyLocalExecutor = Executors.newSingleThreadExecutor();
+            DaemonThreadFactory daemonThreadFactory = new DaemonThreadFactory();
+            lazyLocalExecutor = Executors.newSingleThreadExecutor(daemonThreadFactory);
         }
         return lazyLocalExecutor;
     }
@@ -98,6 +100,18 @@ abstract class AbstractClientGrpc<M extends AbstractBlockingStub, N extends Abst
             lazyLocalExecutor.shutdownNow();
         }
         LOGGER.debug("close");
+    }
+
+    // Seen in https://stackoverflow.com/questions/13883293/turning-an-executorservice-to-daemon-in-java
+    private class DaemonThreadFactory implements ThreadFactory {
+
+        @Override
+        public Thread newThread(Runnable runnable) {
+            Thread thread = Executors.defaultThreadFactory().
+                    newThread(runnable);
+            thread.setDaemon(true);
+            return thread;
+        }
     }
 
 }

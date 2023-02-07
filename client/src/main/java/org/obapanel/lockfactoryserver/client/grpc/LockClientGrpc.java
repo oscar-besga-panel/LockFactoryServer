@@ -128,7 +128,9 @@ public class LockClientGrpc
             try {
                 token = listenableFuture.get().getValue();
                 LOGGER.debug("Token is future {}", token);
-                onLock.run();
+                if (onLock != null) {
+                    onLock.run();
+                }
             } catch (InterruptedException e) {
                 throw RuntimeInterruptedException.getToThrowWhenInterrupted(e);
             } catch (ExecutionException e) {
