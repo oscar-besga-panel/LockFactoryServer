@@ -114,6 +114,7 @@ public class UnmodificableEnumMapTest {
         unmodificableEnumMap.merge(Services.MANAGEMENT, "xxx", (vv, vb) -> vv + vb);
     }
 
+    @Test
     public void entryAllowedTest() {
         Map.Entry<Services, String> entry = unmodificableEnumMap.entrySet().stream().findFirst().get();
         assertEquals(Services.LOCK, entry.getKey());

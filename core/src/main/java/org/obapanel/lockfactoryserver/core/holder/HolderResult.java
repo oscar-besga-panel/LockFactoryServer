@@ -67,14 +67,10 @@ public class HolderResult implements Serializable {
 
     public String toTextString() {
         if (value == null) {
-            return new StringBuilder().append(status.name()).append(",").toString();
+            return status.name() + ",";
         } else {
             return new StringJoiner(",").add(status.name()).add(value).toString();
         }
-    }
-
-    public static String toTextString(HolderResult holderResult) {
-        return holderResult.toTextString();
     }
 
     public static HolderResult fromTextString(String value) {
@@ -88,7 +84,7 @@ public class HolderResult implements Serializable {
         Status status = Status.valueOf(value.substring(0,pos));
         String newValue;
         if (pos + 1 >= value.length()) {
-            newValue = "";
+            newValue = null;
         } else {
             newValue = value.substring(pos + 1);
         }

@@ -187,17 +187,17 @@ service HolderServer {
   /*
    * Get value, await indefinitely
    */
-  rpc get(google.protobuf.StringValue) returns (HolderResult) {};
+  rpc get(google.protobuf.StringValue) returns (HolderResultGrpc) {};
 
   /*
    * Get value, awaiting given time
    */
-  rpc getWithTimeOut(HolderNameWithTimeOut) returns (HolderResult) {};
+  rpc getWithTimeOut(HolderNameWithTimeOut) returns (HolderResultGrpc) {};
 
   /*
    * Get value if present, return not found if not
    */
-  rpc getIfAvailable(google.protobuf.StringValue) returns (HolderResult) {};
+  rpc getIfAvailable(google.protobuf.StringValue) returns (HolderResultGrpc) {};
 
   /*
    * Sets a value, holder is expired when the value is set
@@ -261,9 +261,9 @@ enum LockStatus {
     OTHER = 3; // Lock exists, is locked by other
 }
 
-message HolderResult {
+message HolderResultGrpc {
   string value = 1;
-  HolderResultStatus status = 2;
+  HolderResultStatusGrpc status = 2;
 }
 
 message HolderNameWithTimeOut {
@@ -284,7 +284,7 @@ message HolderSetWithTimeToLive {
   optional TimeUnitGrpc timeUnit = 4;
 }
 
-enum HolderResultStatus {
+enum HolderResultStatusGrpc {
   RETRIEVED =0;
   EXPIRED = 1;
   CANCELLED = 2;

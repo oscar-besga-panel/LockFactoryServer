@@ -3,11 +3,7 @@ package org.obapanel.lockfactoryserver.server.connections.grpc;
 import com.google.protobuf.Empty;
 import com.google.protobuf.StringValue;
 import io.grpc.stub.StreamObserver;
-import org.obapanel.lockfactoryserver.core.grpc.HolderNameWithTimeOut;
-import org.obapanel.lockfactoryserver.core.grpc.HolderResult;
-import org.obapanel.lockfactoryserver.core.grpc.HolderServerGrpc;
-import org.obapanel.lockfactoryserver.core.grpc.HolderSet;
-import org.obapanel.lockfactoryserver.core.grpc.HolderSetWithTimeToLive;
+import org.obapanel.lockfactoryserver.core.grpc.*;
 import org.obapanel.lockfactoryserver.server.service.holder.HolderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +25,7 @@ public class HolderServerGrpcImpl extends HolderServerGrpc.HolderServerImplBase 
     }
 
     @Override
-    public void get(StringValue request, StreamObserver<HolderResult> responseObserver) {
+    public void get(StringValue request, StreamObserver<HolderResultGrpc> responseObserver) {
         String name = request.getValue();
         LOGGER.info("grpc server> get name {}", name);
         org.obapanel.lockfactoryserver.core.holder.HolderResult holderResult = holderService.get(name);
@@ -38,7 +34,7 @@ public class HolderServerGrpcImpl extends HolderServerGrpc.HolderServerImplBase 
     }
 
     @Override
-    public void getWithTimeOut(HolderNameWithTimeOut request, StreamObserver<HolderResult> responseObserver) {
+    public void getWithTimeOut(HolderNameWithTimeOut request, StreamObserver<HolderResultGrpc> responseObserver) {
         String name = request.getName();
         long timeOut = request.getTimeOut();
         TimeUnit timeUnit = fromGrpcToJava(request.getTimeUnit());
@@ -50,7 +46,7 @@ public class HolderServerGrpcImpl extends HolderServerGrpc.HolderServerImplBase 
     }
 
     @Override
-    public void getIfAvailable(StringValue request, StreamObserver<HolderResult> responseObserver) {
+    public void getIfAvailable(StringValue request, StreamObserver<HolderResultGrpc> responseObserver) {
         String name = request.getValue();
         LOGGER.info("grpc server> getIfAvailable name {}", name);
         org.obapanel.lockfactoryserver.core.holder.HolderResult holderResult = holderService.getIfAvailable(name);

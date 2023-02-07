@@ -16,21 +16,40 @@ public class HolderService implements LockFactoryServices {
     public static final Services TYPE = Services.HOLDER;
 
     private final HolderCache holderCache;
+    private final boolean createOnRequest;
 
     public HolderService(LockFactoryConfiguration configuration) {
         this.holderCache = new HolderCache(configuration);
+        this.createOnRequest = configuration.isHolderCreateOnRequest();
+    }
+
+    private Holder getHolder(String name) {
+        if (createOnRequest) {
+            return holderCache.getOrCreateData(name);
+        } else {
+            return holderCache.getData(name);
+        }
     }
 
     public HolderResult get(String name) {
         LOGGER.info("service> get name {} ", name);
-        Holder holder = holderCache.getOrCreateData(name);
-        return holder.getResult();
+        Holder holder = getHolder(name);
+        if (holder != null) {
+            return holder.getResult();
+        } else {
+            return HolderResult.NOTFOUND;
+        }
     }
 
     public HolderResult getWithTimeOut(String name, long timeOut, TimeUnit timeUnit) {
         LOGGER.info("service> getWithTimeOut name {} timeOut {} timeUnit {}", name, timeOut, timeUnit);
-        Holder holder = holderCache.getOrCreateData(name);
-        return holder.getResultWithTimeOut(timeOut, timeUnit);
+        // Holder holder = holderCache.getOrCreateData(name);
+        Holder holder = getHolder(name);
+        if (holder != null) {
+            return holder.getResultWithTimeOut(timeOut, timeUnit);
+        } else {
+            return HolderResult.NOTFOUND;
+        }
     }
 
     public HolderResult getIfAvailable(String name) {
@@ -42,6 +61,7 @@ public class HolderService implements LockFactoryServices {
             return HolderResult.NOTFOUND;
         }
     }
+
     public void set(String name, String newValue) {
         LOGGER.info("service> set name {} newValue {}", name, newValue);
         Holder holder = holderCache.getOrCreateData(name);
@@ -72,6 +92,6 @@ public class HolderService implements LockFactoryServices {
     @Override
     public void shutdown() throws Exception {
         holderCache.clearAndShutdown();
-
     }
+
 }

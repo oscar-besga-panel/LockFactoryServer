@@ -28,6 +28,7 @@ public class LockFactoryConfiguration {
     public static final String MANAGEMENT_ENABLED = "managementEnabled";
     public static final String HOLDER_ENABLED = "holderEnabled";
     public static final String HOLDER_MAXIMUM_SIZE = "holderMaximumSize";
+    public static final String HOLDER_CREATE_ON_REQUEST = "holderCreateOnRequest";
 
 
     public static final String CACHE_CHECK_DATA_PERIOD_SECONDS = "cacheCheckDataPeriodSeconds";
@@ -52,7 +53,7 @@ public class LockFactoryConfiguration {
     public static final String DEFAULT_MANAGEMENT_ENABLED = TRUE;
     public static final String DEFAULT_HOLDER_ENABLED = TRUE;
     public static final String DEFAULT_HOLDER_MAXIMUM_SIZE = "1024";
-
+    public static final String DEFAULT_HOLDER_CREATE_ON_REQUEST = TRUE;
 
 
     public static final String DEFAULT_CACHE_CHECK_DATA_PERIOD_SECONDS = "10";
@@ -168,4 +169,9 @@ public class LockFactoryConfiguration {
     public long getHolderMaximumSize() {
         return Long.parseLong(properties.getProperty(HOLDER_MAXIMUM_SIZE, DEFAULT_HOLDER_MAXIMUM_SIZE));
     }
+
+    public boolean isHolderCreateOnRequest() {
+        return Boolean.parseBoolean(properties.getProperty(HOLDER_CREATE_ON_REQUEST, DEFAULT_HOLDER_CREATE_ON_REQUEST));
+    }
+
 }

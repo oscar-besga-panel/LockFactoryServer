@@ -5,36 +5,36 @@ import org.obapanel.lockfactoryserver.core.holder.HolderResult;
 
 public class HolderResultConverter {
 
-    public static org.obapanel.lockfactoryserver.core.grpc.HolderResult fromJavaToGrpcResult(org.obapanel.lockfactoryserver.core.holder.HolderResult resultJava) {
-        return org.obapanel.lockfactoryserver.core.grpc.HolderResult.newBuilder().
+    public static org.obapanel.lockfactoryserver.core.grpc.HolderResultGrpc fromJavaToGrpcResult(org.obapanel.lockfactoryserver.core.holder.HolderResult resultJava) {
+        return org.obapanel.lockfactoryserver.core.grpc.HolderResultGrpc.newBuilder().
                 setValue(resultJava.getValue()).
                 setStatus(fromJavaToGrpcStatus(resultJava.getStatus())).
                 build();
     }
 
-    public static org.obapanel.lockfactoryserver.core.grpc.HolderResultStatus fromJavaToGrpcStatus(org.obapanel.lockfactoryserver.core.holder.HolderResult.Status statusJava) {
+    public static org.obapanel.lockfactoryserver.core.grpc.HolderResultStatusGrpc fromJavaToGrpcStatus(org.obapanel.lockfactoryserver.core.holder.HolderResult.Status statusJava) {
         switch (statusJava) {
             case RETRIEVED:
-                return org.obapanel.lockfactoryserver.core.grpc.HolderResultStatus.RETRIEVED;
+                return org.obapanel.lockfactoryserver.core.grpc.HolderResultStatusGrpc.RETRIEVED;
             case EXPIRED:
-                return org.obapanel.lockfactoryserver.core.grpc.HolderResultStatus.EXPIRED;
+                return org.obapanel.lockfactoryserver.core.grpc.HolderResultStatusGrpc.EXPIRED;
             case CANCELLED:
-                return org.obapanel.lockfactoryserver.core.grpc.HolderResultStatus.CANCELLED;
+                return org.obapanel.lockfactoryserver.core.grpc.HolderResultStatusGrpc.CANCELLED;
             case AWAITED:
-                return org.obapanel.lockfactoryserver.core.grpc.HolderResultStatus.AWAITED;
+                return org.obapanel.lockfactoryserver.core.grpc.HolderResultStatusGrpc.AWAITED;
             case NOTFOUND:
-                return org.obapanel.lockfactoryserver.core.grpc.HolderResultStatus.NOTFOUND;
+                return org.obapanel.lockfactoryserver.core.grpc.HolderResultStatusGrpc.NOTFOUND;
             default:
                 throw new IllegalArgumentException("Error fromJavaToGrpc convert holderResultStatus " + statusJava);
         }
     }
 
-    public static org.obapanel.lockfactoryserver.core.holder.HolderResult fromGrpcToJavaResult(org.obapanel.lockfactoryserver.core.grpc.HolderResult resultGrpc) {
+    public static org.obapanel.lockfactoryserver.core.holder.HolderResult fromGrpcToJavaResult(org.obapanel.lockfactoryserver.core.grpc.HolderResultGrpc resultGrpc) {
         org.obapanel.lockfactoryserver.core.holder.HolderResult.Status statusJava = fromGrpcToJavaStatus(resultGrpc.getStatus());
         return new HolderResult(resultGrpc.getValue(), statusJava);
     }
 
-    public static org.obapanel.lockfactoryserver.core.holder.HolderResult.Status fromGrpcToJavaStatus(org.obapanel.lockfactoryserver.core.grpc.HolderResultStatus statusGrpc) {
+    public static org.obapanel.lockfactoryserver.core.holder.HolderResult.Status fromGrpcToJavaStatus(org.obapanel.lockfactoryserver.core.grpc.HolderResultStatusGrpc statusGrpc) {
         switch (statusGrpc) {
             case RETRIEVED:
                 return org.obapanel.lockfactoryserver.core.holder.HolderResult.Status.RETRIEVED;
