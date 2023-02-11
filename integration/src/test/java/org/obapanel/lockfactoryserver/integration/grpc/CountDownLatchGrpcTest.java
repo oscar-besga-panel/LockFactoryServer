@@ -180,7 +180,7 @@ public class CountDownLatchGrpcTest {
                 countDownLatchClientGrpc.await();
                 awaited.set(true);
             } catch (Exception e) {
-                throw new RuntimeInterruptedException(e);
+                throw new IllegalStateException(e);
             }
         });
         tfinal.setName("t_" + System.currentTimeMillis());
