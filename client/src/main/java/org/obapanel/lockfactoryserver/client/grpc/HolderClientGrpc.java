@@ -66,7 +66,7 @@ public class HolderClientGrpc
             } catch (InterruptedException e) {
                 throw RuntimeInterruptedException.getToThrowWhenInterrupted(e);
             } catch (ExecutionException e) {
-                throw new RuntimeException(e);
+                throw new IllegalStateException(e);
             }
         }, executor);
     }

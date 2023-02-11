@@ -7,12 +7,7 @@ import org.obapanel.lockfactoryserver.core.holder.HolderResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 import java.util.stream.IntStream;
 
 import static org.junit.Assert.assertEquals;
@@ -38,8 +33,8 @@ public class HolderTest {
     @Test
     public void getResult1Test() throws ExecutionException, InterruptedException, TimeoutException {
         Holder holder = new Holder();
-        Future f = executorService.submit(() -> holder.set("value", 1000, TimeUnit.MILLISECONDS));
-        f.get(1000, TimeUnit.MILLISECONDS);
+        Future<?> future = executorService.submit(() -> holder.set("value", 1000, TimeUnit.MILLISECONDS));
+        future.get(1000, TimeUnit.MILLISECONDS);
         HolderResult result = holder.getResult();
         assertEquals(new HolderResult("value"), result);
     }

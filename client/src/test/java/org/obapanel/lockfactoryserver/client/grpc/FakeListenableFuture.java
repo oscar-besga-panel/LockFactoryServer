@@ -1,16 +1,11 @@
 package org.obapanel.lockfactoryserver.client.grpc;
 
 import com.google.common.util.concurrent.ListenableFuture;
+import org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 
 class FakeListenableFuture<K> implements ListenableFuture<K>, AutoCloseable {
 
@@ -33,7 +28,7 @@ class FakeListenableFuture<K> implements ListenableFuture<K>, AutoCloseable {
                     Thread.sleep(50);
                     listeners.forEach((r, e) -> e.execute(r));
                 } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeInterruptedException(e);
                 }
             });
             return result;

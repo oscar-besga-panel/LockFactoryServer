@@ -1,11 +1,8 @@
 package org.obapanel.lockfactoryserver.integration.rest;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.obapanel.lockfactoryserver.client.rest.SemaphoreClientRest;
+import org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.LockFactoryServer;
 import org.slf4j.Logger;
@@ -16,9 +13,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class SemaphoreRestTest {
 
@@ -105,7 +100,7 @@ public class SemaphoreRestTest {
             try {
                 Thread.sleep(500);
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeInterruptedException(e);
             }
             semaphoreClientRest.release(5);
         });
@@ -126,7 +121,7 @@ public class SemaphoreRestTest {
             try {
                 Thread.sleep(500);
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeInterruptedException(e);
             }
             semaphoreClientRest.release();
             inner.release();
@@ -155,7 +150,7 @@ public class SemaphoreRestTest {
             try {
                 Thread.sleep(500);
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeInterruptedException(e);
             }
             semaphoreClientRest2.release(3);
             inner.release();
@@ -184,7 +179,7 @@ public class SemaphoreRestTest {
             try {
                 Thread.sleep(500);
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeInterruptedException(e);
             }
             semaphoreClientRest2.release(3);
             inner.release();
