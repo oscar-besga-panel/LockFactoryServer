@@ -9,18 +9,9 @@ import org.obapanel.lockfactoryserver.server.service.Services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.obapanel.lockfactoryserver.server.UtilsForTest.doSleepInTest;
 
 public class HolderServiceTest {
@@ -28,13 +19,12 @@ public class HolderServiceTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HolderServiceTest.class);
 
-    private LockFactoryConfiguration lockFactoryConfiguration;
     private HolderService holderService;
     private ExecutorService executorService;
 
     @Before
     public void setup() {
-        lockFactoryConfiguration = new LockFactoryConfiguration();
+        LockFactoryConfiguration lockFactoryConfiguration = new LockFactoryConfiguration();
         holderService = new HolderService(lockFactoryConfiguration);
         executorService = Executors.newFixedThreadPool(3);
     }
@@ -58,35 +48,35 @@ public class HolderServiceTest {
 
     @Test
     public void get2Test() {
-        executorService.submit(() -> {
-            holderService.setWithTimeToLive("key", "value", 2, TimeUnit.SECONDS);
-        });
+        executorService.submit(() ->
+            holderService.setWithTimeToLive("key", "value", 2, TimeUnit.SECONDS)
+        );
         HolderResult holderResult = holderService.get("key");
         assertEquals(new HolderResult("value"), holderResult);
     }
 
     @Test
     public void get3Test() {
-        executorService.submit(() -> {
-            holderService.setWithTimeToLive("key", "value", 1000, TimeUnit.MILLISECONDS);
-        });
+        executorService.submit(() ->
+            holderService.setWithTimeToLive("key", "value", 1000, TimeUnit.MILLISECONDS)
+        );
         HolderResult holderResult = holderService.get("key");
         assertEquals(new HolderResult("value"), holderResult);
     }
 
     @Test
-    public void get4Test() throws ExecutionException, InterruptedException, TimeoutException {
-        Future<HolderResult> f = executorService.submit(() ->
+    public void get4Test() throws ExecutionException, InterruptedException {
+        Future<HolderResult> future = executorService.submit(() ->
             holderService.get("key")
         );
         executorService.submit(() -> {
-            doSleepInTest(1200);
+            doSleepInTest(750);
             holderService.set("key", "value");
         });
         HolderResult result = null;
         boolean timeout = false;
         try {
-            result = f.get(1000, TimeUnit.MILLISECONDS);
+            result = future.get(500, TimeUnit.MILLISECONDS);
         } catch (TimeoutException toe) {
             timeout = true;
         }
@@ -95,7 +85,7 @@ public class HolderServiceTest {
     }
 
     @Test
-    public void get5Test() throws ExecutionException, InterruptedException, TimeoutException {
+    public void get5Test() throws ExecutionException, InterruptedException {
         Future<HolderResult> f = executorService.submit(() -> {
             HolderResult hr = holderService.getWithTimeOut("key", 500, TimeUnit.MILLISECONDS);
             LOGGER.debug("getWithTimeout {}", hr);
@@ -122,7 +112,7 @@ public class HolderServiceTest {
     }
 
     @Test
-    public void get6Test() throws ExecutionException, InterruptedException, TimeoutException {
+    public void get6Test() throws ExecutionException, InterruptedException {
         Future<HolderResult> f = executorService.submit(() ->
                 holderService.getWithTimeOut("key", 500, TimeUnit.MILLISECONDS)
         );
@@ -164,9 +154,9 @@ public class HolderServiceTest {
 
     @Test
     public void cancel2Test() {
-        executorService.submit(() -> {
-            holderService.cancel("key");
-        });
+        executorService.submit(() ->
+            holderService.cancel("key")
+        );
         doSleepInTest(20);
         HolderResult holderResult = holderService.getWithTimeOut("key", 200, TimeUnit.MILLISECONDS);
         assertEquals(HolderResult.AWAITED, holderResult);

@@ -42,8 +42,8 @@ public class HolderTest {
     @Test
     public void getResult2Test() throws ExecutionException, InterruptedException, TimeoutException {
         Holder holder = new Holder();
-        Future f = executorService.submit(() -> holder.set("value", 1, TimeUnit.SECONDS));
-        f.get(1000, TimeUnit.MILLISECONDS);
+        Future<?> future = executorService.submit(() -> holder.set("value", 1, TimeUnit.SECONDS));
+        future.get(1000, TimeUnit.MILLISECONDS);
         HolderResult result = holder.getResult();
         assertEquals(new HolderResult("value"), result);
     }
@@ -51,12 +51,12 @@ public class HolderTest {
     @Test
     public void getResult3Test() throws ExecutionException, InterruptedException, TimeoutException {
         Holder holder = new Holder();
-        Future f = executorService.submit(() -> {
+        Future<?> future = executorService.submit(() -> {
             doSleepInTest(50);
             holder.set("value");
         });
         HolderResult result = holder.getResult();
-        f.get(1000, TimeUnit.MILLISECONDS);
+        future.get(1000, TimeUnit.MILLISECONDS);
         assertEquals(new HolderResult("value"), result);
     }
 
@@ -64,9 +64,9 @@ public class HolderTest {
     @Test
     public void getResult4Test() throws ExecutionException, InterruptedException, TimeoutException {
         Holder holder = new Holder();
-        Future f = executorService.submit(() -> holder.set("value"));
+        Future<?> future = executorService.submit(() -> holder.set("value"));
         doSleepInTest(50);
-        f.get(1000, TimeUnit.MILLISECONDS);
+        future.get(1000, TimeUnit.MILLISECONDS);
         HolderResult result = holder.getResult();
         assertEquals(HolderResult.EXPIRED, result);
     }
@@ -74,16 +74,16 @@ public class HolderTest {
     @Test
     public void getResult5Test() throws ExecutionException, InterruptedException, TimeoutException {
         Holder holder = new Holder();
-        Future f = executorService.submit(() -> holder.cancel());
-        f.get(1000, TimeUnit.MILLISECONDS);
+        Future<?> future = executorService.submit(holder::cancel);
+        future.get(1000, TimeUnit.MILLISECONDS);
         HolderResult result = holder.getResult();
         assertEquals(HolderResult.CANCELLED, result);
     }
 
     @Test
-    public void getResultWithTimeout1Test() throws ExecutionException, InterruptedException, TimeoutException {
+    public void getResultWithTimeout1Test() {
         Holder holder = new Holder();
-        Future f = executorService.submit(() ->  {
+        executorService.submit(() ->  {
             doSleepInTest(750);
             holder.set("value", 1000, TimeUnit.MILLISECONDS);
             LOGGER.debug("Value setted");
@@ -95,9 +95,9 @@ public class HolderTest {
     }
 
     @Test
-    public void getResultWithTimeout2Test() throws ExecutionException, InterruptedException, TimeoutException {
+    public void getResultWithTimeout2Test() {
         Holder holder = new Holder();
-        Future f = executorService.submit(() -> {
+        executorService.submit(() -> {
             doSleepInTest(250);
             holder.set("value", 1000, TimeUnit.MILLISECONDS);
             LOGGER.debug("Value setted");
@@ -131,14 +131,14 @@ public class HolderTest {
     @Test
     public void set1Test() throws ExecutionException, InterruptedException, TimeoutException {
         Holder holder = new Holder();
-        Future<HolderResult> f = executorService.submit(() -> {
+        Future<HolderResult> future = executorService.submit(() -> {
             HolderResult tmp = holder.getResultWithTimeOut(1000, TimeUnit.MILLISECONDS);
             LOGGER.debug("Value acquired {}", tmp);
             return tmp;
         });
         holder.set("value", 1000, TimeUnit.MILLISECONDS);
         LOGGER.debug("Value setted");
-        HolderResult result = f.get(1000, TimeUnit.MILLISECONDS);
+        HolderResult result = future.get(1000, TimeUnit.MILLISECONDS);
         LOGGER.debug("future returned {}", result);
         assertEquals(new HolderResult("value"), result);
     }
@@ -146,7 +146,7 @@ public class HolderTest {
     @Test
     public void set2Test() throws ExecutionException, InterruptedException, TimeoutException {
         Holder holder = new Holder();
-        Future<HolderResult> f = executorService.submit(() -> {
+        Future<HolderResult> future = executorService.submit(() -> {
             HolderResult tmp = holder.getResultWithTimeOut(250, TimeUnit.MILLISECONDS);
             LOGGER.debug("Value acquired {}", tmp);
             return tmp;
@@ -154,7 +154,7 @@ public class HolderTest {
         doSleepInTest(500);
         holder.set("value", 1000, TimeUnit.MILLISECONDS);
         LOGGER.debug("Value setted");
-        HolderResult result = f.get(1000, TimeUnit.MILLISECONDS);
+        HolderResult result = future.get(1000, TimeUnit.MILLISECONDS);
         LOGGER.debug("future returned {}", holder);
         assertEquals(HolderResult.AWAITED, result);
     }
@@ -162,7 +162,7 @@ public class HolderTest {
     @Test
     public void set3Test() throws ExecutionException, InterruptedException, TimeoutException {
         Holder holder = new Holder();
-        Future<HolderResult> f = executorService.submit(() -> {
+        Future<HolderResult> future = executorService.submit(() -> {
             LOGGER.debug("Value acquiring");
             HolderResult tmp = holder.getResultWithTimeOut(1000, TimeUnit.MILLISECONDS);
             LOGGER.debug("Value acquired {}", tmp);
@@ -171,7 +171,7 @@ public class HolderTest {
         doSleepInTest(50);
         holder.set("value");
         LOGGER.debug("Value setted");
-        HolderResult result = f.get(1000, TimeUnit.MILLISECONDS);
+        HolderResult result = future.get(1000, TimeUnit.MILLISECONDS);
         LOGGER.debug("future returned {}", result);
         assertEquals(new HolderResult("value"), result);
     }

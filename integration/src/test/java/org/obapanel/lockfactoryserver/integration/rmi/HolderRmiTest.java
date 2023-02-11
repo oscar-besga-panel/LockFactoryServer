@@ -106,7 +106,7 @@ public class HolderRmiTest {
             try {
                 holderClientRmi1.set(value);
             } catch (RemoteException e) {
-                throw new RuntimeException(e);
+                throw new IllegalStateException(e);
             }
             LOGGER.debug("put value <");
         });
@@ -127,7 +127,7 @@ public class HolderRmiTest {
             try {
                 holderClientRmi1.cancel();
             } catch (RemoteException e) {
-                throw new RuntimeException(e);
+                throw new IllegalStateException(e);
             }
             LOGGER.debug("cancel value <");
         });
@@ -150,7 +150,7 @@ public class HolderRmiTest {
             try {
                 holderClientRmi1.set(value);
             } catch (RemoteException e) {
-                throw new RuntimeException(e);
+                throw new IllegalStateException(e);
             }
             LOGGER.debug("put value <");
         });
@@ -173,7 +173,7 @@ public class HolderRmiTest {
             try {
                 holderClientRmi1.set(value);
             } catch (RemoteException e) {
-                throw new RuntimeException(e);
+                throw new IllegalStateException(e);
             }
             LOGGER.debug("put value <");
         });
