@@ -6,6 +6,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
+import org.obapanel.lockfactoryserver.client.NamedClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +14,7 @@ import java.io.IOException;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public abstract class AbstractClientRest implements AutoCloseable {
+public abstract class AbstractClientRest implements AutoCloseable, NamedClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractClientRest.class);
 

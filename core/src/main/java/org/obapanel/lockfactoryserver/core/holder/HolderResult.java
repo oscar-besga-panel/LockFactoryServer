@@ -91,4 +91,16 @@ public class HolderResult implements Serializable {
         return new HolderResult(newValue, status);
     }
 
+    public static HolderResult fromStatus(Status status) {
+        switch (status) {
+            case RETRIEVED: return new HolderResult(null, Status.RETRIEVED);
+            case EXPIRED: return HolderResult.EXPIRED;
+            case CANCELLED: return HolderResult.CANCELLED;
+            case AWAITED: return HolderResult.AWAITED;
+            case NOTFOUND: return HolderResult.NOTFOUND;
+            default:
+                throw new IllegalArgumentException("Status is wrong " + status);
+        }
+    }
+
 }

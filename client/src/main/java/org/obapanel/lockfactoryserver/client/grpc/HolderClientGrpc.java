@@ -23,11 +23,11 @@ public class HolderClientGrpc
 
     private HolderResult holderResult;
 
-    HolderClientGrpc(String address, int port, String name) {
+    public HolderClientGrpc(String address, int port, String name) {
         super(address, port, name);
     }
 
-    HolderClientGrpc(ManagedChannel managedChannel, String name) {
+    public HolderClientGrpc(ManagedChannel managedChannel, String name) {
         super(managedChannel, name);
     }
 
@@ -39,6 +39,10 @@ public class HolderClientGrpc
     @Override
     HolderServerGrpc.HolderServerFutureStub generateAsyncStub(ManagedChannel managedChannel) {
         return HolderServerGrpc.newFutureStub(managedChannel);
+    }
+
+    public HolderResult getResult() {
+        return holderResult;
     }
 
     public HolderResult get() {
@@ -110,6 +114,7 @@ public class HolderClientGrpc
 
     public void cancel() {
         getStub().cancel(getStringValueName());
+        holderResult = null;
     }
 
 

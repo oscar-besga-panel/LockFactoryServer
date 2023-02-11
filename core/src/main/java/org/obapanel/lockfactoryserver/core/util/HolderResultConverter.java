@@ -6,10 +6,16 @@ import org.obapanel.lockfactoryserver.core.holder.HolderResult;
 public class HolderResultConverter {
 
     public static org.obapanel.lockfactoryserver.core.grpc.HolderResultGrpc fromJavaToGrpcResult(org.obapanel.lockfactoryserver.core.holder.HolderResult resultJava) {
-        return org.obapanel.lockfactoryserver.core.grpc.HolderResultGrpc.newBuilder().
-                setValue(resultJava.getValue()).
-                setStatus(fromJavaToGrpcStatus(resultJava.getStatus())).
-                build();
+        if (resultJava.getValue() == null) {
+            return org.obapanel.lockfactoryserver.core.grpc.HolderResultGrpc.newBuilder().
+                    setStatus(fromJavaToGrpcStatus(resultJava.getStatus())).
+                    build();
+        } else {
+            return org.obapanel.lockfactoryserver.core.grpc.HolderResultGrpc.newBuilder().
+                    setValue(resultJava.getValue()).
+                    setStatus(fromJavaToGrpcStatus(resultJava.getStatus())).
+                    build();
+        }
     }
 
     public static org.obapanel.lockfactoryserver.core.grpc.HolderResultStatusGrpc fromJavaToGrpcStatus(org.obapanel.lockfactoryserver.core.holder.HolderResult.Status statusJava) {
@@ -31,7 +37,11 @@ public class HolderResultConverter {
 
     public static org.obapanel.lockfactoryserver.core.holder.HolderResult fromGrpcToJavaResult(org.obapanel.lockfactoryserver.core.grpc.HolderResultGrpc resultGrpc) {
         org.obapanel.lockfactoryserver.core.holder.HolderResult.Status statusJava = fromGrpcToJavaStatus(resultGrpc.getStatus());
-        return new HolderResult(resultGrpc.getValue(), statusJava);
+        if (resultGrpc.getValue() == null || resultGrpc.getValue().isEmpty()) {
+            return HolderResult.fromStatus(statusJava);
+        } else {
+            return new HolderResult(resultGrpc.getValue(), statusJava);
+        }
     }
 
     public static org.obapanel.lockfactoryserver.core.holder.HolderResult.Status fromGrpcToJavaStatus(org.obapanel.lockfactoryserver.core.grpc.HolderResultStatusGrpc statusGrpc) {

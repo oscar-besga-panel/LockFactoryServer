@@ -5,6 +5,7 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.AbstractBlockingStub;
 import io.grpc.stub.AbstractFutureStub;
+import org.obapanel.lockfactoryserver.client.NamedClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,7 +13,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
-abstract class AbstractClientGrpc<M extends AbstractBlockingStub, N extends AbstractFutureStub> implements AutoCloseable {
+abstract class AbstractClientGrpc<M extends AbstractBlockingStub, N extends AbstractFutureStub>
+        implements AutoCloseable, NamedClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractClientGrpc.class);
 

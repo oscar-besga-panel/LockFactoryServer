@@ -1,10 +1,6 @@
 package org.obapanel.lockfactoryserver.integration.rmi;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.obapanel.lockfactoryserver.client.rmi.CountDownLatchClientRmi;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.LockFactoryServer;
@@ -15,17 +11,11 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class CountDownLatchRmiTest {
 
@@ -40,7 +30,7 @@ public class CountDownLatchRmiTest {
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-    private final String countDowneLatchName = "codolaRmiXXXx" + System.currentTimeMillis();
+    private final String countDownLatchName = "codolaRmiXXXx" + System.currentTimeMillis();
 
     @BeforeClass
     public static void setupAll() throws InterruptedException {
@@ -81,12 +71,12 @@ public class CountDownLatchRmiTest {
 
     CountDownLatchClientRmi generateCountDownLatchClientRmi() throws NotBoundException, RemoteException {
         int num = COUNT_DOWN_LATCH_COUNT.incrementAndGet();
-        String semaphoreName = countDowneLatchName.replace("XXX", String.format("%03d", num) );
-        return generateCountDownLatchClientRmi(semaphoreName);
+        String currentCountDownLatchName = countDownLatchName.replace("XXX", String.format("%03d", num) );
+        return generateCountDownLatchClientRmi(currentCountDownLatchName);
     }
 
-    CountDownLatchClientRmi generateCountDownLatchClientRmi(String countDownLatchName) throws NotBoundException, RemoteException {
-        return new CountDownLatchClientRmi(LOCALHOST ,configuration.getRmiServerPort(), countDownLatchName);
+    CountDownLatchClientRmi generateCountDownLatchClientRmi(String currentCountDownLatchName) throws NotBoundException, RemoteException {
+        return new CountDownLatchClientRmi(LOCALHOST ,configuration.getRmiServerPort(), currentCountDownLatchName);
     }
 
     @Test

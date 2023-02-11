@@ -1,10 +1,6 @@
 package org.obapanel.lockfactoryserver.integration.rest;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.obapanel.lockfactoryserver.client.rest.CountDownLatchClientRest;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.LockFactoryServer;
@@ -13,17 +9,11 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class CountDownLatchRestTest {
 
@@ -38,7 +28,7 @@ public class CountDownLatchRestTest {
 
     private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-    private final String countDowneLatchName = "codolaRestXXXx" + System.currentTimeMillis();
+    private final String countDownLatchName = "codolaRestXXXx" + System.currentTimeMillis();
 
     @BeforeClass
     public static void setupAll() throws InterruptedException {
@@ -79,13 +69,13 @@ public class CountDownLatchRestTest {
 
     CountDownLatchClientRest generateCountDownLatchClientRest() {
         int num = COUNT_DOWN_LATCH_COUNT.incrementAndGet();
-        String semaphoreName = countDowneLatchName.replace("XXX", String.format("%03d", num) );
-        return generateCountDownLatchClientRest(semaphoreName);
+        String countDownLatchCurrentName = countDownLatchName.replace("XXX", String.format("%03d", num) );
+        return generateCountDownLatchClientRest(countDownLatchCurrentName);
     }
 
-    CountDownLatchClientRest generateCountDownLatchClientRest(String countDownLatchName) {
+    CountDownLatchClientRest generateCountDownLatchClientRest(String countDownLatchCurrentName) {
         String baseUrl = "http://" + LOCALHOST + ":" + configuration.getRestServerPort() + "/";
-        return new CountDownLatchClientRest(baseUrl, countDownLatchName);
+        return new CountDownLatchClientRest(baseUrl, countDownLatchCurrentName);
     }
 
     @Test

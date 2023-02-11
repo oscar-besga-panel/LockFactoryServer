@@ -7,11 +7,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.obapanel.lockfactoryserver.core.grpc.HolderNameWithTimeOut;
-import org.obapanel.lockfactoryserver.core.grpc.HolderResult;
-import org.obapanel.lockfactoryserver.core.grpc.HolderSet;
-import org.obapanel.lockfactoryserver.core.grpc.HolderSetWithTimeToLive;
-import org.obapanel.lockfactoryserver.core.grpc.TimeUnitGrpc;
+import org.obapanel.lockfactoryserver.core.grpc.*;
 import org.obapanel.lockfactoryserver.server.FakeStreamObserver;
 import org.obapanel.lockfactoryserver.server.service.holder.HolderService;
 
@@ -19,10 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -48,7 +41,7 @@ public class HolderServerGrpcImplTest {
 
     @Test
     public void getTest() {
-        FakeStreamObserver<HolderResult> responseObserver = new FakeStreamObserver<>();
+        FakeStreamObserver<HolderResultGrpc> responseObserver = new FakeStreamObserver<>();
         holderServerGrpc.get(StringValue.of("name"), responseObserver);
         verify(holderService).get(eq("name"));
         assertEquals("value", responseObserver.getNext().getValue());
@@ -57,7 +50,7 @@ public class HolderServerGrpcImplTest {
 
     @Test
     public void getWithTimeOutTest() {
-        FakeStreamObserver<HolderResult> responseObserver = new FakeStreamObserver<>();
+        FakeStreamObserver<HolderResultGrpc> responseObserver = new FakeStreamObserver<>();
         HolderNameWithTimeOut holderNameWithTimeOut = HolderNameWithTimeOut.newBuilder().
                 setName("name").
                 setTimeOut(123).
@@ -71,7 +64,7 @@ public class HolderServerGrpcImplTest {
 
     @Test
     public void getIfAvailableTest() {
-        FakeStreamObserver<HolderResult> responseObserver = new FakeStreamObserver<>();
+        FakeStreamObserver<HolderResultGrpc> responseObserver = new FakeStreamObserver<>();
         holderServerGrpc.getIfAvailable(StringValue.of("name"), responseObserver);
         verify(holderService).getIfAvailable(eq("name"));
         assertEquals("value", responseObserver.getNext().getValue());
