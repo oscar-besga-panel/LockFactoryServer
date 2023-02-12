@@ -1,6 +1,10 @@
 package org.obapanel.lockfactoryserver.integration.rmi;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.obapanel.lockfactoryserver.client.rmi.HolderClientRmi;
 import org.obapanel.lockfactoryserver.core.holder.HolderResult;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
@@ -195,7 +199,7 @@ public class HolderRmiTest {
             try {
                 holderClientRmi1.set(value);
             } catch (RemoteException e) {
-                throw new RuntimeException(e);
+                throw new IllegalStateException(e);
             }
             LOGGER.debug("put value <");
         });

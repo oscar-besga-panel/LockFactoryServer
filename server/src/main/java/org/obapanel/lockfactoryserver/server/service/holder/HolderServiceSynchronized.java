@@ -18,6 +18,7 @@ public class HolderServiceSynchronized extends HolderService {
     //TODO
     @Override
     public synchronized HolderResult get(String name) {
+        LOGGER.info("service> get name {} ", name);
         return super.get(name);
     }
 

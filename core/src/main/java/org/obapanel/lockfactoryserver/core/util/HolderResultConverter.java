@@ -37,10 +37,12 @@ public class HolderResultConverter {
 
     public static org.obapanel.lockfactoryserver.core.holder.HolderResult fromGrpcToJavaResult(org.obapanel.lockfactoryserver.core.grpc.HolderResultGrpc resultGrpc) {
         org.obapanel.lockfactoryserver.core.holder.HolderResult.Status statusJava = fromGrpcToJavaStatus(resultGrpc.getStatus());
-        if (resultGrpc.getValue() == null || resultGrpc.getValue().isEmpty()) {
+        if (resultGrpc.getValue() == null || resultGrpc.getValue().isBlank()) {
             return HolderResult.fromStatus(statusJava);
+        } else if (statusJava == HolderResult.Status.RETRIEVED) {
+           return new HolderResult(resultGrpc.getValue());
         } else {
-            return new HolderResult(resultGrpc.getValue(), statusJava);
+            throw new IllegalArgumentException("Erroneous grpc holder result " + resultGrpc);
         }
     }
 

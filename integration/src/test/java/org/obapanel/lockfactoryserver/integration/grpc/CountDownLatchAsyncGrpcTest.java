@@ -1,6 +1,10 @@
 package org.obapanel.lockfactoryserver.integration.grpc;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.obapanel.lockfactoryserver.client.grpc.CountDownLatchClientGrpc;
 import org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
@@ -10,7 +14,11 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -72,8 +80,8 @@ public class CountDownLatchAsyncGrpcTest {
 
     CountDownLatchClientGrpc generateCountDownLatchClientGrpc() {
         int num = COUNT_DOWN_LATCH_COUNT.incrementAndGet();
-        String countDownLatchName = countDowneLatchName.replace("XXX", String.format("%03d", num) );
-        return new CountDownLatchClientGrpc(LOCALHOST ,configuration.getGrpcServerPort(), countDowneLatchName);
+        String countDownLatchCurrentName = countDowneLatchName.replace("XXX", String.format("%03d", num) );
+        return new CountDownLatchClientGrpc(LOCALHOST ,configuration.getGrpcServerPort(), countDownLatchCurrentName);
     }
 
     @Test

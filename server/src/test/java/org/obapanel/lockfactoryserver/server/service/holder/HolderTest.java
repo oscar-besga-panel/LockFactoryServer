@@ -7,7 +7,12 @@ import org.obapanel.lockfactoryserver.core.holder.HolderResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.IntStream;
 
 import static org.junit.Assert.assertEquals;
@@ -91,7 +96,7 @@ public class HolderTest {
         HolderResult result = holder.getResultWithTimeOut(500, TimeUnit.MILLISECONDS);
         LOGGER.debug("result acquired");
         LOGGER.debug("result: {} ", result);
-        assertEquals(new HolderResult(null, HolderResult.Status.AWAITED), result);
+        assertEquals(HolderResult.fromStatus(HolderResult.Status.AWAITED), result);
     }
 
     @Test
@@ -109,19 +114,37 @@ public class HolderTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void setError1Test() {
+    public void setError1Test()  {
+        Holder holder = new Holder();
+        holder.set(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void setError2Test()  {
+        Holder holder = new Holder();
+        holder.set("");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void setError3Test()  {
+        Holder holder = new Holder();
+        holder.set("   ");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void setError4Test() {
         Holder holder = new Holder();
         holder.set(null, 1, TimeUnit.MILLISECONDS);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void setError2Test() {
+    public void setError5Test() {
         Holder holder = new Holder();
         holder.set("value", -1000, TimeUnit.MILLISECONDS);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void setError3Test() {
+    public void setError6Test() {
         StringBuilder sb = new StringBuilder();
         IntStream.range(0, 1028).forEach( i -> sb.append("x"));
         Holder holder = new Holder();
@@ -175,5 +198,7 @@ public class HolderTest {
         LOGGER.debug("future returned {}", result);
         assertEquals(new HolderResult("value"), result);
     }
+
+
 }
 

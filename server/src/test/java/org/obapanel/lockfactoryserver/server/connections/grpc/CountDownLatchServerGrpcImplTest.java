@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.obapanel.lockfactoryserver.core.grpc.AwaitWithTimeout;
 import org.obapanel.lockfactoryserver.core.grpc.NameCount;
+import org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException;
 import org.obapanel.lockfactoryserver.server.FakeStreamObserver;
 import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchService;
 
@@ -149,7 +150,7 @@ public class CountDownLatchServerGrpcImplTest {
                 countDownLatchServerGrpc.asyncAwait(StringValue.of(name), responseObserver);
                 inner.release();
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeInterruptedException(e);
             }
         });
         daemonThread.setName("asyncAwaitTest");

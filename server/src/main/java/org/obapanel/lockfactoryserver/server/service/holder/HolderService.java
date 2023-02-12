@@ -63,16 +63,31 @@ public class HolderService implements LockFactoryServices {
     }
 
     public void set(String name, String newValue) {
+        checkNewValue(name, newValue);
         LOGGER.info("service> set name {} newValue {}", name, newValue);
         Holder holder = holderCache.getOrCreateData(name);
         holder.set(newValue);
     }
 
     public void setWithTimeToLive(String name, String newValue, long timeToLive, TimeUnit timeUnit) {
+        checkNewValue(name, newValue);
         LOGGER.info("service> setWithTimeToLive name {} newValue {} timeToLive {} timeUnit {} ",
                 name, newValue, timeToLive, timeUnit);
         Holder holder = holderCache.getOrCreateData(name);
         holder.set(newValue, timeToLive, timeUnit);
+    }
+
+    /**
+     * Checks if value is null or blank, in which case it raises a runtime exception
+     * @param name Name of the holder
+     * @param newValue value to check
+     * @exception IllegalArgumentException if value is null or blank
+     */
+    void checkNewValue(String name, String newValue) {
+        if (newValue == null || newValue.isBlank()) {
+            LOGGER.error("holder {}: new value can not be null or blank", name);
+            throw new IllegalArgumentException("holder " + name + ": new value can not be null or blank");
+        }
     }
 
     public void cancel(String name) {

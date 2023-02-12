@@ -13,7 +13,10 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.obapanel.lockfactoryserver.server.UtilsForTest.createLockFactoryConfiguration;
 
 public class LockFactoryServicesWithDataTest {
@@ -45,7 +48,7 @@ public class LockFactoryServicesWithDataTest {
                     tbc.shutdown();
                 }
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new IllegalStateException(e);
             }
         });
         toBeClosed.clear();

@@ -78,6 +78,7 @@ public class Holder {
      * @param newValue new value to hold
      */
     public void set(String newValue) {
+        checkNewValue(newValue);
         doWithLock(() -> withLockSet(newValue, 0L, TimeUnit.MILLISECONDS));
     }
 
@@ -90,7 +91,20 @@ public class Holder {
      * @param timeUnit Time unit
      */
     public void set(String newValue, long timeToLive, TimeUnit timeUnit) {
+        checkNewValue(newValue);
         doWithLock(() -> withLockSet(newValue, timeToLive, timeUnit));
+    }
+
+    /**
+     * Checks if value is null or blank, in which case it raises a runtime exception
+     * @param newValue value to check
+     * @exception IllegalArgumentException if value is null or blank
+     */
+    void checkNewValue(String newValue) {
+        if (newValue == null || newValue.isBlank()) {
+            LOGGER.error("holder: new value can not be null or blank");
+            throw new IllegalArgumentException("holder: new value can not be null or blank");
+        }
     }
 
     /**
@@ -141,6 +155,7 @@ public class Holder {
         } else if (timeToLive > 0) {
             expiration = System.currentTimeMillis() + timeUnit.toMillis(timeToLive);
         } else {
+            // timeToLive == 0
             expiration = System.currentTimeMillis() - 1;
         }
         expirationTimestamp.set(expiration);
@@ -154,7 +169,7 @@ public class Holder {
      * @return result with value, expired and cancelled
      */
     public HolderResult getResult() {
-        return returnWithLock(() -> withLockGet());
+        return returnWithLock(this::withLockGet);
     }
 
     /**
@@ -214,6 +229,7 @@ public class Holder {
             // If the data is expired and the get request was after the data was available
             return HolderResult.EXPIRED;
         } else {
+            LOGGER.debug("result with value {}",  value);
             return new HolderResult(value.get());
         }
     }

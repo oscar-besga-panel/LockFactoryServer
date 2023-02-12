@@ -83,17 +83,6 @@ public class SemaphoreClientGrpc
         NamePermits namePermits = createNamePermits(permits);
         ListenableFuture<Empty> listenableFuture = getAsyncStub().asyncAcquire(namePermits);
         listenableFuture.addListener(onAcquire, executor);
-        //        listenableFuture.addListener(() -> {
-//            try {
-//                listenableFuture.get();
-//                LOGGER.debug("Empty is future ");
-//                onAcquire.run();
-//            } catch (InterruptedException e) {
-//                throw new RuntimeException(e);
-//            } catch (ExecutionException e) {
-//                throw new RuntimeException(e);
-//            }
-//        }, executor);
     }
 
     public boolean tryAcquire() {

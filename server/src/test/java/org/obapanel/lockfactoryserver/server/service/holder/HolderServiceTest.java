@@ -9,9 +9,18 @@ import org.obapanel.lockfactoryserver.server.service.Services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.obapanel.lockfactoryserver.server.UtilsForTest.doSleepInTest;
 
 public class HolderServiceTest {
@@ -162,9 +171,26 @@ public class HolderServiceTest {
         assertEquals(HolderResult.AWAITED, holderResult);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void setError1Test()  {
+        holderService.set("keyError1", null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void setError2Test()  {
+        holderService.set("keyError2", "");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void setError3Test()  {
+        holderService.set("keyError3", "   ");
+    }
+
     @Test
     public void getTypeTest() {
         assertEquals(Services.HOLDER, holderService.getType());
     }
+
+
 
 }

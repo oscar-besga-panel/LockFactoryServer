@@ -3,13 +3,16 @@ package org.obapanel.lockfactoryserver.server.service.semaphore;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class SemaphoreCacheTest {
 
@@ -47,7 +50,7 @@ public class SemaphoreCacheTest {
             try {
                 ssem3.acquire();
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeInterruptedException(e);
             }
         });
         Thread.sleep(150);

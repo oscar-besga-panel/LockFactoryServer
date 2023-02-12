@@ -53,7 +53,7 @@ public class CountDownLatchCacheTest {
             try {
                 countDownLatchCache.getData(name2).countDown();
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new IllegalStateException(e);
             }
         });
         Thread.sleep(100);

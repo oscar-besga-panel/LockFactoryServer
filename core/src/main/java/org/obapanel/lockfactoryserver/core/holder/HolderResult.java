@@ -11,13 +11,13 @@ public class HolderResult implements Serializable {
         EXPIRED, // The holder is expired, null value returned
         CANCELLED, // The holder is cancelled, null value returned
         AWAITED, // The time for getting a value has passed, null value returned
-        NOTFOUND; // No holder with this name has been found, null value returned
+        NOTFOUND // No holder with this name has been found, null value returned
     }
 
-    public static final HolderResult EXPIRED = new HolderResult(null, Status.EXPIRED);
-    public static final HolderResult CANCELLED = new HolderResult(null, Status.CANCELLED);
-    public static final HolderResult AWAITED = new HolderResult(null, Status.AWAITED);
-    public static final HolderResult NOTFOUND = new HolderResult(null, Status.NOTFOUND);
+    public static final HolderResult EXPIRED = new HolderResult( Status.EXPIRED);
+    public static final HolderResult CANCELLED = new HolderResult(Status.CANCELLED);
+    public static final HolderResult AWAITED = new HolderResult(Status.AWAITED);
+    public static final HolderResult NOTFOUND = new HolderResult(Status.NOTFOUND);
 
 
     private final String value;
@@ -27,7 +27,11 @@ public class HolderResult implements Serializable {
         this(value, Status.RETRIEVED);
     }
 
-    public HolderResult(String value, Status status) {
+    public HolderResult(Status status) {
+        this(null, status);
+    }
+
+    private HolderResult(String value, Status status) {
         this.value = value;
         this.status = status;
     }

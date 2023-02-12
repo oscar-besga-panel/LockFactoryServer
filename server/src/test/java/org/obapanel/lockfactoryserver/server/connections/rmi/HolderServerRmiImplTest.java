@@ -41,21 +41,21 @@ public class HolderServerRmiImplTest {
     public void getTest() throws RemoteException {
         HolderResult result = holderServerRmi.get("name");
         verify(holderService).get("name");
-        assertEquals(new HolderResult("value", HolderResult.Status.RETRIEVED), result);
+        assertEquals(new HolderResult("value"), result);
     }
 
     @Test
     public void getWithTimeOutTest() throws RemoteException {
         HolderResult result = holderServerRmi.getWithTimeOut("name", 123L, TimeUnit.SECONDS);
         verify(holderService).getWithTimeOut("name", 123L, TimeUnit.SECONDS);
-        assertEquals(new HolderResult("value", HolderResult.Status.RETRIEVED), result);
+        assertEquals(new HolderResult("value"), result);
     }
 
     @Test
     public void getIfAvailableTest() throws RemoteException {
         HolderResult result = holderServerRmi.getIfAvailable("name");
         verify(holderService).getIfAvailable("name");
-        assertEquals(new HolderResult("value", HolderResult.Status.RETRIEVED), result);
+        assertEquals(new HolderResult("value"), result);
     }
 
     @Test
