@@ -13,25 +13,29 @@ _Current Build_
 [![Build Status](https://app.travis-ci.com/oscar-besga-panel/LockFactoryServer.svg?branch=main)](https://app.travis-ci.com/oscar-besga-panel/LockFactoryServer)
 ![Issues](https://img.shields.io/github/issues/oscar-besga-panel/LockFactoryServer)
 [![codecov](https://codecov.io/gh/oscar-besga-panel/LockFactoryServer/branch/main/graph/badge.svg?token=BUFDK9DQ3Q)](https://codecov.io/gh/oscar-besga-panel/LockFactoryServer)
-[![Language grade: Java](https://img.shields.io/lgtm/grade/java/g/oscar-besga-panel/LockFactoryServer.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/oscar-besga-panel/LockFactoryServer/context:java)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/95b46a3667b143ba80848c2bd3889890)](https://www.codacy.com/gh/oscar-besga-panel/LockFactoryServer/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=oscar-besga-panel/LockFactoryServer&amp;utm_campaign=Badge_Grade)
 
 ## Introduction
 
 
-A synchroniztation primitives  (lock / semaphore / countdownlach) server with various connection interfaces (like gRPC, Java RMI, rest),
-developed in Java and ready to use.  
-So various processes/applications/threads can acccess the same primitive by using any connection method
+A synchronization primitives server with various connection interfaces (like gRPC, Java RMI, REST),
+developed in Java and ready to use.
+* Lock: a simple, mutex exclusive lock
+* Semaphore: with permits it can acquire or release, in any quantity, from/to requesters
+* Countdownlatch: with an initial count and requesters that wait until the count is zero
+* Holders: requesters wait until some data is stored into memory or is cancelled
+
+So various processes/applications/threads can access the same primitive by using any connection method
 (the connections share the primitives caches ).
 A synchronization primitive will be automatically erased from the cache unless it is in use (particular for every type).
 
 You can activate or deactivate each type of primitive and also each type of connection.
-But once something is activated, is avalible to be used/accesed by every other active type (no fine grained control)
+But once something is activated, is available to be used/accessed by every other active type (no fine grained control)
 
 
 
 
-In beta for now !  
+In _advanced beta_ for now !  
 
 See the [wiki](https://github.com/oscar-besga-panel/LockFactoryServer/wiki) for more documentation
 
@@ -41,13 +45,13 @@ The project has 4 sub-modules
 * **core**: it has the main proto and interface files. It also servers as documentation for the service and their methods and operations.
 All other modules depend on this one 
 * **server**: This is the server implementation, with the RMI, REST and gRPC connections that offer the core-defined services.  
-The server can run standalone or be embeeded into other services or applications.
+The server can run standalone or be embedded into other services or applications.
 * **client**: A Java client implementation for each service and connection type; it offers a simplified way to use the services and a simple coding example
 * **integration**: this module depends on the server and client, and obviously the core. It has no production code, but only test code.  
 It executes integration tests, where a local server is started and local clients execute complex operations against it. It servers to ensure the good performance and correctness of the system.  
 There are more than 55 integration tests to ensure the correctness of the project. 
  
-There are more than 250 unit test to ensure a working project.
+There are more than 300 unit tests to ensure a working project.
 
 ## How to build
 
