@@ -3,6 +3,7 @@ package org.obapanel.lockfactoryserver.server.service.countDownLatch;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.service.Services;
 import org.slf4j.Logger;
@@ -105,7 +106,7 @@ public class CountDownLatchServiceTest {
                 countedDown.set(true);
                 inner.release();
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeInterruptedException(e);
             }
         });
         boolean result = countDownLatchService.tryAwaitWithTimeOut(name,2000, TimeUnit.MILLISECONDS);
@@ -126,7 +127,7 @@ public class CountDownLatchServiceTest {
                 Thread.sleep(500);
                 countDownLatchService.countDown(name);
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeInterruptedException(e);
             }
         });
         boolean result = countDownLatchService.tryAwaitWithTimeOut(name,1500, TimeUnit.MILLISECONDS);
@@ -148,7 +149,7 @@ public class CountDownLatchServiceTest {
                 countDownLatchService.countDown(name);
                 countDownTerminated.set(true);
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeInterruptedException(e);
             }
         });
         t1.setName(name + "_awaitTest_t1");
@@ -160,7 +161,7 @@ public class CountDownLatchServiceTest {
                 awaitTerminated.set(true);
                 inner.release();
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new IllegalStateException(e);
             }
         });
         t2.setName(name + "_awaitTest_t2");
@@ -193,7 +194,7 @@ public class CountDownLatchServiceTest {
                 countDownLatchService.countDown(name);
                 countDownTerminated.set(true);
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeInterruptedException(e);
             }
         });
         t1.setName(name + "_awaitTest_t1");
@@ -204,7 +205,7 @@ public class CountDownLatchServiceTest {
                 awaitTerminated1.set(awaited);
                 inner.release();
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new IllegalStateException(e);
             }
         });
         t2.setName(name + "_awaitTest_t2");
@@ -215,7 +216,7 @@ public class CountDownLatchServiceTest {
                 awaitTerminated2.set(awaited);
                 inner.release();
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new IllegalStateException(e);
             }
         });
         t3.setName(name + "_awaitTest_t3");
@@ -259,7 +260,7 @@ public class CountDownLatchServiceTest {
                     countedDown.set(true);
                     inner.release();
                 } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeInterruptedException(e);
                 }
             });
         }
@@ -276,7 +277,7 @@ public class CountDownLatchServiceTest {
             try {
                 t.join(1500);
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeInterruptedException(e);
             }
         });
         assertTrue(created);

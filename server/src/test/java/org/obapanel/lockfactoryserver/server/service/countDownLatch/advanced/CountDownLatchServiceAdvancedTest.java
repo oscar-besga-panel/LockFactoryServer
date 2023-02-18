@@ -3,6 +3,7 @@ package org.obapanel.lockfactoryserver.server.service.countDownLatch.advanced;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchService;
 import org.slf4j.Logger;
@@ -68,7 +69,7 @@ public class CountDownLatchServiceAdvancedTest {
             try {
                 t.join();
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeInterruptedException(e);
             }
         });
         assertTrue(colisionInCriticalZone.get());
@@ -98,7 +99,7 @@ public class CountDownLatchServiceAdvancedTest {
         try {
             Thread.sleep(TimeUnit.SECONDS.toMillis(sleepTime));
         } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeInterruptedException(e);
         }
     }
 

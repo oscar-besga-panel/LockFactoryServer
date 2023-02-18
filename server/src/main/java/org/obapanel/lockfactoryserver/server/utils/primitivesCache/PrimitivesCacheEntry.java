@@ -13,7 +13,7 @@ class PrimitivesCacheEntry<T> implements Delayed {
 
     private final String name;
     private final T primitive;
-    private final long timeToLiveMilis;
+    private final long timeToLiveMillis;
 
     private long timestampToLive;
 
@@ -21,12 +21,12 @@ class PrimitivesCacheEntry<T> implements Delayed {
      * Creates and refresh the entry
      * @param name      Name of the data, refered in map
      * @param primitive Data
-     * @param timeToLiveMilis milis of live of this object in cache/queue
+     * @param timeToLiveMillis millis of live of this object in cache/queue
      */
-    PrimitivesCacheEntry(String name, T primitive, long timeToLiveMilis) {
+    PrimitivesCacheEntry(String name, T primitive, long timeToLiveMillis) {
         this.name = name;
         this.primitive = primitive;
-        this.timeToLiveMilis = timeToLiveMilis;
+        this.timeToLiveMillis = timeToLiveMillis;
         refresh();
     }
 
@@ -35,7 +35,7 @@ class PrimitivesCacheEntry<T> implements Delayed {
      * @return this
      */
     PrimitivesCacheEntry<T> refresh() {
-        this.timestampToLive = System.currentTimeMillis() + timeToLiveMilis;
+        this.timestampToLive = System.currentTimeMillis() + timeToLiveMillis;
         return this;
     }
 
@@ -65,8 +65,8 @@ class PrimitivesCacheEntry<T> implements Delayed {
     }
 
     /**
-     * Get miliseconds to live left for this object
-     * @return miliseconds to live
+     * Get milliseconds to live left for this object
+     * @return milliseconds to live
      */
     long getDelay() {
         return timestampToLive - System.currentTimeMillis();
@@ -75,7 +75,7 @@ class PrimitivesCacheEntry<T> implements Delayed {
     /**
      * Get time to live left for this object
      * @param unit  time unit to be returned
-     * @return miliseconds to live
+     * @return milliseconds to live
      */
     @Override
     public long getDelay(TimeUnit unit) {
@@ -92,20 +92,20 @@ class PrimitivesCacheEntry<T> implements Delayed {
         if (this == o) return true;
         if (!(o instanceof PrimitivesCacheEntry)) return false;
         PrimitivesCacheEntry<?> that = (PrimitivesCacheEntry<?>) o;
-        return timeToLiveMilis == that.timeToLiveMilis &&
+        return timeToLiveMillis == that.timeToLiveMillis &&
                 Objects.equals(getName(), that.getName()) &&
                 Objects.equals(getPrimitive(), that.getPrimitive());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(timeToLiveMilis, getName(), getPrimitive());
+        return Objects.hash(timeToLiveMillis, getName(), getPrimitive());
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("ConcurrentDelayedMapEntry{");
-        sb.append("timeToLiveSeconds=").append(timeToLiveMilis);
+        sb.append("timeToLiveSeconds=").append(timeToLiveMillis);
         sb.append(", name='").append(name).append('\'');
         sb.append(", primitive=").append(primitive);
         sb.append('}');

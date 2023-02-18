@@ -49,7 +49,7 @@ service LockServer {
 
   /*
    * Try to obain a lock, waiting a defined time
-   * expects name Name of the lock, timeOut as wuantity of time to wait in miliseconds if timeUnit nor given
+   * expects name Name of the lock, timeOut as wuantity of time to wait in milliseconds if timeUnit nor given
    *   or the timeUnit of the timeOut
    * return a non-null non-empty string with the token of the lock if acquired, or an empty/null string if not
    */
@@ -134,7 +134,7 @@ service SemaphoreServer {
 }
 
 /**
- * Service that makes a countdoenlatch avalible
+ * Service that makes a countdownlatch available
  */
 service CountDownLatchServer {
 
@@ -176,6 +176,43 @@ service CountDownLatchServer {
    * requires name of the countDownLatch
    */
   rpc asyncAwait(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
+
+}
+
+/**
+ * Service that makes a holder available
+ */
+service HolderServer {
+
+  /*
+   * Get value, await indefinitely
+   */
+  rpc get(google.protobuf.StringValue) returns (HolderResultGrpc) {};
+
+  /*
+   * Get value, awaiting given time
+   */
+  rpc getWithTimeOut(HolderNameWithTimeOut) returns (HolderResultGrpc) {};
+
+  /*
+   * Get value if present, return not found if not
+   */
+  rpc getIfAvailable(google.protobuf.StringValue) returns (HolderResultGrpc) {};
+
+  /*
+   * Sets a value, holder is expired when the value is set
+   */
+  rpc set(HolderSet) returns (google.protobuf.Empty) {}
+
+  /*
+   * Sets a value, holder will expire in the time set
+   */
+  rpc setWithTimeToLive(HolderSetWithTimeToLive) returns (google.protobuf.Empty) {}
+
+  /*
+   * Cancels a holder and expires and removes it
+   */
+  rpc cancel(google.protobuf.StringValue) returns (google.protobuf.Empty) {};
 
 }
 
@@ -224,9 +261,40 @@ enum LockStatus {
     OTHER = 3; // Lock exists, is locked by other
 }
 
+message HolderResultGrpc {
+  string value = 1;
+  HolderResultStatusGrpc status = 2;
+}
+
+message HolderNameWithTimeOut {
+  string name = 1;
+  uint64 timeOut = 2;
+  optional TimeUnitGrpc timeUnit = 3;
+}
+
+message HolderSet {
+  string name = 1;
+  string newValue = 2;
+}
+
+message HolderSetWithTimeToLive {
+  string name = 1;
+  string newValue = 2;
+  uint64 timeToLive = 3;
+  optional TimeUnitGrpc timeUnit = 4;
+}
+
+enum HolderResultStatusGrpc {
+  RETRIEVED =0;
+  EXPIRED = 1;
+  CANCELLED = 2;
+  AWAITED = 3;
+  NOTFOUND = 4;
+}
+
 enum TimeUnitGrpc {
-    MILLISECONDS = 0;
-    SECONDS = 1;
-    MINUTES = 2;
-    HOURS = 3;
+  MILLISECONDS = 0;
+  SECONDS = 1;
+  MINUTES = 2;
+  HOURS = 3;
 }

@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockedConstruction;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException;
 import org.obapanel.lockfactoryserver.server.connections.Connections;
 import org.obapanel.lockfactoryserver.server.connections.grpc.GrpcConnection;
 import org.obapanel.lockfactoryserver.server.connections.rest.RestConnection;
@@ -195,7 +196,7 @@ public class LockFactoryServerTest {
                 Thread.sleep(501);
                 lockFactoryServer.shutdown();
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeInterruptedException(e);
             }
         });
         t.setDaemon(true);
@@ -215,7 +216,7 @@ public class LockFactoryServerTest {
                 Thread.sleep(501);
                 lockFactoryServer.uncaughtException(Thread.currentThread(), new Exception("here"));
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeInterruptedException(e);
             }
         });
         t.setDaemon(true);

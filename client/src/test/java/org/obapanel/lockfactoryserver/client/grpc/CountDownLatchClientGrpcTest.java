@@ -20,11 +20,7 @@ import org.obapanel.lockfactoryserver.core.grpc.NameCount;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -69,7 +65,7 @@ public class CountDownLatchClientGrpcTest {
         when(stub.await(any(StringValue.class))).thenReturn(Empty.getDefaultInstance());
         when(stub.tryAwaitWithTimeOut(any(AwaitWithTimeout.class))).thenReturn(BoolValue.of(true));
         when(futureStub.asyncAwait(any(StringValue.class))).thenAnswer(ioc -> {
-            FakeListenableFuture f = new FakeListenableFuture<Empty>(Empty.newBuilder().build()).execute();
+            FakeListenableFuture<Empty> f = new FakeListenableFuture<>(Empty.newBuilder().build()).execute();
             listenableFutures.add(f);
             return f;
         });

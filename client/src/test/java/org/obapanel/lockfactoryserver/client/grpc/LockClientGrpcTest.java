@@ -24,9 +24,7 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -187,7 +185,7 @@ public class LockClientGrpcTest {
             if (count < 100) {
                 count++;
             } else {
-                throw new RuntimeException("Counted more than 100 times");
+                throw new IllegalStateException("Counted more than 100 times");
             }
         }
         assertTrue(lockClientGrpc.getToken().contains(name));

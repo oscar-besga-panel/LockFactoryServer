@@ -79,11 +79,11 @@ public class SemaphoreServerGrpcImpl extends SemaphoreServerGrpc.SemaphoreServer
         long timeOut = request.getTimeOut();
         TimeUnitGrpc timeUnitGrpc = request.getTimeUnit();
         if (timeUnitGrpc == null) {
-            LOGGER.info("grpc server> tryAcquireWithTimeOut name {} permits {} timeout {}", name, permits, timeOut);
+            LOGGER.info("grpc server> tryAcquireWithTimeOut name {} permits {} timeOut {}", name, permits, timeOut);
             result = semaphoreService.tryAcquireWithTimeOut(name, permits, timeOut);
         } else {
             TimeUnit timeUnit = fromGrpcToJava(timeUnitGrpc);
-            LOGGER.info("grpc server> tryAcquireWithTimeOut name {} permits {} timeout {} timeunit {}", name, permits, timeOut, timeUnit);
+            LOGGER.info("grpc server> tryAcquireWithTimeOut name {} permits {} timeOut {} timeunit {}", name, permits, timeOut, timeUnit);
             result = semaphoreService.tryAcquireWithTimeOut(name, permits, timeOut, timeUnit);
         }
         responseObserver.onNext(BoolValue.of(result));

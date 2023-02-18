@@ -6,6 +6,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.obapanel.lockfactoryserver.client.grpc.CountDownLatchClientGrpc;
+import org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.LockFactoryServer;
 import org.slf4j.Logger;
@@ -79,8 +80,8 @@ public class CountDownLatchAsyncGrpcTest {
 
     CountDownLatchClientGrpc generateCountDownLatchClientGrpc() {
         int num = COUNT_DOWN_LATCH_COUNT.incrementAndGet();
-        String countDownLatchName = countDowneLatchName.replace("XXX", String.format("%03d", num) );
-        return new CountDownLatchClientGrpc(LOCALHOST ,configuration.getGrpcServerPort(), countDowneLatchName);
+        String countDownLatchCurrentName = countDowneLatchName.replace("XXX", String.format("%03d", num) );
+        return new CountDownLatchClientGrpc(LOCALHOST ,configuration.getGrpcServerPort(), countDownLatchCurrentName);
     }
 
     @Test
@@ -135,7 +136,7 @@ public class CountDownLatchAsyncGrpcTest {
                 awaited.set(true);
                 LOGGER.debug("asynAwaitManyTest awaited true");
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new IllegalStateException(e);
             }
         });
         tfinal.setName("t_" + System.currentTimeMillis());
@@ -148,7 +149,7 @@ public class CountDownLatchAsyncGrpcTest {
                     Thread.sleep(200 + ThreadLocalRandom.current().nextInt(300));
                     countDownLatchClientGrpc.countDown();
                 } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeInterruptedException(e);
                 }
             });
         }
@@ -166,7 +167,7 @@ public class CountDownLatchAsyncGrpcTest {
             try {
                 t.join(1500);
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeInterruptedException(e);
             }
         });
         boolean acquired = inner.tryAcquire(6500, TimeUnit.MILLISECONDS);

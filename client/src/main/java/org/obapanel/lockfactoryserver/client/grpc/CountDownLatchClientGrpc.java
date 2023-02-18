@@ -79,8 +79,8 @@ public class CountDownLatchClientGrpc
         getStub().await(getStringValueName());
     }
 
-    public boolean tryAwaitWithTimeOut(long timeOut)  {
-        return tryAwaitWithTimeOut(timeOut, TimeUnit.MILLISECONDS);
+    public boolean tryAwaitWithTimeOut(long timeOutMillis)  {
+        return tryAwaitWithTimeOut(timeOutMillis, TimeUnit.MILLISECONDS);
     }
 
     public boolean tryAwaitWithTimeOut(long timeOut, TimeUnit timeUnit)  {

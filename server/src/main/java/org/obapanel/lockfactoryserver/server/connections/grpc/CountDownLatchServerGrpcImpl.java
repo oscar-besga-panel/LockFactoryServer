@@ -84,12 +84,12 @@ public class CountDownLatchServerGrpcImpl extends CountDownLatchServerGrpc.Count
         String name = request.getName();
         long timeOut = request.getTimeOut();
         TimeUnitGrpc timeUnitGrpc = request.getTimeUnit();
-        if (timeUnitGrpc == null) {
-            LOGGER.info("grpc server> tryAwaitWithTimeOut name {} timeout {}", name, timeOut);
+        if (timeUnitGrpc == null || timeUnitGrpc == TimeUnitGrpc.UNRECOGNIZED) {
+            LOGGER.info("grpc server> tryAwaitWithTimeOut name {} timeOut {}", name, timeOut);
             result = countDownLatchService.tryAwaitWithTimeOut(name, timeOut);
         } else {
             TimeUnit timeUnit = fromGrpcToJava(timeUnitGrpc);
-            LOGGER.info("grpc server> tryAwaitWithTimeOut name {} timeout {} timeunit {}", name, timeOut, timeUnit);
+            LOGGER.info("grpc server> tryAwaitWithTimeOut name {} timeOut {} timeunit {}", name, timeOut, timeUnit);
             result = countDownLatchService.tryAwaitWithTimeOut(name, timeOut, timeUnit);
         }
         responseObserver.onNext(BoolValue.of(result));

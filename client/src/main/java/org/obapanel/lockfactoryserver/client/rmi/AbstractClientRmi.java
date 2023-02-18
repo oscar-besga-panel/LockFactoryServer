@@ -1,5 +1,6 @@
 package org.obapanel.lockfactoryserver.client.rmi;
 
+import org.obapanel.lockfactoryserver.client.NamedClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,7 +10,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
-public abstract class AbstractClientRmi<K extends Remote> implements AutoCloseable {
+public abstract class AbstractClientRmi<K extends Remote> implements AutoCloseable, NamedClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractClientRmi.class);
 

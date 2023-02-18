@@ -11,7 +11,7 @@ import static org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedExcepti
 
 public final class SemaphoreServiceSynchronized extends SemaphoreService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SemaphoreService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SemaphoreServiceSynchronized.class);
 
 
     public SemaphoreServiceSynchronized(LockFactoryConfiguration configuration) {
@@ -48,7 +48,7 @@ public final class SemaphoreServiceSynchronized extends SemaphoreService {
     public synchronized boolean tryAcquire(String name, int permits) {
         boolean result = super.tryAcquire(name, permits);
         notifyAllIfPermits(name);
-        LOGGER.debug("] tryAcquire wotimeout result {}", result);
+        LOGGER.debug("] tryAcquire without timeOut result {}", result);
         return result;
     }
 

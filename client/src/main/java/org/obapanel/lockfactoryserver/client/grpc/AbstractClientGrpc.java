@@ -5,13 +5,17 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.AbstractBlockingStub;
 import io.grpc.stub.AbstractFutureStub;
+import org.obapanel.lockfactoryserver.client.NamedClient;
+import org.obapanel.lockfactoryserver.core.util.LazyObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
-abstract class AbstractClientGrpc<M extends AbstractBlockingStub, N extends AbstractFutureStub> implements AutoCloseable {
+abstract class AbstractClientGrpc<M extends AbstractBlockingStub, N extends AbstractFutureStub>
+        implements AutoCloseable, NamedClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractClientGrpc.class);
 
@@ -21,7 +25,7 @@ abstract class AbstractClientGrpc<M extends AbstractBlockingStub, N extends Abst
     private final M blockingStub;
     private final N asyncStub;
 
-    private ExecutorService lazyLocalExecutor;
+    private final LazyLoadExecutor localExecutor = new LazyLoadExecutor();
 
     private final String name;
 
@@ -40,10 +44,6 @@ abstract class AbstractClientGrpc<M extends AbstractBlockingStub, N extends Abst
 
     boolean isManagedChannlePrivate() {
         return managedChannlePrivate;
-    }
-
-    ManagedChannel getManagedChannel() {
-        return managedChannel;
     }
 
     abstract M generateStub(ManagedChannel managedChannel);
@@ -75,29 +75,47 @@ abstract class AbstractClientGrpc<M extends AbstractBlockingStub, N extends Abst
     }
 
     ExecutorService lazyLocalExecutor() {
-        if (lazyLocalExecutor == null) {
-            lazyLocalExecutor = createLazyLocalExecutor();
-        }
-        return lazyLocalExecutor;
+        return localExecutor.get();
     }
-
-    synchronized ExecutorService createLazyLocalExecutor() {
-        if (lazyLocalExecutor == null) {
-            lazyLocalExecutor = Executors.newSingleThreadExecutor();
-        }
-        return lazyLocalExecutor;
-    }
-
 
     public void close() {
         if (managedChannlePrivate) {
             managedChannel.shutdown();
         }
-        if (lazyLocalExecutor != null) {
-            lazyLocalExecutor.shutdown();
-            lazyLocalExecutor.shutdownNow();
-        }
+        localExecutor.close();
+
         LOGGER.debug("close");
+    }
+
+    private static class LazyLoadExecutor extends LazyObject<ExecutorService> implements AutoCloseable {
+
+        @Override
+        protected ExecutorService initialize() {
+            DaemonThreadFactory daemonThreadFactory = new DaemonThreadFactory();
+            return Executors.newSingleThreadExecutor(daemonThreadFactory);
+        }
+
+        public void close() {
+            ExecutorService executorService = get();
+            executorService.shutdown();
+            executorService.shutdownNow();
+        }
+
+    }
+
+    // Seen in https://stackoverflow.com/questions/13883293/turning-an-executorservice-to-daemon-in-java
+    private static class DaemonThreadFactory implements ThreadFactory {
+
+        @Override
+        public Thread newThread(Runnable runnable) {
+            Thread thread = Executors.defaultThreadFactory().
+                    newThread(runnable);
+            thread.setUncaughtExceptionHandler((t,e) -> {
+                LOGGER.error("UncaugthException in AbstractClientGrpc LazyLoadExecutor", e);
+            });
+            thread.setDaemon(true);
+            return thread;
+        }
     }
 
 }

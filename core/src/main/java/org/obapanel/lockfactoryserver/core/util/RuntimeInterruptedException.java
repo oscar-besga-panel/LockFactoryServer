@@ -76,4 +76,8 @@ public class RuntimeInterruptedException extends RuntimeException {
         }
     }
 
+    public static void doSleep(long millis) {
+        doWithRuntime(() -> Thread.sleep(millis));
+    }
+
 }

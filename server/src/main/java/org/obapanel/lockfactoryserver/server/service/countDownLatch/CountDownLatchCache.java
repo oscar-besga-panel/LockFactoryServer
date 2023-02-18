@@ -4,6 +4,7 @@ import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.utils.primitivesCache.PrimitivesCache;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.function.Supplier;
 
 public final class CountDownLatchCache extends PrimitivesCache<CountDownLatch> {
 
@@ -27,6 +28,15 @@ public final class CountDownLatchCache extends PrimitivesCache<CountDownLatch> {
     @Override
     public CountDownLatch createNew(String name) {
         throw new UnsupportedOperationException("Not allowed create without supplier for countDownLatch");
+    }
+
+    public CountDownLatch createNew(String name, int count) {
+         return super.getOrCreateData(name, () -> new CountDownLatch(count));
+    }
+
+    @Override
+    public CountDownLatch getOrCreateData(String name, Supplier<CountDownLatch> creator) {
+        throw new UnsupportedOperationException("Not allowed create with supplier for countDownLatch");
     }
 
     @Override

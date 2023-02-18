@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.obapanel.lockfactoryserver.server.service.Services;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class UnmodifiableEntryTest {
 
@@ -24,6 +25,13 @@ public class UnmodifiableEntryTest {
     public void getTest() {
         assertEquals(Services.LOCK, entry.getKey());
         assertEquals("LOCK", entry.getValue());
+    }
+
+    @Test
+    public void someTest() {
+        assertTrue(entry.toString().contains("LOCK"));
+        assertTrue(entry.toString().contains("UnmodifiableEntry"));
+        assertEquals(new UnmodifiableEntry<>(Services.LOCK, "LOCK").hashCode(), entry.hashCode());
     }
 
 }

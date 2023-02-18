@@ -73,8 +73,8 @@ public class LockClientGrpc
         return result;
     }
 
-    public boolean tryLockWithTimeOut(long timeOut) {
-        return this.tryLockWithTimeOut(timeOut, TimeUnit.MILLISECONDS);
+    public boolean tryLockWithTimeOut(long timeOutMillis) {
+        return this.tryLockWithTimeOut(timeOutMillis, TimeUnit.MILLISECONDS);
     }
 
     public boolean tryLockWithTimeOut(long timeOut, TimeUnit timeUnit) {
@@ -128,11 +128,13 @@ public class LockClientGrpc
             try {
                 token = listenableFuture.get().getValue();
                 LOGGER.debug("Token is future {}", token);
-                onLock.run();
+                if (onLock != null) {
+                    onLock.run();
+                }
             } catch (InterruptedException e) {
                 throw RuntimeInterruptedException.getToThrowWhenInterrupted(e);
             } catch (ExecutionException e) {
-                throw new RuntimeException(e);
+                throw new IllegalStateException(e);
             }
         }, executor);
     }

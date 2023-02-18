@@ -1,6 +1,7 @@
 package org.obapanel.lockfactoryserver.server.connections.rmi;
 
 import org.obapanel.lockfactoryserver.core.rmi.CountDownLatchServerRmi;
+import org.obapanel.lockfactoryserver.core.rmi.HolderServerRmi;
 import org.obapanel.lockfactoryserver.core.rmi.LockServerRmi;
 import org.obapanel.lockfactoryserver.core.rmi.ManagementServerRmi;
 import org.obapanel.lockfactoryserver.core.rmi.SemaphoreServerRmi;
@@ -10,6 +11,7 @@ import org.obapanel.lockfactoryserver.server.connections.LockFactoryConnection;
 import org.obapanel.lockfactoryserver.server.service.LockFactoryServices;
 import org.obapanel.lockfactoryserver.server.service.Services;
 import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchService;
+import org.obapanel.lockfactoryserver.server.service.holder.HolderService;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
 import org.obapanel.lockfactoryserver.server.service.management.ManagementService;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
@@ -53,30 +55,32 @@ public class RmiConnection implements LockFactoryConnection {
         int port = configuration.getRmiServerPort();
         rmiRegistry = createOrGetRmiRegistry(port);
         if (configuration.isManagementEnabled()) {
-            addService(servicesMap, port, Services.MANAGEMENT, ManagementServerRmi.RMI_NAME,
+            addService(servicesMap.get(Services.MANAGEMENT), ManagementServerRmi.RMI_NAME, port,
                     t -> ( new ManagementServerRmiImpl((ManagementService) t))  );
         }
         if (configuration.isLockEnabled()) {
-            addService(servicesMap, port, Services.LOCK, LockServerRmi.RMI_NAME,
+            addService(servicesMap.get(Services.LOCK), LockServerRmi.RMI_NAME, port,
                     t -> ( new LockServerRmiImpl((LockService) t))  );
         }
         if (configuration.isSemaphoreEnabled()) {
-            addService(servicesMap, port, Services.SEMAPHORE, SemaphoreServerRmi.RMI_NAME,
+            addService(servicesMap.get(Services.SEMAPHORE), SemaphoreServerRmi.RMI_NAME, port,
                     t -> ( new SemaphoreServerRmiImpl((SemaphoreService) t))  );
         }
         if (configuration.isCountDownLatchEnabled()) {
-            addService(servicesMap, port, Services.COUNTDOWNLATCH, CountDownLatchServerRmi.RMI_NAME,
+            addService(servicesMap.get(Services.COUNTDOWNLATCH), CountDownLatchServerRmi.RMI_NAME, port,
                     t -> ( new CountDownLatchServerRmiImpl((CountDownLatchService) t))  );
+        }
+        if (configuration.isHolderEnabled()) {
+            addService(servicesMap.get(Services.HOLDER), HolderServerRmi.RMI_NAME, port,
+                    t -> (new HolderServerRmiImpl((HolderService) t)));
         }
         LOGGER.debug("RmiConnection activated");
     }
 
 
     @SuppressWarnings("unchecked")
-    private <S extends LockFactoryServices, R extends Remote> void addService(Map<Services, LockFactoryServices> services, int port,
-                                                 Services servicesEnum, String rmiName,
-                                                 Function<S, R> implCreator) throws RemoteException {
-        S service = (S) services.get(servicesEnum);
+    private <S extends LockFactoryServices, R extends Remote> void addService(S service, String rmiName, int port,
+                                                                              Function<S, R> implCreator) throws RemoteException {
         R serverRmiImpl = implCreator.apply(service);
         rmiRemotes.add(serverRmiImpl);
         R serverRmiStub = (R) UnicastRemoteObject
@@ -85,8 +89,8 @@ public class RmiConnection implements LockFactoryConnection {
         rmiRegistry.rebind(rmiName, serverRmiStub);
     }
 
-    private static Registry createOrGetRmiRegistry(int port) throws RemoteException {
-        Registry registry = null;
+    private static Registry createOrGetRmiRegistry(int port) {
+        Registry registry;
         try {
             registry = LocateRegistry.createRegistry(port);
         } catch (ExportException ex) {

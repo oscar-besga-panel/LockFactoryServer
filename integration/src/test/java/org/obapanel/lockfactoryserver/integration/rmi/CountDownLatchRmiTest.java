@@ -6,6 +6,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.obapanel.lockfactoryserver.client.rmi.CountDownLatchClientRmi;
+import org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.LockFactoryServer;
 import org.slf4j.Logger;
@@ -40,7 +41,7 @@ public class CountDownLatchRmiTest {
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-    private final String countDowneLatchName = "codolaRmiXXXx" + System.currentTimeMillis();
+    private final String countDownLatchName = "codolaRmiXXXx" + System.currentTimeMillis();
 
     @BeforeClass
     public static void setupAll() throws InterruptedException {
@@ -81,12 +82,12 @@ public class CountDownLatchRmiTest {
 
     CountDownLatchClientRmi generateCountDownLatchClientRmi() throws NotBoundException, RemoteException {
         int num = COUNT_DOWN_LATCH_COUNT.incrementAndGet();
-        String semaphoreName = countDowneLatchName.replace("XXX", String.format("%03d", num) );
-        return generateCountDownLatchClientRmi(semaphoreName);
+        String currentCountDownLatchName = countDownLatchName.replace("XXX", String.format("%03d", num) );
+        return generateCountDownLatchClientRmi(currentCountDownLatchName);
     }
 
-    CountDownLatchClientRmi generateCountDownLatchClientRmi(String countDownLatchName) throws NotBoundException, RemoteException {
-        return new CountDownLatchClientRmi(LOCALHOST ,configuration.getRmiServerPort(), countDownLatchName);
+    CountDownLatchClientRmi generateCountDownLatchClientRmi(String currentCountDownLatchName) throws NotBoundException, RemoteException {
+        return new CountDownLatchClientRmi(LOCALHOST ,configuration.getRmiServerPort(), currentCountDownLatchName);
     }
 
     @Test
@@ -120,8 +121,10 @@ public class CountDownLatchRmiTest {
                 countDownLatchClientRmi2.countDown();
                 countedDown.set(true);
                 inner.release();
-            } catch (InterruptedException | RemoteException | NotBoundException e) {
-                throw new RuntimeException(e);
+            } catch (InterruptedException e) {
+                throw new RuntimeInterruptedException(e);
+            } catch (RemoteException | NotBoundException e) {
+                throw new IllegalStateException(e);
             }
         });
         boolean result = countDownLatchClientRmi1.tryAwaitWithTimeOut(3000, TimeUnit.MILLISECONDS);
@@ -141,8 +144,10 @@ public class CountDownLatchRmiTest {
             try {
                 Thread.sleep(500);
                 countDownLatchClientRmi.countDown();
-            } catch (InterruptedException | RemoteException e) {
-                throw new RuntimeException(e);
+            } catch (InterruptedException e) {
+                throw new RuntimeInterruptedException(e);
+            } catch (RemoteException e) {
+                throw new IllegalStateException(e);
             }
         });
         boolean result = countDownLatchClientRmi.tryAwaitWithTimeOut(1500, TimeUnit.MILLISECONDS);
@@ -162,8 +167,10 @@ public class CountDownLatchRmiTest {
                 try {
                     Thread.sleep(200 + ThreadLocalRandom.current().nextInt(300));
                     countDownLatchClientRmi.countDown();
-                } catch (InterruptedException | RemoteException e) {
-                    throw new RuntimeException(e);
+                } catch (InterruptedException e) {
+                    throw new RuntimeInterruptedException(e);
+                } catch (RemoteException e) {
+                    throw new IllegalStateException(e);
                 }
             });
         }
@@ -190,7 +197,7 @@ public class CountDownLatchRmiTest {
                 countDownLatchClientRmi.await();
                 awaited.set(true);
             } catch (RemoteException e) {
-                throw new RuntimeException(e);
+                throw new IllegalStateException(e);
             }
         });
         tfinal.setName("t_" + System.currentTimeMillis());
@@ -203,7 +210,7 @@ public class CountDownLatchRmiTest {
                     Thread.sleep(200 + ThreadLocalRandom.current().nextInt(300));
                     countDownLatchClientRmi.countDown();
                 } catch (InterruptedException | RemoteException e) {
-                    throw new RuntimeException(e);
+                    throw new IllegalStateException(e);
                 }
             });
         }
@@ -220,7 +227,7 @@ public class CountDownLatchRmiTest {
             try {
                 t.join(1500);
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeInterruptedException(e);
             }
         });
         assertTrue(created);
@@ -243,8 +250,10 @@ public class CountDownLatchRmiTest {
                 countDownLatchClientRmi2.countDown(2);
                 countedDown2.set(true);
                 inner2.release();
-            } catch (InterruptedException | RemoteException | NotBoundException e) {
-                throw new RuntimeException(e);
+            } catch (InterruptedException e) {
+                throw new RuntimeInterruptedException(e);
+            } catch (RemoteException | NotBoundException e) {
+                throw new IllegalStateException(e);
             }
         });
         AtomicBoolean countedDown3 = new AtomicBoolean(false);
@@ -255,8 +264,10 @@ public class CountDownLatchRmiTest {
                 countDownLatchClientRmi3.countDown(3);
                 countedDown3.set(true);
                 inner3.release();
-            } catch (InterruptedException | RemoteException | NotBoundException e) {
-                throw new RuntimeException(e);
+            } catch (InterruptedException e) {
+                throw new RuntimeInterruptedException(e);
+            } catch (RemoteException | NotBoundException e) {
+                throw new IllegalStateException(e);
             }
         });
         boolean result = countDownLatchClientRmi1.tryAwaitWithTimeOut(5000, TimeUnit.MILLISECONDS);
@@ -267,7 +278,7 @@ public class CountDownLatchRmiTest {
         assertTrue(created);
         assertTrue(countedDown2.get());
         assertTrue(countedDown3.get());
-        //assertTrue(result);
+        assertTrue(result);
         assertFalse(countDownLatchClientRmi1.isActive());
     }
 

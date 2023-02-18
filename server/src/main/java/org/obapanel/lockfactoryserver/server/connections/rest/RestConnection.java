@@ -8,6 +8,7 @@ import org.obapanel.lockfactoryserver.server.connections.LockFactoryConnection;
 import org.obapanel.lockfactoryserver.server.service.LockFactoryServices;
 import org.obapanel.lockfactoryserver.server.service.Services;
 import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchService;
+import org.obapanel.lockfactoryserver.server.service.holder.HolderService;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
 import org.obapanel.lockfactoryserver.server.service.management.ManagementService;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
@@ -36,7 +37,7 @@ public class RestConnection implements LockFactoryConnection {
     }
 
     @Override
-    public void activate(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices> services) throws Exception {
+    public void activate(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices> services) {
         EmbeddedHttpServerBuilder builder = EmbeddedHttpServerBuilder.createNew();
         builder.withPort(configuration.getRestServerPort());
         builder.withBackLog(configuration.getRestConnectQueueSize());
@@ -53,6 +54,9 @@ public class RestConnection implements LockFactoryConnection {
         }
         if (configuration.isCountDownLatchEnabled()) {
             chainCountDownLatch(builder, (CountDownLatchService) services.get(Services.COUNTDOWNLATCH));
+        }
+        if (configuration.isHolderEnabled()) {
+            chainHolder(builder, (HolderService) services.get(Services.HOLDER));
         }
         embeddedHttpServer = builder.buildAndRun();
         LOGGER.debug("RestConnection activated");
@@ -106,6 +110,19 @@ public class RestConnection implements LockFactoryConnection {
             addPlainTextHandlerWithPrefix(builder, prefix + "/tryAwaitWithTimeOut", countDownLatchServerRest::tryAwaitWithTimeOut );
             addPlainTextHandlerWithPrefix(builder, prefix + "/tryawaitwithtimeout", countDownLatchServerRest::tryAwaitWithTimeOut );
         }
+    }
+
+    private void chainHolder(EmbeddedHttpServerBuilder builder, HolderService holderService) {
+        HolderServerRestImpl holderServerRest = new HolderServerRestImpl(holderService);
+        addPlainTextHandlerWithPrefix(builder, "/holder/get", holderServerRest::get);
+        addPlainTextHandlerWithPrefix(builder, "/holder/getWithTimeOut", holderServerRest::getWithTimeOut);
+        addPlainTextHandlerWithPrefix(builder, "/holder/getwithtimeout", holderServerRest::getWithTimeOut);
+        addPlainTextHandlerWithPrefix(builder, "/holder/getIfAvailable", holderServerRest::getIfAvailable);
+        addPlainTextHandlerWithPrefix(builder, "/holder/getifavailable", holderServerRest::getIfAvailable);
+        addPlainTextHandlerWithPrefix(builder, "/holder/set", holderServerRest::set);
+        addPlainTextHandlerWithPrefix(builder, "/holder/setWithTimeToLive", holderServerRest::setWithTimeToLive);
+        addPlainTextHandlerWithPrefix(builder, "/holder/setwithtimetolive", holderServerRest::setWithTimeToLive);
+        addPlainTextHandlerWithPrefix(builder, "/holder/cancel", holderServerRest::cancel);
     }
 
     private void addPlainTextHandlerWithPrefix(EmbeddedHttpServerBuilder builder, String prefix, RestConnectionHelper.PlainTextHandlerWithPrefix handler) {

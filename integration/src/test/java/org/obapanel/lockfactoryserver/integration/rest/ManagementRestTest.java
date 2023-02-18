@@ -1,11 +1,8 @@
 package org.obapanel.lockfactoryserver.integration.rest;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.obapanel.lockfactoryserver.client.rest.ManagementClientRest;
+import org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.LockFactoryServer;
 import org.slf4j.Logger;
@@ -101,7 +98,7 @@ public class ManagementRestTest {
                     boolean response = managementClientRest.isRunning();
                     running.set(response);
                 } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeInterruptedException(e);
                 } finally {
                     results.add(running);
                 }
@@ -114,7 +111,7 @@ public class ManagementRestTest {
             try {
                 thread.join();
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeInterruptedException(e);
             }
         });
         results.forEach( running -> {

@@ -1,11 +1,8 @@
 package org.obapanel.lockfactoryserver.integration.grpc;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.obapanel.lockfactoryserver.client.grpc.CountDownLatchClientGrpc;
+import org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.LockFactoryServer;
 import org.slf4j.Logger;
@@ -13,17 +10,11 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class CountDownLatchGrpcTest {
 
@@ -120,7 +111,7 @@ public class CountDownLatchGrpcTest {
                 countedDown.set(true);
                 inner.release();
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeInterruptedException(e);
             }
         });
         boolean result = countDownLatchClientGrpc1.tryAwaitWithTimeOut(3000, TimeUnit.MILLISECONDS);
@@ -141,7 +132,7 @@ public class CountDownLatchGrpcTest {
                 Thread.sleep(500);
                 countDownLatchClientGrpc.countDown();
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeInterruptedException(e);
             }
         });
         boolean result = countDownLatchClientGrpc.tryAwaitWithTimeOut(1500, TimeUnit.MILLISECONDS);
@@ -162,7 +153,7 @@ public class CountDownLatchGrpcTest {
                     Thread.sleep(200 + ThreadLocalRandom.current().nextInt(300));
                     countDownLatchClientGrpc.countDown();
                 } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeInterruptedException(e);
                 }
             });
         }
@@ -189,7 +180,7 @@ public class CountDownLatchGrpcTest {
                 countDownLatchClientGrpc.await();
                 awaited.set(true);
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new IllegalStateException(e);
             }
         });
         tfinal.setName("t_" + System.currentTimeMillis());
@@ -202,7 +193,7 @@ public class CountDownLatchGrpcTest {
                     Thread.sleep(200 + ThreadLocalRandom.current().nextInt(300));
                     countDownLatchClientGrpc.countDown();
                 } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeInterruptedException(e);
                 }
             });
         }
@@ -219,7 +210,7 @@ public class CountDownLatchGrpcTest {
             try {
                 t.join(1500);
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeInterruptedException(e);
             }
         });
         assertTrue(created);
@@ -244,7 +235,7 @@ public class CountDownLatchGrpcTest {
                 countedDown2.set(true);
                 inner2.release();
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeInterruptedException(e);
             }
         });
         executorService.submit(() -> {
@@ -255,7 +246,7 @@ public class CountDownLatchGrpcTest {
                 countedDown3.set(true);
                 inner3.release();
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeInterruptedException(e);
             }
         });
         boolean result = countDownLatchClientGrpc1.tryAwaitWithTimeOut(5000, TimeUnit.MILLISECONDS);

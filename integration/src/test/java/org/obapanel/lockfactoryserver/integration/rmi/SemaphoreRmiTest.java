@@ -106,7 +106,7 @@ public class SemaphoreRmiTest {
                 Thread.sleep(500);
                 semaphoreClientRmi.release(5);
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new IllegalStateException(e);
             }
         });
         semaphoreClientRmi.acquire(3);
@@ -127,7 +127,7 @@ public class SemaphoreRmiTest {
                 Thread.sleep(500);
                 semaphoreClientRmi.release();
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new IllegalStateException(e);
             }
             inner.release();
         });
@@ -154,7 +154,7 @@ public class SemaphoreRmiTest {
                 Thread.sleep(500);
                 semaphoreClientRmi.release(3);
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new IllegalStateException(e);
             }
             inner.release();
         });

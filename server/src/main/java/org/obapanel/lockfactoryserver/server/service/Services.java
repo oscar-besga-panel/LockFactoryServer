@@ -1,6 +1,7 @@
 package org.obapanel.lockfactoryserver.server.service;
 
 import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchService;
+import org.obapanel.lockfactoryserver.server.service.holder.HolderService;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
 import org.obapanel.lockfactoryserver.server.service.management.ManagementService;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
@@ -13,7 +14,8 @@ public enum Services {
     MANAGEMENT(ManagementService.class),
     LOCK(LockService.class),
     SEMAPHORE(SemaphoreService.class),
-    COUNTDOWNLATCH(CountDownLatchService.class);
+    COUNTDOWNLATCH(CountDownLatchService.class),
+    HOLDER(HolderService.class);
 
     private final Class<? extends LockFactoryServices> serviceClass;
 

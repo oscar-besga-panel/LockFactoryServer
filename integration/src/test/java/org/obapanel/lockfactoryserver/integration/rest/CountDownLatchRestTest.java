@@ -6,6 +6,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.obapanel.lockfactoryserver.client.rest.CountDownLatchClientRest;
+import org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.LockFactoryServer;
 import org.slf4j.Logger;
@@ -38,7 +39,7 @@ public class CountDownLatchRestTest {
 
     private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-    private final String countDowneLatchName = "codolaRestXXXx" + System.currentTimeMillis();
+    private final String countDownLatchName = "codolaRestXXXx" + System.currentTimeMillis();
 
     @BeforeClass
     public static void setupAll() throws InterruptedException {
@@ -79,13 +80,13 @@ public class CountDownLatchRestTest {
 
     CountDownLatchClientRest generateCountDownLatchClientRest() {
         int num = COUNT_DOWN_LATCH_COUNT.incrementAndGet();
-        String semaphoreName = countDowneLatchName.replace("XXX", String.format("%03d", num) );
-        return generateCountDownLatchClientRest(semaphoreName);
+        String countDownLatchCurrentName = countDownLatchName.replace("XXX", String.format("%03d", num) );
+        return generateCountDownLatchClientRest(countDownLatchCurrentName);
     }
 
-    CountDownLatchClientRest generateCountDownLatchClientRest(String countDownLatchName) {
+    CountDownLatchClientRest generateCountDownLatchClientRest(String countDownLatchCurrentName) {
         String baseUrl = "http://" + LOCALHOST + ":" + configuration.getRestServerPort() + "/";
-        return new CountDownLatchClientRest(baseUrl, countDownLatchName);
+        return new CountDownLatchClientRest(baseUrl, countDownLatchCurrentName);
     }
 
     @Test
@@ -121,7 +122,7 @@ public class CountDownLatchRestTest {
                 countedDown.set(true);
                 inner.release();
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeInterruptedException(e);
             }
         });
         boolean result = countDownLatchClientRest1.tryAwaitWithTimeOut(3000, TimeUnit.MILLISECONDS);
@@ -142,7 +143,7 @@ public class CountDownLatchRestTest {
                 Thread.sleep(500);
                 countDownLatchClientRest.countDown();
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeInterruptedException(e);
             }
         });
         boolean result = countDownLatchClientRest.tryAwaitWithTimeOut(1500, TimeUnit.MILLISECONDS);
@@ -169,7 +170,7 @@ public class CountDownLatchRestTest {
                     countDownLatchClientRestN.countDown();
                     inner.release();
                 } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeInterruptedException(e);
                 }
             });
         }
@@ -217,7 +218,7 @@ public class CountDownLatchRestTest {
                     inner.release();
                     countDownLatchClientRest2.close();
                 } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeInterruptedException(e);
                 }
             });
         }
@@ -234,7 +235,7 @@ public class CountDownLatchRestTest {
             try {
                 t.join(1500);
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeInterruptedException(e);
             }
         });
         assertTrue(created);
@@ -261,7 +262,7 @@ public class CountDownLatchRestTest {
                 countedDown2.set(true);
                 inner2.release();
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeInterruptedException(e);
             }
         });
         AtomicBoolean countedDown3 = new AtomicBoolean(false);
@@ -273,7 +274,7 @@ public class CountDownLatchRestTest {
                 countedDown3.set(true);
                 inner3.release();
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeInterruptedException(e);
             }
         });
         boolean result = countDownLatchClientRest1.tryAwaitWithTimeOut(5000, TimeUnit.MILLISECONDS);

@@ -4,6 +4,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.obapanel.lockfactoryserver.core.LockStatus;
+import org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
 import org.slf4j.Logger;
@@ -72,7 +73,7 @@ public class LockServiceAdvancedTest {
             try {
                 t.join();
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeInterruptedException(e);
             }
         });
         assertFalse(errorInCriticalZone.get());
