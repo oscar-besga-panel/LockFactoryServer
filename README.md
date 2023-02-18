@@ -3,7 +3,7 @@
 [![Open Source Love](https://badges.frapsoft.com/os/v3/open-source.svg?v=103)](https://github.com/ellerbrock/open-source-badges/)
 
 _Project information_        
-[![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://opensource.org/licenses/MIT)
+[![MIT License](https://img.shields.io/github/license/oscar-besga-panel/LockFactoryServer)](https://opensource.org/licenses/MIT)
 ![Top languaje](https://img.shields.io/github/languages/top/oscar-besga-panel/LockFactoryServer)
 [![Wiki](https://badgen.net/badge/icon/wiki?icon=wiki&label)](https://github.com/oscar-besga-panel/LockFactoryServer/wiki)
 [![Github Web page](https://badgen.net/badge/github/website?icon=github)](https://oscar-besga-panel.github.io/LockFactoryServer/)
