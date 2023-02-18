@@ -2,13 +2,10 @@ package org.obapanel.lockfactoryserver.integration.grpc;
 
 import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.obapanel.lockfactoryserver.client.grpc.CountDownLatchClientGrpc;
 import org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException;
-import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
-import org.obapanel.lockfactoryserver.server.LockFactoryServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +21,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.obapanel.lockfactoryserver.integration.IntegrationTestServer.LOCALHOST;
+import static org.obapanel.lockfactoryserver.integration.IntegrationTestServer.getConfigurationIntegrationTestServer;
+import static org.obapanel.lockfactoryserver.integration.IntegrationTestServer.startIntegrationTestServer;
+import static org.obapanel.lockfactoryserver.integration.IntegrationTestServer.stopIntegrationTestServer;
 
 public class CountDownLatchAsyncGrpcTest {
 
@@ -31,57 +32,29 @@ public class CountDownLatchAsyncGrpcTest {
 
     private static final AtomicInteger COUNT_DOWN_LATCH_COUNT = new AtomicInteger(0);
 
-    public static final String LOCALHOST = "127.0.0.1";
-
-    private LockFactoryConfiguration configuration;
-    private LockFactoryServer lockFactoryServer;
-
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private final String countDowneLatchName = "codolaGrpcXXXx" + System.currentTimeMillis();
 
     @BeforeClass
     public static void setupAll() throws InterruptedException {
-        Thread.sleep(250);
-        LOGGER.debug("setup all ini <<<");
-        LOGGER.debug("setup all fin <<<");
-        Thread.sleep(250);
-    }
-
-    @Before
-    public void setup() throws InterruptedException {
-        LOGGER.debug("setup ini >>>");
-        configuration = new LockFactoryConfiguration();
-        lockFactoryServer = new LockFactoryServer();
-        lockFactoryServer.startServer();
-        LOGGER.debug("setup fin <<<");
-        Thread.sleep(250);
+        startIntegrationTestServer();
     }
 
     @AfterClass
     public static void tearsDownAll() throws InterruptedException {
-        Thread.sleep(250);
-        LOGGER.debug("tearsDown all ini >>>");
-
-        LOGGER.debug("tearsDown all fin <<<");
-        Thread.sleep(250);
+        stopIntegrationTestServer();
     }
-
 
     @After
     public void tearsDown() throws InterruptedException {
-        Thread.sleep(250);
-        LOGGER.debug("tearsDown ini >>>");
-        lockFactoryServer.shutdown();
         executorService.shutdown();
-        LOGGER.debug("tearsDown fin <<<");
-        Thread.sleep(250);
     }
 
     CountDownLatchClientGrpc generateCountDownLatchClientGrpc() {
         int num = COUNT_DOWN_LATCH_COUNT.incrementAndGet();
         String countDownLatchCurrentName = countDowneLatchName.replace("XXX", String.format("%03d", num) );
-        return new CountDownLatchClientGrpc(LOCALHOST ,configuration.getGrpcServerPort(), countDownLatchCurrentName);
+        return new CountDownLatchClientGrpc(LOCALHOST , getConfigurationIntegrationTestServer().getGrpcServerPort(), countDownLatchCurrentName);
     }
 
     @Test
@@ -117,8 +90,6 @@ public class CountDownLatchAsyncGrpcTest {
         assertTrue(acquired);
         assertFalse(countDownLatchClientGrpc.isActive());
     }
-
-
 
     @Test
     public void asynAwaitManyTest() throws InterruptedException {

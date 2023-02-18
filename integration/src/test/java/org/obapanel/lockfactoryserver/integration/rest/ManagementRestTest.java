@@ -1,6 +1,10 @@
 package org.obapanel.lockfactoryserver.integration.rest;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.obapanel.lockfactoryserver.client.rest.ManagementClientRest;
 import org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
@@ -16,12 +20,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.obapanel.lockfactoryserver.integration.IntegrationTestServer.LOCALHOST;
 
 public class ManagementRestTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ManagementRestTest.class);
-
-     public static final String LOCALHOST = "127.0.0.1";
 
     private LockFactoryConfiguration configuration;
     private LockFactoryServer lockFactoryServer;

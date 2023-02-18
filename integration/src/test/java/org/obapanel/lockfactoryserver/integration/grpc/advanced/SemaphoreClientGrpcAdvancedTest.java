@@ -1,13 +1,9 @@
 package org.obapanel.lockfactoryserver.integration.grpc.advanced;
 
-import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.obapanel.lockfactoryserver.client.grpc.SemaphoreClientGrpc;
-import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
-import org.obapanel.lockfactoryserver.server.LockFactoryServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,63 +15,34 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.assertFalse;
+import static org.obapanel.lockfactoryserver.integration.IntegrationTestServer.LOCALHOST;
+import static org.obapanel.lockfactoryserver.integration.IntegrationTestServer.getConfigurationIntegrationTestServer;
+import static org.obapanel.lockfactoryserver.integration.IntegrationTestServer.startIntegrationTestServer;
+import static org.obapanel.lockfactoryserver.integration.IntegrationTestServer.stopIntegrationTestServer;
 
 public class SemaphoreClientGrpcAdvancedTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SemaphoreClientGrpcAdvancedTest.class);
 
-    public static final String LOCALHOST = "127.0.0.1";
-
     private final AtomicBoolean intoCriticalZone = new AtomicBoolean(false);
     private final AtomicBoolean errorInCriticalZone = new AtomicBoolean(false);
     private final AtomicBoolean otherErrors = new AtomicBoolean(false);
-
-    private LockFactoryConfiguration configuration;
-    private LockFactoryServer lockFactoryServer;
-
 
     private final String semaphoreName = "semaphoreGrpc999x" + System.currentTimeMillis();
 
     @BeforeClass
     public static void setupAll() throws InterruptedException {
-        Thread.sleep(250);
-        LOGGER.debug("setup all ini <<<");
-        LOGGER.debug("setup all fin <<<");
-        Thread.sleep(250);
-    }
-
-    @Before
-    public void setup() throws InterruptedException {
-        LOGGER.debug("setup ini >>>");
-        configuration = new LockFactoryConfiguration();
-        lockFactoryServer = new LockFactoryServer();
-        lockFactoryServer.startServer();
-        LOGGER.debug("setup fin <<<");
-        Thread.sleep(250);
+        startIntegrationTestServer();
     }
 
     @AfterClass
     public static void tearsDownAll() throws InterruptedException {
-        Thread.sleep(250);
-        LOGGER.debug("tearsDown all ini >>>");
-
-        LOGGER.debug("tearsDown all fin <<<");
-        Thread.sleep(250);
-    }
-
-
-    @After
-    public void tearsDown() throws InterruptedException {
-        Thread.sleep(250);
-        LOGGER.debug("tearsDown ini >>>");
-        lockFactoryServer.shutdown();
-        LOGGER.debug("tearsDown fin <<<");
-        Thread.sleep(250);
+        stopIntegrationTestServer();
     }
 
     @Test
     public void testIfInterruptedFor5SecondsLock() throws InterruptedException {
-        SemaphoreClientGrpc semaphoreClientGrpc = new SemaphoreClientGrpc(LOCALHOST ,configuration.getGrpcServerPort(), semaphoreName);
+        SemaphoreClientGrpc semaphoreClientGrpc = new SemaphoreClientGrpc(LOCALHOST, getConfigurationIntegrationTestServer().getGrpcServerPort(), semaphoreName);
         semaphoreClientGrpc.release();
         intoCriticalZone.set(false);
             errorInCriticalZone.set(false);
@@ -100,7 +67,7 @@ public class SemaphoreClientGrpcAdvancedTest {
 
     private void accesLockOfCriticalZone(int sleepTime) {
         try {
-            SemaphoreClientGrpc semaphoreClientGrpc = new SemaphoreClientGrpc(LOCALHOST ,configuration.getGrpcServerPort(), semaphoreName);
+            SemaphoreClientGrpc semaphoreClientGrpc = new SemaphoreClientGrpc(LOCALHOST, getConfigurationIntegrationTestServer().getGrpcServerPort(), semaphoreName);
             semaphoreClientGrpc.acquire();
             accessCriticalZone(sleepTime);
             semaphoreClientGrpc.release();

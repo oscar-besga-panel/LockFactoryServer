@@ -100,11 +100,6 @@ public class CountDownLatchClientGrpc
     public void asyncAwait(Executor executor, Runnable onAwaited) {
         ListenableFuture<Empty> listenableFuture = getAsyncStub().asyncAwait(getStringValueName());
         listenableFuture.addListener(onAwaited, executor);
-//        listenableFuture.addListener(() -> {
-//                    LOGGER.debug("doExecuteOnLock is future ");
-//                onAwaited.run();
-//            },
-//            executor);
     }
 
 }

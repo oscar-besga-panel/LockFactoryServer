@@ -2,14 +2,11 @@ package org.obapanel.lockfactoryserver.integration.grpc.advanced;
 
 import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.obapanel.lockfactoryserver.client.grpc.LockClientGrpc;
 import org.obapanel.lockfactoryserver.core.LockStatus;
 import org.obapanel.lockfactoryserver.integration.grpc.LockGpcTest;
-import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
-import org.obapanel.lockfactoryserver.server.LockFactoryServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,12 +21,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.assertFalse;
+import static org.obapanel.lockfactoryserver.integration.IntegrationTestServer.LOCALHOST;
+import static org.obapanel.lockfactoryserver.integration.IntegrationTestServer.getConfigurationIntegrationTestServer;
+import static org.obapanel.lockfactoryserver.integration.IntegrationTestServer.startIntegrationTestServer;
+import static org.obapanel.lockfactoryserver.integration.IntegrationTestServer.stopIntegrationTestServer;
 
 public class LockClientAsyncGrpcAdvancedTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LockGpcTest.class);
 
-    public static final String LOCALHOST = "127.0.0.1";
 
     private final AtomicBoolean intoCriticalZone = new AtomicBoolean(false);
     private final AtomicBoolean errorInCriticalZone = new AtomicBoolean(false);
@@ -38,47 +38,23 @@ public class LockClientAsyncGrpcAdvancedTest {
     private final List<LockClientGrpc> lockList = new ArrayList<>();
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
-    private LockFactoryConfiguration configuration;
-    private LockFactoryServer lockFactoryServer;
-
-
     private final String lockName = "lockGrpc999x" + System.currentTimeMillis();
 
     @BeforeClass
     public static void setupAll() throws InterruptedException {
-        Thread.sleep(250);
-        LOGGER.debug("setup all ini <<<");
-        LOGGER.debug("setup all fin <<<");
-        Thread.sleep(250);
-    }
-
-    @Before
-    public void setup() throws InterruptedException {
-        LOGGER.debug("setup ini >>>");
-        configuration = new LockFactoryConfiguration();
-        lockFactoryServer = new LockFactoryServer();
-        lockFactoryServer.startServer();
-        LOGGER.debug("setup fin <<<");
-        Thread.sleep(250);
+        startIntegrationTestServer();
     }
 
     @AfterClass
     public static void tearsDownAll() throws InterruptedException {
-        Thread.sleep(250);
-        LOGGER.debug("tearsDown all ini >>>");
-
-        LOGGER.debug("tearsDown all fin <<<");
-        Thread.sleep(250);
+        stopIntegrationTestServer();
     }
 
 
     @After
     public void tearsDown() throws InterruptedException {
-        Thread.sleep(250);
-        LOGGER.debug("tearsDown ini >>>");
-        lockFactoryServer.shutdown();
-        LOGGER.debug("tearsDown fin <<<");
-        Thread.sleep(250);
+        executorService.shutdown();
+        executorService.shutdownNow();
     }
 
 //    @Ignore
@@ -116,7 +92,7 @@ public class LockClientAsyncGrpcAdvancedTest {
     private void accesLockOfCriticalZone(final int sleepTime) {
         try {
             final Semaphore semaphore = new Semaphore(0);
-            final LockClientGrpc lockClientGrpc = new LockClientGrpc(LOCALHOST ,configuration.getGrpcServerPort(), lockName);
+            final LockClientGrpc lockClientGrpc = new LockClientGrpc(LOCALHOST , getConfigurationIntegrationTestServer().getGrpcServerPort(), lockName);
             lockList.add(lockClientGrpc);
             lockClientGrpc.asyncLock(executorService, () ->
                     accesLockOfCriticalZoneAsync(lockClientGrpc, sleepTime, semaphore)

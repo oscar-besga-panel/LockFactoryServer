@@ -2,13 +2,10 @@ package org.obapanel.lockfactoryserver.integration.rmi;
 
 import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.obapanel.lockfactoryserver.client.rmi.HolderClientRmi;
 import org.obapanel.lockfactoryserver.core.holder.HolderResult;
-import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
-import org.obapanel.lockfactoryserver.server.LockFactoryServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +20,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException.doSleep;
+import static org.obapanel.lockfactoryserver.integration.IntegrationTestServer.LOCALHOST;
+import static org.obapanel.lockfactoryserver.integration.IntegrationTestServer.getConfigurationIntegrationTestServer;
+import static org.obapanel.lockfactoryserver.integration.IntegrationTestServer.startIntegrationTestServer;
+import static org.obapanel.lockfactoryserver.integration.IntegrationTestServer.stopIntegrationTestServer;
 
 public class HolderRmiTest {
 
@@ -30,50 +31,24 @@ public class HolderRmiTest {
 
     private static final AtomicInteger HOLDER_COUNT = new AtomicInteger(0);
 
-    public static final String LOCALHOST = "127.0.0.1";
-
-    private static LockFactoryConfiguration configuration;
-    private static LockFactoryServer lockFactoryServer;
-
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private final String holderName = "holderRmiXXXx" + System.currentTimeMillis();
 
     @BeforeClass
     public static void setupAll() throws InterruptedException {
-        Thread.sleep(250);
-        LOGGER.debug("setup all ini <<<");
-        configuration = new LockFactoryConfiguration();
-        lockFactoryServer = new LockFactoryServer(configuration);
-        lockFactoryServer.startServer();
-        LOGGER.debug("setup all fin <<<");
-        Thread.sleep(250);
-    }
-
-    @Before
-    public void setup() throws InterruptedException {
-        LOGGER.debug("setup ini >>>");
-        LOGGER.debug("setup fin <<<");
-        Thread.sleep(250);
+        startIntegrationTestServer();
     }
 
     @AfterClass
     public static void tearsDownAll() throws InterruptedException {
-        Thread.sleep(250);
-        LOGGER.debug("tearsDown all ini >>>");
-        lockFactoryServer.shutdown();
-        LOGGER.debug("tearsDown all fin <<<");
-        Thread.sleep(250);
+        stopIntegrationTestServer();
     }
 
-
     @After
-    public void tearsDown() throws InterruptedException {
-        Thread.sleep(250);
-        LOGGER.debug("tearsDown ini >>>");
+    public void tearsDown() {
         executorService.shutdown();
-        LOGGER.debug("tearsDown fin <<<");
-        Thread.sleep(250);
+        executorService.shutdownNow();
     }
 
     HolderClientRmi generateHolderClientRmi() throws NotBoundException, RemoteException {
@@ -83,7 +58,7 @@ public class HolderRmiTest {
     }
 
     HolderClientRmi generateHolderClientRmi(String currentHolderName) throws NotBoundException, RemoteException {
-        return new HolderClientRmi(LOCALHOST ,configuration.getRmiServerPort(), currentHolderName);
+        return new HolderClientRmi(LOCALHOST , getConfigurationIntegrationTestServer().getRmiServerPort(), currentHolderName);
     }
 
     @Test

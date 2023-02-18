@@ -2,13 +2,10 @@ package org.obapanel.lockfactoryserver.integration.grpc;
 
 import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.obapanel.lockfactoryserver.client.grpc.HolderClientGrpc;
 import org.obapanel.lockfactoryserver.core.holder.HolderResult;
-import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
-import org.obapanel.lockfactoryserver.server.LockFactoryServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +21,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException.doSleep;
+import static org.obapanel.lockfactoryserver.integration.IntegrationTestServer.LOCALHOST;
+import static org.obapanel.lockfactoryserver.integration.IntegrationTestServer.getConfigurationIntegrationTestServer;
+import static org.obapanel.lockfactoryserver.integration.IntegrationTestServer.startIntegrationTestServer;
+import static org.obapanel.lockfactoryserver.integration.IntegrationTestServer.stopIntegrationTestServer;
 
 public class HolderGrpcTest {
 
@@ -31,49 +32,22 @@ public class HolderGrpcTest {
 
     private static final AtomicInteger COUNT_DOWN_LATCH_COUNT = new AtomicInteger(0);
 
-    public static final String LOCALHOST = "127.0.0.1";
-
-    private static LockFactoryConfiguration configuration;
-    private static LockFactoryServer lockFactoryServer;
-
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private final String holderName = "holderGrpcXXXx" + System.currentTimeMillis();
 
     @BeforeClass
     public static void setupAll() throws InterruptedException {
-        Thread.sleep(250);
-        LOGGER.debug("setup all ini <<<");
-        configuration = new LockFactoryConfiguration();
-        lockFactoryServer = new LockFactoryServer(configuration);
-        lockFactoryServer.startServer();
-        LOGGER.debug("setup all fin <<<");
-        Thread.sleep(250);
-    }
-
-    @Before
-    public void setup() throws InterruptedException {
-        LOGGER.debug("setup ini >>>");
-        LOGGER.debug("setup fin <<<");
-        Thread.sleep(250);
+        startIntegrationTestServer();
     }
 
     @AfterClass
     public static void tearsDownAll() throws InterruptedException {
-        Thread.sleep(250);
-        LOGGER.debug("tearsDown all ini >>>");
-        lockFactoryServer.shutdown();
-        LOGGER.debug("tearsDown all fin <<<");
-        Thread.sleep(250);
+        stopIntegrationTestServer();
     }
-
     @After
     public void tearsDown() throws InterruptedException {
-        Thread.sleep(250);
-        LOGGER.debug("tearsDown ini >>>");
         executorService.shutdown();
-        LOGGER.debug("tearsDown fin <<<");
-        Thread.sleep(250);
     }
 
     HolderClientGrpc generateHolderClientGrpc() {
@@ -83,7 +57,7 @@ public class HolderGrpcTest {
     }
 
     HolderClientGrpc generateHolderClientGrpc(String currentHolderName) {
-        return new HolderClientGrpc(LOCALHOST ,configuration.getGrpcServerPort(), currentHolderName);
+        return new HolderClientGrpc(LOCALHOST , getConfigurationIntegrationTestServer().getGrpcServerPort(), currentHolderName);
     }
 
     @Test

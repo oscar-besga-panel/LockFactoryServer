@@ -2,13 +2,10 @@ package org.obapanel.lockfactoryserver.integration.rmi;
 
 import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.obapanel.lockfactoryserver.client.rmi.LockClientRmi;
 import org.obapanel.lockfactoryserver.core.LockStatus;
-import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
-import org.obapanel.lockfactoryserver.server.LockFactoryServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +27,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.obapanel.lockfactoryserver.core.LockStatus.ABSENT_OR_UNLOCKED;
+import static org.obapanel.lockfactoryserver.integration.IntegrationTestServer.LOCALHOST;
+import static org.obapanel.lockfactoryserver.integration.IntegrationTestServer.getConfigurationIntegrationTestServer;
+import static org.obapanel.lockfactoryserver.integration.IntegrationTestServer.startIntegrationTestServer;
+import static org.obapanel.lockfactoryserver.integration.IntegrationTestServer.stopIntegrationTestServer;
 
 public class LockRmiTest {
 
@@ -37,51 +38,26 @@ public class LockRmiTest {
 
     private static final AtomicInteger LOCK_COUNT = new AtomicInteger(0);
 
-    public static final String LOCALHOST = "127.0.0.1";
-
-    private LockFactoryConfiguration configuration;
-    private LockFactoryServer lockFactoryServer;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
 
     private final String lockBaseName = "lockRmiXXXx" + System.currentTimeMillis();
 
+
     @BeforeClass
     public static void setupAll() throws InterruptedException {
-        Thread.sleep(250);
-        LOGGER.debug("setup all ini <<<");
-        LOGGER.debug("setup all fin <<<");
-        Thread.sleep(250);
-    }
-
-    @Before
-    public void setup() throws InterruptedException {
-        LOGGER.debug("setup ini >>>");
-        configuration = new LockFactoryConfiguration();
-        lockFactoryServer = new LockFactoryServer();
-        lockFactoryServer.startServer();
-        LOGGER.debug("setup fin <<<");
-        Thread.sleep(250);
+        startIntegrationTestServer();
     }
 
     @AfterClass
     public static void tearsDownAll() throws InterruptedException {
-        Thread.sleep(250);
-        LOGGER.debug("tearsDown all ini >>>");
-
-        LOGGER.debug("tearsDown all fin <<<");
-        Thread.sleep(250);
+        stopIntegrationTestServer();
     }
 
-
     @After
-    public void tearsDown() throws InterruptedException {
-        Thread.sleep(250);
-        LOGGER.debug("tearsDown ini >>>");
-        lockFactoryServer.shutdown();
+    public void tearsDown() {
         executorService.shutdown();
-        LOGGER.debug("tearsDown fin <<<");
-        Thread.sleep(250);
+        executorService.shutdownNow();
     }
 
     LockClientRmi generateLockClientRmi() {
@@ -92,7 +68,7 @@ public class LockRmiTest {
 
     LockClientRmi generateLockClientRmi(String lockName)  {
         try {
-            return new LockClientRmi(LOCALHOST ,configuration.getRmiServerPort(), lockName);
+            return new LockClientRmi(LOCALHOST, getConfigurationIntegrationTestServer().getRmiServerPort(), lockName);
         } catch (NotBoundException | RemoteException e) {
             throw new IllegalStateException(e);
         }

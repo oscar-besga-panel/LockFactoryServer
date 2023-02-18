@@ -1,10 +1,11 @@
 package org.obapanel.lockfactoryserver.integration.rest;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.obapanel.lockfactoryserver.client.rest.HolderClientRest;
 import org.obapanel.lockfactoryserver.core.holder.HolderResult;
-import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
-import org.obapanel.lockfactoryserver.server.LockFactoryServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +17,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException.doSleep;
+import static org.obapanel.lockfactoryserver.integration.IntegrationTestServer.LOCALHOST;
+import static org.obapanel.lockfactoryserver.integration.IntegrationTestServer.getConfigurationIntegrationTestServer;
+import static org.obapanel.lockfactoryserver.integration.IntegrationTestServer.startIntegrationTestServer;
+import static org.obapanel.lockfactoryserver.integration.IntegrationTestServer.stopIntegrationTestServer;
 
 public class HolderRestTest {
 
@@ -23,50 +28,24 @@ public class HolderRestTest {
 
     private static final AtomicInteger HOLDER_COUNT = new AtomicInteger(0);
 
-    public static final String LOCALHOST = "127.0.0.1";
-
-    private static LockFactoryConfiguration configuration;
-    private static LockFactoryServer lockFactoryServer;
-
-    private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private final String holderName = "holderRestXXXx" + System.currentTimeMillis();
 
     @BeforeClass
     public static void setupAll() throws InterruptedException {
-        Thread.sleep(250);
-        LOGGER.debug("setup all ini <<<");
-        configuration = new LockFactoryConfiguration();
-        lockFactoryServer = new LockFactoryServer();
-        lockFactoryServer.startServer();
-        LOGGER.debug("setup all fin <<<");
-        Thread.sleep(250);
-    }
-
-    @Before
-    public void setup() throws InterruptedException {
-        LOGGER.debug("setup ini >>>");
-
-        LOGGER.debug("setup fin <<<");
-        Thread.sleep(250);
+        startIntegrationTestServer();
     }
 
     @AfterClass
     public static void tearsDownAll() throws InterruptedException {
-        Thread.sleep(250);
-        LOGGER.debug("tearsDown all ini >>>");
-        lockFactoryServer.shutdown();
-        executorService.shutdown();
-        LOGGER.debug("tearsDown all fin <<<");
-        Thread.sleep(250);
+        stopIntegrationTestServer();
     }
 
     @After
-    public void tearsDown() throws InterruptedException {
-        Thread.sleep(250);
-        LOGGER.debug("tearsDown ini >>>");
-        LOGGER.debug("tearsDown fin <<<");
-        Thread.sleep(250);
+    public void tearsDown() {
+        executorService.shutdown();
+        executorService.shutdownNow();
     }
 
     HolderClientRest generateHolderClientRest() {
@@ -76,7 +55,7 @@ public class HolderRestTest {
     }
 
     HolderClientRest generateHolderClientRest(String holderCurrentName) {
-        String baseUrl = "http://" + LOCALHOST + ":" + configuration.getRestServerPort() + "/";
+        String baseUrl = "http://" + LOCALHOST + ":" + getConfigurationIntegrationTestServer().getRestServerPort() + "/";
         return new HolderClientRest(baseUrl, holderCurrentName);
     }
 
