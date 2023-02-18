@@ -11,7 +11,12 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.obapanel.lockfactoryserver.core.grpc.*;
+import org.obapanel.lockfactoryserver.core.grpc.HolderNameWithTimeOut;
+import org.obapanel.lockfactoryserver.core.grpc.HolderResultGrpc;
+import org.obapanel.lockfactoryserver.core.grpc.HolderResultStatusGrpc;
+import org.obapanel.lockfactoryserver.core.grpc.HolderServerGrpc;
+import org.obapanel.lockfactoryserver.core.grpc.HolderSet;
+import org.obapanel.lockfactoryserver.core.grpc.HolderSetWithTimeToLive;
 import org.obapanel.lockfactoryserver.core.holder.HolderResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +29,10 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -126,7 +134,7 @@ public class HolderClientGrpcTest {
 
     @Test
     public void getWithTimeOutTest() {
-        HolderResult holderResult = holderClientGrpc.getWithTimeOutMillis(1000);
+        HolderResult holderResult = holderClientGrpc.getWithTimeOut(1000);
         verify(stub).getWithTimeOut(any(HolderNameWithTimeOut.class));
         assertTrue(holderResult.getValue().contains(name));
         assertEquals(HolderResult.Status.RETRIEVED, holderResult.getStatus());
@@ -145,7 +153,7 @@ public class HolderClientGrpcTest {
     @Test
     public void setWithTimeToLiveTest() {
         ArgumentCaptor<HolderSetWithTimeToLive> captor = ArgumentCaptor.forClass(HolderSetWithTimeToLive.class);
-        holderClientGrpc.setWithTimeToLiveMillis("value_" + name, 1200L);
+        holderClientGrpc.setWithTimeToLive("value_" + name, 1200L);
         verify(stub).setWithTimeToLive(captor.capture());
         assertEquals(name, captor.getValue().getName());
         assertEquals("value_" + name, captor.getValue().getNewValue());

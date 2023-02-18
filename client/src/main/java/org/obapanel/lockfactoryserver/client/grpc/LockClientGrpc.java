@@ -73,8 +73,8 @@ public class LockClientGrpc
         return result;
     }
 
-    public boolean tryLockWithTimeOut(long timeOut) {
-        return this.tryLockWithTimeOut(timeOut, TimeUnit.MILLISECONDS);
+    public boolean tryLockWithTimeOut(long timeOutMillis) {
+        return this.tryLockWithTimeOut(timeOutMillis, TimeUnit.MILLISECONDS);
     }
 
     public boolean tryLockWithTimeOut(long timeOut, TimeUnit timeUnit) {

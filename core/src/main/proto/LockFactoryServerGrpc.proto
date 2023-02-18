@@ -49,7 +49,7 @@ service LockServer {
 
   /*
    * Try to obain a lock, waiting a defined time
-   * expects name Name of the lock, timeOut as wuantity of time to wait in miliseconds if timeUnit nor given
+   * expects name Name of the lock, timeOut as wuantity of time to wait in milliseconds if timeUnit nor given
    *   or the timeUnit of the timeOut
    * return a non-null non-empty string with the token of the lock if acquired, or an empty/null string if not
    */

@@ -57,15 +57,15 @@ public class SemaphoreService implements LockFactoryServices {
         return semaphore.tryAcquire(permits);
     }
 
-    public boolean tryAcquireWithTimeOut(String name, int permits, long timeout) {
-        return this.tryAcquireWithTimeOut(name, permits, timeout, TimeUnit.MILLISECONDS);
+    public boolean tryAcquireWithTimeOut(String name, int permits, long timeOut) {
+        return this.tryAcquireWithTimeOut(name, permits, timeOut, TimeUnit.MILLISECONDS);
     }
 
-    public boolean tryAcquireWithTimeOut(String name, int permits, long timeout, TimeUnit unit) {
+    public boolean tryAcquireWithTimeOut(String name, int permits, long timeOut, TimeUnit unit) {
         try {
-            LOGGER.info("service> tryAcquireWithTimeOut name {} permits {} timeout {} unit {}", name, permits, timeout, unit);
+            LOGGER.info("service> tryAcquireWithTimeOut name {} permits {} timeOut {} unit {}", name, permits, timeOut, unit);
             Semaphore semaphore = semaphoreCache.getOrCreateData(name);
-            return semaphore.tryAcquire(permits, timeout, unit);
+            return semaphore.tryAcquire(permits, timeOut, unit);
         } catch (InterruptedException e) {
             throw RuntimeInterruptedException.getToThrowWhenInterrupted(e);
         }

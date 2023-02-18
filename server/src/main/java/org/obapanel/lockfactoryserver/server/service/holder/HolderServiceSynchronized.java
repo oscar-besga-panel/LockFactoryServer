@@ -36,4 +36,12 @@ public class HolderServiceSynchronized extends HolderService {
     public synchronized void cancel(String name) {
         super.cancel(name);
     }
+
+    @Override
+    public void shutdown() throws Exception {
+        synchronized (this) {
+            this.notifyAll();
+        }
+        super.shutdown();
+    }
 }

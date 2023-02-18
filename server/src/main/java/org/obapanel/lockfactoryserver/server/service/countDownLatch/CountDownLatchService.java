@@ -41,10 +41,10 @@ public class CountDownLatchService implements LockFactoryServices {
         CountDownLatch countDownLatch = countDownLatchCache.getData(name);
         if (countDownLatch != null && countDownLatch.getCount() == 0) {
             countDownLatchCache.removeData(name);
-            countDownLatchCache.getOrCreateData(name, () ->  new CountDownLatch(count));
+            countDownLatchCache.createNew(name, count);
             result = true;
         } else if (countDownLatch == null) {
-            countDownLatchCache.getOrCreateData(name, () ->  new CountDownLatch(count));
+            countDownLatchCache.createNew(name, count);
             result = true;
         }
         return result;

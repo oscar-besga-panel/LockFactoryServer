@@ -83,13 +83,13 @@ public class HolderServiceTest {
             holderService.set("key", "value");
         });
         HolderResult result = null;
-        boolean timeout = false;
+        boolean timeOut = false;
         try {
             result = future.get(500, TimeUnit.MILLISECONDS);
         } catch (TimeoutException toe) {
-            timeout = true;
+            timeOut = true;
         }
-        assertTrue(timeout);
+        assertTrue(timeOut);
         assertNull(result);
     }
 
@@ -97,7 +97,7 @@ public class HolderServiceTest {
     public void get5Test() throws ExecutionException, InterruptedException {
         Future<HolderResult> f = executorService.submit(() -> {
             HolderResult hr = holderService.getWithTimeOut("key", 500, TimeUnit.MILLISECONDS);
-            LOGGER.debug("getWithTimeout {}", hr);
+            LOGGER.debug("getWithtimeOut {}", hr);
             return hr;
         });
         executorService.submit(() -> {
@@ -107,15 +107,15 @@ public class HolderServiceTest {
         });
 
         HolderResult result = null;
-        boolean timeout = false;
+        boolean timeOut = false;
         try {
             result = f.get(1000, TimeUnit.MILLISECONDS);
             LOGGER.debug("future get");
         } catch (TimeoutException toe) {
-            timeout = true;
-            LOGGER.debug("timeout");
+            timeOut = true;
+            LOGGER.debug("timeOut");
         }
-        assertFalse(timeout);
+        assertFalse(timeOut);
         assertNotNull(result);
         assertNull(result.getValue());
     }
@@ -131,13 +131,13 @@ public class HolderServiceTest {
         });
 
         HolderResult result = null;
-        boolean timeout = false;
+        boolean timeOut = false;
         try {
             result = f.get(1000, TimeUnit.MILLISECONDS);
         } catch (TimeoutException toe) {
-            timeout = true;
+            timeOut = true;
         }
-        assertFalse(timeout);
+        assertFalse(timeOut);
         assertNotNull(result);
         assertNotNull(result.getValue());
     }

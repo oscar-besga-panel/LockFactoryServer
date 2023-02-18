@@ -4,7 +4,6 @@ import com.github.arteam.embedhttp.HttpHandler;
 import com.github.arteam.embedhttp.HttpRequest;
 import com.github.arteam.embedhttp.HttpResponse;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -39,7 +38,7 @@ class RestConnectionHelper {
     }
 
     @FunctionalInterface
-    static interface PlainTextHandlerWithPrefix {
+    interface PlainTextHandlerWithPrefix {
 
         default String execute(String prefix, HttpRequest request) {
             List<String> parameters = transformPathToParameters(prefix, request.getUri().getPath());
@@ -54,7 +53,7 @@ class RestConnectionHelper {
     interface PlainTextHandler extends HttpHandler {
 
         @Override
-        default void handle(HttpRequest request, HttpResponse response) throws IOException {
+        default void handle(HttpRequest request, HttpResponse response) {
             String body = getPlainTextResponse(request);
             response.setBody(body);
             response.addHeader("content-type", "text/plain");

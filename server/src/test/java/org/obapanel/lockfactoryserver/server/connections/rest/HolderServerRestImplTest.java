@@ -15,7 +15,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -87,10 +90,10 @@ public class HolderServerRestImplTest {
     @Test
     public void getWithTimeOutTest() {
         String name = "holder_" + System.currentTimeMillis();
-        long timeout = 1000;
-        List<String> parameters = Arrays.asList(name, timeout + "", TimeUnit.MILLISECONDS.name());
+        long timeOut = 1000;
+        List<String> parameters = Arrays.asList(name, timeOut + "", TimeUnit.MILLISECONDS.name());
         String response = holderServerRest.getWithTimeOut("/get", parameters, HttpRequest.EMPTY_REQUEST);
-        verify(holderService).getWithTimeOut(eq(name), eq(timeout), eq(TimeUnit.MILLISECONDS));
+        verify(holderService).getWithTimeOut(eq(name), eq(timeOut), eq(TimeUnit.MILLISECONDS));
         assertEquals(new HolderResult(name).toTextString(), response);
     }
 
@@ -108,10 +111,10 @@ public class HolderServerRestImplTest {
     public void setWithTimeToLiveTest() {
         String name = "holder_" + System.currentTimeMillis();
         String value = "value_" + System.currentTimeMillis();
-        long timeout = 1000;
-        List<String> parameters = Arrays.asList(name, value, timeout + "", TimeUnit.MILLISECONDS.name());
+        long timeOut = 1000;
+        List<String> parameters = Arrays.asList(name, value, timeOut + "", TimeUnit.MILLISECONDS.name());
         String response = holderServerRest.setWithTimeToLive("/setWithTimeToLive", parameters, HttpRequest.EMPTY_REQUEST);
-        verify(holderService).setWithTimeToLive(eq(name), eq(value), eq(timeout), eq(TimeUnit.MILLISECONDS));
+        verify(holderService).setWithTimeToLive(eq(name), eq(value), eq(timeOut), eq(TimeUnit.MILLISECONDS));
         assertEquals("ok", response);
     }
 

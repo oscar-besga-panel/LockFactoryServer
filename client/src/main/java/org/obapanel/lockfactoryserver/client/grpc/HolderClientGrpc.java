@@ -2,7 +2,11 @@ package org.obapanel.lockfactoryserver.client.grpc;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import io.grpc.ManagedChannel;
-import org.obapanel.lockfactoryserver.core.grpc.*;
+import org.obapanel.lockfactoryserver.core.grpc.HolderNameWithTimeOut;
+import org.obapanel.lockfactoryserver.core.grpc.HolderResultGrpc;
+import org.obapanel.lockfactoryserver.core.grpc.HolderServerGrpc;
+import org.obapanel.lockfactoryserver.core.grpc.HolderSet;
+import org.obapanel.lockfactoryserver.core.grpc.HolderSetWithTimeToLive;
 import org.obapanel.lockfactoryserver.core.holder.HolderResult;
 import org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException;
 import org.obapanel.lockfactoryserver.core.util.TimeUnitConverter;
@@ -76,8 +80,8 @@ public class HolderClientGrpc
         return holderResult = fromGrpcToJavaResult(holderResultGrpc);
     }
 
-    public HolderResult getWithTimeOutMillis(long timeOut) {
-        return holderResult = getWithTimeOut(timeOut, TimeUnit.MILLISECONDS);
+    public HolderResult getWithTimeOut(long timeOutMillis) {
+        return holderResult = getWithTimeOut(timeOutMillis, TimeUnit.MILLISECONDS);
     }
 
     public HolderResult getWithTimeOut(long timeOut, TimeUnit timeUnit) {
@@ -98,8 +102,8 @@ public class HolderClientGrpc
         getStub().set(holderSet);
     }
 
-    public void setWithTimeToLiveMillis(String value, long timeToLive) {
-        setWithTimeToLive(value, timeToLive, TimeUnit.MILLISECONDS);
+    public void setWithTimeToLive(String value, long timeToLiveMillis) {
+        setWithTimeToLive(value, timeToLiveMillis, TimeUnit.MILLISECONDS);
     }
 
     public void setWithTimeToLive(String value, long timeToLive, TimeUnit timeUnit) {

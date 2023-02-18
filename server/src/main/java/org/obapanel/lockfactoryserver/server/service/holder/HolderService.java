@@ -16,40 +16,21 @@ public class HolderService implements LockFactoryServices {
     public static final Services TYPE = Services.HOLDER;
 
     private final HolderCache holderCache;
-    private final boolean createOnRequest;
 
     public HolderService(LockFactoryConfiguration configuration) {
         this.holderCache = new HolderCache(configuration);
-        this.createOnRequest = configuration.isHolderCreateOnRequest();
-    }
-
-    private Holder getHolder(String name) {
-        if (createOnRequest) {
-            return holderCache.getOrCreateData(name);
-        } else {
-            return holderCache.getData(name);
-        }
     }
 
     public HolderResult get(String name) {
         LOGGER.info("service> get name {} ", name);
-        Holder holder = getHolder(name);
-        if (holder != null) {
-            return holder.getResult();
-        } else {
-            return HolderResult.NOTFOUND;
-        }
+        Holder holder = holderCache.getOrCreateData(name);
+        return holder.getResult();
     }
 
     public HolderResult getWithTimeOut(String name, long timeOut, TimeUnit timeUnit) {
         LOGGER.info("service> getWithTimeOut name {} timeOut {} timeUnit {}", name, timeOut, timeUnit);
-        // Holder holder = holderCache.getOrCreateData(name);
-        Holder holder = getHolder(name);
-        if (holder != null) {
-            return holder.getResultWithTimeOut(timeOut, timeUnit);
-        } else {
-            return HolderResult.NOTFOUND;
-        }
+        Holder holder = holderCache.getOrCreateData(name);
+        return holder.getResultWithTimeOut(timeOut, timeUnit);
     }
 
     public HolderResult getIfAvailable(String name) {

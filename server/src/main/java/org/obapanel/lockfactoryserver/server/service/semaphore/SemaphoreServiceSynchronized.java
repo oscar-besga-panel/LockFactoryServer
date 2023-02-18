@@ -48,7 +48,7 @@ public final class SemaphoreServiceSynchronized extends SemaphoreService {
     public synchronized boolean tryAcquire(String name, int permits) {
         boolean result = super.tryAcquire(name, permits);
         notifyAllIfPermits(name);
-        LOGGER.debug("] tryAcquire wotimeout result {}", result);
+        LOGGER.debug("] tryAcquire without timeOut result {}", result);
         return result;
     }
 

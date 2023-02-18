@@ -37,7 +37,7 @@ public class RestConnection implements LockFactoryConnection {
     }
 
     @Override
-    public void activate(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices> services) throws Exception {
+    public void activate(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices> services) {
         EmbeddedHttpServerBuilder builder = EmbeddedHttpServerBuilder.createNew();
         builder.withPort(configuration.getRestServerPort());
         builder.withBackLog(configuration.getRestConnectQueueSize());

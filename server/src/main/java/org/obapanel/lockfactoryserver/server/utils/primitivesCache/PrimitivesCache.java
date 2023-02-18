@@ -158,8 +158,8 @@ public abstract class PrimitivesCache<K> implements AutoCloseable {
                 data = createNew(name);
             }
             dataMap.put(name, data);
-            long cacheTimeToLiveMilis = TimeUnit.SECONDS.toMillis(cacheTimeToLiveSeconds);
-            delayQueue.put(new PrimitivesCacheEntry<>(name, data, cacheTimeToLiveMilis ));
+            long cacheTimeToLiveMillis = TimeUnit.SECONDS.toMillis(cacheTimeToLiveSeconds);
+            delayQueue.put(new PrimitivesCacheEntry<>(name, data, cacheTimeToLiveMillis ));
             return data;
         } else {
             return dataMap.get(name);

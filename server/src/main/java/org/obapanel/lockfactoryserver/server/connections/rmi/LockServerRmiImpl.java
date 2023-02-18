@@ -43,9 +43,9 @@ public class LockServerRmiImpl implements LockServerRmi {
     }
 
     @Override
-    public String tryLockWithTimeOut(String name, long timeOut) throws RemoteException {
-        LOGGER.info("rmi  server> tryLockWithTimeOut {} {}",name, timeOut);
-        return lockService.tryLockWithTimeOut(name, timeOut);
+    public String tryLockWithTimeOut(String name, long timeInMillis) throws RemoteException {
+        LOGGER.info("rmi  server> tryLockWithTimeOut {} {}",name, timeInMillis);
+        return lockService.tryLockWithTimeOut(name, timeInMillis);
     }
 
     @Override

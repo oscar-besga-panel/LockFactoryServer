@@ -1,6 +1,10 @@
 package org.obapanel.lockfactoryserver.integration.grpc;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.obapanel.lockfactoryserver.client.grpc.HolderClientGrpc;
 import org.obapanel.lockfactoryserver.core.holder.HolderResult;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
@@ -8,11 +12,17 @@ import org.obapanel.lockfactoryserver.server.LockFactoryServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException.doSleep;
 
 public class HolderGrpcTest {
@@ -82,7 +92,7 @@ public class HolderGrpcTest {
                 Long.toString(System.currentTimeMillis()));
         HolderClientGrpc holderClientGrpc1 = generateHolderClientGrpc();
         HolderClientGrpc holderClientGrpc2 = generateHolderClientGrpc(holderClientGrpc1.getName());
-        holderClientGrpc1.setWithTimeToLiveMillis(value, 1000);
+        holderClientGrpc1.setWithTimeToLive(value, 1000);
         HolderResult holderResult2 = holderClientGrpc2.get();
         assertEquals(value, holderResult2.getValue() );
         assertEquals(HolderResult.Status.RETRIEVED, holderResult2.getStatus() );
@@ -156,7 +166,7 @@ public class HolderGrpcTest {
             LOGGER.debug("put value <");
         });
         LOGGER.debug("get value >");
-        HolderResult holderResult2 = holderClientGrpc2.getWithTimeOutMillis(250);
+        HolderResult holderResult2 = holderClientGrpc2.getWithTimeOut(250);
         LOGGER.debug("get value <");
         assertNull(holderResult2.getValue() );
         assertEquals(HolderResult.Status.AWAITED, holderResult2.getStatus() );

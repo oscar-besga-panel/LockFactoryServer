@@ -109,7 +109,7 @@ public class Holder {
 
     /**
      * Executes the set action inside the lock
-     * Check value and timeout values for correctness
+     * Check value and timeToLive values for correctness
      */
     void withLockSet(String newValue, long timeToLive, TimeUnit timeUnit) {
         if (newValue == null) {
@@ -191,7 +191,7 @@ public class Holder {
      * If time is passed or value is cancelled, null is returned
      * If value is already set, its returned immediately
      * Also expired and cancelled are returned
-     * @param timeOutMillis Time to wait in milis
+     * @param timeOutMillis Time to wait in millis
      * @return result with value and status
      */
     public HolderResult getResultWithTimeOut(long timeOutMillis, TimeUnit timeUnit) {

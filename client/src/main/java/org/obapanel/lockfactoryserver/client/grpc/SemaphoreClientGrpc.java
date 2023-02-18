@@ -95,16 +95,16 @@ public class SemaphoreClientGrpc
         return response.getValue();
     }
 
-    public boolean tryAcquireWithTimeOut(long timeOut) {
-        return tryAcquireWithTimeOut(1, timeOut, TimeUnit.MILLISECONDS);
+    public boolean tryAcquireWithTimeOut(long timeOutMillis) {
+        return tryAcquireWithTimeOut(1, timeOutMillis, TimeUnit.MILLISECONDS);
     }
 
     public boolean tryAcquireWithTimeOut(long timeOut, TimeUnit timeUnit) {
         return tryAcquireWithTimeOut(1, timeOut, timeUnit);
     }
 
-    public boolean tryAcquireWithTimeOut(int permits, long timeOut) {
-        return this.tryAcquireWithTimeOut(permits, timeOut, TimeUnit.MILLISECONDS);
+    public boolean tryAcquireWithTimeOut(int permits, long timeOutMillis) {
+        return this.tryAcquireWithTimeOut(permits, timeOutMillis, TimeUnit.MILLISECONDS);
     }
 
     public boolean tryAcquireWithTimeOut(int permits, long timeOut, TimeUnit timeUnit) {
