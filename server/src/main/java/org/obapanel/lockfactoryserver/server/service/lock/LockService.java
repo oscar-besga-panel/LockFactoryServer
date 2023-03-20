@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.StampedLock;
 
 /**
  * Service based on lock primitive
@@ -41,10 +40,9 @@ public class LockService implements LockFactoryServices {
 
     public String lock(String name) {
         LOGGER.info("service> lock {}", name);
-        StampedLock lock = lockCache.getOrCreateData(name);
+        TokenLock lock = lockCache.getOrCreateData(name);
         try {
-            long stamp = lock.writeLockInterruptibly();
-            return stampToToken(name, stamp);
+            return lock.lockInterruptibly();
         } catch (InterruptedException e) {
             throw RuntimeInterruptedException.getToThrowWhenInterrupted(e);
         }
@@ -52,13 +50,8 @@ public class LockService implements LockFactoryServices {
 
     public String tryLock(String name) {
         LOGGER.info("service> tryLock {}", name);
-        StampedLock lock = lockCache.getOrCreateData(name);
-        long stamp = lock.tryWriteLock();
-        if (stamp != 0) {
-            return stampToToken(name, stamp);
-        } else {
-            return EMPTY_TOKEN;
-        }
+        TokenLock lock = lockCache.getOrCreateData(name);
+        return lock.tryLock();
     }
 
     public String tryLockWithTimeOut(String name, long timeOut) {
@@ -69,29 +62,22 @@ public class LockService implements LockFactoryServices {
     public String tryLockWithTimeOut(String name, long timeOut, TimeUnit timeUnit) {
         try {
             LOGGER.info("service> tryLock {} {} {}", name, timeOut, timeUnit);
-            StampedLock lock = lockCache.getOrCreateData(name);
-            long stamp = lock.tryWriteLock(timeOut, timeUnit);
-            if (stamp != 0) {
-                return stampToToken(name, stamp);
-            } else {
-                return EMPTY_TOKEN;
-            }
+            TokenLock lock = lockCache.getOrCreateData(name);
+            return lock.tryLock(timeOut, timeUnit);
         } catch (InterruptedException e) {
             throw RuntimeInterruptedException.getToThrowWhenInterrupted(e);
         }
     }
 
     public LockStatus lockStatus(String name, String token) {
-        StampedLock lock = lockCache.getData(name);
+        TokenLock lock = lockCache.getData(name);
         if (lock == null) {
             return LockStatus.ABSENT;
-        } else if (!lock.isWriteLocked()) {
+        } else if (!lock.isLocked()) {
             return LockStatus.UNLOCKED;
         } else {
-            long stamp = tokenToStamp(name, token);
-            boolean valid = lock.isWriteLocked() &&
-                    stamp > 0 &&
-                    lock.validate(stamp);
+            // Lock is locked here
+            boolean valid = lock.validate(token);
             if (valid) {
                 return LockStatus.OWNER;
             } else {
@@ -103,44 +89,16 @@ public class LockService implements LockFactoryServices {
     public boolean unLock(String name, String token) {
         LOGGER.info("service> unLock {} {}", name, token);
         boolean unlocked = false;
-        StampedLock lock = lockCache.getData(name);
+        TokenLock lock = lockCache.getData(name);
         if (lock != null) {
-            long stamp = tokenToStamp(name, token);
-            boolean valid = lock.isWriteLocked() &&
-                    stamp > 0 &&
-                    lock.validate(stamp);
-            if (valid) {
-                try {
-                    lock.unlock(stamp);
-                    unlocked = true;
-                    LOGGER.debug("unlock done name {} token {}", name, token);
-                    //lockCache.removeDataIfNotAvoidable(name);
-                } catch (IllegalMonitorStateException imse) {
-                    LOGGER.debug("Not valid stamp {} gives error {}", token, imse.getMessage());
-                }
-            } else {
+            lock.unlock(token);
+            unlocked = !lock.isLocked();
+            LOGGER.debug("unlock done name {} token {} result {}", name, token, unlocked);
+        } else {
                 LOGGER.debug("unlock invalid name {} token {}", name, token);
-            }
         }
         return unlocked;
     }
 
-    protected String stampToToken(String name, long stamp) {
-        return String.format("%s_%d", name, stamp);
-    }
-
-    protected long tokenToStamp(String name, String token) {
-        if (token == null || token.isEmpty()) {
-            return 0;
-        } else {
-            try {
-                String prefix = String.format("%s_", name);
-                return Long.parseLong(token.replace(prefix, ""));
-            } catch (NumberFormatException nfe) {
-                LOGGER.warn("tokenToStamp Bad token {} for name {}", token, name);
-                return 0;
-            }
-        }
-    }
 
 }
