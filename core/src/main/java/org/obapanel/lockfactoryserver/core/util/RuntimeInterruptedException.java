@@ -19,7 +19,7 @@ public class RuntimeInterruptedException extends RuntimeException {
             throw new RuntimeInterruptedException(cause);
         } catch (Exception cause) {
             LOGGER.error("doWithRuntime failed error", cause);
-            throw new RuntimeException(cause);
+            throw new IllegalStateException("doWithRuntime failed error", cause);
         }
     }
 
@@ -32,7 +32,7 @@ public class RuntimeInterruptedException extends RuntimeException {
             throw new RuntimeInterruptedException(cause);
         } catch (Exception cause) {
             LOGGER.error("getWithRuntime failed error", cause);
-            throw new RuntimeException(cause);
+            throw new IllegalStateException("getWithRuntime failed error", cause);
         }
     }
 

@@ -1,10 +1,6 @@
 package com.github.arteam.embedhttp;
 
-import com.sun.net.httpserver.Headers;
-import com.sun.net.httpserver.HttpContext;
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpPrincipal;
-import com.sun.net.httpserver.HttpServer;
+import com.sun.net.httpserver.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,11 +10,7 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.Collections;
@@ -28,12 +20,8 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -108,7 +96,7 @@ public class EmbeddedHttpServerTest {
     public void handleExchangeWithErrorTest() {
         EmbeddedHttpServer server = new EmbeddedHttpServer();
         HandlerConfig handlerConfig = new HandlerConfig("path", ((request, response) -> {
-            throw new RuntimeException("Test error");
+            throw new IllegalStateException("Test error");
         }));
         Exception recoveredError = null;
         HttpExchange httpExchange = new TestHttpExchange();

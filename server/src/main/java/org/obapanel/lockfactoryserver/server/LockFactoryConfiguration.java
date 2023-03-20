@@ -82,6 +82,15 @@ public class LockFactoryConfiguration {
     }
 
     /**
+     * New configuration clone
+     * @param other Other configuration to be cloned
+     */
+    public LockFactoryConfiguration(LockFactoryConfiguration other) {
+        this.properties = new Properties(other.properties);
+    }
+
+
+    /**
      * Get the properties under the hood
      * @return propeties of the object
      */

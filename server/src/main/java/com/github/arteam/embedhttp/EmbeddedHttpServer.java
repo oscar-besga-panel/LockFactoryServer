@@ -52,7 +52,7 @@ public class EmbeddedHttpServer implements Closeable {
             return this;
         } catch (Exception e) {
             LOGGER.error("embeddedHttpServer > createHttpServer > general error ", e);
-            throw new RuntimeException("General error in createHttpServer", e);
+            throw new IllegalStateException("General error in createHttpServer", e);
         }
 
     }
@@ -68,10 +68,10 @@ public class EmbeddedHttpServer implements Closeable {
             LOGGER.debug("embeddedHttpServer > handleExchange > fin >");
         } catch (IOException e) {
             LOGGER.error("embeddedHttpServer > handleExchange > io error ", e);
-            throw new RuntimeException("IO/Error in handleExchange", e);
+            throw new IllegalStateException("IO/Error in handleExchange", e);
         } catch (Exception e) {
             LOGGER.error("embeddedHttpServer > handleExchange > general error ", e);
-            throw new RuntimeException("General error in handleExchange", e);
+            throw new IllegalStateException("General error in handleExchange", e);
         } finally {
             httpExchange.close();
         }
@@ -84,7 +84,7 @@ public class EmbeddedHttpServer implements Closeable {
         } catch (Exception e) {
             handleInternalError(httpExchange, e);
             LOGGER.error("embeddedHttpServer > handleExchaneOrError > internal error ", e);
-            throw new RuntimeException("Internal error in handleExchange", e);
+            throw new IllegalStateException("Internal error in handleExchange", e);
         }
     }
 
@@ -127,7 +127,7 @@ public class EmbeddedHttpServer implements Closeable {
             return this;
         } catch (Exception e) {
             LOGGER.error("embeddedHttpServer > start > general error ", e);
-            throw new RuntimeException("General error in start", e);
+            throw new IllegalStateException("General error in start", e);
         }
     }
 

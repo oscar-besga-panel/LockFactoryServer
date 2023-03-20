@@ -10,7 +10,7 @@ public class ManagementServiceSynchronized extends ManagementService {
 
 
     public ManagementServiceSynchronized(LockFactoryConfiguration configuration, LockFactoryServer lockFactoryServer) {
-        super(configuration, lockFactoryServer);
+        super(lockFactoryServer);
     }
 
     public synchronized void shutdownServer() {

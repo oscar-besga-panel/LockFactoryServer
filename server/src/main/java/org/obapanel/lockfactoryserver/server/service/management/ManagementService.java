@@ -1,6 +1,5 @@
 package org.obapanel.lockfactoryserver.server.service.management;
 
-import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.LockFactoryServer;
 import org.obapanel.lockfactoryserver.server.service.LockFactoryServices;
 import org.obapanel.lockfactoryserver.server.service.Services;
@@ -16,13 +15,11 @@ public class ManagementService implements LockFactoryServices {
 
     public static final Services TYPE = Services.MANAGEMENT;
 
-    private final LockFactoryConfiguration configuration;
     private final LockFactoryServer lockFactoryServer;
 
     private Thread backgroundShutdownServer;
 
-    public ManagementService(LockFactoryConfiguration configuration, LockFactoryServer lockFactoryServer) {
-        this.configuration = configuration;
+    public ManagementService(LockFactoryServer lockFactoryServer) {
         this.lockFactoryServer = lockFactoryServer;
     }
 

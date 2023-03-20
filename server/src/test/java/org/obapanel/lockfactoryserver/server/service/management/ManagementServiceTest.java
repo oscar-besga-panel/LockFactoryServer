@@ -6,7 +6,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.LockFactoryServer;
 import org.obapanel.lockfactoryserver.server.service.Services;
 import org.slf4j.Logger;
@@ -16,9 +15,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
@@ -63,13 +60,13 @@ public class ManagementServiceTest {
     @After
     public void tearsDown() throws Exception {
         LOGGER.debug("after tearsdown");
-        ManagementService managementService = new ManagementService(new LockFactoryConfiguration(), lockFactoryServer);
+        ManagementService managementService = new ManagementService(lockFactoryServer);
         managementService.shutdown();
     }
 
     @Test
     public void getTypeTest() {
-        ManagementService managementService = new ManagementService(new LockFactoryConfiguration(), lockFactoryServer);
+        ManagementService managementService =   new ManagementService(lockFactoryServer);
         Services services = managementService.getType();
         assertEquals(Services.MANAGEMENT, services);
         assertEquals(Services.MANAGEMENT.getServiceClass(), managementService.getClass());
@@ -77,14 +74,14 @@ public class ManagementServiceTest {
 
     @Test
     public void shutdownTest() throws Exception {
-        ManagementService managementService = new ManagementService(new LockFactoryConfiguration(), lockFactoryServer);
+        ManagementService managementService = new ManagementService(lockFactoryServer);
         managementService.shutdown();
     }
 
     @Test
     public void shutdownServerTest() throws InterruptedException {
         running.set(true);
-        ManagementService managementService = new ManagementService(new LockFactoryConfiguration(), lockFactoryServer);
+        ManagementService managementService = new ManagementService(lockFactoryServer);
         boolean result1 = managementService.isRunning();
         managementService.shutdownServer();
         Thread.sleep(200);

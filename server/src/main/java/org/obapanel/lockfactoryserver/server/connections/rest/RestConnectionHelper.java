@@ -32,9 +32,9 @@ class RestConnectionHelper {
     }
 
     static List<String> transformPathToParameters(String prefix, String path) {
-        path = path.replace(prefix,"");
-        path = removeLeadingTrailingSlash(path);
-        return Arrays.asList(path.split("/"));
+        String resultPath = path.replace(prefix,"");
+        resultPath = removeLeadingTrailingSlash(resultPath);
+        return Arrays.asList(resultPath.split("/"));
     }
 
     @FunctionalInterface

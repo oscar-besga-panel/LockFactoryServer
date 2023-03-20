@@ -34,6 +34,7 @@ public class SemaphoreServiceSynchronizedTest {
     @Test
     public void shutdownTest() throws Exception {
         semaphoreServiceSynchronized.shutdown();
+        assertNotNull(semaphoreServiceSynchronized);
     }
 
     @Test

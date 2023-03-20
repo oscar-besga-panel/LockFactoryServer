@@ -25,6 +25,8 @@ import org.slf4j.LoggerFactory;
 import java.util.EnumMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException.doSleep;
+
 /**
  * Most important class of the server
  * It initializes and maintains servers and services; and binds ones with others
@@ -62,6 +64,14 @@ public class LockFactoryServer implements AutoCloseable {
      */
     public LockFactoryServer(LockFactoryConfiguration lockFactoryConfiguration) {
         this.configuration = lockFactoryConfiguration;
+    }
+
+    /**
+     * Gets the current configuration
+     * @return a copy of the configuration
+     */
+    public LockFactoryConfiguration getConfiguration() {
+        return new LockFactoryConfiguration(configuration);
     }
 
     /**
@@ -126,7 +136,7 @@ public class LockFactoryServer implements AutoCloseable {
         LOGGER.debug("createNormalServices");
         if (configuration.isManagementEnabled()) {
             LOGGER.debug("createServices management");
-            ManagementService managementService = new ManagementService(configuration, this);
+            ManagementService managementService = new ManagementService(this);
             services.put(Services.MANAGEMENT, managementService);
         }
         if (configuration.isLockEnabled()) {
@@ -269,12 +279,7 @@ public class LockFactoryServer implements AutoCloseable {
      * @param waitMillis Millis to wait until shutdown
      */
     public final synchronized void shutdown(long waitMillis) {
-        try {
-            Thread.sleep(waitMillis);
-        } catch (InterruptedException e) {
-            LOGGER.error("Interrputed while waiting a little to shutdown {}", waitMillis, e);
-            Thread.currentThread().interrupt();
-        }
+        doSleep(waitMillis);
         shutdown();
     }
 
