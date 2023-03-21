@@ -1,4 +1,4 @@
-package org.obapanel.lockfactoryserver.server.service.holder;
+package org.obapanel.lockfactoryserver.server.primitives.holder;
 
 import org.obapanel.lockfactoryserver.core.holder.HolderResult;
 import org.slf4j.Logger;

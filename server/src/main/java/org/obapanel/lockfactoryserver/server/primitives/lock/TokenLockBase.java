@@ -1,10 +1,10 @@
-package org.obapanel.lockfactoryserver.server.service.lock;
+package org.obapanel.lockfactoryserver.server.primitives.lock;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class TokenLock {
+public class TokenLockBase implements TokenLock {
 
     private final static String NO_TOKEN = "";
 
@@ -12,21 +12,23 @@ public class TokenLock {
 
     private AtomicReference<String> innerToken = new AtomicReference<>(NO_TOKEN);
 
-    private synchronized String generateToken() {
-        innerToken.set(String.valueOf(System.currentTimeMillis()));
-        return innerToken.get();
+    public synchronized String generateToken() {
+        return String.valueOf(System.currentTimeMillis());
     }
 
-    public String lock() {
+    @Override
+    public String lock() throws InterruptedException  {
         innerLock.lock();
         return generateToken();
     }
 
+    @Override
     public String lockInterruptibly() throws InterruptedException {
         innerLock.lockInterruptibly();
         return generateToken();
     }
 
+    @Override
     public String tryLock() {
         boolean locked = innerLock.tryLock();
         if (locked) {
@@ -36,10 +38,12 @@ public class TokenLock {
         }
     }
 
+    @Override
     public String tryLockWithMillis(long time) throws InterruptedException {
         return tryLock(time, TimeUnit.MILLISECONDS);
     }
 
+    @Override
     public String tryLock(long time, TimeUnit unit) throws InterruptedException {
         boolean locked = innerLock.tryLock(time, unit);
         if (locked) {
@@ -49,11 +53,13 @@ public class TokenLock {
         }
     }
 
+    @Override
     public boolean validate(String token) {
         return token != null && !token.isBlank() &&
                 innerToken.get().equals(token);
     }
 
+    @Override
     public void unlock(String token) {
         if (validate(token)) {
             innerLock.unlock();
@@ -61,7 +67,9 @@ public class TokenLock {
         }
     }
 
+    @Override
     public boolean isLocked() {
         return innerLock.isLocked();
     }
+
 }

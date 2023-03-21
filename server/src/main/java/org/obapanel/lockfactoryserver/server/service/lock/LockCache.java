@@ -1,6 +1,8 @@
 package org.obapanel.lockfactoryserver.server.service.lock;
 
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
+import org.obapanel.lockfactoryserver.server.primitives.lock.TokenLock;
+import org.obapanel.lockfactoryserver.server.primitives.lock.TokenLockAdvanced;
 import org.obapanel.lockfactoryserver.server.utils.primitivesCache.PrimitivesCache;
 
 import java.util.function.Supplier;
@@ -20,7 +22,7 @@ public final class LockCache extends PrimitivesCache<TokenLock> {
 
     @Override
     public TokenLock createNew(String name) {
-        return new TokenLock();
+        return new TokenLockAdvanced();
     }
 
     @Override
