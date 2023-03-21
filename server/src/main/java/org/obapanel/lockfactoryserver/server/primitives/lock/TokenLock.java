@@ -16,7 +16,7 @@ public interface TokenLock {
 
     boolean validate(String token);
 
-    void unlock(String token);
+    boolean unlock(String token);
 
     boolean isLocked();
 

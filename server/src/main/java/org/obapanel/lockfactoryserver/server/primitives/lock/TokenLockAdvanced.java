@@ -90,19 +90,21 @@ public class TokenLockAdvanced implements TokenLock {
     }
 
     @Override
-    public void unlock(String externalValue) {
-        underLockGet(() -> {
+    public boolean unlock(String externalValue) {
+        return underLockGet(() -> {
             if (validate(externalValue)) {
                 token.cleanToken();
                 condition.signal();
+                return true;
+            } else {
+                return false;
             }
-            return null;
         });
     }
 
     @Override
     public boolean isLocked() {
-        return innerLock.isLocked();
+        return token.isNotEmpty();
     }
 
 

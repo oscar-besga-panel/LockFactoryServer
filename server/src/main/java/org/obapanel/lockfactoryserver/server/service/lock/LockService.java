@@ -92,11 +92,10 @@ public class LockService implements LockFactoryServices {
         boolean unlocked = false;
         TokenLock lock = lockCache.getData(name);
         if (lock != null) {
-            lock.unlock(token);
-            unlocked = !lock.isLocked();
+            unlocked = lock.unlock(token);
             LOGGER.debug("unlock done name {} token {} result {}", name, token, unlocked);
         } else {
-                LOGGER.debug("unlock invalid name {} token {}", name, token);
+            LOGGER.debug("unlock invalid name {} token {}", name, token);
         }
         return unlocked;
     }

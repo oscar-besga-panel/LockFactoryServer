@@ -60,10 +60,13 @@ public class TokenLockBase implements TokenLock {
     }
 
     @Override
-    public void unlock(String token) {
+    public boolean unlock(String token) {
         if (validate(token)) {
             innerLock.unlock();
             innerToken.set(NO_TOKEN);
+            return true;
+        } else {
+            return false;
         }
     }
 
