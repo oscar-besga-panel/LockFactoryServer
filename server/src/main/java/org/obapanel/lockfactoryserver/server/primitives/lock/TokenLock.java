@@ -39,15 +39,6 @@ public class TokenLock {
         });
     }
 
-    public String lockInterruptibly() throws InterruptedException {
-        return underInnerLockGet(() -> {
-            while(token.isNotEmpty()){
-                condition.await();
-            }
-            return token.generateToken();
-        });
-    }
-
     public String tryLock() {
         return underInnerLockGet(() -> {
             boolean locked = token.isEmpty();

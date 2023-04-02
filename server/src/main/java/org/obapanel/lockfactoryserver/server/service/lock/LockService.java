@@ -42,11 +42,7 @@ public class LockService implements LockFactoryServices {
     public String lock(String name) {
         LOGGER.info("service> lock {}", name);
         TokenLock lock = lockCache.getOrCreateData(name);
-        try {
-            return lock.lockInterruptibly();
-        } catch (InterruptedException e) {
-            throw RuntimeInterruptedException.getToThrowWhenInterrupted(e);
-        }
+        return lock.lock();
     }
 
     public String tryLock(String name) {
