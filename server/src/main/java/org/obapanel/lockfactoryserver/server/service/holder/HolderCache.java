@@ -1,6 +1,7 @@
 package org.obapanel.lockfactoryserver.server.service.holder;
 
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
+import org.obapanel.lockfactoryserver.server.primitives.holder.Holder;
 import org.obapanel.lockfactoryserver.server.utils.primitivesCache.PrimitivesCache;
 
 import java.util.function.Supplier;

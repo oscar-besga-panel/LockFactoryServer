@@ -4,8 +4,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
-
-import java.util.concurrent.locks.StampedLock;
+import org.obapanel.lockfactoryserver.server.primitives.lock.TokenLock;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -27,15 +26,15 @@ public class LockCacheTest {
 
     @Test
     public void createNewTest() {
-        StampedLock lock1 = lockCache.createNew("lock1");
-        assertFalse(lock1.isWriteLocked());
+        TokenLock lock1 = lockCache.createNew("lock1");
+        assertFalse(lock1.isLocked());
     }
 
     @Test
     public void avoidExpirationTest() throws InterruptedException {
-        StampedLock lock1 = lockCache.createNew("lock1");
-        lock1.writeLockInterruptibly();
-        StampedLock lock2 = lockCache.createNew("lock2");
+        TokenLock lock1 = lockCache.createNew("lock1");
+        lock1.lock();
+        TokenLock lock2 = lockCache.createNew("lock2");
         assertTrue(lockCache.avoidExpiration("lock1", lock1));
         assertFalse(lockCache.avoidExpiration("lock2", lock2));
     }
