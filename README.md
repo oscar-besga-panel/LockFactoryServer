@@ -24,6 +24,8 @@ developed in Java and ready to use.
 * Semaphore: with permits it can acquire or release, in any quantity, from/to requesters
 * Countdownlatch: with an initial count and requesters that wait until the count is zero
 * Holders: requesters wait until some data is stored into memory or is cancelled
+* Rate limiter: limits the rate of requests/usages/etc. by time or by tokens from bucket _(coming soon, in *rateLimiter* branch !)_
+
 
 So various processes/applications/threads can access the same primitive by using any connection method
 (the connections share the primitives caches ).
