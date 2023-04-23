@@ -216,6 +216,34 @@ service HolderServer {
 
 }
 
+service BucketRateLimiter {
+
+  rpc newRateLimiter(BucketRateLimiterNew) returns (google.protobuf.Empty) {};
+
+  rpc getAvailableTokens(google.protobuf.StringValue) returns (google.protobuf.Int64Value) {};
+
+  rpc tryConsume(NameTokensConsume) returns (google.protobuf.BoolValue) {};
+
+  rpc tryConsumeWithTimeOut(NameTokensConsumeWithTimeOut) returns (google.protobuf.BoolValue) {};
+
+  rpc consume(NameTokensConsume) returns (google.protobuf.Empty) {};
+
+  rpc remove(google.protobuf.StringValue) returns (google.protobuf.Empty) {};
+
+}
+
+service ThrottlingRateLimiter {
+
+  rpc newRateLimiter(ThrottlingRateLimiterNew) returns (google.protobuf.Empty) {};
+
+  rpc allow(google.protobuf.StringValue) returns (google.protobuf.BoolValue) {};
+
+  rpc waitToNext(google.protobuf.StringValue) returns (google.protobuf.Empty) {};
+
+  rpc remove(google.protobuf.StringValue) returns (google.protobuf.Empty) {};
+
+}
+
 message NameTokenValues {
   string name = 1;
   string token = 2;
@@ -297,4 +325,30 @@ enum TimeUnitGrpc {
   SECONDS = 1;
   MINUTES = 2;
   HOURS = 3;
+}
+
+message BucketRateLimiterNew {
+  string name = 1;
+  uint64 totalTokens = 2;
+  bool greedy = 3;
+  uint64 timeRefill = 4;
+  optional TimeUnitGrpc timeUnit = 5;
+}
+
+message NameTokensConsume {
+  string name = 1;
+  uint64 tokens = 2;
+}
+
+message NameTokensConsumeWithTimeOut {
+  string name = 1;
+  uint64 tokens = 2;
+  uint64 timeOut = 3;
+  optional TimeUnitGrpc timeUnit = 4;
+}
+
+message ThrottlingRateLimiterNew {
+  string name = 1;
+  uint64 timeToLimit = 2;
+  optional TimeUnitGrpc timeUnit = 3;
 }

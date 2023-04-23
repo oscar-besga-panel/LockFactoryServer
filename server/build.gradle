@@ -12,6 +12,7 @@ dependencies {
     implementation "io.netty:netty-handler-proxy:${nettyVersion}"
     implementation "io.netty:netty-resolver-dns:${nettyVersion}"
     implementation "io.grpc:grpc-netty:${grpcVersion}"
+    implementation "com.bucket4j:bucket4j-core:${bucket4jVersion}"
 }
 
 group 'org.obapanel.lockfactoryserver.server'

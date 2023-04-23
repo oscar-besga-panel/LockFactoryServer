@@ -11,6 +11,8 @@ import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLat
 import org.obapanel.lockfactoryserver.server.service.holder.HolderService;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
 import org.obapanel.lockfactoryserver.server.service.management.ManagementService;
+import org.obapanel.lockfactoryserver.server.service.rateLimiter.BucketRateLimiterService;
+import org.obapanel.lockfactoryserver.server.service.rateLimiter.ThrottlingRateLimiterService;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +63,16 @@ public class GrpcConnection implements LockFactoryConnection {
             HolderService holderService = (HolderService) services.get(Services.HOLDER);
             HolderServerGrpcImpl holderServerGrpc = new HolderServerGrpcImpl(holderService);
             serverBuilder.addService(holderServerGrpc);
+        }
+        if (configuration.isBucketRateLimiterEnabled()) {
+            BucketRateLimiterService bucketRateLimiterService = (BucketRateLimiterService) services.get(Services.BUCKET_RATE_LIMITER);
+            BucketRateLimiterGrpcImpl rateLimiterBucketGrpc = new BucketRateLimiterGrpcImpl(bucketRateLimiterService);
+            serverBuilder.addService(rateLimiterBucketGrpc);
+        }
+        if (configuration.isThrottlingRateLimiterEnabled()) {
+            ThrottlingRateLimiterService throttlingRateLimiterService = (ThrottlingRateLimiterService) services.get(Services.THROTTLING_RATE_LIMITER);
+            ThrottlingRateLimiterGrpcImpl throttlingRateLimiterGrpc = new ThrottlingRateLimiterGrpcImpl(throttlingRateLimiterService);
+            serverBuilder.addService(throttlingRateLimiterGrpc);
         }
         grpcServer = serverBuilder.build();
         grpcServer.start();

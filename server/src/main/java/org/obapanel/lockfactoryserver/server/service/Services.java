@@ -4,6 +4,8 @@ import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLat
 import org.obapanel.lockfactoryserver.server.service.holder.HolderService;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
 import org.obapanel.lockfactoryserver.server.service.management.ManagementService;
+import org.obapanel.lockfactoryserver.server.service.rateLimiter.BucketRateLimiterService;
+import org.obapanel.lockfactoryserver.server.service.rateLimiter.ThrottlingRateLimiterService;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
 
 /**
@@ -15,7 +17,9 @@ public enum Services {
     LOCK(LockService.class),
     SEMAPHORE(SemaphoreService.class),
     COUNTDOWNLATCH(CountDownLatchService.class),
-    HOLDER(HolderService.class);
+    HOLDER(HolderService.class),
+    BUCKET_RATE_LIMITER(BucketRateLimiterService.class),
+    THROTTLING_RATE_LIMITER(ThrottlingRateLimiterService.class);
 
     private final Class<? extends LockFactoryServices> serviceClass;
 
