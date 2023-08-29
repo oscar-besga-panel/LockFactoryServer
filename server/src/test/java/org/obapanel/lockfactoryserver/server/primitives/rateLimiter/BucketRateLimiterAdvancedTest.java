@@ -7,12 +7,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
@@ -45,14 +40,12 @@ public class BucketRateLimiterAdvancedTest {
     @Test
     public void advancedTest() {
         IntStream.range(0, numExecs).
-                forEach( numExec -> advancedTestExec(numExec));
+                forEach(this::advancedTestExec);
         tryToSleep(numExecs * 1000);
         futureList.forEach( f -> {
             try {
                 f.get();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            } catch (ExecutionException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 throw new RuntimeException(e);
             }
         });

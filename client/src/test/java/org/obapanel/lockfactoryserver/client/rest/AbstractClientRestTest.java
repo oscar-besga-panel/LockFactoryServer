@@ -1,14 +1,14 @@
 package org.obapanel.lockfactoryserver.client.rest;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.StatusLine;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.message.StatusLine;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -76,14 +76,13 @@ public class AbstractClientRestTest {
         mockedStaticEntityUtils = Mockito.mockStatic(EntityUtils.class);
         mockedStaticEntityUtils.when(() -> EntityUtils.toString(eq(httpEntity))).
                 thenAnswer(ioc -> finalResult.toString());
-        when(httpResponse.getStatusLine()).thenReturn(statusLine);
-        when(statusLine.getStatusCode()).thenAnswer(ioc -> finalStatus.get());
+        when(httpResponse.getCode()).thenAnswer(ioc -> finalStatus.get());
 
     }
 
     private String finalUrl() {
         if (finalRequest.get() != null) {
-            return finalRequest.get().getURI().toString();
+            return finalRequest.get().getRequestUri().toString();
         } else {
             return "";
         }

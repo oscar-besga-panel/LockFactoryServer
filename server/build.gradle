@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    implementation project(':core')
+    api project(':core')
     implementation "io.netty:netty-common:${nettyVersion}"
     implementation "io.netty:netty-buffer:${nettyVersion}"
     implementation "io.netty:netty-transport:${nettyVersion}"
