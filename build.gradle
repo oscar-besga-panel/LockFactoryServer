@@ -27,6 +27,7 @@ allprojects {
     }
 
     apply plugin: 'java'
+    apply plugin: 'java-library'
     apply plugin: 'jacoco'
     apply plugin: 'maven-publish'
     apply plugin: 'com.google.protobuf'

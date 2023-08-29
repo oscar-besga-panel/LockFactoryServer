@@ -1,6 +1,6 @@
 dependencies {
-    implementation project(':core')
-    implementation "org.apache.httpcomponents:httpclient:${httpClientVersion}"
+    api project(':core')
+    implementation "org.apache.httpcomponents.client5:httpclient5:${httpClient5Version}"
     implementation "io.grpc:grpc-netty-shaded:${grpcVersion}"
 }
 
