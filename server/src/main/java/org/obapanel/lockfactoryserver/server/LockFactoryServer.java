@@ -270,11 +270,13 @@ public class LockFactoryServer implements AutoCloseable {
      * @throws InterruptedException If it must exit
      */
     final void awaitTermitation() throws InterruptedException {
-        LOGGER.debug("alive ini");
-        synchronized (await) {
-            await.wait();
+        if (isRunningServer.get()) {
+            LOGGER.debug("alive ini");
+            synchronized (await) {
+                await.wait();
+            }
+            LOGGER.debug("alive fin");
         }
-        LOGGER.debug("alive fin");
     }
 
     /**

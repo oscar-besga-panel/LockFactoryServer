@@ -2,6 +2,7 @@ package org.obapanel.lockfactoryserver.server.primitives.rateLimiter;
 
 import org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException;
 
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -16,6 +17,14 @@ public class ThrottlingRateLimiter {
 
     public ThrottlingRateLimiter(long timeToLimit, TimeUnit timeUnit) {
         this.timeToLimitMillis = timeUnit.toMillis(timeToLimit);
+    }
+
+    public long getTimeToLimitMillis() {
+        return timeToLimitMillis;
+    }
+
+    public long getTimeToLimit(TimeUnit timeUnit) {
+        return timeUnit.convert(Duration.ofMillis(timeToLimitMillis));
     }
 
     public synchronized boolean allow() {
