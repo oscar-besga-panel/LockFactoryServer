@@ -44,31 +44,11 @@ public class ThrottlingRateLimiterService implements LockFactoryServices {
         }
     }
 
-    public long getTimeToLimit(String name, TimeUnit timeUnit) {
-        LOGGER.info("service> allow {} ", name);
-        ThrottlingRateLimiter throttlingRateLimiter = throttlingRateLimiterCache.getData(name);
-        if (throttlingRateLimiter != null) {
-            return throttlingRateLimiter.getTimeToLimit(timeUnit);
-        } else {
-            return -1L;
-        }
-    }
-
     public boolean allow(String name) {
         LOGGER.info("service> allow {} ", name);
         ThrottlingRateLimiter rateLimiter = throttlingRateLimiterCache.getData(name);
         if (rateLimiter != null) {
             return throttlingRateLimiterCache.getData(name).allow();
-        } else {
-            return false;
-        }
-    }
-
-    public boolean waitToNext(String name) {
-        LOGGER.info("service> waitToNext {} ", name);
-        ThrottlingRateLimiter rateLimiter = throttlingRateLimiterCache.getData(name);
-        if (rateLimiter != null) {
-            return rateLimiter.waitToNext();
         } else {
             return false;
         }

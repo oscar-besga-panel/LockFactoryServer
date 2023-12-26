@@ -174,6 +174,7 @@ public class LockFactoryServer implements AutoCloseable {
             services.put(Services.BUCKET_RATE_LIMITER, bucketRateLimiterService);
         }
         if (configuration.isThrottlingRateLimiterEnabled()) {
+            LOGGER.debug("createServices throttlingRateLimiter");
             ThrottlingRateLimiterService throttlingRateLimiterService = new ThrottlingRateLimiterService(configuration);
             services.put(Services.THROTTLING_RATE_LIMITER, throttlingRateLimiterService);
         }

@@ -1,5 +1,6 @@
 package org.obapanel.lockfactoryserver.core.rmi;
 
+import java.rmi.Remote;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -14,7 +15,9 @@ import java.util.concurrent.TimeUnit;
  * - Greedy: it will refill the bucket as time passes, proportionally as time passes to have all the permits in the bucket as time passes.
  * - Intervally - false greeedy: it will wait to the timeRefill to pass completely to put 100% of the permits in the bucket
  */
-public interface BucketRateLimiterServerRmi {
+public interface BucketRateLimiterServerRmi extends Remote {
+
+    String RMI_NAME = "BucketRateLimiterServerRmi";
 
     /**
      * Creates a new bucket rate limiter

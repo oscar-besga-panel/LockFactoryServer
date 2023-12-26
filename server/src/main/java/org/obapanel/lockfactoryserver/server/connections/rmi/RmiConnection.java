@@ -1,10 +1,12 @@
 package org.obapanel.lockfactoryserver.server.connections.rmi;
 
+import org.obapanel.lockfactoryserver.core.rmi.BucketRateLimiterServerRmi;
 import org.obapanel.lockfactoryserver.core.rmi.CountDownLatchServerRmi;
 import org.obapanel.lockfactoryserver.core.rmi.HolderServerRmi;
 import org.obapanel.lockfactoryserver.core.rmi.LockServerRmi;
 import org.obapanel.lockfactoryserver.core.rmi.ManagementServerRmi;
 import org.obapanel.lockfactoryserver.core.rmi.SemaphoreServerRmi;
+import org.obapanel.lockfactoryserver.core.rmi.ThrottlingRateLimiterServerRmi;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.connections.Connections;
 import org.obapanel.lockfactoryserver.server.connections.LockFactoryConnection;
@@ -14,6 +16,8 @@ import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLat
 import org.obapanel.lockfactoryserver.server.service.holder.HolderService;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
 import org.obapanel.lockfactoryserver.server.service.management.ManagementService;
+import org.obapanel.lockfactoryserver.server.service.rateLimiter.BucketRateLimiterService;
+import org.obapanel.lockfactoryserver.server.service.rateLimiter.ThrottlingRateLimiterService;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,6 +77,14 @@ public class RmiConnection implements LockFactoryConnection {
         if (configuration.isHolderEnabled()) {
             addService(servicesMap.get(Services.HOLDER), HolderServerRmi.RMI_NAME, port,
                     t -> (new HolderServerRmiImpl((HolderService) t)));
+        }
+        if (configuration.isBucketRateLimiterEnabled()) {
+            addService(servicesMap.get(Services.BUCKET_RATE_LIMITER), BucketRateLimiterServerRmi.RMI_NAME, port,
+                    t -> (new BucketRateLimiterServerRmiImpl((BucketRateLimiterService) t)));
+        }
+        if (configuration.isThrottlingRateLimiterEnabled()) {
+            addService(servicesMap.get(Services.THROTTLING_RATE_LIMITER), ThrottlingRateLimiterServerRmi.RMI_NAME, port,
+                    t -> (new ThrottlingRateLimiterServerRmiImpl((ThrottlingRateLimiterService) t)));
         }
         LOGGER.debug("RmiConnection activated");
     }

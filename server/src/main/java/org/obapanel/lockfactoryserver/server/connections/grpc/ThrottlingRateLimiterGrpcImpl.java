@@ -43,14 +43,6 @@ public class ThrottlingRateLimiterGrpcImpl extends ThrottlingRateLimiterGrpc.Thr
     }
 
     @Override
-    public void waitToNext(StringValue request, StreamObserver<Empty> responseObserver) {
-        LOGGER.info("grpc server> waitToNext name {} ", request.getValue());
-        throttlingRateLimiterService.waitToNext(request.getValue());
-        responseObserver.onNext(Empty.getDefaultInstance());
-        responseObserver.onCompleted();
-    }
-
-    @Override
     public void remove(StringValue request, StreamObserver<Empty> responseObserver) {
         LOGGER.info("grpc server> remove name {}", request.getValue());
         throttlingRateLimiterService.remove(request.getValue());
