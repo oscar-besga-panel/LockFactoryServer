@@ -238,11 +238,9 @@ service ThrottlingRateLimiter {
 
   rpc getTimeToLimitMillis(google.protobuf.StringValue) returns (google.protobuf.Int64Value) {};
 
-  rpc getTimeToLimit(NameTimeUnitValue) returns (google.protobuf.Int64Value) {};
-
   rpc allow(google.protobuf.StringValue) returns (google.protobuf.BoolValue) {};
 
-  rpc waitToNext(google.protobuf.StringValue) returns (google.protobuf.Empty) {};
+  rpc waitToNext(google.protobuf.StringValue) returns (google.protobuf.BoolValue) {};
 
   rpc remove(google.protobuf.StringValue) returns (google.protobuf.Empty) {};
 
@@ -251,11 +249,6 @@ service ThrottlingRateLimiter {
 message NameTokenValues {
   string name = 1;
   string token = 2;
-}
-
-message NameTimeUnitValue {
-  string name = 1;
-  TimeUnitGrpc timeUnit = 2;
 }
 
 message TryLockWithTimeout {

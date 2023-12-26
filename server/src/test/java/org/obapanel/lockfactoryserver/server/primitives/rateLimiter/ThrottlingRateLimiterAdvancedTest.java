@@ -20,16 +20,16 @@ import java.util.stream.IntStream;
 
 import static org.junit.Assert.assertEquals;
 
-public class BucketRateLimiterAdvancedTest {
+public class ThrottlingRateLimiterAdvancedTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BucketRateLimiterAdvancedTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ThrottlingRateLimiterAdvancedTest.class);
 
 
-    private BucketRateLimiter bucketRateLimiter;
+    private ThrottlingRateLimiter throttlingRateLimiter;
     private ScheduledExecutorService scheduledExecutorService;
     private final int totalExecs = 300;
-    private final int totalTokens = 100;
-    private final int numExecs = 3;
+    private final int allowedPerSecond = 100;
+    private final int numExecs = 1;
     private final AtomicInteger executedAndConsumed = new AtomicInteger();
     private final AtomicInteger executed = new AtomicInteger();
     private final List<Future> futureList = new ArrayList<>();
@@ -49,33 +49,30 @@ public class BucketRateLimiterAdvancedTest {
 
     @Test
     public void advancedTestInterval() {
-        bucketRateLimiter = new BucketRateLimiter(totalTokens, false, 1, TimeUnit.SECONDS);
+        throttlingRateLimiter = new ThrottlingRateLimiter(1000 / allowedPerSecond, TimeUnit.MILLISECONDS);
         advancedTestExecution();
     }
 
-    @Test
-    public void advancedTestGreedy() {
-        bucketRateLimiter = new BucketRateLimiter(totalTokens, true, 1, TimeUnit.SECONDS);
-        advancedTestExecution();
-    }
+
 
     public void advancedTestExecution() {
         IntStream.range(0, numExecs).
-                forEach(this::advancedTestExec);
+                forEach( numExec -> advancedTestExec(numExec));
         tryToSleep(numExecs * 1000);
         futureList.forEach( f -> {
             try {
                 f.get();
-            } catch (InterruptedException | ExecutionException e) {
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
                 throw new RuntimeException(e);
             }
         });
-        LOGGER.debug("advancedTest result numExecs {} totalExec {} totalTokens {} executed {} executedAndConsumed {} ",
-                numExecs, totalExecs, totalTokens, executed.get(), executedAndConsumed.get());
+        LOGGER.debug("advancedTest result numExecs {} allowedPerSecond {} totalExec {} executed {} executedAndConsumed {} ",
+                numExecs, allowedPerSecond,  totalExecs, executed.get(), executedAndConsumed.get());
         assertEquals(numExecs * totalExecs, executed.get());
         //TODO
-        // assertEquals(numExecs * totalTokens, executedAndConsumed.get());
-
+        // assertEquals(numExecs * allowedPerSecond, executedAndConsumed.get());
     }
 
     public void advancedTestExec(int numExec) {
@@ -102,8 +99,8 @@ public class BucketRateLimiterAdvancedTest {
 
     public void doTask(int delay) {
         LOGGER.debug("advancedTest doTask delay {}", delay);
-        if (bucketRateLimiter.tryConsume(1L)){
-            tryToSleep(1250);
+        if (throttlingRateLimiter.allow()){
+            //tryToSleep(1250);
             executedAndConsumed.incrementAndGet();
         }
         executed.incrementAndGet();

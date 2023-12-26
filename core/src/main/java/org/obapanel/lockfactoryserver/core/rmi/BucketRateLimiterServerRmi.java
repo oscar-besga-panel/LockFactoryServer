@@ -3,7 +3,16 @@ package org.obapanel.lockfactoryserver.core.rmi;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A bucket rate limiter (see here
+ * A bucket rate limiter
+ * (see here https://bucket4j.com/ and here https://vbukhtoyarov-java.blogspot.com/2021/11/non-formal-overview-of-token-bucket.html)
+ * The 'bucket' will hold a number of permits
+ *
+ * A process request can ask for a number of permits, and if the bucket has them it will reduce the count
+ * and return true to the process (false otherwise)
+ *
+ * The bucket will refill the given the permits during the specified time
+ * - Greedy: it will refill the bucket as time passes, proportionally as time passes to have all the permits in the bucket as time passes.
+ * - Intervally - false greeedy: it will wait to the timeRefill to pass completely to put 100% of the permits in the bucket
  */
 public interface BucketRateLimiterServerRmi {
 

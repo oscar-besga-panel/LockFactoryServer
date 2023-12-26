@@ -10,6 +10,11 @@ import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * See
+ * https://bucket4j.com/
+ * https://vbukhtoyarov-java.blogspot.com/2021/11/non-formal-overview-of-token-bucket.html
+ */
 public class BucketRateLimiter {
 
 
@@ -46,14 +51,14 @@ public class BucketRateLimiter {
     }
 
     public boolean tryConsume(long tokens) {
-        return !isExpired() &&
+        return !expired.get() &&
                 tokens <= totalTokens &&
                 bucket.tryConsume(tokens);
     }
 
     public boolean tryConsumeBlocking(long tokens, Duration of) {
         try {
-            return !isExpired() &&
+            return !expired.get() &&
                     tokens <= totalTokens &&
                     bucket.asBlocking().tryConsume(tokens, of);
         } catch (InterruptedException e) {
@@ -63,7 +68,7 @@ public class BucketRateLimiter {
 
     public void consumeBlocking(long tokens) {
         try {
-            if (!isExpired()) {
+            if (!expired.get()) {
                 bucket.asBlocking().consume(tokens, BlockingStrategy.PARKING);
             }
         } catch (InterruptedException e) {
@@ -76,7 +81,7 @@ public class BucketRateLimiter {
     }
 
     public long getAvailableTokens() {
-        if (!isExpired()) {
+        if (!expired.get()) {
             return bucket.getAvailableTokens();
         } else {
             return -1L;
