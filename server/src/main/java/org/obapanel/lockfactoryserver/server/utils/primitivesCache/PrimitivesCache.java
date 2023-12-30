@@ -121,6 +121,12 @@ public abstract class PrimitivesCache<K> implements AutoCloseable {
         return data;
     }
 
+    /**
+     * Create synchronously if needed
+     * Internally will call createNew
+     * @param name name of the element
+     * @return new element
+     */
     private synchronized K createData(String name) {
         return createData(name, null);
     }

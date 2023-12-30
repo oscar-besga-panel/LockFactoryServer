@@ -1,8 +1,7 @@
 package org.obapanel.lockfactoryserver.server.connections.rest;
 
 import com.github.arteam.embedhttp.HttpRequest;
-import org.obapanel.lockfactoryserver.core.holder.HolderResult;
-import org.obapanel.lockfactoryserver.server.service.holder.HolderService;
+import org.obapanel.lockfactoryserver.server.service.rateLimiter.BucketRateLimiterService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,79 +14,52 @@ public class BucketRateLimiterServerRestImpl {
 
     public final static String OK = "ok";
 
-    private final HolderService holderService;
+    private final BucketRateLimiterService bucketRateLimiterService;
 
-    public BucketRateLimiterServerRestImpl(HolderService holderService) {
-        this.holderService = holderService;
+    public BucketRateLimiterServerRestImpl(BucketRateLimiterService bucketRateLimiterService) {
+        this.bucketRateLimiterService = bucketRateLimiterService;
     }
 
-
-    public String get(String prefix, List<String> parameters, HttpRequest request) {
+    public String newRateLimiter(String prefix, List<String> parameters, HttpRequest request) {
         String name = parameters.get(0);
-        LOGGER.info("rest server> get name {}", name);
-        HolderResult holderResult = holderService.get(name);
-        return holderResult.toTextString();
-    }
-
-    public String getWithTimeOut(String prefix, List<String> parameters, HttpRequest request) {
-        String name = parameters.get(0);
-        long time;
-        if (parameters.size() > 1) {
-            time = Long.parseLong(parameters.get(1));
-        } else {
-            time = 1;
-        }
-        TimeUnit timeUnit;
-        if (parameters.size() > 2) {
-            timeUnit = TimeUnit.valueOf(parameters.get(2).toUpperCase());
-        } else {
-            timeUnit = TimeUnit.MILLISECONDS;
-        }
-        LOGGER.info("rest server> getWithTimeOut name {} timeOut {} timeUnit {}", name, time, timeUnit);
-        HolderResult holderResult = holderService.getWithTimeOut(name, time, timeUnit);
-        return holderResult.toTextString();
-    }
-
-    public String getIfAvailable(String prefix, List<String> parameters, HttpRequest request) {
-        String name = parameters.get(0);
-        LOGGER.info("rest server> getIfAvailable name {}", name);
-        HolderResult holderResult = holderService.getIfAvailable(name);
-        return holderResult.toTextString();
-    }
-
-    public String set(String prefix, List<String> parameters, HttpRequest request) {
-        String name = parameters.get(0);
-        String newValue = parameters.get(1);
-        LOGGER.info("rest server> set name {} newValue {}", name, newValue);
-        holderService.set(name, newValue);
+        long totalTokens = Long.parseLong(parameters.get(1));
+        boolean refillGreedy = Boolean.parseBoolean(parameters.get(2));
+        long timeRefill = Long.parseLong(parameters.get(3));
+        TimeUnit timeUnit = TimeUnit.valueOf(parameters.get(4).toUpperCase());
+        LOGGER.info("rest server> newRateLimiter name {} totalTokens {} refillGreedy {} timeRefill {} timeUnit {}",
+                name, totalTokens, refillGreedy, timeRefill, timeUnit);
+        bucketRateLimiterService.newRateLimiter(name, totalTokens, refillGreedy,
+                timeRefill, timeUnit );
         return OK;
     }
 
-    public String setWithTimeToLive(String prefix, List<String> parameters, HttpRequest request) {
+    public String getAvailableTokens(String prefix, List<String> parameters, HttpRequest request) {
         String name = parameters.get(0);
-        String newValue = parameters.get(1);
-        long time;
-        if (parameters.size() > 2) {
-            time = Long.parseLong(parameters.get(2));
-        } else {
-            time = 1;
-        }
-        TimeUnit timeUnit;
-        if (parameters.size() > 23) {
-            timeUnit = TimeUnit.valueOf(parameters.get(3).toUpperCase());
-        } else {
-            timeUnit = TimeUnit.MILLISECONDS;
-        }
-        LOGGER.info("rest server> setWithTimeToLive name {} newValue {} timeToLive {} timeUnit {}",
-                name, newValue, time, timeUnit);
-        holderService.setWithTimeToLive(name, newValue, time, timeUnit);
+        LOGGER.info("rest server> getAvailableTokens name {}", name);
+        long availableTokens = bucketRateLimiterService.getAvailableTokens(name);
+        return Long.toString(availableTokens);
+    }
+
+    public String tryConsume(String prefix, List<String> parameters, HttpRequest request) {
+        String name = parameters.get(0);
+        long tokens = Long.parseLong(parameters.get(1));
+        LOGGER.info("rest server> tryConsume name {} tokens {}", name, tokens);
+        boolean result = bucketRateLimiterService.tryConsume(name, tokens);
+        return Boolean.toString(result);
+    }
+
+    public String consume(String prefix, List<String> parameters, HttpRequest request) {
+        String name = parameters.get(0);
+        long tokens = Long.parseLong(parameters.get(1));
+        LOGGER.info("rest server> consume name {} tokens {}", name, tokens);
+        bucketRateLimiterService.consume(name, tokens);
         return OK;
     }
 
-    public String cancel(String prefix, List<String> parameters, HttpRequest request) {
+    public String remove(String prefix, List<String> parameters, HttpRequest request) {
         String name = parameters.get(0);
-        LOGGER.info("rest server> cancel name {} ", name);
-        holderService.cancel(name);
+        LOGGER.info("rest server> remove name {}", name);
+        bucketRateLimiterService.remove(name);
         return OK;
     }
 

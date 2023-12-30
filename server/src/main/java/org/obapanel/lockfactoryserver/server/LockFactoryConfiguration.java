@@ -180,7 +180,6 @@ public class LockFactoryConfiguration {
         return Boolean.parseBoolean(properties.getProperty(BUCKET_RATE_LIMITER_ENABLED, DEFAULT_BUCKET_RATE_LIMITER_ENABLED));
     }
 
-
     public long getHolderMaximumSize() {
         return Long.parseLong(properties.getProperty(HOLDER_MAXIMUM_SIZE, DEFAULT_HOLDER_MAXIMUM_SIZE));
     }

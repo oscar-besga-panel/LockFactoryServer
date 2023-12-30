@@ -11,6 +11,7 @@ import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLat
 import org.obapanel.lockfactoryserver.server.service.holder.HolderService;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
 import org.obapanel.lockfactoryserver.server.service.management.ManagementService;
+import org.obapanel.lockfactoryserver.server.service.rateLimiter.BucketRateLimiterService;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +58,9 @@ public class RestConnection implements LockFactoryConnection {
         }
         if (configuration.isHolderEnabled()) {
             chainHolder(builder, (HolderService) services.get(Services.HOLDER));
+        }
+        if (configuration.isBucketRateLimiterEnabled()) {
+            chainBucketRateLimiter(builder, (BucketRateLimiterService) services.get(Services.BUCKET_RATE_LIMITER));
         }
         embeddedHttpServer = builder.buildAndRun();
         LOGGER.debug("RestConnection activated");
@@ -123,6 +127,17 @@ public class RestConnection implements LockFactoryConnection {
         addPlainTextHandlerWithPrefix(builder, "/holder/setWithTimeToLive", holderServerRest::setWithTimeToLive);
         addPlainTextHandlerWithPrefix(builder, "/holder/setwithtimetolive", holderServerRest::setWithTimeToLive);
         addPlainTextHandlerWithPrefix(builder, "/holder/cancel", holderServerRest::cancel);
+    }
+
+    private void chainBucketRateLimiter(EmbeddedHttpServerBuilder builder, BucketRateLimiterService bucketRateLimiterService) {
+        BucketRateLimiterServerRestImpl bucketRateLimiterServerRest = new BucketRateLimiterServerRestImpl(bucketRateLimiterService);
+        for(String prefix: Arrays.asList("/bucketRateLimiter", "/bucketratelimiter", "/rateLimiter", "/ratelimiter")) {
+            addPlainTextHandlerWithPrefix(builder, prefix + "/newRateLimiter", bucketRateLimiterServerRest::newRateLimiter);
+            addPlainTextHandlerWithPrefix(builder, prefix + "/getAvailableTokens", bucketRateLimiterServerRest::getAvailableTokens);
+            addPlainTextHandlerWithPrefix(builder, prefix + "/tryConsume", bucketRateLimiterServerRest::tryConsume);
+            addPlainTextHandlerWithPrefix(builder, prefix + "/consume", bucketRateLimiterServerRest::consume);
+            addPlainTextHandlerWithPrefix(builder, prefix + "/remove", bucketRateLimiterServerRest::remove);
+        }
     }
 
     private void addPlainTextHandlerWithPrefix(EmbeddedHttpServerBuilder builder, String prefix, RestConnectionHelper.PlainTextHandlerWithPrefix handler) {
