@@ -1,0 +1,391 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+
+package org.obapanel.lockfactoryserver.core.grpc;
+
+option java_multiple_files = true;
+option java_package = "org.obapanel.lockfactoryserver.core.grpc";
+option java_outer_classname = "LockFactoryServer";
+
+/**
+ * Service that defines management services for GRPC
+ */
+service ManagementServer {
+
+  /**
+   * Shutdowns the server
+   */
+  rpc shutdownServer(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+
+  /**
+   * Checks if it is runnning, returnning true if running
+   */
+  rpc isRunning(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
+
+
+}
+
+/**
+ * Service that makes a lock avalible
+ */
+service LockServer {
+
+
+  /*
+   * Try to obtain a lock, waiting if needed
+   * expects the name of the lock
+   * return a non-null non-empty string with the token of the lock when acquired
+   */
+  rpc lock(google.protobuf.StringValue) returns (google.protobuf.StringValue) {}
+
+  /*
+   * Try to obain a lock, without waiting
+   * expects name Name of the lock
+   * return a non-null non-empty string with the token of the lock if acquired, or an empty/null string if not
+   */
+  rpc tryLock(google.protobuf.StringValue) returns (google.protobuf.StringValue) {}
+
+  /*
+   * Try to obain a lock, waiting a defined time
+   * expects name Name of the lock, timeOut as wuantity of time to wait in milliseconds if timeUnit nor given
+   *   or the timeUnit of the timeOut
+   * return a non-null non-empty string with the token of the lock if acquired, or an empty/null string if not
+   */
+  rpc tryLockWithTimeOut(TryLockWithTimeout) returns (google.protobuf.StringValue) {}
+
+  /*
+   * Check if a lock is locked and how, status options are:
+   * -   ERROR: In case an error happens
+   * -   ABSENT: No lock has been found
+   * -   UNLOCKED: Lock exists and its unlocked
+   * -   OWNER: Lock exists, is locked by caller
+   * -   OTHER: Lock exists, is locked by other
+   *
+   * expects Name of the lock and the current token or null/empy if doesnt have one
+   * return LockStatus for current lock
+   */
+  rpc lockStatus(NameTokenValues) returns (LockStatusValues) {}
+
+  /*
+   * Unlock previously locked lock
+   * expects Name of the lock and obtained token when locking
+   * return true if lock exists and was unlocked by token
+   */
+  rpc unLock(NameTokenValues) returns (google.protobuf.BoolValue) {}
+
+  /*
+   * Try to obtain a lock, waiting the response if needed
+   * This is used in asynch clients
+   * expects the name of the lock
+   * return a non-null non-empty string with the token of the lock when acquired
+   */
+  rpc asyncLock(google.protobuf.StringValue) returns (google.protobuf.StringValue) {}
+
+}
+
+/**
+ * Service that makes a semaphore avalible
+ */
+service SemaphoreServer {
+
+  /*
+   * Current permits of the semaphore
+   * requires name Name of the semaphore
+   * returns permits of the semaphore, zero if not exists
+   */
+  rpc currentPermits(google.protobuf.StringValue) returns (google.protobuf.Int32Value) {}
+
+  /*
+   * Acquire N permits, waiting until acquired
+   * requires Semaphore name and number of permits to acquire
+   * @throws RemoteException if error
+   */
+  rpc acquire(NamePermits) returns (google.protobuf.Empty) {}
+
+  /*
+   * Try to acquire N permits, without waiting
+   * requires Semaphore name and number of permits to acquire
+   * returns true if acquired, false if not
+   */
+  rpc tryAcquire(NamePermits) returns (google.protobuf.BoolValue) {}
+
+  /*
+   * Wait a time to acquire N permits, returning if acquired ot time passed
+   * requires Semaphore name and number of permits to release and timeOut to wait until released or not, in milliseconds or other unit
+   * returns true if the permits have been released before the timeOut, false otherwise
+   */
+  rpc tryAcquireWithTimeOut(NamePermitsWithTimeout) returns (google.protobuf.BoolValue) {}
+
+  /*
+   * Release N permits from this semaphore
+   * requires Semaphore name and number of permits to release
+   */
+  rpc release(NamePermits) returns (google.protobuf.Empty) {}
+
+  /*
+   * Acquire N permits, waiting asynchronously until acquired
+   * requires Semaphore name and number of permits to acquire
+   * @throws RemoteException if error
+   */
+  rpc asyncAcquire(NamePermits) returns (google.protobuf.Empty) {}
+
+}
+
+/**
+ * Service that makes a countdownlatch available
+ */
+service CountDownLatchServer {
+
+ /*
+  * Creates a new countDownLatch with the specified count
+  * requires Name of the countDownLatch and count to release
+  * returns true if created, false if already exists
+  */
+  rpc createNew(NameCount) returns (google.protobuf.BoolValue) {}
+
+  /*
+   * Decreases the count of the countDownLatch by 1
+   * requires Name of the countDownLatch
+   */
+  rpc countDown(NameCount) returns (google.protobuf.Empty) {}
+
+  /*
+   * Get the current count
+   * requires Name of the countDownLatch
+   * returns current count of the countDownLatch, 0 if non existen
+   */
+  rpc getCount(google.protobuf.StringValue) returns (google.protobuf.Int32Value) {}
+
+ /*
+  * Await to the count to be zero
+  * requires name of the countDownLatch
+  */
+  rpc await(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
+
+  /**
+   * Waits until the timeOut time is consumed or the countDownlatch reaches zero
+   * requires Name of the countDownLatc, timeOut as time to wait and optionally timeUnit as unit of the timeOut; if not is milliseconds
+   * returns true if zero reached, false if time consumed
+   */
+  rpc tryAwaitWithTimeOut(AwaitWithTimeout) returns (google.protobuf.BoolValue) {}
+
+  /*
+   * Await to the count to be zero, responding asynchronoously
+   * requires name of the countDownLatch
+   */
+  rpc asyncAwait(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
+
+}
+
+/**
+ * Service that makes a holder available
+ */
+service HolderServer {
+
+  /*
+   * Get value, await indefinitely
+   */
+  rpc get(google.protobuf.StringValue) returns (HolderResultGrpc) {};
+
+  /*
+   * Get value, awaiting given time
+   */
+  rpc getWithTimeOut(HolderNameWithTimeOut) returns (HolderResultGrpc) {};
+
+  /*
+   * Get value if present, return not found if not
+   */
+  rpc getIfAvailable(google.protobuf.StringValue) returns (HolderResultGrpc) {};
+
+  /*
+   * Sets a value, holder is expired when the value is set
+   */
+  rpc set(HolderSet) returns (google.protobuf.Empty) {}
+
+  /*
+   * Sets a value, holder will expire in the time set
+   */
+  rpc setWithTimeToLive(HolderSetWithTimeToLive) returns (google.protobuf.Empty) {}
+
+  /*
+   * Cancels a holder and expires and removes it
+   */
+  rpc cancel(google.protobuf.StringValue) returns (google.protobuf.Empty) {};
+
+}
+
+/**
+ * Service that makes a bucket rate limiter available and many request can try to consume permits
+ */
+service BucketRateLimiter {
+
+  /*
+   * Creates a new bucket rate limiter
+   */
+  rpc newRateLimiter(BucketRateLimiterNew) returns (google.protobuf.Empty) {};
+
+  /*
+   * Get the actual available tokens, returns -1 if bucket doesn't exists, so this servers as an exists method
+   */
+  rpc getAvailableTokens(google.protobuf.StringValue) returns (google.protobuf.Int64Value) {};
+
+  /*
+   * Tries to get the numbered tokens
+   */
+  rpc tryConsume(NameTokensConsume) returns (google.protobuf.BoolValue) {};
+
+  /*
+   * Tries to get the numbered tokens within the given time
+   */
+  rpc tryConsumeWithTimeOut(NameTokensConsumeWithTimeOut) returns (google.protobuf.BoolValue) {};
+
+  /*
+   * Get the number of tokens to consume, waiting until there are available
+   */
+  rpc consume(NameTokensConsume) returns (google.protobuf.Empty) {};
+
+  /*
+   * Closes the limiter, nothing happens if it doesn't exist
+   */
+  rpc remove(google.protobuf.StringValue) returns (google.protobuf.Empty) {};
+
+}
+
+/**
+ * Service that makes a throttling rate limiter available and many request can try to pass
+ */
+service ThrottlingRateLimiter {
+
+  /*
+   * Creates a new rate limiter
+   */
+  rpc newRateLimiter(ThrottlingRateLimiterNew) returns (google.protobuf.Empty) {};
+
+  /*
+   * Returns the time between request in milliseconds, returns -1 if limiter don't exist.
+   */
+  rpc getTimeToLimitMillis(google.protobuf.StringValue) returns (google.protobuf.Int64Value) {};
+
+  /*
+   * Checks if request is allowed (Also, if it don't exist, false will be returned)
+   */
+  rpc allow(google.protobuf.StringValue) returns (google.protobuf.BoolValue) {};
+
+  /*
+   * Closes the limiter, nothing happens if it doesn't exist
+   */
+  rpc remove(google.protobuf.StringValue) returns (google.protobuf.Empty) {};
+
+}
+
+message NameTokenValues {
+  string name = 1;
+  string token = 2;
+}
+
+message TryLockWithTimeout {
+  string name = 1;
+  uint64 timeOut = 2;
+  optional TimeUnitGrpc timeUnit = 3;
+}
+
+message LockStatusValues {
+    LockStatus lockStatus = 1;
+}
+
+message NamePermits {
+  string name = 1;
+  uint32 permits = 2;
+}
+
+message NamePermitsWithTimeout {
+  string name = 1;
+  uint32 permits = 2;
+  uint64 timeOut = 3;
+  optional TimeUnitGrpc timeUnit = 4;
+}
+
+message NameCount {
+  string name = 1;
+  optional uint32 permits = 2;
+}
+
+message AwaitWithTimeout {
+  string name = 1;
+  uint64 timeOut = 2;
+  optional TimeUnitGrpc timeUnit = 3;
+}
+
+enum LockStatus {
+    ABSENT = 0; // No lock has been found
+    UNLOCKED = 1; // Lock exists and its unlocked
+    OWNER = 2; // Lock exists, is locked by caller
+    OTHER = 3; // Lock exists, is locked by other
+}
+
+message HolderResultGrpc {
+  string value = 1;
+  HolderResultStatusGrpc status = 2;
+}
+
+message HolderNameWithTimeOut {
+  string name = 1;
+  uint64 timeOut = 2;
+  optional TimeUnitGrpc timeUnit = 3;
+}
+
+message HolderSet {
+  string name = 1;
+  string newValue = 2;
+}
+
+message HolderSetWithTimeToLive {
+  string name = 1;
+  string newValue = 2;
+  uint64 timeToLive = 3;
+  optional TimeUnitGrpc timeUnit = 4;
+}
+
+enum HolderResultStatusGrpc {
+  RETRIEVED =0;
+  EXPIRED = 1;
+  CANCELLED = 2;
+  AWAITED = 3;
+  NOTFOUND = 4;
+}
+
+enum TimeUnitGrpc {
+  MILLISECONDS = 0;
+  SECONDS = 1;
+  MINUTES = 2;
+  HOURS = 3;
+}
+
+message BucketRateLimiterNew {
+  string name = 1;
+  uint64 totalTokens = 2;
+  bool greedy = 3;
+  uint64 timeRefill = 4;
+  optional TimeUnitGrpc timeUnit = 5;
+}
+
+message NameTokensConsume {
+  string name = 1;
+  uint64 tokens = 2;
+}
+
+message NameTokensConsumeWithTimeOut {
+  string name = 1;
+  uint64 tokens = 2;
+  uint64 timeOut = 3;
+  optional TimeUnitGrpc timeUnit = 4;
+}
+
+message ThrottlingRateLimiterNew {
+  string name = 1;
+  uint64 timeToLimit = 2;
+  optional TimeUnitGrpc timeUnit = 3;
+}
+
