@@ -17,7 +17,6 @@ import org.obapanel.lockfactoryserver.server.service.lock.LockServiceSynchronize
 import org.obapanel.lockfactoryserver.server.service.management.ManagementService;
 import org.obapanel.lockfactoryserver.server.service.management.ManagementServiceSynchronized;
 import org.obapanel.lockfactoryserver.server.service.rateLimiter.BucketRateLimiterService;
-import org.obapanel.lockfactoryserver.server.service.rateLimiter.ThrottlingRateLimiterService;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreServiceSynchronized;
 import org.obapanel.lockfactoryserver.server.utils.UnmodificableEnumMap;
@@ -172,11 +171,6 @@ public class LockFactoryServer implements AutoCloseable {
             LOGGER.debug("createServices bucketRateLimiter");
             BucketRateLimiterService bucketRateLimiterService = new BucketRateLimiterService(configuration);
             services.put(Services.BUCKET_RATE_LIMITER, bucketRateLimiterService);
-        }
-        if (configuration.isThrottlingRateLimiterEnabled()) {
-            LOGGER.debug("createServices throttlingRateLimiter");
-            ThrottlingRateLimiterService throttlingRateLimiterService = new ThrottlingRateLimiterService(configuration);
-            services.put(Services.THROTTLING_RATE_LIMITER, throttlingRateLimiterService);
         }
     }
 

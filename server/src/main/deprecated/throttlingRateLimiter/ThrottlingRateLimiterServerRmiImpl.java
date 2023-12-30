@@ -1,7 +1,5 @@
 package org.obapanel.lockfactoryserver.server.connections.rmi;
 
-import org.obapanel.lockfactoryserver.core.rmi.ThrottlingRateLimiterServerRmi;
-import org.obapanel.lockfactoryserver.server.service.rateLimiter.ThrottlingRateLimiterService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

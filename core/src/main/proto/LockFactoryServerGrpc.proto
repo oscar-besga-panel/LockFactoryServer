@@ -253,33 +253,6 @@ service BucketRateLimiter {
 
 }
 
-/**
- * Service that makes a throttling rate limiter available and many request can try to pass
- */
-service ThrottlingRateLimiter {
-
-  /*
-   * Creates a new rate limiter
-   */
-  rpc newRateLimiter(ThrottlingRateLimiterNew) returns (google.protobuf.Empty) {};
-
-  /*
-   * Returns the time between request in milliseconds, returns -1 if limiter don't exist.
-   */
-  rpc getTimeToLimitMillis(google.protobuf.StringValue) returns (google.protobuf.Int64Value) {};
-
-  /*
-   * Checks if request is allowed (Also, if it don't exist, false will be returned)
-   */
-  rpc allow(google.protobuf.StringValue) returns (google.protobuf.BoolValue) {};
-
-  /*
-   * Closes the limiter, nothing happens if it doesn't exist
-   */
-  rpc remove(google.protobuf.StringValue) returns (google.protobuf.Empty) {};
-
-}
-
 message NameTokenValues {
   string name = 1;
   string token = 2;
@@ -381,11 +354,5 @@ message NameTokensConsumeWithTimeOut {
   uint64 tokens = 2;
   uint64 timeOut = 3;
   optional TimeUnitGrpc timeUnit = 4;
-}
-
-message ThrottlingRateLimiterNew {
-  string name = 1;
-  uint64 timeToLimit = 2;
-  optional TimeUnitGrpc timeUnit = 3;
 }
 

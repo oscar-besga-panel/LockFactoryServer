@@ -6,7 +6,6 @@ import com.google.protobuf.StringValue;
 import io.grpc.stub.StreamObserver;
 import org.obapanel.lockfactoryserver.core.grpc.ThrottlingRateLimiterGrpc;
 import org.obapanel.lockfactoryserver.core.grpc.ThrottlingRateLimiterNew;
-import org.obapanel.lockfactoryserver.server.service.rateLimiter.ThrottlingRateLimiterService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

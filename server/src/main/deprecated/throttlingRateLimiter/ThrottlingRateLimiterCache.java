@@ -2,7 +2,6 @@ package org.obapanel.lockfactoryserver.server.service.rateLimiter;
 
 
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
-import org.obapanel.lockfactoryserver.server.primitives.rateLimiter.ThrottlingRateLimiter;
 import org.obapanel.lockfactoryserver.server.utils.primitivesCache.PrimitivesCache;
 
 import java.util.concurrent.TimeUnit;

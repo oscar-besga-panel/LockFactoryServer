@@ -17,7 +17,6 @@ import org.obapanel.lockfactoryserver.server.service.lock.LockServiceSynchronize
 import org.obapanel.lockfactoryserver.server.service.management.ManagementService;
 import org.obapanel.lockfactoryserver.server.service.management.ManagementServiceSynchronized;
 import org.obapanel.lockfactoryserver.server.service.rateLimiter.BucketRateLimiterService;
-import org.obapanel.lockfactoryserver.server.service.rateLimiter.ThrottlingRateLimiterService;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreServiceSynchronized;
 import org.obapanel.lockfactoryserver.server.utils.UnmodificableEnumMap;

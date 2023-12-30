@@ -1,7 +1,6 @@
 package org.obapanel.lockfactoryserver.server.service.rateLimiter;
 
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
-import org.obapanel.lockfactoryserver.server.primitives.rateLimiter.ThrottlingRateLimiter;
 import org.obapanel.lockfactoryserver.server.service.LockFactoryServices;
 import org.obapanel.lockfactoryserver.server.service.Services;
 import org.slf4j.Logger;

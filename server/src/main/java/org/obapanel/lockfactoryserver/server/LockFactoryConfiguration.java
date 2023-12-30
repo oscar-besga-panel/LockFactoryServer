@@ -29,7 +29,6 @@ public class LockFactoryConfiguration {
     public static final String HOLDER_ENABLED = "holderEnabled";
     public static final String HOLDER_MAXIMUM_SIZE = "holderMaximumSize";
     public static final String BUCKET_RATE_LIMITER_ENABLED = "bucketRateLimiterEnabled";
-    public static final String THROTTLING_RATE_LIMITER_ENABLED = "throttlingRateLimiterEnabled";
 
     public static final String CACHE_CHECK_DATA_PERIOD_SECONDS = "cacheCheckDataPeriodSeconds";
     public static final String CACHE_TIME_TO_LIVE_SECONDS = "cacheTimeToLiveSeconds";
@@ -186,7 +185,4 @@ public class LockFactoryConfiguration {
         return Long.parseLong(properties.getProperty(HOLDER_MAXIMUM_SIZE, DEFAULT_HOLDER_MAXIMUM_SIZE));
     }
 
-    public boolean isThrottlingRateLimiterEnabled() {
-        return Boolean.parseBoolean(properties.getProperty(THROTTLING_RATE_LIMITER_ENABLED, DEFAULT_THROTTLING_RATE_LIMITER_ENABLED));
-    }
 }
