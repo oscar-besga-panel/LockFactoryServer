@@ -247,6 +247,11 @@ service BucketRateLimiter {
   rpc consume(NameTokensConsume) returns (google.protobuf.Empty) {};
 
   /*
+   * Get the number of tokens to consume, waiting until there are available, responding asynchronoously
+  */
+  rpc asyncConsume(NameTokensConsume) returns (google.protobuf.Empty) {};
+
+  /*
    * Closes the limiter, nothing happens if it doesn't exist
    */
   rpc remove(google.protobuf.StringValue) returns (google.protobuf.Empty) {};

@@ -48,6 +48,17 @@ public class BucketRateLimiterServerRestImpl {
         return Boolean.toString(result);
     }
 
+    public String tryConsumeWithTimeOut(String prefix, List<String> parameters, HttpRequest request) {
+        String name = parameters.get(0);
+        long tokens = Long.parseLong(parameters.get(1));
+        long timeOut = Long.parseLong(parameters.get(2));
+        TimeUnit timeUnit = TimeUnit.valueOf(parameters.get(3).toUpperCase());
+        LOGGER.info("rest server> tryConsumeWithTimeOut name {} tokens {} timeOut {} timeUnit {}",
+                name, tokens, timeOut, timeUnit);
+        boolean result = bucketRateLimiterService.tryConsumeWithTimeOut(name, tokens,timeOut, timeUnit);
+        return Boolean.toString(result);
+    }
+
     public String consume(String prefix, List<String> parameters, HttpRequest request) {
         String name = parameters.get(0);
         long tokens = Long.parseLong(parameters.get(1));

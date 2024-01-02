@@ -1,6 +1,7 @@
 package org.obapanel.lockfactoryserver.core.rmi;
 
 import java.rmi.Remote;
+import java.rmi.RemoteException;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -28,7 +29,7 @@ public interface BucketRateLimiterServerRmi extends Remote {
      * @param timeRefill Time to refill tokens
      * @param timeUnit Unit of the time
      */
-    void newRateLimiter(String name, long totalTokens, boolean greedy, long timeRefill, TimeUnit timeUnit);
+    void newRateLimiter(String name, long totalTokens, boolean greedy, long timeRefill, TimeUnit timeUnit) throws RemoteException;
 
     /**
      * Get the actual available tokens
@@ -36,7 +37,7 @@ public interface BucketRateLimiterServerRmi extends Remote {
      * @param name Name of the rate limiter
      * @return numer of tokens, -1 if not exists
      */
-    long getAvailableTokens(String name);
+    long getAvailableTokens(String name) throws RemoteException;
 
     /**
      * Tries to get the numbered tokens
@@ -44,7 +45,7 @@ public interface BucketRateLimiterServerRmi extends Remote {
      * @param tokens Number of tokens to consuke
      * @return true if tokens were consumed, false otherwise
      */
-    boolean tryConsume(String name, long tokens);
+    boolean tryConsume(String name, long tokens) throws RemoteException;
 
     /**
      * Tries to get the numbered tokens within the given time
@@ -54,20 +55,20 @@ public interface BucketRateLimiterServerRmi extends Remote {
      * @param timeUnit unit of the time
      * @return true if tokens were consumed, false otherwise
      */
-    boolean tryConsumeWithTimeOut(String name, long tokens, long timeOut, TimeUnit timeUnit);
+    boolean tryConsumeWithTimeOut(String name, long tokens, long timeOut, TimeUnit timeUnit) throws RemoteException;
 
     /**
      * Get the number of tokens to consume, waiting until there are available
      * @param name Name of the bucket
      * @param tokens Number of tokens to consuke
      */
-    void consume(String name, long tokens);
+    void consume(String name, long tokens) throws RemoteException;
 
     /**
      * Removes a rate limiter
      * If not exits nothing happens
      * @param name Name of the rate limiter
      */
-    void remove(String name);
+    void remove(String name) throws RemoteException;
 
 }

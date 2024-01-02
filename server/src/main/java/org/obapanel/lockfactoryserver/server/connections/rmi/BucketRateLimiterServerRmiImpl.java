@@ -5,6 +5,7 @@ import org.obapanel.lockfactoryserver.server.service.rateLimiter.BucketRateLimit
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.rmi.RemoteException;
 import java.util.concurrent.TimeUnit;
 
 public class BucketRateLimiterServerRmiImpl implements BucketRateLimiterServerRmi {
@@ -20,39 +21,39 @@ public class BucketRateLimiterServerRmiImpl implements BucketRateLimiterServerRm
 
 
     @Override
-    public void newRateLimiter(String name, long totalTokens, boolean greedy, long timeRefill, TimeUnit timeUnit) {
+    public void newRateLimiter(String name, long totalTokens, boolean greedy, long timeRefill, TimeUnit timeUnit) throws RemoteException {
         LOGGER.info("rmi  server> newRateLimiter name {} totalTokens {} greedy {} timeRefill {} timeUnit {}",
                 name, totalTokens, greedy, timeRefill, timeUnit);
         bucketRateLimiterService.newRateLimiter(name, totalTokens, greedy, timeRefill, timeUnit);
     }
 
     @Override
-    public long getAvailableTokens(String name) {
+    public long getAvailableTokens(String name) throws RemoteException {
         LOGGER.info("rmi  server> getAvailableTokens name {}", name);
         return bucketRateLimiterService.getAvailableTokens(name);
     }
 
     @Override
-    public boolean tryConsume(String name, long tokens) {
+    public boolean tryConsume(String name, long tokens) throws RemoteException {
         LOGGER.info("rmi  server> tryConsume name {} tokens {}", name, tokens);
         return bucketRateLimiterService.tryConsume(name, tokens);
     }
 
     @Override
-    public boolean tryConsumeWithTimeOut(String name, long tokens, long timeOut, TimeUnit timeUnit) {
+    public boolean tryConsumeWithTimeOut(String name, long tokens, long timeOut, TimeUnit timeUnit) throws RemoteException {
         LOGGER.info("rmi  server> tryConsumeWithTimeOut name {} tokens {} timeOut {} timeUnit {}",
                 name, tokens, timeOut, timeUnit);
         return bucketRateLimiterService.tryConsumeWithTimeOut(name,tokens, timeOut, timeUnit);
     }
 
     @Override
-    public void consume(String name, long tokens) {
+    public void consume(String name, long tokens) throws RemoteException {
         LOGGER.info("rmi  server> consume name {}", name);
         bucketRateLimiterService.consume(name, tokens);
     }
 
     @Override
-    public void remove(String name) {
+    public void remove(String name) throws RemoteException {
         LOGGER.info("rmi  server> remove name {}", name);
         bucketRateLimiterService.remove(name);
     }
