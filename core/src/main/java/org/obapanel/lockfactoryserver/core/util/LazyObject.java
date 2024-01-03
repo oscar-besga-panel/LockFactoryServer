@@ -30,4 +30,8 @@ public abstract class LazyObject<T> {
 
     protected abstract T initialize();
 
+    public synchronized final boolean isInitialized() {
+        return object != NO_INIT;
+    }
+
 }

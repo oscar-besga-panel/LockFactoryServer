@@ -19,7 +19,6 @@ abstract class AbstractClientGrpc<M extends AbstractBlockingStub, N extends Abst
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractClientGrpc.class);
 
-
     private boolean managedChannlePrivate = false;
     private final ManagedChannel managedChannel;
     private final M blockingStub;
@@ -60,7 +59,7 @@ abstract class AbstractClientGrpc<M extends AbstractBlockingStub, N extends Abst
 
     N getAsyncStub() {
         if (asyncStub == null) {
-            throw new UnsupportedOperationException("asyn stub not supported");
+            throw new UnsupportedOperationException("async stub not supported");
         } else {
             return asyncStub;
         }
@@ -96,9 +95,11 @@ abstract class AbstractClientGrpc<M extends AbstractBlockingStub, N extends Abst
         }
 
         public void close() {
-            ExecutorService executorService = get();
-            executorService.shutdown();
-            executorService.shutdownNow();
+            if (isInitialized()) {
+                ExecutorService executorService = get();
+                executorService.shutdown();
+                executorService.shutdownNow();
+            }
         }
 
     }
