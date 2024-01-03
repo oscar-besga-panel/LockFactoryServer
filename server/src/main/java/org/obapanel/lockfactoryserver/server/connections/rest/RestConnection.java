@@ -133,8 +133,13 @@ public class RestConnection implements LockFactoryConnection {
         BucketRateLimiterServerRestImpl bucketRateLimiterServerRest = new BucketRateLimiterServerRestImpl(bucketRateLimiterService);
         for(String prefix: Arrays.asList("/bucketRateLimiter", "/bucketratelimiter", "/rateLimiter", "/ratelimiter")) {
             addPlainTextHandlerWithPrefix(builder, prefix + "/newRateLimiter", bucketRateLimiterServerRest::newRateLimiter);
+            addPlainTextHandlerWithPrefix(builder, prefix + "/newratelimiter", bucketRateLimiterServerRest::newRateLimiter);
             addPlainTextHandlerWithPrefix(builder, prefix + "/getAvailableTokens", bucketRateLimiterServerRest::getAvailableTokens);
+            addPlainTextHandlerWithPrefix(builder, prefix + "/getavailabletokens", bucketRateLimiterServerRest::getAvailableTokens);
             addPlainTextHandlerWithPrefix(builder, prefix + "/tryConsume", bucketRateLimiterServerRest::tryConsume);
+            addPlainTextHandlerWithPrefix(builder, prefix + "/tryconsume", bucketRateLimiterServerRest::tryConsume);
+            addPlainTextHandlerWithPrefix(builder, prefix + "/tryConsumeWithTimeOut", bucketRateLimiterServerRest::tryConsumeWithTimeOut);
+            addPlainTextHandlerWithPrefix(builder, prefix + "/tryconsumewithtimeOut", bucketRateLimiterServerRest::tryConsumeWithTimeOut);
             addPlainTextHandlerWithPrefix(builder, prefix + "/consume", bucketRateLimiterServerRest::consume);
             addPlainTextHandlerWithPrefix(builder, prefix + "/remove", bucketRateLimiterServerRest::remove);
         }

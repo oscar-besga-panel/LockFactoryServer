@@ -94,6 +94,7 @@ public class HolderClientGrpcTest {
         listenableFutures.forEach(FakeListenableFuture::close);
         mockedStaticHolderServerGrpc.close();
         executorService.shutdown();
+        executorService.shutdownNow();
     }
 
     @Test
