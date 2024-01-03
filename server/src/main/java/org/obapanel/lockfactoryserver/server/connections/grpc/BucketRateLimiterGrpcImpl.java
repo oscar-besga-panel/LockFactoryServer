@@ -13,8 +13,6 @@ import org.obapanel.lockfactoryserver.server.service.rateLimiter.BucketRateLimit
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static org.obapanel.lockfactoryserver.core.util.TimeUnitConverter.fromGrpcToJava;
@@ -23,11 +21,9 @@ public class BucketRateLimiterGrpcImpl extends BucketRateLimiterGrpc.BucketRateL
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BucketRateLimiterGrpcImpl.class);
 
-    private ExecutorService asyncBucketRateLimiterService = Executors.newSingleThreadExecutor();
-
     private final BucketRateLimiterService bucketRateLimiterService;
 
-    public BucketRateLimiterGrpcImpl(BucketRateLimiterService bucketRateLimiterService){
+    public BucketRateLimiterGrpcImpl(BucketRateLimiterService bucketRateLimiterService) {
         this.bucketRateLimiterService = bucketRateLimiterService;
     }
 
@@ -78,10 +74,8 @@ public class BucketRateLimiterGrpcImpl extends BucketRateLimiterGrpc.BucketRateL
 
     @Override
     public void asyncConsume(NameTokensConsume request, StreamObserver<Empty> responseObserver) {
-        asyncBucketRateLimiterService.submit(() -> {
-            LOGGER.info("grpc server> asyncConsume name {} tokens {}", request.getName(), request.getTokens());
-            consume(request, responseObserver);
-        });
+        LOGGER.info("grpc server> asyncConsume name {} tokens {}", request.getName(), request.getTokens());
+        consume(request, responseObserver);
     }
 
     @Override

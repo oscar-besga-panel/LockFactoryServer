@@ -20,7 +20,6 @@ import static org.obapanel.lockfactoryserver.core.util.TimeUnitConverter.fromGrp
 
 public class CountDownLatchServerGrpcImpl extends CountDownLatchServerGrpc.CountDownLatchServerImplBase {
 
-
     private static final Logger LOGGER = LoggerFactory.getLogger(CountDownLatchServerGrpcImpl.class);
 
     private final CountDownLatchService countDownLatchService;

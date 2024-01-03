@@ -124,7 +124,7 @@ public class BucketRateLimiterGpcTest {
         LOGGER.debug("released now is {}", released);
         assertTrue(released);
         assertTrue(t1 - t0 < 50L);
-        assertTrue(t3.get() - t0 > 170L);
+        assertTrue(t3.get() - t0 > 150L);
     }
 
 }

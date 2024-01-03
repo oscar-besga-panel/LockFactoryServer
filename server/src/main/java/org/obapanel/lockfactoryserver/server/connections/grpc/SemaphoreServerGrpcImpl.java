@@ -13,8 +13,6 @@ import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static org.obapanel.lockfactoryserver.core.util.TimeUnitConverter.fromGrpcToJava;
@@ -28,7 +26,6 @@ public class SemaphoreServerGrpcImpl extends SemaphoreServerGrpc.SemaphoreServer
 
     private final SemaphoreService semaphoreService;
 
-    private ExecutorService asyncSemaphoreService = Executors.newSingleThreadExecutor();
 
     public SemaphoreServerGrpcImpl(SemaphoreService semaphoreService) {
         this.semaphoreService = semaphoreService;
@@ -55,10 +52,8 @@ public class SemaphoreServerGrpcImpl extends SemaphoreServerGrpc.SemaphoreServer
 
     @Override
     public void asyncAcquire(NamePermits request, StreamObserver<Empty> responseObserver) {
-        asyncSemaphoreService.submit(() -> {
-            LOGGER.info("grpc server> asyncAcquire name {} permits {}", request.getName(), request.getPermits());
-            acquire(request, responseObserver);
-        });
+        LOGGER.info("grpc server> asyncAcquire name {} permits {}", request.getName(), request.getPermits());
+        acquire(request, responseObserver);
     }
 
     @Override
