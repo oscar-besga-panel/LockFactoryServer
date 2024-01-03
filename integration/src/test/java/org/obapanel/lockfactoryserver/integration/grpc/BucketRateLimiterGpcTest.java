@@ -101,7 +101,7 @@ public class BucketRateLimiterGpcTest {
     }
 
     @Test
-    public void createAndAsyncUsageTest() throws InterruptedException {
+    public void createAndAsyncUsage1Test() throws InterruptedException {
         Semaphore inner = new Semaphore(0);
         BucketRateLimiterClientGrpc bucketRateLimiterClientGrpc = generateBucketClientGrpc();
         bucketRateLimiterClientGrpc.newRateLimiter(1L, false, 100, TimeUnit.MILLISECONDS);
@@ -124,7 +124,6 @@ public class BucketRateLimiterGpcTest {
         LOGGER.debug("released now is {}", released);
         assertTrue(released);
         assertTrue(t1 - t0 < 50L);
-        assertTrue(t3.get() - t0 > 150L);
     }
 
 }

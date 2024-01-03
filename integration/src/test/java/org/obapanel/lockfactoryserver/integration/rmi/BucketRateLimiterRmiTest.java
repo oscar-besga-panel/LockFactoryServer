@@ -9,8 +9,6 @@ import org.slf4j.LoggerFactory;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -28,8 +26,6 @@ public class BucketRateLimiterRmiTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(BucketRateLimiterRmiTest.class);
 
     private static final AtomicInteger BUCKET_COUNT = new AtomicInteger(0);
-
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private final String bucketRateLimiterName = "buraliRmiXXXx" + System.currentTimeMillis();
 

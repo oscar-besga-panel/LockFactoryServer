@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -156,6 +157,7 @@ public class BucketRateLimiterClientGrpcTest {
         boolean released = inner.tryAcquire(2, 1000, TimeUnit.MILLISECONDS);
         verify(futureStub).asyncConsume(captor.capture());
         assertEquals(name, captor.getValue().getName());
+        assertTrue(released);
         assertEquals(tokens, captor.getValue().getTokens());
     }
 
