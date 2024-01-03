@@ -17,7 +17,8 @@ public enum Services {
     SEMAPHORE(SemaphoreService.class),
     COUNTDOWNLATCH(CountDownLatchService.class),
     HOLDER(HolderService.class),
-    BUCKET_RATE_LIMITER(BucketRateLimiterService.class);
+    BUCKET_RATE_LIMITER(BucketRateLimiterService.class),
+    THROTTLING_RATE_LIMITER(ThrottlingRateLimiterService.class);
 
     private final Class<? extends LockFactoryServices> serviceClass;
 

@@ -97,6 +97,8 @@ public class SemaphoreClientGrpcTest {
     public void tearsDown() {
         listenableFutures.forEach(FakeListenableFuture::close);
         mockedStaticSemaphoreServerGrpc.close();
+        executorService.shutdown();
+        executorService.shutdownNow();
     }
 
     int semaphoreInit() {
@@ -197,7 +199,6 @@ public class SemaphoreClientGrpcTest {
         verify(stub).tryAcquireWithTimeOut(any(NamePermitsWithTimeout.class));
     }
 
-
     @Test
     public void releaseTest() {
         int origin = semaphoreInit();
@@ -206,6 +207,5 @@ public class SemaphoreClientGrpcTest {
         assertEquals(origin + 2, semaphoreClientGrpc.currentPermits());
         verify(stub).release(any(NamePermits.class));
     }
-
 
 }

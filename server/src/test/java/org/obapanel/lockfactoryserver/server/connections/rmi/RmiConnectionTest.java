@@ -61,7 +61,7 @@ public class RmiConnectionTest {
         try (MockedStatic<LocateRegistry> mockedStatic = Mockito.mockStatic(LocateRegistry.class)) {
             mockedStatic.when(() -> LocateRegistry.createRegistry(anyInt())).thenReturn(rmiRegistry);
             rmiConnection.activate(configuration, mapOfMockServices());
-            verify(rmiRegistry, times(5)).rebind(anyString(), any());
+            verify(rmiRegistry, times(6)).rebind(anyString(), any());
         }
     }
 
