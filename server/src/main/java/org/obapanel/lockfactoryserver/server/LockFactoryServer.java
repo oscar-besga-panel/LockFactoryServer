@@ -9,16 +9,11 @@ import org.obapanel.lockfactoryserver.server.connections.rmi.RmiConnection;
 import org.obapanel.lockfactoryserver.server.service.LockFactoryServices;
 import org.obapanel.lockfactoryserver.server.service.Services;
 import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchService;
-import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchServiceSynchronized;
 import org.obapanel.lockfactoryserver.server.service.holder.HolderService;
-import org.obapanel.lockfactoryserver.server.service.holder.HolderServiceSynchronized;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
-import org.obapanel.lockfactoryserver.server.service.lock.LockServiceSynchronized;
 import org.obapanel.lockfactoryserver.server.service.management.ManagementService;
-import org.obapanel.lockfactoryserver.server.service.management.ManagementServiceSynchronized;
 import org.obapanel.lockfactoryserver.server.service.rateLimiter.BucketRateLimiterService;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
-import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreServiceSynchronized;
 import org.obapanel.lockfactoryserver.server.utils.UnmodificableEnumMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,50 +93,6 @@ public class LockFactoryServer implements AutoCloseable {
      */
     final void createServices() {
         LOGGER.debug("createServices");
-        if (configuration.isSynchronizedServices()) {
-            createSynchronizedServices();
-        } else {
-            createNormalServices();
-        }
-    }
-
-    final void createSynchronizedServices() {
-        LOGGER.debug("createOrderedSingleThreadServices");
-        if (configuration.isManagementEnabled()) {
-            LOGGER.debug("createServices management");
-            ManagementService managementService = new ManagementServiceSynchronized(configuration, this);
-            services.put(Services.MANAGEMENT, managementService);
-        }
-        if (configuration.isLockEnabled()) {
-            LOGGER.debug("createServices lock");
-            LockService lockService = new LockServiceSynchronized(configuration);
-            services.put(Services.LOCK, lockService);
-        }
-        if (configuration.isSemaphoreEnabled()) {
-            LOGGER.debug("createServices semaphore");
-            SemaphoreService semaphoreService = new SemaphoreServiceSynchronized(configuration);
-            services.put(Services.SEMAPHORE, semaphoreService);
-        }
-        if (configuration.isCountDownLatchEnabled()) {
-            LOGGER.debug("createServices countdownlatch");
-            CountDownLatchService countDownLatchService = new CountDownLatchServiceSynchronized(configuration);
-            services.put(Services.COUNTDOWNLATCH, countDownLatchService);
-        }
-        if (configuration.isHolderEnabled()) {
-            LOGGER.debug("createServices holder");
-            HolderService holderService = new HolderServiceSynchronized(configuration);
-            services.put(Services.HOLDER, holderService);
-        }
-        if (configuration.isBucketRateLimiterEnabled()) {
-            LOGGER.debug("createServices rateLimiterBucket");
-            BucketRateLimiterService bucketRateLimiterService = new BucketRateLimiterService(configuration);
-            services.put(Services.BUCKET_RATE_LIMITER, bucketRateLimiterService);
-        }
-
-    }
-
-    final void createNormalServices() {
-        LOGGER.debug("createNormalServices");
         if (configuration.isManagementEnabled()) {
             LOGGER.debug("createServices management");
             ManagementService managementService = new ManagementService(this);
