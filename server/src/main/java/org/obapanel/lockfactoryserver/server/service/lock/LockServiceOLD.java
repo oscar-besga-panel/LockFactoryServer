@@ -5,7 +5,6 @@ import org.obapanel.lockfactoryserver.core.LockStatus;
 import org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.primitives.lock.TokenLock;
-import org.obapanel.lockfactoryserver.server.service.LockFactoryServices;
 import org.obapanel.lockfactoryserver.server.service.Services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Service based on lock primitive
  */
-public class LockServiceOLD implements LockFactoryServices {
+public class LockServiceOLD implements LockService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LockServiceOLD.class);
 
@@ -95,6 +94,5 @@ public class LockServiceOLD implements LockFactoryServices {
         }
         return unlocked;
     }
-
 
 }
