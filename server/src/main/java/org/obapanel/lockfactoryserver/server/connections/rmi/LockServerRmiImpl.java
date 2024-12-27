@@ -29,7 +29,6 @@ public class LockServerRmiImpl implements LockServerRmi {
         return lockService.lock(name);
     }
 
-
     @Override
     public LockStatus lockStatus(String name, String token) {
         LOGGER.info("rmi  server> lockStatus {}",name);

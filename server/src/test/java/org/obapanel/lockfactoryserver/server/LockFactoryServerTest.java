@@ -15,7 +15,7 @@ import org.obapanel.lockfactoryserver.server.connections.rmi.RmiConnection;
 import org.obapanel.lockfactoryserver.server.service.LockFactoryServices;
 import org.obapanel.lockfactoryserver.server.service.Services;
 import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchService;
-import org.obapanel.lockfactoryserver.server.service.lock.LockService;
+import org.obapanel.lockfactoryserver.server.service.lock.LockServiceSynchronized;
 import org.obapanel.lockfactoryserver.server.service.management.ManagementService;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
 import org.slf4j.Logger;
@@ -23,7 +23,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.when;
 
@@ -37,7 +40,7 @@ public class LockFactoryServerTest {
     static MockedConstruction<GrpcConnection> grpcConnectionMocked;
     static MockedConstruction<RestConnection> restConnectionMocked;
     static MockedConstruction<ManagementService> managementServiceMocked;
-    static MockedConstruction<LockService> lockServiceMocked;
+    static MockedConstruction<LockServiceSynchronized> lockServiceMocked;
     static MockedConstruction<SemaphoreService> semaphoreServiceMocked;
     static MockedConstruction<CountDownLatchService> countDownLatchServiceMocked;
 
@@ -56,7 +59,7 @@ public class LockFactoryServerTest {
         managementServiceMocked = mockConstruction(ManagementService.class, (mock, context) -> {
             when(mock.getType()).thenReturn(Services.MANAGEMENT);
         });
-        lockServiceMocked = mockConstruction(LockService.class, (mock, context) -> {
+        lockServiceMocked = mockConstruction(LockServiceSynchronized.class, (mock, context) -> {
             when(mock.getType()).thenReturn(Services.LOCK);
         });
         semaphoreServiceMocked = mockConstruction(SemaphoreService.class, (mock, context) -> {

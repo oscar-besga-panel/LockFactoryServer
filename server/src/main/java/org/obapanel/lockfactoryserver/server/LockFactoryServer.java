@@ -11,6 +11,7 @@ import org.obapanel.lockfactoryserver.server.service.Services;
 import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchService;
 import org.obapanel.lockfactoryserver.server.service.holder.HolderService;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
+import org.obapanel.lockfactoryserver.server.service.lock.LockServiceSynchronized;
 import org.obapanel.lockfactoryserver.server.service.management.ManagementService;
 import org.obapanel.lockfactoryserver.server.service.rateLimiter.BucketRateLimiterService;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
@@ -100,7 +101,7 @@ public class LockFactoryServer implements AutoCloseable {
         }
         if (configuration.isLockEnabled()) {
             LOGGER.debug("createServices lock");
-            LockService lockService = new LockService(configuration);
+            LockService lockService = new LockServiceSynchronized(configuration);
             services.put(Services.LOCK, lockService);
         }
         if (configuration.isSemaphoreEnabled()) {
@@ -140,6 +141,14 @@ public class LockFactoryServer implements AutoCloseable {
      */
     public final LockFactoryServices getServices(Services service) {
         return services.get(service);
+    }
+
+    /**
+     * Return lock service
+     * @return lock service, null if not initialized
+     */
+    public final LockService getLockService() {
+        return (LockService) services.get(Services.LOCK);
     }
 
     /**
