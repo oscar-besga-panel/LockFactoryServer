@@ -9,12 +9,16 @@ import org.obapanel.lockfactoryserver.server.connections.rmi.RmiConnection;
 import org.obapanel.lockfactoryserver.server.service.LockFactoryServices;
 import org.obapanel.lockfactoryserver.server.service.Services;
 import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchService;
+import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchServiceBase;
 import org.obapanel.lockfactoryserver.server.service.holder.HolderService;
+import org.obapanel.lockfactoryserver.server.service.holder.HolderServiceBase;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
 import org.obapanel.lockfactoryserver.server.service.lock.LockServiceSynchronized;
 import org.obapanel.lockfactoryserver.server.service.management.ManagementService;
 import org.obapanel.lockfactoryserver.server.service.rateLimiter.BucketRateLimiterService;
+import org.obapanel.lockfactoryserver.server.service.rateLimiter.BucketRateLimiterServiceBase;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
+import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreServiceBase;
 import org.obapanel.lockfactoryserver.server.utils.UnmodificableEnumMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,22 +110,22 @@ public class LockFactoryServer implements AutoCloseable {
         }
         if (configuration.isSemaphoreEnabled()) {
             LOGGER.debug("createServices semaphore");
-            SemaphoreService semaphoreService = new SemaphoreService(configuration);
+            SemaphoreService semaphoreService = new SemaphoreServiceBase(configuration);
             services.put(Services.SEMAPHORE, semaphoreService);
         }
         if (configuration.isCountDownLatchEnabled()) {
             LOGGER.debug("createServices countdownlatch");
-            CountDownLatchService countDownLatchService = new CountDownLatchService(configuration);
+            CountDownLatchService countDownLatchService = new CountDownLatchServiceBase(configuration);
             services.put(Services.COUNTDOWNLATCH, countDownLatchService);
         }
         if (configuration.isHolderEnabled()) {
             LOGGER.debug("createServices holder");
-            HolderService holderService = new HolderService(configuration);
+            HolderService holderService = new HolderServiceBase(configuration);
             services.put(Services.HOLDER, holderService);
         }
         if (configuration.isBucketRateLimiterEnabled()) {
             LOGGER.debug("createServices bucketRateLimiter");
-            BucketRateLimiterService bucketRateLimiterService = new BucketRateLimiterService(configuration);
+            BucketRateLimiterService bucketRateLimiterService = new BucketRateLimiterServiceBase(configuration);
             services.put(Services.BUCKET_RATE_LIMITER, bucketRateLimiterService);
         }
     }
@@ -145,11 +149,46 @@ public class LockFactoryServer implements AutoCloseable {
 
     /**
      * Return lock service
-     * @return lock service, null if not initialized
+     * @return the service, null if not initialized
      */
     public final LockService getLockService() {
         return (LockService) services.get(Services.LOCK);
     }
+
+    /**
+     * Return semaphore service
+     * @return the service, null if not initialized
+     */
+    public final SemaphoreService getSemaphoreService() {
+        return (SemaphoreService) services.get(Services.SEMAPHORE);
+    }
+
+    /**
+     * Return countDownLatch service
+     * @return the service, null if not initialized
+     */
+    public final CountDownLatchService getCountDownLatchService() {
+        return (CountDownLatchService) services.get(Services.COUNTDOWNLATCH);
+    }
+
+    /**
+     * Return rateLimiter service
+     * @return the service, null if not initialized
+     */
+    public final BucketRateLimiterService getRateLimiterService() {
+        return (BucketRateLimiterService) services.get(Services.BUCKET_RATE_LIMITER);
+    }
+
+    /**
+     * Return holder service
+     * @return the service, null if not initialized
+     */
+    public final HolderService getHolderService() {
+        return (HolderService) services.get(Services.HOLDER);
+    }
+
+
+
 
     /**
      * Returns true if server is actually running
@@ -280,7 +319,7 @@ public class LockFactoryServer implements AutoCloseable {
                 LOGGER.info("Clear services");
                 services.clear();
                 synchronized (await) {
-                    await.notify();
+                    await.notifyAll();
                 }
                 LOGGER.info("Stopped services");
                 isRunningServer.set(false);

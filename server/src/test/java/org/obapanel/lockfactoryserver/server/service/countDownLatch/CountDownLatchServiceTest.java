@@ -34,7 +34,7 @@ public class CountDownLatchServiceTest {
     @Before
     public void setup() {
         LOGGER.debug("before setup");
-        countDownLatchService = new CountDownLatchService(new LockFactoryConfiguration());
+        countDownLatchService = new CountDownLatchServiceBase(new LockFactoryConfiguration());
         executorService = Executors.newSingleThreadExecutor();
     }
 
@@ -50,7 +50,7 @@ public class CountDownLatchServiceTest {
     public void getTypeTest() {
         Services services = countDownLatchService.getType();
         assertEquals(Services.COUNTDOWNLATCH, services);
-        assertEquals(Services.COUNTDOWNLATCH.getServiceClass(), countDownLatchService.getClass());
+        assertTrue(Services.COUNTDOWNLATCH.getServiceClass().isAssignableFrom(countDownLatchService.getClass()));
     }
 
     @Test

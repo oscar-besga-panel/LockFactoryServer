@@ -14,9 +14,9 @@ import java.util.concurrent.TimeUnit;
 /**
  * Service based on lock primitive
  */
-public class LockServiceOLD implements LockService {
+public class LockServiceBase implements LockService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LockServiceOLD.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LockServiceBase.class);
 
     private static final String EMPTY_TOKEN = "";
 
@@ -24,7 +24,7 @@ public class LockServiceOLD implements LockService {
 
     private final LockCache lockCache;
 
-    public LockServiceOLD(LockFactoryConfiguration configuration) {
+    public LockServiceBase(LockFactoryConfiguration configuration) {
         this.lockCache = new LockCache(configuration);
     }
 

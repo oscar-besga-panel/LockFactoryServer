@@ -1,8 +1,13 @@
 package org.obapanel.lockfactoryserver.server.service.semaphore.advanced;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
+import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreServiceBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +45,7 @@ public class SemaphoreServiceAdvancedTest {
     @Before
     public void setup() throws InterruptedException {
         LOGGER.debug("setup ini >>>");
-        semaphoreService = new SemaphoreService(new LockFactoryConfiguration());
+        semaphoreService = new SemaphoreServiceBase(new LockFactoryConfiguration());
         LOGGER.debug("setup fin <<<");
         Thread.sleep(250);
     }

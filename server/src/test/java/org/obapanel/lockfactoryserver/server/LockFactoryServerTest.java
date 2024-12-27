@@ -14,10 +14,10 @@ import org.obapanel.lockfactoryserver.server.connections.rest.RestConnection;
 import org.obapanel.lockfactoryserver.server.connections.rmi.RmiConnection;
 import org.obapanel.lockfactoryserver.server.service.LockFactoryServices;
 import org.obapanel.lockfactoryserver.server.service.Services;
-import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchService;
+import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchServiceBase;
 import org.obapanel.lockfactoryserver.server.service.lock.LockServiceSynchronized;
 import org.obapanel.lockfactoryserver.server.service.management.ManagementService;
-import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
+import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreServiceBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,8 +41,8 @@ public class LockFactoryServerTest {
     static MockedConstruction<RestConnection> restConnectionMocked;
     static MockedConstruction<ManagementService> managementServiceMocked;
     static MockedConstruction<LockServiceSynchronized> lockServiceMocked;
-    static MockedConstruction<SemaphoreService> semaphoreServiceMocked;
-    static MockedConstruction<CountDownLatchService> countDownLatchServiceMocked;
+    static MockedConstruction<SemaphoreServiceBase> semaphoreServiceMocked;
+    static MockedConstruction<CountDownLatchServiceBase> countDownLatchServiceMocked;
 
     @BeforeClass
     public static void setupAll() {
@@ -62,10 +62,10 @@ public class LockFactoryServerTest {
         lockServiceMocked = mockConstruction(LockServiceSynchronized.class, (mock, context) -> {
             when(mock.getType()).thenReturn(Services.LOCK);
         });
-        semaphoreServiceMocked = mockConstruction(SemaphoreService.class, (mock, context) -> {
+        semaphoreServiceMocked = mockConstruction(SemaphoreServiceBase.class, (mock, context) -> {
             when(mock.getType()).thenReturn(Services.SEMAPHORE);
         });
-        countDownLatchServiceMocked =  mockConstruction(CountDownLatchService.class, (mock, context) -> {
+        countDownLatchServiceMocked =  mockConstruction(CountDownLatchServiceBase.class, (mock, context) -> {
             when(mock.getType()).thenReturn(Services.COUNTDOWNLATCH);
         });
     }

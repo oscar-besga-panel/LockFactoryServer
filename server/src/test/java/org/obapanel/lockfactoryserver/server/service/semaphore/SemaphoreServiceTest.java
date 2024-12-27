@@ -21,7 +21,7 @@ public class SemaphoreServiceTest {
 
     @Before
     public void setup() {
-        semaphoreService = new SemaphoreService(new LockFactoryConfiguration());
+        semaphoreService = new SemaphoreServiceBase(new LockFactoryConfiguration());
         scheduledExecutorService = Executors.newScheduledThreadPool(1);
     }
 
@@ -35,7 +35,7 @@ public class SemaphoreServiceTest {
     public void getTypeTest() {
         Services services = semaphoreService.getType();
         assertEquals(Services.SEMAPHORE, services);
-        assertEquals(Services.SEMAPHORE.getServiceClass(), semaphoreService.getClass());
+        assertTrue(Services.SEMAPHORE.getServiceClass().isAssignableFrom(semaphoreService.getClass()));
     }
 
     @Test
