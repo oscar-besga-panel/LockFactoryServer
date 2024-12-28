@@ -7,7 +7,12 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.DelayQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
@@ -46,6 +51,8 @@ public abstract class PrimitivesCache<K> implements AutoCloseable {
     private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
     private final int cacheTimeToLiveSeconds;
 
+    private final ExecutorService removeListenerExecutor = Executors.newSingleThreadExecutor();
+    private final List<RemoveListener<K>> removeListenerList = new ArrayList<>();
 
 
     /**
@@ -239,6 +246,7 @@ public abstract class PrimitivesCache<K> implements AutoCloseable {
             LOGGER.debug("removeData to remove name {} data {}", name, primitive);
             dataMap.remove(name);
             delayQueue.remove(primitive);
+            notifyRemoveListenersBackground(name, primitive.getPrimitive());
         } else {
             LOGGER.warn("removeData nothing to remove with name {}", name);
         }
@@ -270,8 +278,11 @@ public abstract class PrimitivesCache<K> implements AutoCloseable {
         isRunning.set(false);
         dataMap.clear();
         delayQueue.clear();
+        removeListenerList.clear();
         scheduledExecutorService.shutdown();
         scheduledExecutorService.shutdownNow();
+        removeListenerExecutor.shutdown();
+        removeListenerExecutor.shutdownNow();
         if (checkDataContinuouslyThread != null) {
             checkDataContinuouslyThread.interrupt();
         }
@@ -366,6 +377,8 @@ public abstract class PrimitivesCache<K> implements AutoCloseable {
                 K result = dataMap.remove(delayedData.getName());
                 if (result == null) {
                     LOGGER.warn("removeEntryDataFromQueue delayedData mapName {} REMOVE {} NOT REMOVED", getMapName(), delayedData );
+                } else {
+                    notifyRemoveListenersBackground(delayedData.getName(), result);
                 }
             }
         }
@@ -409,5 +422,25 @@ public abstract class PrimitivesCache<K> implements AutoCloseable {
                 });
         LOGGER.debug("checkDataEquivalenceInMap fin mapName {}", getMapName());
     }
+
+    public void addRemoveListener(RemoveListener<K> listener) {
+        removeListenerList.add(listener);
+    }
+
+    public void removeRemoveListener(RemoveListener<K> listener) {
+        removeListenerList.remove(listener);
+    }
+
+    void notifyRemoveListenersBackground(String name, K data) {
+        LOGGER.debug("notifyRemoveListenersBackground mapName {} name {} data {}", getMapName(), name, data);
+        removeListenerExecutor.execute(() -> notifyRemoveListeners(name, data));
+    }
+
+    void notifyRemoveListeners(String name, K data) {
+        LOGGER.debug("notifyRemoveListeners mapName {} name {} data {}", getMapName(), name, data);
+        removeListenerList.forEach( listener -> listener.onRemove(name, data));
+    }
+
+
 
 }

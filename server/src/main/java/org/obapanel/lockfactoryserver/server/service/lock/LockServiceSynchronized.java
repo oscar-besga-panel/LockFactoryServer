@@ -3,54 +3,25 @@ package org.obapanel.lockfactoryserver.server.service.lock;
 import org.obapanel.lockfactoryserver.core.LockStatus;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.primitives.lock.TokenLock;
+import org.obapanel.lockfactoryserver.server.service.AbstractSynchronizedService;
 import org.obapanel.lockfactoryserver.server.service.Services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Supplier;
 
-public class LockServiceSynchronized implements LockService {
+public class LockServiceSynchronized extends AbstractSynchronizedService implements LockService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LockServiceSynchronized.class);
 
     public static final Services TYPE = LockService.TYPE;
 
     private final LockCache lockCache;
-    private final Lock serviceLock = new ReentrantLock(true);
-    private final Map<String, Condition> serviceNameWaitUnlock = new ConcurrentHashMap<>();
 
     public LockServiceSynchronized(LockFactoryConfiguration configuration) {
         this.lockCache = new LockCache(configuration);
-    }
-
-    void underServiceLockDo(Runnable action) {
-        try {
-            serviceLock.lockInterruptibly();
-            action.run();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException(e);
-        } finally {
-            serviceLock.unlock();
-        }
-    }
-
-    <K> K underServiceLockGet(Supplier<K> action) {
-        try {
-            serviceLock.lockInterruptibly();
-            return action.get();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException(e);
-        } finally {
-            serviceLock.unlock();
-        }
+        lockCache.addRemoveListener((name,k) -> removeCondition(name) );
     }
 
     public String lock(String name) {
@@ -64,7 +35,7 @@ public class LockServiceSynchronized implements LockService {
             String token = lock.tryLock();
             while (token == null || token.isEmpty()) {
                 //serviceWaitUnlock.await();
-                Condition c = serviceNameWaitUnlock.computeIfAbsent(name, k ->  serviceLock.newCondition());
+                Condition c = getOrCreateCondition(name);
                 c.await();
                 token = lock.tryLock();
             }
@@ -100,7 +71,7 @@ public class LockServiceSynchronized implements LockService {
             TokenLock lock = lockCache.getOrCreateData(name);
             String token = lock.tryLock();
             while ((token == null || token.isEmpty()) && System.currentTimeMillis() > limitTime) {
-                Condition c = serviceNameWaitUnlock.computeIfAbsent(name, k ->  serviceLock.newCondition());
+                Condition c = getOrCreateCondition(name);
                 c.await(limitTime - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
                 if (System.currentTimeMillis() > limitTime) {
                     token = lock.tryLock();
@@ -146,9 +117,10 @@ public class LockServiceSynchronized implements LockService {
         TokenLock lock = lockCache.getData(name);
         if (lock != null) {
             unlocked = lock.unlock(token);
-            Condition c = serviceNameWaitUnlock.get(name);
+            Condition c = getCondition(name);
             if (c != null) {
                 c.signal();
+                removeCondition(c, name);
             }
             LOGGER.debug("unlock done name {} token {} result {}", name, token, unlocked);
         } else {
