@@ -1,5 +1,7 @@
 package org.obapanel.lockfactoryserver.server.service;
 
+import org.obapanel.lockfactoryserver.server.utils.primitivesCache.PrimitivesCache;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Condition;
@@ -10,6 +12,10 @@ public abstract class AbstractSynchronizedService implements LockFactoryServices
 
     private final ReentrantLock serviceLock = new ReentrantLock(true);
     private final Map<String, Condition> conditionMap = new ConcurrentHashMap<>();
+
+    protected void addLocalRemoveListenerToCache(PrimitivesCache<?> cache) {
+        cache.addRemoveListener((name, k) -> removeCondition(name));
+    }
 
     protected void underServiceLockDo(Runnable action) {
         try {

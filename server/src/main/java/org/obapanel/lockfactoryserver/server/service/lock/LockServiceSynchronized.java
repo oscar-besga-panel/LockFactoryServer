@@ -21,7 +21,7 @@ public class LockServiceSynchronized extends AbstractSynchronizedService impleme
 
     public LockServiceSynchronized(LockFactoryConfiguration configuration) {
         this.lockCache = new LockCache(configuration);
-        lockCache.addRemoveListener((name,k) -> removeCondition(name) );
+        addLocalRemoveListenerToCache(lockCache);
     }
 
     public String lock(String name) {

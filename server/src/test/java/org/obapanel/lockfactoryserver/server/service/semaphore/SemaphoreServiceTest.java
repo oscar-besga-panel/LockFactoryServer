@@ -21,7 +21,8 @@ public class SemaphoreServiceTest {
 
     @Before
     public void setup() {
-        semaphoreService = new SemaphoreServiceBase(new LockFactoryConfiguration());
+        //semaphoreService = new SemaphoreServiceBase(new LockFactoryConfiguration());
+        semaphoreService = new SemaphoreServiceSynchronized(new LockFactoryConfiguration());
         scheduledExecutorService = Executors.newScheduledThreadPool(1);
     }
 

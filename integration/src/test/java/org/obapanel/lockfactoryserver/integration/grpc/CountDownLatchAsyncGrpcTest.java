@@ -49,6 +49,7 @@ public class CountDownLatchAsyncGrpcTest {
     @After
     public void tearsDown() throws InterruptedException {
         executorService.shutdown();
+        executorService.shutdownNow();
     }
 
     CountDownLatchClientGrpc generateCountDownLatchClientGrpc() {

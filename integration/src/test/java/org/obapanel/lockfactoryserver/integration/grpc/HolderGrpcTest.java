@@ -48,6 +48,7 @@ public class HolderGrpcTest {
     @After
     public void tearsDown() throws InterruptedException {
         executorService.shutdown();
+        executorService.shutdownNow();
     }
 
     HolderClientGrpc generateHolderClientGrpc() {
