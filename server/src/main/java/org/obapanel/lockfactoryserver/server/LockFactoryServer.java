@@ -18,7 +18,7 @@ import org.obapanel.lockfactoryserver.server.service.management.ManagementServic
 import org.obapanel.lockfactoryserver.server.service.rateLimiter.BucketRateLimiterService;
 import org.obapanel.lockfactoryserver.server.service.rateLimiter.BucketRateLimiterServiceBase;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
-import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreServiceBase;
+import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreServiceSynchronized;
 import org.obapanel.lockfactoryserver.server.utils.UnmodificableEnumMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,7 +110,7 @@ public class LockFactoryServer implements AutoCloseable {
         }
         if (configuration.isSemaphoreEnabled()) {
             LOGGER.debug("createServices semaphore");
-            SemaphoreService semaphoreService = new SemaphoreServiceBase(configuration);
+            SemaphoreService semaphoreService = new SemaphoreServiceSynchronized(configuration);
             services.put(Services.SEMAPHORE, semaphoreService);
         }
         if (configuration.isCountDownLatchEnabled()) {

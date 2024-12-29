@@ -1,6 +1,8 @@
 package org.obapanel.lockfactoryserver.server.service;
 
 import org.obapanel.lockfactoryserver.server.utils.primitivesCache.PrimitivesCache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -9,6 +11,9 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 
 public abstract class AbstractSynchronizedService implements LockFactoryServices {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSynchronizedService.class);
+
 
     private final ReentrantLock serviceLock = new ReentrantLock(true);
     private final Map<String, Condition> conditionMap = new ConcurrentHashMap<>();
@@ -49,6 +54,15 @@ public abstract class AbstractSynchronizedService implements LockFactoryServices
         return conditionMap.get(name);
     }
 
+    protected void signalAndRemoveCondition(String name) {
+        Condition condition = conditionMap.get(name);
+        if (condition != null) {
+            LOGGER.debug("service> signalAndRemoveCondition name {}", name);
+            condition.signal();
+            removeCondition(condition, name);
+        }
+    }
+
     protected void removeCondition(String name) {
         Condition condition = conditionMap.get(name);
         if (condition != null) {
@@ -58,6 +72,7 @@ public abstract class AbstractSynchronizedService implements LockFactoryServices
 
     protected void removeCondition(Condition condition, String name) {
         if (condition != null && !serviceLock.hasWaiters(condition)) {
+            LOGGER.debug("service> removeCondition name {}", name);
             conditionMap.remove(name);
         }
     }

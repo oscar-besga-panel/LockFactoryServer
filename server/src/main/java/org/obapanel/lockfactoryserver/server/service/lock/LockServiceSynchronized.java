@@ -70,10 +70,10 @@ public class LockServiceSynchronized extends AbstractSynchronizedService impleme
             long limitTime = System.currentTimeMillis() + timeUnit.toMillis(timeOut);
             TokenLock lock = lockCache.getOrCreateData(name);
             String token = lock.tryLock();
-            while ((token == null || token.isEmpty()) && System.currentTimeMillis() > limitTime) {
-                Condition c = getOrCreateCondition(name);
-                c.await(limitTime - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
-                if (System.currentTimeMillis() > limitTime) {
+            while ((token == null || token.isEmpty()) && limitTime > System.currentTimeMillis()) {
+                Condition condition = getOrCreateCondition(name);
+                condition.await(limitTime - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
+                if (limitTime > System.currentTimeMillis()) {
                     token = lock.tryLock();
                 }
             }
@@ -117,11 +117,7 @@ public class LockServiceSynchronized extends AbstractSynchronizedService impleme
         TokenLock lock = lockCache.getData(name);
         if (lock != null) {
             unlocked = lock.unlock(token);
-            Condition c = getCondition(name);
-            if (c != null) {
-                c.signal();
-                removeCondition(c, name);
-            }
+            signalAndRemoveCondition(name);
             LOGGER.debug("unlock done name {} token {} result {}", name, token, unlocked);
         } else {
             LOGGER.debug("unlock invalid name {} token {}", name, token);

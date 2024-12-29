@@ -71,24 +71,38 @@ public class SemaphoreServiceSynchronized extends AbstractSynchronizedService im
         return semaphore.tryAcquire(permits);
     }
 
-    public boolean tryAcquireWithTimeOut(String name, int permits, long timeOut) {
-        return this.tryAcquireWithTimeOut(name, permits, timeOut, TimeUnit.MILLISECONDS);
+    public boolean tryAcquireWithTimeOut(String name, int permits, long timeOut, TimeUnit timeUnit) {
+        return underServiceLockGet(() -> this.executeTryAcquireWithTimeOut(name, permits, timeOut, timeUnit));
     }
 
-    public boolean tryAcquireWithTimeOut(String name, int permits, long timeOut, TimeUnit unit) {
+    private boolean executeTryAcquireWithTimeOut(String name, int permits, long timeOut, TimeUnit timeUnit) {
         try {
-            LOGGER.info("service> tryAcquireWithTimeOut name {} permits {} timeOut {} unit {}", name, permits, timeOut, unit);
+            LOGGER.info("service> tryAcquireWithTimeOut name {} permits {} timeOut {} unit {}", name, permits, timeOut, timeUnit);
+            long limitTime = System.currentTimeMillis() + timeUnit.toMillis(timeOut);
             Semaphore semaphore = semaphoreCache.getOrCreateData(name);
-            return semaphore.tryAcquire(permits, timeOut, unit);
+            boolean acquired = semaphore.tryAcquire(permits);
+            while(!acquired && limitTime > System.currentTimeMillis()) {
+                Condition condition = getOrCreateCondition(name);
+                condition.await(limitTime - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
+                if (limitTime > System.currentTimeMillis()) {
+                    acquired = semaphore.tryAcquire(permits);
+                }
+            }
+            return acquired;
         } catch (InterruptedException e) {
             throw RuntimeInterruptedException.getToThrowWhenInterrupted(e);
         }
     }
 
     public void release(String name, int permits) {
+        underServiceLockDo(() -> this.executeRelease(name, permits));
+    }
+
+    private void executeRelease(String name, int permits) {
         LOGGER.info("service> release name {} permits {}", name, permits);
         Semaphore semaphore = semaphoreCache.getOrCreateData(name);
         semaphore.release(permits);
+        signalAndRemoveCondition(name);
     }
 
 }
