@@ -30,6 +30,8 @@ public class LockFactoryConfiguration {
     public static final String HOLDER_MAXIMUM_SIZE = "holderMaximumSize";
     public static final String BUCKET_RATE_LIMITER_ENABLED = "bucketRateLimiterEnabled";
 
+    public static final String SYNCHRONIZED_ENABLED = "synchronizedEnabled";
+
     public static final String CACHE_CHECK_DATA_PERIOD_SECONDS = "cacheCheckDataPeriodSeconds";
     public static final String CACHE_TIME_TO_LIVE_SECONDS = "cacheTimeToLiveSeconds";
     public static final String CACHE_CHECK_CONTINUOUSLY = "cacheCheckContinuously";
@@ -51,6 +53,8 @@ public class LockFactoryConfiguration {
     public static final String DEFAULT_MANAGEMENT_ENABLED = TRUE;
     public static final String DEFAULT_HOLDER_ENABLED = TRUE;
     public static final String DEFAULT_BUCKET_RATE_LIMITER_ENABLED = TRUE;
+
+    public static final String DEFAULT_SYNCHRONIZED_ENABLED = TRUE;
 
     public static final String DEFAULT_HOLDER_MAXIMUM_SIZE = "1024";
 
@@ -170,6 +174,10 @@ public class LockFactoryConfiguration {
 
     public long getHolderMaximumSize() {
         return Long.parseLong(properties.getProperty(HOLDER_MAXIMUM_SIZE, DEFAULT_HOLDER_MAXIMUM_SIZE));
+    }
+
+    public boolean isSynchronizedEnabled() {
+        return Boolean.parseBoolean(properties.getProperty(SYNCHRONIZED_ENABLED, DEFAULT_SYNCHRONIZED_ENABLED));
     }
 
 }
