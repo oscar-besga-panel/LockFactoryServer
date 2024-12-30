@@ -1,5 +1,6 @@
 package org.obapanel.lockfactoryserver.server.service;
 
+import org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException;
 import org.obapanel.lockfactoryserver.server.utils.primitivesCache.PrimitivesCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,8 +40,7 @@ public abstract class AbstractSynchronizedService implements LockFactoryServices
             serviceLock.lockInterruptibly();
             return action.get();
         } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException(e);
+            throw RuntimeInterruptedException.getToThrowWhenInterrupted(e);
         } finally {
             serviceLock.unlock();
         }

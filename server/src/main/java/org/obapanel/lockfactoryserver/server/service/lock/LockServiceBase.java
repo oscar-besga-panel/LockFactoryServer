@@ -18,8 +18,6 @@ public class LockServiceBase implements LockService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LockServiceBase.class);
 
-    private static final String EMPTY_TOKEN = "";
-
     public static final Services TYPE = Services.LOCK;
 
     private final LockCache lockCache;
