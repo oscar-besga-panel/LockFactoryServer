@@ -7,6 +7,7 @@ import org.obapanel.lockfactoryserver.core.LockStatus;
 import org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
+import org.obapanel.lockfactoryserver.server.service.lock.LockServiceSynchronized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,9 +21,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.assertFalse;
 
-public class LockServiceAdvancedTest {
+public class LockServiceSynchronizedAdvancedTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LockServiceAdvancedTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LockServiceSynchronizedAdvancedTest.class);
 
     private final AtomicBoolean intoCriticalZone = new AtomicBoolean(false);
     private final AtomicBoolean errorInCriticalZone = new AtomicBoolean(false);
@@ -40,7 +41,7 @@ public class LockServiceAdvancedTest {
     @Before
     public void setup() throws InterruptedException {
         LOGGER.debug("setup ini >>>");
-        lockService = new LockService(new LockFactoryConfiguration());
+        lockService = new LockServiceSynchronized(new LockFactoryConfiguration());
         LOGGER.debug("setup fin <<<");
         Thread.sleep(250);
     }

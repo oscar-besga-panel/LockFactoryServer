@@ -53,7 +53,7 @@ public class LockAsyncGpcTest {
     @After
     public void tearsDown() throws InterruptedException {
         executorService.shutdown();
-        executorService.shutdown();
+        executorService.shutdownNow();
     }
 
     LockClientGrpc generateLockClientGrpc() {

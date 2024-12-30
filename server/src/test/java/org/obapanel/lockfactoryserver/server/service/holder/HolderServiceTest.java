@@ -34,7 +34,7 @@ public class HolderServiceTest {
     @Before
     public void setup() {
         LockFactoryConfiguration lockFactoryConfiguration = new LockFactoryConfiguration();
-        holderService = new HolderService(lockFactoryConfiguration);
+        holderService = new HolderServiceBase(lockFactoryConfiguration);
         executorService = Executors.newFixedThreadPool(3);
     }
 

@@ -9,11 +9,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.DelayQueue;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -48,6 +51,8 @@ public abstract class PrimitivesCache<K> implements AutoCloseable {
     private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
     private final int cacheTimeToLiveSeconds;
 
+    private final ExecutorService removeListenerExecutor = Executors.newSingleThreadExecutor();
+    private final List<RemoveListener<K>> removeListenerList = new ArrayList<>();
 
 
     /**
@@ -190,11 +195,30 @@ public abstract class PrimitivesCache<K> implements AutoCloseable {
         return dataMap.get(name);
     }
 
+
+    public synchronized void doWithData(String name, Consumer<K> action) {
+        K data = getOrCreateData(name);
+        if (data != null) {
+            action.accept(data);
+        }
+    }
+
+    public synchronized <V> V getWithData(String name, Function<K,V> action) {
+        K data = getOrCreateData(name);
+        if (data != null) {
+            return action.apply(data);
+        } else {
+            return null;
+        }
+    }
+
+
+
     /**
      * Remove data directly
      * @param name name of the primitive to expire
      */
-    public void removeDataIfNotAvoidable(String name) {
+    public synchronized void removeDataIfNotAvoidable(String name) {
         K primitive = dataMap.get(name);
         if (primitive != null) {
             if (avoidExpiration(name, primitive)) {
@@ -216,12 +240,13 @@ public abstract class PrimitivesCache<K> implements AutoCloseable {
      * Remove data directly
      * @param name name of the primitive to expire
      */
-    public void removeData(String name) {
+    public synchronized void removeData(String name) {
         PrimitivesCacheEntry<K> primitive = getQueueEntry(name);
         if (primitive != null) {
             LOGGER.debug("removeData to remove name {} data {}", name, primitive);
             dataMap.remove(name);
             delayQueue.remove(primitive);
+            notifyRemoveListenersBackground(name, primitive.getPrimitive());
         } else {
             LOGGER.warn("removeData nothing to remove with name {}", name);
         }
@@ -253,8 +278,11 @@ public abstract class PrimitivesCache<K> implements AutoCloseable {
         isRunning.set(false);
         dataMap.clear();
         delayQueue.clear();
+        removeListenerList.clear();
         scheduledExecutorService.shutdown();
         scheduledExecutorService.shutdownNow();
+        removeListenerExecutor.shutdown();
+        removeListenerExecutor.shutdownNow();
         if (checkDataContinuouslyThread != null) {
             checkDataContinuouslyThread.interrupt();
         }
@@ -338,7 +366,7 @@ public abstract class PrimitivesCache<K> implements AutoCloseable {
      *
      * @param delayedData data to be checked an removed
      */
-    void removeEntryDataFromQueue(PrimitivesCacheEntry<K> delayedData){
+    synchronized void removeEntryDataFromQueue(PrimitivesCacheEntry<K> delayedData){
         LOGGER.debug("removeEntryDataFromQueue mapName {} delayedData {}", getMapName(), delayedData );
         if (delayedData.isDelayed() ) {
             if (avoidExpiration(delayedData)) {
@@ -349,6 +377,8 @@ public abstract class PrimitivesCache<K> implements AutoCloseable {
                 K result = dataMap.remove(delayedData.getName());
                 if (result == null) {
                     LOGGER.warn("removeEntryDataFromQueue delayedData mapName {} REMOVE {} NOT REMOVED", getMapName(), delayedData );
+                } else {
+                    notifyRemoveListenersBackground(delayedData.getName(), result);
                 }
             }
         }
@@ -375,7 +405,7 @@ public abstract class PrimitivesCache<K> implements AutoCloseable {
     }
 
     /**
-     * Checks for entries in mao not found in queue
+     * Checks for entries in map not found in queue
      * Every entry in map but not in queue is reinserted in queue
      */
     void checkDataEquivalenceInMap() {
@@ -392,5 +422,25 @@ public abstract class PrimitivesCache<K> implements AutoCloseable {
                 });
         LOGGER.debug("checkDataEquivalenceInMap fin mapName {}", getMapName());
     }
+
+    public void addRemoveListener(RemoveListener<K> listener) {
+        removeListenerList.add(listener);
+    }
+
+    public void removeRemoveListener(RemoveListener<K> listener) {
+        removeListenerList.remove(listener);
+    }
+
+    void notifyRemoveListenersBackground(String name, K data) {
+        LOGGER.debug("notifyRemoveListenersBackground mapName {} name {} data {}", getMapName(), name, data);
+        removeListenerExecutor.execute(() -> notifyRemoveListeners(name, data));
+    }
+
+    void notifyRemoveListeners(String name, K data) {
+        LOGGER.debug("notifyRemoveListeners mapName {} name {} data {}", getMapName(), name, data);
+        removeListenerList.forEach( listener -> listener.onRemove(name, data));
+    }
+
+
 
 }

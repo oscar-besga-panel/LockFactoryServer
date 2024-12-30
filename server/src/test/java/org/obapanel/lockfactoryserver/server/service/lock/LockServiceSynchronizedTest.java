@@ -12,11 +12,14 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-public class LockServiceTest {
+public class LockServiceSynchronizedTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LockServiceTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LockServiceSynchronizedTest.class);
 
 
     private LockService lockService;
@@ -24,7 +27,7 @@ public class LockServiceTest {
     @Before
     public void setup() {
         LOGGER.debug("before setup");
-        lockService = new LockService(new LockFactoryConfiguration());
+        lockService = new LockServiceSynchronized(new LockFactoryConfiguration());
     }
 
     @After
@@ -38,7 +41,7 @@ public class LockServiceTest {
     public void getTypeTest() {
         Services services = lockService.getType();
         assertEquals(Services.LOCK, services);
-        assertEquals(Services.LOCK.getServiceClass(), lockService.getClass());
+        assertTrue(Services.LOCK.getServiceClass().isAssignableFrom(lockService.getClass()));
     }
 
     @Test
