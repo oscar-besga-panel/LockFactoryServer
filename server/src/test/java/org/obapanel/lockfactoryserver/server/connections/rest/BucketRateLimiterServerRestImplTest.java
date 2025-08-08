@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.obapanel.lockfactoryserver.server.connections.rest.OLD.BucketRateLimiterServerRestImpl;
 import org.obapanel.lockfactoryserver.server.service.rateLimiter.BucketRateLimiterService;
 
 import java.util.Arrays;

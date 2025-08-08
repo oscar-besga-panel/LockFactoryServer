@@ -7,6 +7,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.obapanel.lockfactoryserver.core.LockStatus;
+import org.obapanel.lockfactoryserver.server.connections.rest.OLD.LockServerRestImpl;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
 
 import java.rmi.RemoteException;

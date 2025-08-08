@@ -7,6 +7,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.obapanel.lockfactoryserver.core.holder.HolderResult;
+import org.obapanel.lockfactoryserver.server.connections.rest.OLD.HolderServerRestImpl;
 import org.obapanel.lockfactoryserver.server.service.holder.HolderService;
 
 import java.util.Arrays;

@@ -1,6 +1,6 @@
-package org.obapanel.lockfactoryserver.server.connections.rest;
+package org.obapanel.lockfactoryserver.server.connections.rest.OLD;
 
-import jakarta.ws.rs.Path;
+import com.github.arteam.embedhttp.HttpRequest;
 import org.obapanel.lockfactoryserver.core.holder.HolderResult;
 import org.obapanel.lockfactoryserver.server.service.holder.HolderService;
 import org.slf4j.Logger;
@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-@Path("/holder")
 public class HolderServerRestImpl {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HolderServerRestImpl.class);

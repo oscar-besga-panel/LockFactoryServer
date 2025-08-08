@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.obapanel.lockfactoryserver.server.connections.rest.OLD.ManagementServerRestImpl;
 import org.obapanel.lockfactoryserver.server.service.management.ManagementService;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -14,7 +15,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
-import static org.obapanel.lockfactoryserver.server.connections.rest.ManagementServerRestImpl.OK;
+import static org.obapanel.lockfactoryserver.server.connections.rest.OLD.ManagementServerRestImpl.OK;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ManagerServerRestImplTest {
