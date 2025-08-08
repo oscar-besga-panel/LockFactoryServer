@@ -12,8 +12,10 @@ import org.obapanel.lockfactoryserver.server.service.Services;
 import org.eclipse.jetty.server.Server;
 import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchService;
 import org.obapanel.lockfactoryserver.server.service.holder.HolderService;
+import org.obapanel.lockfactoryserver.server.service.lock.LockService;
 import org.obapanel.lockfactoryserver.server.service.management.ManagementService;
 import org.obapanel.lockfactoryserver.server.service.rateLimiter.BucketRateLimiterService;
+import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
 
 import java.util.Map;
 
@@ -37,31 +39,16 @@ public class RestConnection implements LockFactoryConnection {
         jettyServer.start();
     }
 
-    /*
-            if (configuration.isManagementEnabled()) {
-            chainManagement(builder, (ManagementService) services.get(Services.MANAGEMENT));
-        }
-        if (configuration.isLockEnabled()) {
-            chainLock(builder, (LockService) services.get(Services.LOCK));
-        }
-        if (configuration.isSemaphoreEnabled()) {
-            chainSemaphore(builder, (SemaphoreService) services.get(Services.SEMAPHORE));
-        }
-        if (configuration.isCountDownLatchEnabled()) {
-            chainCountDownLatch(builder, (CountDownLatchService) services.get(Services.COUNTDOWNLATCH));
-        }
-        if (configuration.isHolderEnabled()) {
-            chainHolder(builder, (HolderService) services.get(Services.HOLDER));
-        }
-        if (configuration.isBucketRateLimiterEnabled()) {
-            chainBucketRateLimiter(builder, (BucketRateLimiterService) services.get(Services.BUCKET_RATE_LIMITER));
-        }
-     */
-
     ResourceConfig generateResourceConfig(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices> services) {
         ResourceConfig resourceConfig = new ResourceConfig();
         if (configuration.isManagementEnabled()) {
             resourceConfig.register(new ManagementServerRestImpl((ManagementService) services.get(Services.MANAGEMENT)));
+        }
+        if (configuration.isLockEnabled()) {
+            resourceConfig.register(new LockServerRestImpl((LockService) services.get(Services.LOCK)));
+        }
+        if (configuration.isSemaphoreEnabled()) {
+            resourceConfig.register(new SemaphoreServerRestImpl((SemaphoreService) services.get(Services.SEMAPHORE)));
         }
         if (configuration.isCountDownLatchEnabled()) {
             resourceConfig.register(new CountDownLatchServerRestImpl((CountDownLatchService) services.get(Services.COUNTDOWNLATCH)));

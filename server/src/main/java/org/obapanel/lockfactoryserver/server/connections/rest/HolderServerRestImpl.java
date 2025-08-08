@@ -1,12 +1,15 @@
 package org.obapanel.lockfactoryserver.server.connections.rest;
 
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
 import org.obapanel.lockfactoryserver.core.holder.HolderResult;
 import org.obapanel.lockfactoryserver.server.service.holder.HolderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Path("/holder")
@@ -22,71 +25,64 @@ public class HolderServerRestImpl {
         this.holderService = holderService;
     }
 
-
-    public String get(String prefix, List<String> parameters, HttpRequest request) {
-        String name = parameters.get(0);
+    @GET
+    @Path("/get/{name}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String get(@PathParam("name") String name) {
         LOGGER.info("rest server> get name {}", name);
         HolderResult holderResult = holderService.get(name);
         return holderResult.toTextString();
     }
 
-    public String getWithTimeOut(String prefix, List<String> parameters, HttpRequest request) {
-        String name = parameters.get(0);
-        long time;
-        if (parameters.size() > 1) {
-            time = Long.parseLong(parameters.get(1));
-        } else {
-            time = 1;
-        }
-        TimeUnit timeUnit;
-        if (parameters.size() > 2) {
-            timeUnit = TimeUnit.valueOf(parameters.get(2).toUpperCase());
-        } else {
-            timeUnit = TimeUnit.MILLISECONDS;
-        }
+    @GET
+    @Path("/get/{name}/{time}/{timeUnit}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String getWithTimeOut(@PathParam("name") String name,
+                                 @PathParam("time") long time,
+                                 @PathParam("timeUnit") String timeUnit) {
+        TimeUnit timeUnitData = TimeUnit.valueOf(timeUnit.toUpperCase());
         LOGGER.info("rest server> getWithTimeOut name {} timeOut {} timeUnit {}", name, time, timeUnit);
-        HolderResult holderResult = holderService.getWithTimeOut(name, time, timeUnit);
+        HolderResult holderResult = holderService.getWithTimeOut(name, time, timeUnitData);
         return holderResult.toTextString();
     }
 
-    public String getIfAvailable(String prefix, List<String> parameters, HttpRequest request) {
-        String name = parameters.get(0);
+    @GET
+    @Path("/{a:getIfAvailable|getifavailable}/{name}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String getIfAvailable(@PathParam("name") String name) {
         LOGGER.info("rest server> getIfAvailable name {}", name);
         HolderResult holderResult = holderService.getIfAvailable(name);
         return holderResult.toTextString();
     }
 
-    public String set(String prefix, List<String> parameters, HttpRequest request) {
-        String name = parameters.get(0);
-        String newValue = parameters.get(1);
+    @GET
+    @Path("/set/{name}/{newValue}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String set(@PathParam("name") String name,
+                      @PathParam("newValue") String newValue) {
         LOGGER.info("rest server> set name {} newValue {}", name, newValue);
         holderService.set(name, newValue);
         return OK;
     }
 
-    public String setWithTimeToLive(String prefix, List<String> parameters, HttpRequest request) {
-        String name = parameters.get(0);
-        String newValue = parameters.get(1);
-        long time;
-        if (parameters.size() > 2) {
-            time = Long.parseLong(parameters.get(2));
-        } else {
-            time = 1;
-        }
-        TimeUnit timeUnit;
-        if (parameters.size() > 23) {
-            timeUnit = TimeUnit.valueOf(parameters.get(3).toUpperCase());
-        } else {
-            timeUnit = TimeUnit.MILLISECONDS;
-        }
+    @GET
+    @Path("/{a:setWithTimeToLive|setwithtimetolive}/{name}/{newValue}/{time}/{timeUnit}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String setWithTimeToLive(@PathParam("name") String name,
+                                    @PathParam("newValue") String newValue,
+                                    @PathParam("time") long time,
+                                    @PathParam("timeUnit") String timeUnit) {
+        TimeUnit timeUnitData = TimeUnit.valueOf(timeUnit.toUpperCase());
         LOGGER.info("rest server> setWithTimeToLive name {} newValue {} timeToLive {} timeUnit {}",
                 name, newValue, time, timeUnit);
-        holderService.setWithTimeToLive(name, newValue, time, timeUnit);
+        holderService.setWithTimeToLive(name, newValue, time, timeUnitData);
         return OK;
     }
 
-    public String cancel(String prefix, List<String> parameters, HttpRequest request) {
-        String name = parameters.get(0);
+    @GET
+    @Path("/cancel/{name}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String cancel(@PathParam("name") String name) {
         LOGGER.info("rest server> cancel name {} ", name);
         holderService.cancel(name);
         return OK;
