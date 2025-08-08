@@ -39,6 +39,11 @@ public class RestConnection implements LockFactoryConnection {
 
     @Override
     public void activate(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices> services) {
+
+        if (TYPE == Connections.REST) {
+            throw new IllegalStateException("RestConnection should not be activated with Connections.REST, use other instead");
+        }
+
         EmbeddedHttpServerBuilder builder = EmbeddedHttpServerBuilder.createNew();
         builder.withPort(configuration.getRestServerPort());
         builder.withBackLog(configuration.getRestConnectQueueSize());
