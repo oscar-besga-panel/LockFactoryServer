@@ -35,7 +35,7 @@ public class HolderServerRestImpl {
     }
 
     @GET
-    @Path("/get/{name}/{time}")
+    @Path("/getWithTimeOut/{name}/{time}")
     @Produces(MediaType.TEXT_PLAIN)
     public String getWithTimeOut(@PathParam("name") String name,
                                  @PathParam("time") long time) {
@@ -43,7 +43,7 @@ public class HolderServerRestImpl {
     }
 
     @GET
-    @Path("/get/{name}/{time}/{timeUnit}")
+    @Path("/getWithTimeOut/{name}/{time}/{timeUnit}")
     @Produces(MediaType.TEXT_PLAIN)
     public String getWithTimeOut(@PathParam("name") String name,
                                  @PathParam("time") long time,

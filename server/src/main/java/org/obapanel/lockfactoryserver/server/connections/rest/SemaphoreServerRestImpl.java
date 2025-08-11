@@ -9,12 +9,12 @@ import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Class that connects a REST petition with the semaphore service
  */
+@Path("/semaphore")
 public class SemaphoreServerRestImpl {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SemaphoreServerRestImpl.class);
@@ -37,7 +37,7 @@ public class SemaphoreServerRestImpl {
     }
 
     @GET
-    @Path("/set/{name}/{permits}")
+    @Path("/acquire/{name}/{permits}")
     @Produces(MediaType.TEXT_PLAIN)
     public String acquire(@PathParam("name") String name,
                           @PathParam("permits") int permits) {

@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Class that connects a REST petition with the lock service
  */
+@Path("/lock")
 public class LockServerRestImpl {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LockServerRestImpl.class);
@@ -30,8 +31,7 @@ public class LockServerRestImpl {
     @Produces(MediaType.TEXT_PLAIN)
     public String lock(@PathParam("name") String name) {
         LOGGER.info("rest server> lock lock {}", name);
-        String response = lockService.lock(name);
-        return response;
+        return lockService.lock(name);
     }
 
     @GET
