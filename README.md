@@ -69,4 +69,4 @@ I know you can do this with mongo, redis (as see [here](https://github.com/oscar
 This is why I don't want to provide with memory-related apis, nor messaging or other utilites; as redis, rabbitmq and other are fully available out there.
 
 
-It uses [arteam embedded http server](https://github.com/arteam/embedded-http-server) to facilitate the usage of internal SUN http server.
+It uses a Jetty12 sever with JAXB-JERSEY

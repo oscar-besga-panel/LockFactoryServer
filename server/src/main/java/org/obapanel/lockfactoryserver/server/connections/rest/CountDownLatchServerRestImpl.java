@@ -79,6 +79,14 @@ public class CountDownLatchServerRestImpl {
     }
 
     @GET
+    @Path("/{a:tryAwaitWithTimeOut|tryawaitwithtimeout}/{name}/{time}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String tryAwaitWithTimeOut(@PathParam("name") String name,
+                                      @PathParam("time") long time) {
+        return tryAwaitWithTimeOut(name, time, TimeUnit.MILLISECONDS.name());
+    }
+
+    @GET
     @Path("/{a:tryAwaitWithTimeOut|tryawaitwithtimeout}/{name}/{time}/{timeUnit}")
     @Produces(MediaType.TEXT_PLAIN)
     public String tryAwaitWithTimeOut(@PathParam("name") String name,

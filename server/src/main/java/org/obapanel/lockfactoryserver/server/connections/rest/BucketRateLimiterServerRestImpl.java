@@ -61,6 +61,15 @@ public class BucketRateLimiterServerRestImpl {
     }
 
     @GET
+    @Path("/{a:tryConsumeWithTimeOut|tryconsumewithtimeout}/{name}/{tokens}/{timeOut}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String tryConsumeWithTimeOut(@PathParam("name") String name,
+                                        @PathParam("tokens") long tokens,
+                                        @PathParam("timeOut") long timeOut) {
+        return tryConsumeWithTimeOut(name, tokens, timeOut, TimeUnit.MILLISECONDS.name());
+    }
+
+    @GET
     @Path("/{a:tryConsumeWithTimeOut|tryconsumewithtimeout}/{name}/{tokens}/{timeOut}/{timeUnit}")
     @Produces(MediaType.TEXT_PLAIN)
     public String tryConsumeWithTimeOut(@PathParam("name") String name,

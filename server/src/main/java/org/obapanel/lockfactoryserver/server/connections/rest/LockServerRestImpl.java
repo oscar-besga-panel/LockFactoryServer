@@ -39,8 +39,15 @@ public class LockServerRestImpl {
     @Produces(MediaType.TEXT_PLAIN)
     public String tryLock(@PathParam("name") String name) {
         LOGGER.info("rest server> lock tryLock {}", name);
-        String response = lockService.tryLock(name);
-        return response;
+        return lockService.tryLock(name);
+    }
+
+    @GET
+    @Path("/{a:tryLockWithTimeout|trylockwithtimeout}/{name}/{timeOut}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String tryLockWithTimeout(@PathParam("name") String name,
+                                     @PathParam("timeOut") long timeOut) {
+        return tryLockWithTimeout(name, timeOut, TimeUnit.MILLISECONDS.name());
     }
 
     @GET
@@ -51,8 +58,7 @@ public class LockServerRestImpl {
                                      @PathParam("timeUnit") String timeUnit) {
         TimeUnit timeUnitData = TimeUnit.valueOf(timeUnit.toUpperCase());
         LOGGER.info("rest server> lock tryLockWithTimeout {} {} {}", name, timeOut, timeUnitData);
-        String response = lockService.tryLockWithTimeOut(name, timeOut, timeUnitData);
-        return response;
+        return lockService.tryLockWithTimeOut(name, timeOut, timeUnitData);
     }
 
     @GET

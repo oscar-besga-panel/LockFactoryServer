@@ -64,6 +64,16 @@ public class SemaphoreServerRestImpl {
     }
 
     @GET
+    @Path("/{a:tryAcquireWithTimeOut|tryacquirewithtimeOut}/{name}/{permits}/{timeOut}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String tryAcquireWithTimeOut(@PathParam("name") String name,
+                                        @PathParam("permits") int permits,
+                                        @PathParam("timeOut") long timeOut) {
+
+        return tryAcquireWithTimeOut(name, permits, timeOut, TimeUnit.MILLISECONDS.name());
+    }
+
+    @GET
     @Path("/{a:tryAcquireWithTimeOut|tryacquirewithtimeOut}/{name}/{permits}/{timeOut}/{timeUnit}")
     @Produces(MediaType.TEXT_PLAIN)
     public String tryAcquireWithTimeOut(@PathParam("name") String name,

@@ -35,6 +35,14 @@ public class HolderServerRestImpl {
     }
 
     @GET
+    @Path("/get/{name}/{time}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String getWithTimeOut(@PathParam("name") String name,
+                                 @PathParam("time") long time) {
+        return getWithTimeOut(name, time, TimeUnit.MILLISECONDS.name());
+    }
+
+    @GET
     @Path("/get/{name}/{time}/{timeUnit}")
     @Produces(MediaType.TEXT_PLAIN)
     public String getWithTimeOut(@PathParam("name") String name,
@@ -63,6 +71,15 @@ public class HolderServerRestImpl {
         LOGGER.info("rest server> set name {} newValue {}", name, newValue);
         holderService.set(name, newValue);
         return OK;
+    }
+
+    @GET
+    @Path("/{a:setWithTimeToLive|setwithtimetolive}/{name}/{newValue}/{time}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String setWithTimeToLive(@PathParam("name") String name,
+                                    @PathParam("newValue") String newValue,
+                                    @PathParam("time") long time) {
+        return setWithTimeToLive(name, newValue, time, TimeUnit.MILLISECONDS.name());
     }
 
     @GET

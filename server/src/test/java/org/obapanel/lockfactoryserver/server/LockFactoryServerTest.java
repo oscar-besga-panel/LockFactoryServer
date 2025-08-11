@@ -10,7 +10,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException;
 import org.obapanel.lockfactoryserver.server.connections.Connections;
 import org.obapanel.lockfactoryserver.server.connections.grpc.GrpcConnection;
-import org.obapanel.lockfactoryserver.server.connections.rest.OLD.RestConnection;
+import org.obapanel.lockfactoryserver.server.connections.rest.RestConnection;
 import org.obapanel.lockfactoryserver.server.connections.rmi.RmiConnection;
 import org.obapanel.lockfactoryserver.server.service.LockFactoryServices;
 import org.obapanel.lockfactoryserver.server.service.Services;

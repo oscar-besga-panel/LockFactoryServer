@@ -1,12 +1,10 @@
 package org.obapanel.lockfactoryserver.server.connections.rest;
 
-import com.github.arteam.embedhttp.HttpRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.obapanel.lockfactoryserver.server.connections.rest.OLD.CountDownLatchServerRestImpl;
 import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchService;
 
 import java.util.Arrays;
@@ -32,6 +30,7 @@ public class CountDownLatchServerRestImplTest {
 
     private CountDownLatchServerRestImpl countDownLatchServerRest;
 
+
     @Before
     public void setup()  {
         when(countDownLatchService.createNew(anyString(), anyInt())).thenReturn(true);
@@ -41,19 +40,27 @@ public class CountDownLatchServerRestImplTest {
     }
 
     @Test
-    public void createNewTest() {
+    public void createNewTest1() {
         String name = "codola_" + System.currentTimeMillis();
         int count = ThreadLocalRandom.current().nextInt(100);
         List<String> parameters = Arrays.asList(name, "" + count);
-        String response = countDownLatchServerRest.createNew("/createNew", parameters, HttpRequest.EMPTY_REQUEST);
+        String response = countDownLatchServerRest.createNew(name, count);
         verify(countDownLatchService).createNew(eq(name), eq(count));
+        assertEquals("true", response);
+    }
+
+    @Test
+    public void createNewTest() {
+        String name = "codola_" + System.currentTimeMillis();
+        String response = countDownLatchServerRest.createNew(name);
+        verify(countDownLatchService).createNew(eq(name), eq(1));
         assertEquals("true", response);
     }
 
     @Test
     public void countDownTest() {
         String name = "codola_" + System.currentTimeMillis();
-        String response = countDownLatchServerRest.countDown("/countdown", Arrays.asList(name), HttpRequest.EMPTY_REQUEST);
+        String response = countDownLatchServerRest.countDown(name);
         verify(countDownLatchService).countDown(eq(name));
         assertEquals("ok", response);
     }
@@ -62,7 +69,7 @@ public class CountDownLatchServerRestImplTest {
     public void countDown2Test() {
         String name = "codola_" + System.currentTimeMillis();
         int count = ThreadLocalRandom.current().nextInt(3, 5);
-        String response = countDownLatchServerRest.countDown("/countdown", Arrays.asList(name, "" + count), HttpRequest.EMPTY_REQUEST);
+        String response = countDownLatchServerRest.countDown(name, count);
         verify(countDownLatchService).countDown(eq(name), eq(count));
         assertEquals("ok", response);
     }
@@ -70,7 +77,7 @@ public class CountDownLatchServerRestImplTest {
     @Test
     public void getCountTest() {
         String name = "codola_" + System.currentTimeMillis();
-        String response = countDownLatchServerRest.getCount("/getcount", Arrays.asList(name), HttpRequest.EMPTY_REQUEST);
+        String response = countDownLatchServerRest.getCount(name);
         verify(countDownLatchService).getCount(eq(name));
         assertEquals("0", response);
     }
@@ -78,7 +85,7 @@ public class CountDownLatchServerRestImplTest {
     @Test
     public void awaitTest() {
         String name = "codola_" + System.currentTimeMillis();
-        String response = countDownLatchServerRest.await("/await", Arrays.asList(name), HttpRequest.EMPTY_REQUEST);
+        String response = countDownLatchServerRest.await(name);
         verify(countDownLatchService).await(eq(name));
         assertEquals("ok", response);
     }
@@ -87,7 +94,7 @@ public class CountDownLatchServerRestImplTest {
     public void tryAwaitWithTimeout1Test() {
         String name = "codola_" + System.currentTimeMillis();
         List<String> parameters = Arrays.asList(name, Long.toString(2L),  TimeUnit.SECONDS.name().toLowerCase());
-        String response = countDownLatchServerRest.tryAwaitWithTimeOut("trywaitwithtimeout", parameters, HttpRequest.EMPTY_REQUEST);
+        String response = countDownLatchServerRest.tryAwaitWithTimeOut(name, 2L,  TimeUnit.SECONDS.name().toLowerCase());
         verify(countDownLatchService).tryAwaitWithTimeOut(eq(name), eq(2L), eq(TimeUnit.SECONDS));
         assertEquals("true", response);
     }
@@ -95,18 +102,8 @@ public class CountDownLatchServerRestImplTest {
     @Test
     public void tryAwaitWithTimeout2Test() {
         String name = "codola_" + System.currentTimeMillis();
-        List<String> parameters = Arrays.asList(name, Long.toString(2L));
-        String response = countDownLatchServerRest.tryAwaitWithTimeOut("trywaitwithtimeout", parameters, HttpRequest.EMPTY_REQUEST);
+        String response = countDownLatchServerRest.tryAwaitWithTimeOut(name, 2L);
         verify(countDownLatchService).tryAwaitWithTimeOut(eq(name), eq(2L), eq(TimeUnit.MILLISECONDS));
-        assertEquals("true", response);
-    }
-
-    @Test
-    public void tryAwaitWithTimeout3Test() {
-        String name = "codola_" + System.currentTimeMillis();
-        List<String> parameters = Arrays.asList(name);
-        String response = countDownLatchServerRest.tryAwaitWithTimeOut("trywaitwithtimeout", parameters, HttpRequest.EMPTY_REQUEST);
-        verify(countDownLatchService).tryAwaitWithTimeOut(eq(name), eq(1L), eq(TimeUnit.MILLISECONDS));
         assertEquals("true", response);
     }
 

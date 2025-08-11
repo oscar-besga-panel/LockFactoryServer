@@ -1,17 +1,13 @@
 package org.obapanel.lockfactoryserver.server.connections.rest;
 
-import com.github.arteam.embedhttp.HttpRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.obapanel.lockfactoryserver.core.holder.HolderResult;
-import org.obapanel.lockfactoryserver.server.connections.rest.OLD.HolderServerRestImpl;
 import org.obapanel.lockfactoryserver.server.service.holder.HolderService;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -62,8 +58,7 @@ public class HolderServerRestImplTest {
     @Test
     public void getTest() {
         String name = "holder_" + System.currentTimeMillis();
-        List<String> parameters = List.of(name);
-        String response = holderServerRest.get("/get", parameters, HttpRequest.EMPTY_REQUEST);
+        String response = holderServerRest.get(name);
         verify(holderService).get(eq(name));
         assertEquals(new HolderResult(name).toTextString(), response);
     }
@@ -72,8 +67,7 @@ public class HolderServerRestImplTest {
     public void getIfAvailableOkTest() {
         available.set(true);
         String name = "holder_" + System.currentTimeMillis();
-        List<String> parameters = List.of(name);
-        String response = holderServerRest.getIfAvailable("/getIfAvailable", parameters, HttpRequest.EMPTY_REQUEST);
+        String response = holderServerRest.getIfAvailable(name);
         verify(holderService).getIfAvailable(eq(name));
         assertEquals(new HolderResult(name).toTextString(), response);
     }
@@ -82,19 +76,26 @@ public class HolderServerRestImplTest {
     public void getIfAvailableKoTest() {
         available.set(false);
         String name = "holder_" + System.currentTimeMillis();
-        List<String> parameters = List.of(name);
-        String response = holderServerRest.getIfAvailable("/getIfAvailable", parameters, HttpRequest.EMPTY_REQUEST);
+        String response = holderServerRest.getIfAvailable(name);
         verify(holderService).getIfAvailable(eq(name));
         assertEquals(HolderResult.NOTFOUND.toTextString(), response);
     }
 
     @Test
-    public void getWithTimeOutTest() {
+    public void getWithTimeOutTest1() {
         String name = "holder_" + System.currentTimeMillis();
         long timeOut = 1000;
-        List<String> parameters = Arrays.asList(name, timeOut + "", TimeUnit.MILLISECONDS.name());
-        String response = holderServerRest.getWithTimeOut("/get", parameters, HttpRequest.EMPTY_REQUEST);
+        String response = holderServerRest.getWithTimeOut(name, timeOut);
         verify(holderService).getWithTimeOut(eq(name), eq(timeOut), eq(TimeUnit.MILLISECONDS));
+        assertEquals(new HolderResult(name).toTextString(), response);
+    }
+
+    @Test
+    public void getWithTimeOutTest2() {
+        String name = "holder_" + System.currentTimeMillis();
+        long timeOut = 1000;
+        String response = holderServerRest.getWithTimeOut(name, timeOut, TimeUnit.SECONDS.name());
+        verify(holderService).getWithTimeOut(eq(name), eq(timeOut), eq(TimeUnit.SECONDS));
         assertEquals(new HolderResult(name).toTextString(), response);
     }
 
@@ -102,9 +103,18 @@ public class HolderServerRestImplTest {
     public void setTest() {
         String name = "holder_" + System.currentTimeMillis();
         String value = "value_" + System.currentTimeMillis();
-        List<String> parameters = Arrays.asList(name,value);
-        String response = holderServerRest.set("/set", parameters, HttpRequest.EMPTY_REQUEST);
+        String response = holderServerRest.set(name, value);
         verify(holderService).set(eq(name), eq(value));
+        assertEquals("ok", response);
+    }
+
+    @Test
+    public void setWithTimeToLiveTest1() {
+        String name = "holder_" + System.currentTimeMillis();
+        String value = "value_" + System.currentTimeMillis();
+        long timeOut = 1000;
+        String response = holderServerRest.setWithTimeToLive(name, value, timeOut);
+        verify(holderService).setWithTimeToLive(eq(name), eq(value), eq(timeOut), eq(TimeUnit.MILLISECONDS));
         assertEquals("ok", response);
     }
 
@@ -113,17 +123,15 @@ public class HolderServerRestImplTest {
         String name = "holder_" + System.currentTimeMillis();
         String value = "value_" + System.currentTimeMillis();
         long timeOut = 1000;
-        List<String> parameters = Arrays.asList(name, value, timeOut + "", TimeUnit.MILLISECONDS.name());
-        String response = holderServerRest.setWithTimeToLive("/setWithTimeToLive", parameters, HttpRequest.EMPTY_REQUEST);
-        verify(holderService).setWithTimeToLive(eq(name), eq(value), eq(timeOut), eq(TimeUnit.MILLISECONDS));
+        String response = holderServerRest.setWithTimeToLive(name, value, timeOut, TimeUnit.SECONDS.name());
+        verify(holderService).setWithTimeToLive(eq(name), eq(value), eq(timeOut), eq(TimeUnit.SECONDS));
         assertEquals("ok", response);
     }
 
     @Test
     public void cancelTest() {
         String name = "holder_" + System.currentTimeMillis();
-        List<String> parameters = List.of(name);
-        String response = holderServerRest.cancel("/set", parameters, HttpRequest.EMPTY_REQUEST);
+        String response = holderServerRest.cancel(name);
         verify(holderService).cancel(eq(name));
         assertEquals("ok", response);
     }
