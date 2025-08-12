@@ -125,7 +125,7 @@ public class CountDownLatchRmiTest {
                 throw new IllegalStateException(e);
             }
         });
-        boolean result = countDownLatchClientRmi.tryAwaitWithTimeOut(1500, TimeUnit.MILLISECONDS);
+        boolean result = countDownLatchClientRmi.tryAwaitWithTimeOut(1500);
         assertTrue(created);
         assertTrue(result);
         assertFalse(countDownLatchClientRmi.isActive());

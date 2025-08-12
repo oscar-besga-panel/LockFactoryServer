@@ -85,7 +85,7 @@ public class HolderClientRmiTest {
     @Test
     public void setWithTimeToLiveTest() throws RemoteException {
         String value = "value_" + name;
-        holderClientRmi.setWithTimeToLiveMillis(value, 1234L);
+        holderClientRmi.setWithTimeToLive(value, 1234L);
         verify(holderServerRmi).setWithTimeToLive(eq(name), eq(value), eq(1234L), eq(TimeUnit.MILLISECONDS));
     }
 

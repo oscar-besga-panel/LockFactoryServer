@@ -55,11 +55,6 @@ public class SemaphoreClientRmiTest {
             current.set(current.get() - num);
             return true;
         });
-        when(semaphoreServerRmi.tryAcquireWithTimeOut(anyString(), anyInt(), anyLong())).thenAnswer(ioc -> {
-            int num = ioc.getArgument(1, Integer.class);
-            current.set(current.get() - num);
-            return true;
-        });
         when(semaphoreServerRmi.tryAcquireWithTimeOut(anyString(), anyInt(), anyLong(), any(TimeUnit.class))).thenAnswer(ioc -> {
             int num = ioc.getArgument(1, Integer.class);
             current.set(current.get() - num);
@@ -120,7 +115,7 @@ public class SemaphoreClientRmiTest {
         boolean result = semaphoreClientRmi.tryAcquireWithTimeOut(2, 1L);
         assertTrue(result);
         assertEquals(num - 2, current.get());
-        verify(semaphoreServerRmi).tryAcquireWithTimeOut(anyString(), anyInt(), anyLong());
+        verify(semaphoreServerRmi).tryAcquireWithTimeOut(anyString(), anyInt(), anyLong(), any(TimeUnit.class));
     }
 
     @Test
@@ -130,7 +125,7 @@ public class SemaphoreClientRmiTest {
         boolean result = semaphoreClientRmi.tryAcquireWithTimeOut( 1L);
         assertTrue(result);
         assertEquals(num - 1, current.get());
-        verify(semaphoreServerRmi).tryAcquireWithTimeOut(anyString(), anyInt(), anyLong());
+        verify(semaphoreServerRmi).tryAcquireWithTimeOut(anyString(), anyInt(), anyLong(), any(TimeUnit.class));
     }
 
     @Test

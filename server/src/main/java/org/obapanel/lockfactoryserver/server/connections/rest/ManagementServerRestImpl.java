@@ -39,9 +39,10 @@ public class ManagementServerRestImpl {
         boolean running = managementService.isRunning();
         return Boolean.toString(running);
     }
-
+/*
+//TODO
     @GET
-    @Path("/{a:ping|Ping|Hello|hello}")
+    @Path("/{a:ping|Ping}")
     @Produces(MediaType.TEXT_PLAIN)
     public String ping() {
         LOGGER.info("rest server> management ping");
@@ -54,5 +55,5 @@ public class ManagementServerRestImpl {
             return Long.toString(System.currentTimeMillis());
         }
     }
-
+*/
 }

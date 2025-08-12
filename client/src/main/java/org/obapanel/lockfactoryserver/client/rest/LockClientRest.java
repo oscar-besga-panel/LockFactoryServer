@@ -40,8 +40,12 @@ public class LockClientRest extends AbstractClientRest
         return result;
     }
 
-    public boolean tryLock(long time, TimeUnit timeUnit) {
-        token = requestWithUrl("tryLock", getName(), Long.toString(time), timeUnit.name().toLowerCase());
+    public boolean tryLockWithTimeout(long timeMillis) {
+        return tryLockWithTimeout(timeMillis, TimeUnit.MILLISECONDS);
+    }
+
+    public boolean tryLockWithTimeout(long time, TimeUnit timeUnit) {
+        token = requestWithUrl("tryLockWithTimeout", getName(), Long.toString(time), timeUnit.name().toLowerCase());
         boolean result = currentlyBlocked();
         LOGGER.debug("trylock name {} currentluBlocked {}", getName(), result);
         return result;

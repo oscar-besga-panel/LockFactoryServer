@@ -125,7 +125,7 @@ public class SemaphoreRmiTest {
             }
             inner.release();
         });
-        boolean resulttry1 = semaphoreClientRmi.tryAcquireWithTimeOut(3500, TimeUnit.MILLISECONDS);
+        boolean resulttry1 = semaphoreClientRmi.tryAcquireWithTimeOut(3500);
         LOGGER.debug("}tryAcquireWithTimeOutTest} obtained resulttry1 {}", resulttry1);
         boolean resulttrya = inner.tryAcquire(10, TimeUnit.SECONDS);
         LOGGER.debug("}tryAcquireWithTimeOutTest} obtained resulttrya {}", resulttrya);

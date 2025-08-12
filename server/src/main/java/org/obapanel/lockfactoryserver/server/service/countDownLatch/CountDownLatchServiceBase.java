@@ -91,10 +91,6 @@ LOGGER.debug(">> wait codola {} {}", name, countDownLatch);
         }
     }
 
-    public boolean tryAwaitWithTimeOut(String name, long timeOut) {
-        return this.tryAwaitWithTimeOut(name, timeOut, TimeUnit.MILLISECONDS);
-    }
-
     public boolean tryAwaitWithTimeOut(String name, long timeOut, TimeUnit timeUnit) {
         boolean result;
         LOGGER.info("service> awaitWithTimeOut name {} timeOut {} timeUnit {}", name, timeOut, timeUnit);

@@ -67,7 +67,7 @@ public class HolderRmiTest {
                 Long.toString(System.currentTimeMillis()));
         HolderClientRmi holderClientRmi1 = generateHolderClientRmi();
         HolderClientRmi holderClientRmi2 = generateHolderClientRmi(holderClientRmi1.getName());
-        holderClientRmi1.setWithTimeToLiveMillis(value, 1000);
+        holderClientRmi1.setWithTimeToLive(value, 1000);
         HolderResult holderResult2 = holderClientRmi2.get();
         assertEquals(value, holderResult2.getValue() );
         assertEquals(HolderResult.Status.RETRIEVED, holderResult2.getStatus() );

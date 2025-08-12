@@ -65,6 +65,8 @@ public class RestConnection implements LockFactoryConnection {
 
     @Override
     public void shutdown() throws Exception {
-        jettyServer.stop();
+        if (jettyServer != null) {
+            jettyServer.stop();
+        }
     }
 }

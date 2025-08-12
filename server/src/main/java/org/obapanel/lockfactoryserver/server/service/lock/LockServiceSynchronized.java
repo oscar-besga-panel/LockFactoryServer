@@ -56,10 +56,6 @@ public class LockServiceSynchronized extends AbstractSynchronizedService impleme
         return lock.tryLock();
     }
 
-    public String tryLockWithTimeOut(String name, long timeOut) {
-        return tryLockWithTimeOut(name, timeOut, TimeUnit.MILLISECONDS);
-    }
-
     public String tryLockWithTimeOut(String name, long timeOut, TimeUnit timeUnit) {
         LOGGER.info("service> tryLockWithTimeOut name {} timeOut {} timeUnit {}", name, timeOut, timeUnit);
         return underServiceLockGet(() -> executeTryLockWithTimeOut(name, timeOut, timeUnit));

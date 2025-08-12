@@ -26,6 +26,16 @@ public class BucketRateLimiterServerRestImpl {
     }
 
     @GET
+    @Path("/{a:newRateLimiter|newratelimiter}/{name}/{totalTokens}/{refillGreedy}/{timeRefill}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String newRateLimiter(@PathParam("name") String name,
+                                 @PathParam("totalTokens") long totalTokens,
+                                 @PathParam("refillGreedy") boolean refillGreedy,
+                                 @PathParam("timeRefill") long timeRefill) {
+        return newRateLimiter(name, totalTokens, refillGreedy, timeRefill, TimeUnit.MILLISECONDS.name());
+    }
+
+    @GET
     @Path("/{a:newRateLimiter|newratelimiter}/{name}/{totalTokens}/{refillGreedy}/{timeRefill}/{timeUnit}")
     @Produces(MediaType.TEXT_PLAIN)
     public String newRateLimiter(@PathParam("name") String name,

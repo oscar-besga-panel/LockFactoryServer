@@ -14,11 +14,19 @@ public interface BucketRateLimiterService extends LockFactoryServices {
         return TYPE;
     }
 
+    default void newRateLimiter(String name,  long totalTokens, boolean refillGreedy, long timeRefill) {
+        newRateLimiter(name, totalTokens, refillGreedy, timeRefill, TimeUnit.MILLISECONDS);
+    }
+
     void newRateLimiter(String name,  long totalTokens, boolean refillGreedy, long timeRefill, TimeUnit timeUnit);
 
     long getAvailableTokens(String name);
 
     boolean tryConsume(String name, long tokens);
+
+    default boolean tryConsumeWithTimeOut(String name, long tokens, long timeOut)  {
+        return tryConsumeWithTimeOut(name, tokens, timeOut, TimeUnit.MILLISECONDS);
+    }
 
     boolean tryConsumeWithTimeOut(String name, long tokens, long timeOut, TimeUnit timeUnit);
 

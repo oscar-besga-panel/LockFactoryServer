@@ -22,6 +22,17 @@ public interface HolderServerRmi extends Remote {
     HolderResult get(String name) throws RemoteException;
 
     /**
+     * Get value, awaiting given time in millis
+     * @param name Name of the value
+     * @param timeOut Time to wait in millis
+     * @return Result with value if available
+     * @throws RemoteException in case of error
+     */
+    default HolderResult getWithTimeOut(String name, long timeOut) throws RemoteException {
+        return getWithTimeOut(name, timeOut, TimeUnit.MILLISECONDS);
+    }
+
+    /**
      * Get value, awaiting given time
      * @param name Name of the value
      * @param timeOut Time to wait
@@ -48,6 +59,19 @@ public interface HolderServerRmi extends Remote {
      * @throws RemoteException in case of error
      */
     void set(String name, String newValue) throws RemoteException;
+
+    /**
+     * Sets a value
+     * The holder will expire in the time set in millis
+     * @param name Name of the holder
+     * @param newValue New not-null value for holder
+     * @param timeToLive Time to live for the holder in millis
+     * @throws RemoteException in case of error
+     */
+    default void setWithTimeToLive(String name, String newValue, long timeToLive) throws RemoteException {
+        setWithTimeToLive(name, newValue, timeToLive, TimeUnit.MILLISECONDS);
+    }
+
 
     /**
      * Sets a value

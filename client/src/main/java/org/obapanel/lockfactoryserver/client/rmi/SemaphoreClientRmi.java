@@ -48,12 +48,12 @@ public class SemaphoreClientRmi extends AbstractClientRmi<SemaphoreServerRmi> {
         return getServerRmi().tryAcquire(getName(), permits);
     }
 
-    public boolean tryAcquireWithTimeOut(long timeOut) throws RemoteException {
-        return this.tryAcquireWithTimeOut(1, timeOut);
+    public boolean tryAcquireWithTimeOut(long timeOutMillis) throws RemoteException {
+        return this.tryAcquireWithTimeOut(1, timeOutMillis, TimeUnit.MILLISECONDS);
     }
 
     public boolean tryAcquireWithTimeOut(int permits, long timeOut) throws RemoteException {
-        return getServerRmi().tryAcquireWithTimeOut(getName(), permits, timeOut);
+        return this.tryAcquireWithTimeOut(permits, timeOut, TimeUnit.MILLISECONDS);
     }
 
     public boolean tryAcquireWithTimeOut(long timeOut, TimeUnit timeUnit) throws RemoteException {

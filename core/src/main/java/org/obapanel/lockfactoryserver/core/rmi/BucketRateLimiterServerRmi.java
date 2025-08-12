@@ -51,6 +51,17 @@ public interface BucketRateLimiterServerRmi extends Remote {
      * Tries to get the numbered tokens within the given time
      * @param name Name of the bucket
      * @param tokens Number of tokens to consuke
+     * @param timeOut time to wait, in millinseconds
+     * @return true if tokens were consumed, false otherwise
+     */
+    default boolean tryConsumeWithTimeOut(String name, long tokens, long timeOut) throws RemoteException {
+        return tryConsumeWithTimeOut(name, tokens, timeOut, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * Tries to get the numbered tokens within the given time
+     * @param name Name of the bucket
+     * @param tokens Number of tokens to consuke
      * @param timeOut time to wait
      * @param timeUnit unit of the time
      * @return true if tokens were consumed, false otherwise

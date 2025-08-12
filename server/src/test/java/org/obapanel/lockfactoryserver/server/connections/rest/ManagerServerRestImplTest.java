@@ -10,6 +10,7 @@ import org.obapanel.lockfactoryserver.server.service.management.ManagementServic
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
@@ -51,5 +52,13 @@ public class ManagerServerRestImplTest {
         String response = managementServerRest.isRunning();
         assertTrue(Boolean.parseBoolean(response));
     }
-
+/*
+//TODO
+    @Test
+    public void ping() {
+        String response = managementServerRest.ping();
+        assertNotNull(response);
+    }
+*/
+    
 }

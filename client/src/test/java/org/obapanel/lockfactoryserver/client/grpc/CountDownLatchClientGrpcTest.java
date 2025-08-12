@@ -139,10 +139,22 @@ public class CountDownLatchClientGrpcTest {
     }
 
     @Test
-    public void tryAwaitWithTimeOutTest() {
+    public void tryAwaitWithTimeOutTest1() {
         long timeOut = ThreadLocalRandom.current().nextLong(1,100);
         ArgumentCaptor<AwaitWithTimeout> captor = ArgumentCaptor.forClass(AwaitWithTimeout.class);
-        boolean result = countDownLatchClientGrpc.tryAwaitWithTimeOut(timeOut, TimeUnit.MILLISECONDS);
+        boolean result = countDownLatchClientGrpc.tryAwaitWithTimeOut(timeOut, TimeUnit.SECONDS);
+        verify(stub).tryAwaitWithTimeOut(captor.capture());
+        assertEquals(name, captor.getValue().getName());
+        assertEquals(timeOut, captor.getValue().getTimeOut());
+        assertEquals(TimeUnit.SECONDS, fromGrpcToJava( captor.getValue().getTimeUnit()));
+        assertTrue(result);
+    }
+
+    @Test
+    public void tryAwaitWithTimeOutTest2() {
+        long timeOut = ThreadLocalRandom.current().nextLong(1,100);
+        ArgumentCaptor<AwaitWithTimeout> captor = ArgumentCaptor.forClass(AwaitWithTimeout.class);
+        boolean result = countDownLatchClientGrpc.tryAwaitWithTimeOut(timeOut);
         verify(stub).tryAwaitWithTimeOut(captor.capture());
         assertEquals(name, captor.getValue().getName());
         assertEquals(timeOut, captor.getValue().getTimeOut());

@@ -38,8 +38,6 @@ public class SemaphoreServerRmiImplTest {
                 thenReturn(true);
         when(semaphoreService.tryAcquireWithTimeOut(anyString(), anyInt(), anyLong(), any(TimeUnit.class))).
                 thenReturn(true);
-        when(semaphoreService.tryAcquireWithTimeOut(anyString(), anyInt(), anyLong())).
-                thenReturn(true);
         semaphoreServerRmi = new SemaphoreServerRmiImpl(semaphoreService);
     }
 
@@ -78,7 +76,7 @@ public class SemaphoreServerRmiImplTest {
     public void tryAcquireWithTimeout2Test() throws RemoteException {
         String semaphoreName = "sem4" + System.currentTimeMillis();
         boolean result = semaphoreServerRmi.tryAcquireWithTimeOut(semaphoreName, 1, 1L);
-        verify(semaphoreService).tryAcquireWithTimeOut(anyString(), anyInt(), anyLong());
+        verify(semaphoreService).tryAcquireWithTimeOut(anyString(), anyInt(), anyLong(), any(TimeUnit.class));
         assertTrue(result);
     }
 

@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.TimeUnit;
 
 import static org.obapanel.lockfactoryserver.core.util.TimeUnitConverter.fromGrpcToJava;
+import static org.obapanel.lockfactoryserver.core.util.TimeUnitConverter.fromJavaToGrpc;
 
 /**
  * Class that connects a GRPC call with the semaphore service
@@ -72,15 +73,9 @@ public class SemaphoreServerGrpcImpl extends SemaphoreServerGrpc.SemaphoreServer
         String name = request.getName();
         int permits = request.getPermits();
         long timeOut = request.getTimeOut();
-        TimeUnitGrpc timeUnitGrpc = request.getTimeUnit();
-        if (timeUnitGrpc == null) {
-            LOGGER.info("grpc server> tryAcquireWithTimeOut name {} permits {} timeOut {}", name, permits, timeOut);
-            result = semaphoreService.tryAcquireWithTimeOut(name, permits, timeOut);
-        } else {
-            TimeUnit timeUnit = fromGrpcToJava(timeUnitGrpc);
-            LOGGER.info("grpc server> tryAcquireWithTimeOut name {} permits {} timeOut {} timeunit {}", name, permits, timeOut, timeUnit);
-            result = semaphoreService.tryAcquireWithTimeOut(name, permits, timeOut, timeUnit);
-        }
+        TimeUnit timeUnit = fromGrpcToJava(request.getTimeUnit());
+        LOGGER.info("grpc server> tryAcquireWithTimeOut name {} permits {} timeOut {} timeunit {}", name, permits, timeOut, timeUnit);
+        result = semaphoreService.tryAcquireWithTimeOut(name, permits, timeOut, timeUnit);
         responseObserver.onNext(BoolValue.of(result));
         responseObserver.onCompleted();
 

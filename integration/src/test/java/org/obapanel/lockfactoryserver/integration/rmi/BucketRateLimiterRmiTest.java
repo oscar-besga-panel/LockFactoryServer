@@ -71,7 +71,7 @@ public class BucketRateLimiterRmiTest {
         bucketRateLimiterClientRmi.newRateLimiter(1L, false, 300, TimeUnit.MILLISECONDS);
         boolean take1 = bucketRateLimiterClientRmi.tryConsumeWithTimeOut(1, 500, TimeUnit.MILLISECONDS);
         boolean take2 = bucketRateLimiterClientRmi.tryConsumeWithTimeOut(1, 500, TimeUnit.MILLISECONDS);
-        boolean take3 = bucketRateLimiterClientRmi.tryConsumeWithTimeOut(1,100, TimeUnit.MILLISECONDS);
+        boolean take3 = bucketRateLimiterClientRmi.tryConsumeWithTimeOut(1,100);
         assertTrue(take1);
         assertTrue(take2);
         assertFalse(take3);
@@ -82,7 +82,7 @@ public class BucketRateLimiterRmiTest {
     @Test
     public void createAndSimpleUsage3Test() throws RemoteException, NotBoundException {
         BucketRateLimiterClientRmi bucketRateLimiterClientRmi = generateBucketClientRmi();
-        bucketRateLimiterClientRmi.newRateLimiter(1L, false, 300, TimeUnit.MILLISECONDS);
+        bucketRateLimiterClientRmi.newRateLimiter(1L, false, 300);
         long t0 = System.currentTimeMillis();
         bucketRateLimiterClientRmi.consume(1);
         long t1 = System.currentTimeMillis();

@@ -98,7 +98,7 @@ public class BucketRateLimiterRestTest {
     }
 
     @Test
-    public void newRateLimiterTest() throws IOException {
+    public void newRateLimiterTest1() throws IOException {
         long tokens = ThreadLocalRandom.current().nextLong(5,50);
         finalResult.set("ok");
         bucketRateLimiterRestClient.newRateLimiter(tokens, true, 117L, TimeUnit.SECONDS);
@@ -110,6 +110,22 @@ public class BucketRateLimiterRestTest {
         assertTrue(finalUrl.contains(Long.toString(tokens)));
         assertTrue(finalUrl.contains(Boolean.toString(true)));
         assertTrue(finalUrl.contains(TimeUnit.SECONDS.toString()));
+        verify(httpclient).execute(any(HttpGet.class));
+    }
+
+    @Test
+    public void newRateLimiterTest2() throws IOException {
+        long tokens = ThreadLocalRandom.current().nextLong(5,50);
+        finalResult.set("ok");
+        bucketRateLimiterRestClient.newRateLimiter(tokens, true, 117L);
+        String finalUrl = finalUrl();
+        assertTrue(finalUrl.contains("bucketRateLimiter"));
+        assertTrue(finalUrl.contains("newRateLimiter"));
+        assertTrue(finalUrl.contains(name));
+        assertTrue(finalUrl.contains(Long.toString(tokens)));
+        assertTrue(finalUrl.contains(Long.toString(tokens)));
+        assertTrue(finalUrl.contains(Boolean.toString(true)));
+        assertTrue(finalUrl.contains(TimeUnit.MILLISECONDS.toString()));
         verify(httpclient).execute(any(HttpGet.class));
     }
 
@@ -154,7 +170,7 @@ public class BucketRateLimiterRestTest {
     }
 
     @Test
-    public void tryConsumeWithTimeOutTest() throws IOException {
+    public void tryConsumeWithTimeOutTest1() throws IOException {
         long tokens = ThreadLocalRandom.current().nextLong(5,50);
         finalResult.set("false");
         boolean result = bucketRateLimiterRestClient.tryConsumeWithTimeOut(tokens, 117L, TimeUnit.MICROSECONDS);
@@ -165,6 +181,22 @@ public class BucketRateLimiterRestTest {
         assertTrue(finalUrl.contains(Long.toString(tokens)));
         assertTrue(finalUrl.contains(Long.toString(117L)));
         assertTrue(finalUrl.contains(TimeUnit.MICROSECONDS.toString()));
+        verify(httpclient).execute(any(HttpGet.class));
+        assertFalse(result);
+    }
+
+    @Test
+    public void tryConsumeWithTimeOutTest2() throws IOException {
+        long tokens = ThreadLocalRandom.current().nextLong(5,50);
+        finalResult.set("false");
+        boolean result = bucketRateLimiterRestClient.tryConsumeWithTimeOut(tokens, 117L);
+        String finalUrl = finalUrl();
+        assertTrue(finalUrl.contains("bucketRateLimiter"));
+        assertTrue(finalUrl.contains("tryConsumeWithTimeOut"));
+        assertTrue(finalUrl.contains(name));
+        assertTrue(finalUrl.contains(Long.toString(tokens)));
+        assertTrue(finalUrl.contains(Long.toString(117L)));
+        assertTrue(finalUrl.contains(TimeUnit.MILLISECONDS.toString()));
         verify(httpclient).execute(any(HttpGet.class));
         assertFalse(result);
     }
