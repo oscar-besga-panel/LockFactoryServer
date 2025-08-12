@@ -8,7 +8,6 @@ import io.grpc.stub.StreamObserver;
 import org.obapanel.lockfactoryserver.core.grpc.NamePermits;
 import org.obapanel.lockfactoryserver.core.grpc.NamePermitsWithTimeout;
 import org.obapanel.lockfactoryserver.core.grpc.SemaphoreServerGrpc;
-import org.obapanel.lockfactoryserver.core.grpc.TimeUnitGrpc;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.TimeUnit;
 
 import static org.obapanel.lockfactoryserver.core.util.TimeUnitConverter.fromGrpcToJava;
-import static org.obapanel.lockfactoryserver.core.util.TimeUnitConverter.fromJavaToGrpc;
 
 /**
  * Class that connects a GRPC call with the semaphore service

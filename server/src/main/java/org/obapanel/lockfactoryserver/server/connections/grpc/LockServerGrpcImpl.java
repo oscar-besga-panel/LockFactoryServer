@@ -7,7 +7,6 @@ import org.obapanel.lockfactoryserver.core.LockStatus;
 import org.obapanel.lockfactoryserver.core.grpc.LockServerGrpc;
 import org.obapanel.lockfactoryserver.core.grpc.LockStatusValues;
 import org.obapanel.lockfactoryserver.core.grpc.NameTokenValues;
-import org.obapanel.lockfactoryserver.core.grpc.TimeUnitGrpc;
 import org.obapanel.lockfactoryserver.core.grpc.TryLockWithTimeout;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
 import org.slf4j.Logger;

@@ -64,9 +64,9 @@ public class BucketRateLimiterRestTest {
     @Before
     public void setup() throws IOException {
         mockedStaticHttpClient = Mockito.mockStatic(HttpClients.class);
-        mockedStaticHttpClient.when(() -> HttpClients.createDefault() ).thenReturn(httpclient);
+        mockedStaticHttpClient.when(HttpClients::createDefault).thenReturn(httpclient);
         mockedStaticHttpClientBuilder = Mockito.mockStatic(HttpClientBuilder.class);
-        mockedStaticHttpClientBuilder.when(() -> HttpClientBuilder.create() ).thenReturn(httpClientBuilder);
+        mockedStaticHttpClientBuilder.when(HttpClientBuilder::create).thenReturn(httpClientBuilder);
         when(httpClientBuilder.setDefaultRequestConfig(any(RequestConfig.class))).thenReturn(httpClientBuilder);
         when(httpClientBuilder.build()).thenReturn(httpclient);
         when(httpclient.execute(any(HttpGet.class))).thenAnswer(ioc ->{
@@ -84,7 +84,7 @@ public class BucketRateLimiterRestTest {
 
     private String finalUrl() {
         if (finalRequest.get() != null) {
-            return finalRequest.get().getRequestUri().toString();
+            return finalRequest.get().getRequestUri();
         } else {
             return "";
         }

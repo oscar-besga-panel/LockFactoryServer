@@ -67,7 +67,7 @@ public class LockClientRestTest {
         mockedStaticHttpClient = Mockito.mockStatic(HttpClients.class);
         mockedStaticHttpClient.when(HttpClients::createDefault).thenReturn(httpclient);
         mockedStaticHttpClientBuilder = Mockito.mockStatic(HttpClientBuilder.class);
-        mockedStaticHttpClientBuilder.when(() -> HttpClientBuilder.create() ).thenReturn(httpClientBuilder);
+        mockedStaticHttpClientBuilder.when(HttpClientBuilder::create).thenReturn(httpClientBuilder);
         when(httpClientBuilder.setDefaultRequestConfig(any(RequestConfig.class))).thenReturn(httpClientBuilder);
         when(httpClientBuilder.build()).thenReturn(httpclient);
 

@@ -6,7 +6,6 @@ import org.glassfish.jersey.servlet.ServletContainer;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.connections.Connections;
 import org.obapanel.lockfactoryserver.server.connections.LockFactoryConnection;
-import org.obapanel.lockfactoryserver.server.primitives.rateLimiter.BucketRateLimiter;
 import org.obapanel.lockfactoryserver.server.service.LockFactoryServices;
 import org.obapanel.lockfactoryserver.server.service.Services;
 import org.eclipse.jetty.server.Server;

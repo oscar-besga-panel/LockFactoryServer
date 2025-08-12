@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -88,7 +89,7 @@ public class BucketRateLimiterClientGrpcTest {
         verify(stub).newRateLimiter(captor.capture());
         assertEquals(name, captor.getValue().getName());
         assertEquals(current.get(), captor.getValue().getTotalTokens());
-        assertEquals(false, captor.getValue().getGreedy());
+        assertFalse(captor.getValue().getGreedy());
         assertEquals(10L, captor.getValue().getTimeRefill());
         assertEquals(fromJavaToGrpc(TimeUnit.SECONDS), captor.getValue().getTimeUnit());
     }
@@ -100,7 +101,7 @@ public class BucketRateLimiterClientGrpcTest {
         verify(stub).newRateLimiter(captor.capture());
         assertEquals(name, captor.getValue().getName());
         assertEquals(current.get(), captor.getValue().getTotalTokens());
-        assertEquals(false, captor.getValue().getGreedy());
+        assertFalse(captor.getValue().getGreedy());
         assertEquals(10L, captor.getValue().getTimeRefill());
         assertEquals(fromJavaToGrpc(TimeUnit.MILLISECONDS), captor.getValue().getTimeUnit());
     }
@@ -177,9 +178,7 @@ public class BucketRateLimiterClientGrpcTest {
             return f;
         });
         ArgumentCaptor<NameTokensConsume> captor = ArgumentCaptor.forClass(NameTokensConsume.class);
-        bucketRateLimiterClientGrpc.asyncConsume(tokens, () -> {
-            inner.release();
-        });
+        bucketRateLimiterClientGrpc.asyncConsume(tokens, inner::release);
         boolean released = inner.tryAcquire(2, 1000, TimeUnit.MILLISECONDS);
         verify(futureStub).asyncConsume(captor.capture());
         assertEquals(name, captor.getValue().getName());

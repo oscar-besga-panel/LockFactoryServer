@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
 
 public interface BucketRateLimiterService extends LockFactoryServices {
 
-    public static final Services TYPE = Services.BUCKET_RATE_LIMITER;
+    Services TYPE = Services.BUCKET_RATE_LIMITER;
 
     @Override
     default Services getType() {
