@@ -47,7 +47,7 @@ public class SemaphoreAsyncGpcTest {
         return new SemaphoreClientGrpc(LOCALHOST , getConfigurationIntegrationTestServer().getGrpcServerPort(), semaphoreName);
     }
 
-    @Test
+    @Test(timeout=25000)
     public void acquireAsync1Test() throws InterruptedException {
         Semaphore inner = new Semaphore(0);
         LOGGER.debug("test acquireAsyncTest ini >>>");
@@ -69,7 +69,7 @@ public class SemaphoreAsyncGpcTest {
         LOGGER.debug("test acquireAsyncTest fin >>>");
     }
 
-    @Test
+    @Test(timeout=25000)
     public void acquireAsync2Test() throws InterruptedException {
         Semaphore inner = new Semaphore(0);
         LOGGER.debug("test acquireAsyncTest ini >>>");

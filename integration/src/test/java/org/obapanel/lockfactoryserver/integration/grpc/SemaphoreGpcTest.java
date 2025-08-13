@@ -50,7 +50,7 @@ public class SemaphoreGpcTest {
         return new SemaphoreClientGrpc(LOCALHOST , getConfigurationIntegrationTestServer().getGrpcServerPort(), semaphoreName);
     }
 
-    @Test
+    @Test(timeout=25000)
     public void currentPermitsTest() {
         LOGGER.debug("test currentTest ini >>>");
         SemaphoreClientGrpc semaphoreClientGrpc = generateSemaphoreClientGrpc();
@@ -65,7 +65,7 @@ public class SemaphoreGpcTest {
         LOGGER.debug("test currentTest fin <<<");
     }
 
-    @Test
+    @Test(timeout=25000)
     public void accquireAndReleaseTest() {
         LOGGER.debug("test accquireTest ini >>>");
         SemaphoreClientGrpc semaphoreClientGrpc = generateSemaphoreClientGrpc();
@@ -85,7 +85,7 @@ public class SemaphoreGpcTest {
         LOGGER.debug("test accquireTest fin <<<");
     }
 
-    @Test
+    @Test(timeout=25000)
     public void tryAcquireTest() throws InterruptedException {
         Semaphore inner = new Semaphore(0);
         LOGGER.debug("test tryAcquireTest ini >>>");
@@ -112,7 +112,7 @@ public class SemaphoreGpcTest {
         LOGGER.debug("test tryAcquireTest fin <<<");
     }
 
-    @Test
+    @Test(timeout=25000)
     public void tryAcquireWithTimeOutTest() throws InterruptedException {
         Semaphore inner = new Semaphore(0);
         LOGGER.debug("test tryAcquireWithTimeOutTest ini >>>");

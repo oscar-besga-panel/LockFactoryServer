@@ -67,7 +67,7 @@ public class CountDownLatchGrpcTest {
     }
 
 
-    @Test
+    @Test(timeout=25000)
     public void createAndGetTest() {
         int count = ThreadLocalRandom.current().nextInt(5,100);
         CountDownLatchClientGrpc countDownLatchClientGrpc = generateCountDownLatchClientGrpc();
@@ -84,7 +84,7 @@ public class CountDownLatchGrpcTest {
         assertEquals(count - 1, count4);
     }
 
-    @Test
+    @Test(timeout=25000)
     public void awaitOneTest() throws InterruptedException {
         Semaphore inner = new Semaphore(0);
         CountDownLatchClientGrpc countDownLatchClientGrpc1 = generateCountDownLatchClientGrpc();
@@ -111,7 +111,7 @@ public class CountDownLatchGrpcTest {
         assertFalse(countDownLatchClientGrpc1.isActive());
     }
 
-    @Test
+    @Test(timeout=25000)
     public void awaitOneTest2()  {
         CountDownLatchClientGrpc countDownLatchClientGrpc = generateCountDownLatchClientGrpc();
         boolean created = countDownLatchClientGrpc.createNew(1);
@@ -129,7 +129,7 @@ public class CountDownLatchGrpcTest {
         assertFalse(countDownLatchClientGrpc.isActive());
     }
 
-    @Test
+    @Test(timeout=25000)
     public void awaitManyTest() {
         int count = ThreadLocalRandom.current().nextInt(5,15);
         CountDownLatchClientGrpc countDownLatchClientGrpc = generateCountDownLatchClientGrpc();
@@ -157,7 +157,7 @@ public class CountDownLatchGrpcTest {
         assertFalse(countDownLatchClientGrpc.isActive());
     }
 
-    @Test
+    @Test(timeout=25000)
     public void awaitManyPreTest() throws InterruptedException {
         int count = ThreadLocalRandom.current().nextInt(5,15);
         CountDownLatchClientGrpc countDownLatchClientGrpc = generateCountDownLatchClientGrpc();
@@ -206,7 +206,7 @@ public class CountDownLatchGrpcTest {
         assertFalse(countDownLatchClientGrpc.isActive());
     }
 
-    @Test
+    @Test(timeout=25000)
     public void awaitCountTest() throws InterruptedException {
         Semaphore inner2 = new Semaphore(0);
         Semaphore inner3 = new Semaphore(0);

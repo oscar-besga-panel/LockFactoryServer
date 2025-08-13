@@ -55,7 +55,7 @@ public class WithLockGrpcAdvancedTest {
         executorService.shutdownNow();
     }
 
-    @Test
+    @Test(timeout=25000)
     public void testIfInterruptedFor5SecondsLock() throws InterruptedException {
             intoCriticalZone.set(false);
             errorInCriticalZone.set(false);

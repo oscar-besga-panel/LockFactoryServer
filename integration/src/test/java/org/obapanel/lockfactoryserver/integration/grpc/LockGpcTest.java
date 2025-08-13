@@ -47,7 +47,7 @@ public class LockGpcTest {
         return new LockClientGrpc(LOCALHOST , getConfigurationIntegrationTestServer().getGrpcServerPort(), lockName);
     }
 
-    @Test
+    @Test(timeout=25000)
     public void lockUnlockTest() {
         LockClientGrpc lockClientGrpc = generateLockClientGrpc();
         LOGGER.debug("test lockUnlockTest ini >>>");
@@ -62,7 +62,7 @@ public class LockGpcTest {
         LOGGER.debug("test lockUnlockTest fin <<<");
     }
 
-    @Test
+    @Test(timeout=25000)
     public void lockTwolocksTest() {
         LOGGER.debug("test lockTwolocksTest ini >>>");
         LockClientGrpc lockClientGrpc1 = generateLockClientGrpc();

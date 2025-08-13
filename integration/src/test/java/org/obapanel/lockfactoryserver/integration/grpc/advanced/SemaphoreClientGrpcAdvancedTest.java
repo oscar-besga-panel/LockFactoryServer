@@ -40,7 +40,7 @@ public class SemaphoreClientGrpcAdvancedTest {
         stopIntegrationTestServer();
     }
 
-    @Test
+    @Test(timeout=25000)
     public void testIfInterruptedFor5SecondsLock() throws InterruptedException {
         SemaphoreClientGrpc semaphoreClientGrpc = new SemaphoreClientGrpc(LOCALHOST, getConfigurationIntegrationTestServer().getGrpcServerPort(), semaphoreName);
         semaphoreClientGrpc.release();

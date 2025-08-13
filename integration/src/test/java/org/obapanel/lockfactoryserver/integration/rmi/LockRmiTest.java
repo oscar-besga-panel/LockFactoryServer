@@ -74,7 +74,7 @@ public class LockRmiTest {
         }
     }
 
-    @Test
+    @Test(timeout=25000)
     public void lockUnlockTest() throws RemoteException {
         LockClientRmi lockClientRmi = generateLockClientRmi();
         LOGGER.debug("test lockUnlockTest ini >>>");
@@ -89,7 +89,7 @@ public class LockRmiTest {
         LOGGER.debug("test lockUnlockTest fin <<<");
     }
 
-    @Test
+    @Test(timeout=25000)
     public void lockTwolocksTest() throws RemoteException {
         LOGGER.debug("test lockTwolocksTest ini >>>");
         LockClientRmi lockClientRmi1 = generateLockClientRmi();
@@ -106,7 +106,7 @@ public class LockRmiTest {
         LOGGER.debug("test lockTwolocksTest fin <<<");
     }
 
-    @Test
+    @Test(timeout=25000)
     public void doWithLockSimpleTest() throws InterruptedException {
         String currentLockName =  generateLockClientRmi().getName() + "_1_simple";
         Semaphore inner = new Semaphore(0);
@@ -126,7 +126,7 @@ public class LockRmiTest {
         assertTrue(acquired);
     }
 
-    @Test
+    @Test(timeout=25000)
     public void doGetWithLockSimpleTest() throws InterruptedException, ExecutionException, TimeoutException {
         String currentLockName =  generateLockClientRmi().getName() + "_2_simple";
         Semaphore inner = new Semaphore(0);

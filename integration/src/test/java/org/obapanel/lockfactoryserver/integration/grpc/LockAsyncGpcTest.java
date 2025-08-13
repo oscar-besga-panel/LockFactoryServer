@@ -66,7 +66,7 @@ public class LockAsyncGpcTest {
         return new LockClientGrpc(LOCALHOST , getConfigurationIntegrationTestServer().getGrpcServerPort(), lockName);
     }
 
-    @Test
+    @Test(timeout=25000)
     public void lockAsync1Test() throws InterruptedException {
         Semaphore makeWait = new Semaphore(0);
         LockClientGrpc lockClientGrpc = generateLockClientGrpc();
@@ -84,7 +84,7 @@ public class LockAsyncGpcTest {
         LOGGER.debug("test lockUnlockTest fin <<<");
     }
 
-    @Test
+    @Test(timeout=25000)
     public void lockAsync2Test() throws InterruptedException {
         Semaphore makeWait = new Semaphore(0);
         LockClientGrpc lockClientGrpc1 = generateLockClientGrpc();
@@ -109,7 +109,7 @@ public class LockAsyncGpcTest {
         LOGGER.debug("test lockUnlockTest fin <<<");
     }
 
-    @Test
+    @Test(timeout=25000)
     public void doWithLockSimpleTest() throws InterruptedException {
         String currentLockName =  generateLockClientGrpc().getName() + "_1_simple";
         Semaphore inner = new Semaphore(0);
@@ -129,7 +129,7 @@ public class LockAsyncGpcTest {
         assertTrue(acquired);
     }
 
-    @Test
+    @Test(timeout=25000)
     public void doGetWithLockSimpleTest() throws InterruptedException, ExecutionException, TimeoutException {
         String currentLockName =  generateLockClientGrpc().getName() + "_2_simple";
         Semaphore inner = new Semaphore(0);

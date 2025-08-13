@@ -51,7 +51,7 @@ public class SemaphoreRestTest {
     }
 
 
-    @Test
+    @Test(timeout=25000)
     public void currentPermitsTest() {
         LOGGER.debug("test currentTest ini >>>");
         SemaphoreClientRest semaphoreClientRest = generateSemaphoreClientRest();
@@ -64,7 +64,7 @@ public class SemaphoreRestTest {
         LOGGER.debug("test currentTest fin <<<");
     }
 
-    @Test
+    @Test(timeout=25000)
     public void accquireAndReleaseTest() {
         LOGGER.debug("test accquireTest ini >>>");
         SemaphoreClientRest semaphoreClientRest = generateSemaphoreClientRest();
@@ -84,7 +84,7 @@ public class SemaphoreRestTest {
         LOGGER.debug("test accquireTest fin <<<");
     }
 
-    @Test
+    @Test(timeout=25000)
     public void tryAcquireTest() throws InterruptedException {
         Semaphore inner = new Semaphore(0);
         LOGGER.debug("test tryAcquireTest ini >>>");
@@ -111,7 +111,7 @@ public class SemaphoreRestTest {
         LOGGER.debug("test tryAcquireTest fin <<<");
     }
 
-    @Test
+    @Test(timeout=25000)
     public void tryAcquireWithTimeOut1Test() throws InterruptedException {
         Semaphore inner = new Semaphore(0);
         LOGGER.debug("test tryAcquireWithTimeOut1Test ini >>>");
@@ -140,7 +140,7 @@ public class SemaphoreRestTest {
         LOGGER.debug("test tryAcquireWithTimeOut1Test fin <<<");
     }
 
-    @Test
+    @Test(timeout=25000)
     public void tryAcquireWithTimeOut2Test() throws InterruptedException {
         Semaphore inner = new Semaphore(0);
         LOGGER.debug("test tryAcquireWithTimeOut2Test ini >>>");

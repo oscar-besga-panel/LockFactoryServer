@@ -50,7 +50,7 @@ public class BucketRateLimiterRmiTest {
                 bucketName);
     }
 
-    @Test
+    @Test(timeout=25000)
     public void createAndSimpleUsage1Test() throws RemoteException, NotBoundException {
         BucketRateLimiterClientRmi bucketRateLimiterClientRmi = generateBucketClientRmi();
         bucketRateLimiterClientRmi.newRateLimiter(1L, false, 300, TimeUnit.MILLISECONDS);
@@ -65,7 +65,7 @@ public class BucketRateLimiterRmiTest {
         assertEquals(-1L, bucketRateLimiterClientRmi.getAvailableTokens());
     }
 
-    @Test
+    @Test(timeout=25000)
     public void createAndSimpleUsage2Test() throws RemoteException, NotBoundException {
         BucketRateLimiterClientRmi bucketRateLimiterClientRmi = generateBucketClientRmi();
         bucketRateLimiterClientRmi.newRateLimiter(1L, false, 300, TimeUnit.MILLISECONDS);
@@ -79,7 +79,7 @@ public class BucketRateLimiterRmiTest {
         assertEquals(-1L, bucketRateLimiterClientRmi.getAvailableTokens());
     }
 
-    @Test
+    @Test(timeout=25000)
     public void createAndSimpleUsage3Test() throws RemoteException, NotBoundException {
         BucketRateLimiterClientRmi bucketRateLimiterClientRmi = generateBucketClientRmi();
         bucketRateLimiterClientRmi.newRateLimiter(1L, false, 300);

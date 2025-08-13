@@ -65,7 +65,7 @@ public class ManagementGpcTest {
         return new ManagementClientGrpc(LOCALHOST, configuration.getGrpcServerPort());
     }
 
-    @Test
+    @Test(timeout=25000)
     public void isRunningTest() {
         LOGGER.debug("test isRunning ini >>>");
         ManagementClientGrpc managementClientGrpc = generateManagementClientGrpc();
@@ -74,7 +74,7 @@ public class ManagementGpcTest {
         LOGGER.debug("test isRunning fin <<<");
     }
 
-    @Test
+    @Test(timeout=25000)
     public void shutdownTest() {
         LOGGER.debug("test shutdownTest ini >>>");
         ManagementClientGrpc managementClientGrpc = generateManagementClientGrpc();

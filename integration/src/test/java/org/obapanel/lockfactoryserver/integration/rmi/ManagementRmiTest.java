@@ -39,7 +39,7 @@ public class ManagementRmiTest {
         return new ManagementClientRmi(LOCALHOST , getConfigurationIntegrationTestServer().getRmiServerPort());
     }
 
-    @Test
+    @Test(timeout=25000)
     public void isRunningTest() throws NotBoundException, RemoteException {
         LOGGER.debug("test isRunning ini >>>");
         if (!hasBeenShutdowmAlready.get()) {
@@ -53,7 +53,7 @@ public class ManagementRmiTest {
         }
     }
 
-    @Test
+    @Test(timeout=25000)
     public void shutdownTest() throws NotBoundException, RemoteException {
         LOGGER.debug("test shutdownTest ini >>>");
         ManagementClientRmi managementClientRmi = generateManagementClientRmi();

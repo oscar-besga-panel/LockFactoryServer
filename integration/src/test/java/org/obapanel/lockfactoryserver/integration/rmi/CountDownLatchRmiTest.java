@@ -65,7 +65,7 @@ public class CountDownLatchRmiTest {
         return new CountDownLatchClientRmi(LOCALHOST , getConfigurationIntegrationTestServer().getRmiServerPort(), currentCountDownLatchName);
     }
 
-    @Test
+    @Test(timeout=25000)
     public void createAndGetTest() throws NotBoundException, RemoteException {
         int count = ThreadLocalRandom.current().nextInt(5,100);
         CountDownLatchClientRmi countDownLatchClientRmi = generateCountDownLatchClientRmi();
@@ -82,7 +82,7 @@ public class CountDownLatchRmiTest {
         assertEquals(count - 1, count4);
     }
 
-    @Test
+    @Test(timeout=25000)
     public void awaitOneTest() throws InterruptedException, RemoteException, NotBoundException {
         Semaphore inner = new Semaphore(0);
         CountDownLatchClientRmi countDownLatchClientRmi1 = generateCountDownLatchClientRmi();
@@ -111,7 +111,7 @@ public class CountDownLatchRmiTest {
         assertFalse(countDownLatchClientRmi1.isActive());
     }
 
-    @Test
+    @Test(timeout=25000)
     public void awaitOneTest2() throws NotBoundException, RemoteException {
         CountDownLatchClientRmi countDownLatchClientRmi = generateCountDownLatchClientRmi();
         boolean created = countDownLatchClientRmi.createNew(1);
@@ -131,7 +131,7 @@ public class CountDownLatchRmiTest {
         assertFalse(countDownLatchClientRmi.isActive());
     }
 
-    @Test
+    @Test(timeout=25000)
     public void awaitManyTest() throws NotBoundException, RemoteException {
         int count = ThreadLocalRandom.current().nextInt(5,15);
         CountDownLatchClientRmi countDownLatchClientRmi = generateCountDownLatchClientRmi();
@@ -161,7 +161,7 @@ public class CountDownLatchRmiTest {
         assertFalse(countDownLatchClientRmi.isActive());
     }
 
-    @Test
+    @Test(timeout=25000)
     public void awaitManyPreTest() throws InterruptedException, NotBoundException, RemoteException {
         int count = ThreadLocalRandom.current().nextInt(5,15);
         CountDownLatchClientRmi countDownLatchClientRmi = generateCountDownLatchClientRmi();
@@ -210,7 +210,7 @@ public class CountDownLatchRmiTest {
         assertFalse(countDownLatchClientRmi.isActive());
     }
 
-    @Test
+    @Test(timeout=25000)
     public void awaitCountTest() throws InterruptedException, RemoteException, NotBoundException {
         Semaphore inner2 = new Semaphore(0);
         Semaphore inner3 = new Semaphore(0);
