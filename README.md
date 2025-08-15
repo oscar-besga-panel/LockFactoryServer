@@ -64,8 +64,8 @@ If you need a integration test for REST connection, you can use curl or postman
 ## Rationale
 
 I made this project because I wanted to have a 100% Java implementation of a server which provides synchronization primitives as services.  
-I know you can do this with mongo, redis (as see [here](https://github.com/oscar-besga-panel/InterruptingJedisLocks)) or other servers; 
-but I wanted a stand-alone, slimmed, only-for-this-purpose, do-one-thing-and-do-it-well implementation.    
+I know you can do this with mongo, redis (as see [here](https://github.com/oscar-besga-panel/InterruptingJedisLocks)) or other servers;
+but I wanted a stand-alone, slimmed, only-for-this-purpose, do-one-thing-and-do-it-well implementation.
 This is why I don't want to provide with memory-related apis, nor messaging or other utilities; as redis, rabbitmq and other are fully available out there.
 
 
