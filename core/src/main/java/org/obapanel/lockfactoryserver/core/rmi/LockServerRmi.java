@@ -37,7 +37,9 @@ public interface LockServerRmi extends Remote {
      * @return a non-null non-empty string with the token of the lock if acquired, or an empty/null string if not
      * @throws RemoteException if anything goes wrong
      */
-    String tryLockWithTimeOut(String name, long timeInMillis)  throws RemoteException;
+    default String tryLockWithTimeOut(String name, long timeInMillis)  throws RemoteException {
+        return tryLockWithTimeOut(name, timeInMillis, TimeUnit.MILLISECONDS);
+    }
 
     /**
      * Try to obain a lock, waiting a defined time

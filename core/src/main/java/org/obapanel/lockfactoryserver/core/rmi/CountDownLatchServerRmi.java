@@ -65,7 +65,9 @@ public interface CountDownLatchServerRmi extends Remote {
      * @return true if zero reached, false if time consumed
      * @throws RemoteException if anything goes wrong
      */
-    boolean tryAwaitWithTimeOut(String name, long timeOut) throws RemoteException;
+    default boolean tryAwaitWithTimeOut(String name, long timeOut) throws RemoteException {
+        return tryAwaitWithTimeOut(name, timeOut, TimeUnit.MILLISECONDS);
+    }
 
     /**
      * Waits until the timeOut time is consumed or the countDownlatch reaches zero

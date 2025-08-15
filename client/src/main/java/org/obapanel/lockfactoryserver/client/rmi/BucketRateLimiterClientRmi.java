@@ -28,6 +28,10 @@ public class BucketRateLimiterClientRmi extends AbstractClientRmi<BucketRateLimi
         return RMI_NAME;
     }
 
+    public void newRateLimiter(long totalTokens, boolean greedy, long timeRefillMillis) throws RemoteException {
+        getServerRmi().newRateLimiter(getName(),totalTokens, greedy, timeRefillMillis, TimeUnit.MILLISECONDS);
+    }
+
     public void newRateLimiter(long totalTokens, boolean greedy, long timeRefill, TimeUnit timeUnit) throws RemoteException {
         getServerRmi().newRateLimiter(getName(),totalTokens, greedy, timeRefill, timeUnit);
     }
@@ -44,6 +48,11 @@ public class BucketRateLimiterClientRmi extends AbstractClientRmi<BucketRateLimi
     public boolean tryConsume(long tokens) throws RemoteException {
         return getServerRmi().tryConsume(getName(), tokens);
     }
+
+    public boolean tryConsumeWithTimeOut(long tokens, long timeOutMillis) throws RemoteException {
+        return tryConsumeWithTimeOut(tokens, timeOutMillis, TimeUnit.MILLISECONDS);
+    }
+
 
     public boolean tryConsumeWithTimeOut(long tokens, long timeOut, TimeUnit timeUnit) throws RemoteException {
         return getServerRmi().tryConsumeWithTimeOut(getName(), tokens, timeOut, timeUnit);

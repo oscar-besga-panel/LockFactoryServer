@@ -45,10 +45,17 @@ public class BucketRateLimiterClientRmiTest {
     }
 
     @Test
-    public void createNewTest() throws RemoteException {
+    public void createNewTest1() throws RemoteException {
         bucketRateLimiterClientRmi.newRateLimiter(current.get(), true, 15L, TimeUnit.HOURS);
         verify(bucketRateLimiterServerRmi).newRateLimiter(eq(name), eq(current.get()),
                 eq(true), eq(15L), eq(TimeUnit.HOURS));
+    }
+
+    @Test
+    public void createNewTest2() throws RemoteException {
+        bucketRateLimiterClientRmi.newRateLimiter(current.get(), true, 15L);
+        verify(bucketRateLimiterServerRmi).newRateLimiter(eq(name), eq(current.get()),
+                eq(true), eq(15L), eq(TimeUnit.MILLISECONDS));
     }
 
     @Test

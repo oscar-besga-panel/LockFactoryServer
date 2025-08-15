@@ -20,6 +20,10 @@ public class BucketRateLimiterRestClient extends AbstractClientRest {
         return SERVICE_URL_NAME_BUCKET_RATE_LIMITER;
     }
 
+    public void newRateLimiter(long totalTokens, boolean greedy, long timeRefill) {
+        newRateLimiter(totalTokens, greedy, timeRefill, TimeUnit.MILLISECONDS);
+    }
+
     public void newRateLimiter(long totalTokens, boolean greedy, long timeRefill, TimeUnit timeUnit) {
         requestWithUrl( "newRateLimiter", getName(), Long.toString(totalTokens),
                 Boolean.toString(greedy), Long.toString(timeRefill), timeUnit.toString());
@@ -37,6 +41,10 @@ public class BucketRateLimiterRestClient extends AbstractClientRest {
     public boolean tryConsume(long tokens) {
         String response = requestWithUrl( "tryConsume", getName(), Long.toString(tokens));
         return Boolean.parseBoolean(response);
+    }
+
+    public boolean tryConsumeWithTimeOut(long tokens, long timeOutMillis) {
+        return tryConsumeWithTimeOut(tokens, timeOutMillis, TimeUnit.MILLISECONDS);
     }
 
     public boolean tryConsumeWithTimeOut(long tokens, long timeOut, TimeUnit timeUnit) {

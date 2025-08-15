@@ -61,19 +61,19 @@ public class HolderRmiTest {
         return new HolderClientRmi(LOCALHOST , getConfigurationIntegrationTestServer().getRmiServerPort(), currentHolderName);
     }
 
-    @Test
+    @Test(timeout=25000)
     public void getSet1Test() throws NotBoundException, RemoteException {
         String value = String.join("_","value", Integer.toString(ThreadLocalRandom.current().nextInt()),
                 Long.toString(System.currentTimeMillis()));
         HolderClientRmi holderClientRmi1 = generateHolderClientRmi();
         HolderClientRmi holderClientRmi2 = generateHolderClientRmi(holderClientRmi1.getName());
-        holderClientRmi1.setWithTimeToLiveMillis(value, 1000);
+        holderClientRmi1.setWithTimeToLive(value, 1000);
         HolderResult holderResult2 = holderClientRmi2.get();
         assertEquals(value, holderResult2.getValue() );
         assertEquals(HolderResult.Status.RETRIEVED, holderResult2.getStatus() );
     }
 
-    @Test
+    @Test(timeout=25000)
     public void getSet2Test() throws NotBoundException, RemoteException {
         String value = String.join("_","value", Integer.toString(ThreadLocalRandom.current().nextInt()),
                 Long.toString(System.currentTimeMillis()));
@@ -96,7 +96,7 @@ public class HolderRmiTest {
         assertEquals(HolderResult.Status.RETRIEVED, holderResult2.getStatus() );
     }
 
-    @Test
+    @Test(timeout=25000)
     public void getCancelTest() throws NotBoundException, RemoteException {
         HolderClientRmi holderClientRmi1 = generateHolderClientRmi();
         HolderClientRmi holderClientRmi2 = generateHolderClientRmi(holderClientRmi1.getName());
@@ -117,7 +117,7 @@ public class HolderRmiTest {
         assertEquals(HolderResult.Status.CANCELLED, holderResult2.getStatus() );
     }
 
-    @Test
+    @Test(timeout=25000)
     public void getSet3Test() throws NotBoundException, RemoteException {
         String value = String.join("_","value", Integer.toString(ThreadLocalRandom.current().nextInt()),
                 Long.toString(System.currentTimeMillis()));
@@ -140,7 +140,7 @@ public class HolderRmiTest {
         assertEquals(HolderResult.Status.NOTFOUND, holderResult2.getStatus() );
     }
 
-    @Test
+    @Test(timeout=25000)
     public void getSet4Test() throws NotBoundException, RemoteException {
         String value = String.join("_","value", Integer.toString(ThreadLocalRandom.current().nextInt()),
                 Long.toString(System.currentTimeMillis()));
@@ -163,7 +163,7 @@ public class HolderRmiTest {
         assertEquals(HolderResult.Status.AWAITED, holderResult2.getStatus() );
     }
 
-    @Test
+    @Test(timeout=25000)
     public void getSet5Test() throws NotBoundException, RemoteException {
         String value = String.join("_","value", Integer.toString(ThreadLocalRandom.current().nextInt()),
                 Long.toString(System.currentTimeMillis()));

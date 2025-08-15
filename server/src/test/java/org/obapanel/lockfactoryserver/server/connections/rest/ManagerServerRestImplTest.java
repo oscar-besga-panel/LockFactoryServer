@@ -1,6 +1,5 @@
 package org.obapanel.lockfactoryserver.server.connections.rest;
 
-import com.github.arteam.embedhttp.HttpRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,6 +23,7 @@ public class ManagerServerRestImplTest {
 
     private final AtomicBoolean isRunning = new AtomicBoolean(true);
 
+
     private ManagementServerRestImpl managementServerRest;
 
     @Before
@@ -39,7 +39,7 @@ public class ManagerServerRestImplTest {
     @Test
     public void shutdownServerTest() {
         boolean before = isRunning.get();
-        String response = managementServerRest.shutdownServer(HttpRequest.EMPTY_REQUEST);
+        String response = managementServerRest.shutdownServer();
         boolean after = isRunning.get();
         assertTrue(OK.equalsIgnoreCase(response));
         assertTrue(before);
@@ -48,8 +48,16 @@ public class ManagerServerRestImplTest {
 
     @Test
     public void isRunningTest() {
-        String response = managementServerRest.isRunning(HttpRequest.EMPTY_REQUEST);
+        String response = managementServerRest.isRunning();
         assertTrue(Boolean.parseBoolean(response));
     }
+/*
+//TODO
+    @Test
+    public void ping() {
+        String response = managementServerRest.ping();
+        assertNotNull(response);
+    }
+*/
     
 }

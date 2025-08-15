@@ -1,16 +1,18 @@
 package org.obapanel.lockfactoryserver.server.connections.rest;
 
-import com.github.arteam.embedhttp.HttpRequest;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
 import org.obapanel.lockfactoryserver.server.service.management.ManagementService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Class that connects a REST petition with the management service
- */
+@Path("/management")
 public class ManagementServerRestImpl {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LockServerRestImpl.class);
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ManagementServerRestImpl.class);
 
     public final static String OK = "ok";
 
@@ -20,18 +22,38 @@ public class ManagementServerRestImpl {
         this.managementService = managementService;
     }
 
-
-
-    public String shutdownServer(HttpRequest request) {
+    @GET
+    @Path("/{a:shutdownServer|shutdownserver}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String shutdownServer() {
         LOGGER.info("rest server> management shutdown");
         managementService.shutdownServer();
         return OK;
     }
 
-    public String isRunning(HttpRequest request) {
+    @GET
+    @Path("/{a:isRunning|isrunning}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String isRunning() {
         LOGGER.info("rest server> management isRunning");
         boolean running = managementService.isRunning();
         return Boolean.toString(running);
     }
-
+/*
+//TODO
+    @GET
+    @Path("/{a:ping|Ping}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String ping() {
+        LOGGER.info("rest server> management ping");
+        boolean running = managementService.isRunning();
+        if (!running) {
+            LOGGER.warn("rest server> management ping: server is not running");
+            return "0";
+        } else {
+            LOGGER.info("rest server> management ping: server is running");
+            return Long.toString(System.currentTimeMillis());
+        }
+    }
+*/
 }

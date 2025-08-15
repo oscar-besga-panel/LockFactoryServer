@@ -15,8 +15,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -117,11 +115,13 @@ public abstract class PrimitivesCache<K> implements AutoCloseable {
      * @param name name of the primitive
      * @return non-null primitive
      */
-    public K getOrCreateData(String name) {
+    public synchronized K getOrCreateData(String name) {
         LOGGER.debug("getOrCreateData mapName {} name {}", getMapName(), name);
         K data = dataMap.get(name);
         if (data == null) {
             data = createData(name);
+        } else {
+            getQueueEntry(name).refresh();
         }
         return data;
     }
@@ -143,11 +143,13 @@ public abstract class PrimitivesCache<K> implements AutoCloseable {
      * @param creator supplier not to use defaul method
      * @return non-null primitive
      */
-    public K getOrCreateData(String name, Supplier<K> creator) {
+    public synchronized K getOrCreateData(String name, Supplier<K> creator) {
         LOGGER.debug("getOrCreateData mapName {} name {}", getMapName(), name);
         K data = dataMap.get(name);
         if (data == null) {
             data = createData(name, creator);
+        } else {
+            getQueueEntry(name).refresh();
         }
         return data;
     }
@@ -195,25 +197,6 @@ public abstract class PrimitivesCache<K> implements AutoCloseable {
         return dataMap.get(name);
     }
 
-
-    public synchronized void doWithData(String name, Consumer<K> action) {
-        K data = getOrCreateData(name);
-        if (data != null) {
-            action.accept(data);
-        }
-    }
-
-    public synchronized <V> V getWithData(String name, Function<K,V> action) {
-        K data = getOrCreateData(name);
-        if (data != null) {
-            return action.apply(data);
-        } else {
-            return null;
-        }
-    }
-
-
-
     /**
      * Remove data directly
      * @param name name of the primitive to expire
@@ -245,7 +228,11 @@ public abstract class PrimitivesCache<K> implements AutoCloseable {
         if (primitive != null) {
             LOGGER.debug("removeData to remove name {} data {}", name, primitive);
             dataMap.remove(name);
-            delayQueue.remove(primitive);
+            boolean delayRemoved = delayQueue.remove(primitive);
+            if (!delayRemoved) {
+                LOGGER.warn("removeData delayQueue remove failed for name {}", name);
+            }
+
             notifyRemoveListenersBackground(name, primitive.getPrimitive());
         } else {
             LOGGER.warn("removeData nothing to remove with name {}", name);
@@ -288,7 +275,7 @@ public abstract class PrimitivesCache<K> implements AutoCloseable {
         }
     }
 
-    public void close() throws Exception {
+    public void close() {
         clearAndShutdown();
     }
     
@@ -393,7 +380,7 @@ public abstract class PrimitivesCache<K> implements AutoCloseable {
         List<String> fromData = new ArrayList<>(dataMap.keySet());
         List<PrimitivesCacheEntry<K>> toRemove = delayQueue.stream().
                 filter(entry -> !fromData.contains(entry.getName())).
-                collect(Collectors.toList());
+                toList();
         toRemove.forEach(entry -> {
                     LOGGER.debug("checkDataEquivalenceInQueue delayQueue mapName {} remove {}", getMapName(), entry);
                     boolean removed = delayQueue.remove(entry);
@@ -413,7 +400,7 @@ public abstract class PrimitivesCache<K> implements AutoCloseable {
         List<String> fromData = new ArrayList<>(dataMap.keySet());
         List<String> fromDelay = delayQueue.stream().
                 map(PrimitivesCacheEntry::getName).
-                collect(Collectors.toList());
+                toList();
         fromData.stream().
                 filter( name -> !fromDelay.contains(name) ).
                 forEach(name -> {

@@ -1,19 +1,23 @@
 package org.obapanel.lockfactoryserver.server.connections.rest;
 
-import com.github.arteam.embedhttp.HttpRequest;
-import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchService;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchService;
 
+@Path("/{a:countDownLatch|countdownlatch}")
 public class CountDownLatchServerRestImpl {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SemaphoreServerRestImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CountDownLatchServerRestImpl.class);
 
     public final static String OK = "ok";
-    public final static String KO = "ko";
 
     private final CountDownLatchService countDownLatchService;
 
@@ -21,64 +25,76 @@ public class CountDownLatchServerRestImpl {
         this.countDownLatchService = countDownLatchService;
     }
 
+    @GET
+    @Path("/{a:createNew|createnew}/{name}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String createNew(@PathParam("name") String name) {
+        return createNew(name, 1);
+    }
 
-    public String createNew(String prefix, List<String> parameters, HttpRequest request) {
-        String name = parameters.get(0);
-        int count;
-        if (parameters.size() > 1) {
-            count = Integer.parseInt(parameters.get(1));
-        } else {
-            count = 1;
-        }
+    @GET
+    @Path("/{a:createNew|createnew}/{name}/{count}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String createNew(@PathParam("name") String name,
+                            @PathParam("count") int count) {
         LOGGER.info("rest server> createNew name {} count {}", name, count);
         boolean result = countDownLatchService.createNew(name, count);
         return Boolean.toString(result);
     }
 
-    public String countDown(String prefix, List<String> parameters, HttpRequest request) {
-        String name = parameters.get(0);
-        if (parameters.size() > 1) {
-            int count = Integer.parseInt(parameters.get(1));
-            LOGGER.info("rest server> countDown name {} count {}", name, count);
-            countDownLatchService.countDown(name, count);
-        } else {
-            LOGGER.info("rest server> countDown name {}", name);
-            countDownLatchService.countDown(name);
-        }
+    @GET
+    @Path("/{a:countDown|countdown}/{name}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String countDown(@PathParam("name") String name) {
+        LOGGER.info("rest server> countDown name {}", name);
+        countDownLatchService.countDown(name);
         return  OK;
     }
 
+    @GET
+    @Path("/{a:countDown|countdown}/{name}/{count}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String countDown(@PathParam("name") String name, @PathParam("count") int count) {
+        LOGGER.info("rest server> countDown name {} count {}", name, count);
+        countDownLatchService.countDown(name, count);
+        return  OK;
+    }
 
-    public String getCount(String prefix, List<String> parameters, HttpRequest request) {
-        String name = parameters.get(0);
+    @GET
+    @Path("/{a:getCount|getcount}/{name}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String getCount(@PathParam("name") String name) {
         LOGGER.info("rest server> getCount name {}", name);
         int count = countDownLatchService.getCount(name);
         return Integer.toString(count);
     }
 
-    public String await(String prefix, List<String> parameters, HttpRequest request) {
-        String name = parameters.get(0);
+    @GET
+    @Path("/await/{name}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String await(@PathParam("name") String name) {
         LOGGER.info("rest server> await name {}", name);
         countDownLatchService.await(name);
         return OK;
     }
 
-    public String tryAwaitWithTimeOut(String prefix, List<String> parameters, HttpRequest request) {
-        String name = parameters.get(0);
-        long time;
-        if (parameters.size() > 1) {
-            time = Long.parseLong(parameters.get(1));
-        } else {
-            time = 1;
-        }
-        TimeUnit timeUnit;
-        if (parameters.size() > 2) {
-            timeUnit = TimeUnit.valueOf(parameters.get(2).toUpperCase());
-        } else {
-            timeUnit = TimeUnit.MILLISECONDS;
-        }
-        LOGGER.info("rest server> tryAwaitWithTimeOut name {} timeOut {} timeUnit {}", name, time, timeUnit);
-        boolean result = countDownLatchService.tryAwaitWithTimeOut(name, time, timeUnit);
+    @GET
+    @Path("/{a:tryAwaitWithTimeOut|tryawaitwithtimeout}/{name}/{time}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String tryAwaitWithTimeOut(@PathParam("name") String name,
+                                      @PathParam("time") long time) {
+        return tryAwaitWithTimeOut(name, time, TimeUnit.MILLISECONDS.name());
+    }
+
+    @GET
+    @Path("/{a:tryAwaitWithTimeOut|tryawaitwithtimeout}/{name}/{time}/{timeUnit}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String tryAwaitWithTimeOut(@PathParam("name") String name,
+                                      @PathParam("time") long time,
+                                      @PathParam("timeUnit") String timeUnit) {
+        TimeUnit timeUnitData = TimeUnit.valueOf(timeUnit.toUpperCase());
+        LOGGER.info("rest server> tryAwaitWithTimeOut name {} timeOut {} timeUnit {}", name, time, timeUnitData);
+        boolean result = countDownLatchService.tryAwaitWithTimeOut(name, time, timeUnitData);
         return Boolean.toString(result);
     }
 

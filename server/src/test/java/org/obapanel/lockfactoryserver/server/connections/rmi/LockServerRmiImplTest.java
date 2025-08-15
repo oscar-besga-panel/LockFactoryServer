@@ -34,8 +34,6 @@ public class LockServerRmiImplTest {
                 thenAnswer( ioc -> ioc.getArgument(0) + "_" + System.currentTimeMillis());
         when(lockService.tryLockWithTimeOut(anyString(), anyLong(), any(TimeUnit.class))).
                 thenAnswer( ioc -> ioc.getArgument(0) + "_" + System.currentTimeMillis());
-        when(lockService.tryLockWithTimeOut(anyString(), anyLong())).
-                thenAnswer( ioc -> ioc.getArgument(0) + "_" + System.currentTimeMillis());
         when(lockService.lockStatus(anyString(), anyString())).thenReturn(LockStatus.UNLOCKED);
         when(lockService.unLock(anyString(), anyString())).thenReturn(true);
         lockServerRmi = new LockServerRmiImpl(lockService);

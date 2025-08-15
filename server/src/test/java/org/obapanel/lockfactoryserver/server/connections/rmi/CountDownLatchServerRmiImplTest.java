@@ -77,7 +77,7 @@ public class CountDownLatchServerRmiImplTest {
         String name = "codola_" + System.currentTimeMillis();
         long time = ThreadLocalRandom.current().nextInt(100);
         countDownLatchServerRmi.tryAwaitWithTimeOut(name, time);
-        verify(countDownLatchService).tryAwaitWithTimeOut(eq(name), eq(time));
+        verify(countDownLatchService).tryAwaitWithTimeOut(eq(name), eq(time), eq(TimeUnit.MILLISECONDS));
     }
 
 }

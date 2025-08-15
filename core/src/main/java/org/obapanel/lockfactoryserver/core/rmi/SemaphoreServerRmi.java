@@ -45,7 +45,9 @@ public interface SemaphoreServerRmi extends Remote {
      * @return true if the permits have been released before the timeOut, false otherwise
      * @throws RemoteException if error
      */
-    boolean tryAcquireWithTimeOut(String name, int permits, long timeOut) throws RemoteException;
+    default boolean tryAcquireWithTimeOut(String name, int permits, long timeOut) throws RemoteException {
+        return tryAcquireWithTimeOut(name, permits, timeOut, TimeUnit.MILLISECONDS);
+    }
 
     /**
      * Wait a time to acquire N permits, returning if acquired ot time passed

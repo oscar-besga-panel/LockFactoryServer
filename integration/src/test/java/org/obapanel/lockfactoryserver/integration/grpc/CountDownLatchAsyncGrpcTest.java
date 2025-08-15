@@ -58,7 +58,7 @@ public class CountDownLatchAsyncGrpcTest {
         return new CountDownLatchClientGrpc(LOCALHOST , getConfigurationIntegrationTestServer().getGrpcServerPort(), countDownLatchCurrentName);
     }
 
-    @Test
+    @Test(timeout=25000)
     public void synAwaitTest() throws InterruptedException {
         Semaphore inner = new Semaphore(0);
         CountDownLatchClientGrpc countDownLatchClientGrpc = generateCountDownLatchClientGrpc();
@@ -77,7 +77,7 @@ public class CountDownLatchAsyncGrpcTest {
         assertTrue(acquired);
     }
 
-    @Test
+    @Test(timeout=25000)
     public void asynAwaitTest() throws InterruptedException {
         Semaphore inner = new Semaphore(0);
         CountDownLatchClientGrpc countDownLatchClientGrpc = generateCountDownLatchClientGrpc();
@@ -92,7 +92,7 @@ public class CountDownLatchAsyncGrpcTest {
         assertFalse(countDownLatchClientGrpc.isActive());
     }
 
-    @Test
+    @Test(timeout=25000)
     public void asynAwaitManyTest() throws InterruptedException {
         Semaphore inner = new Semaphore(0);
         int count = 5; // ThreadLocalRandom.current().nextInt(5,15);

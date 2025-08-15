@@ -61,7 +61,7 @@ public class HolderGrpcTest {
         return new HolderClientGrpc(LOCALHOST , getConfigurationIntegrationTestServer().getGrpcServerPort(), currentHolderName);
     }
 
-    @Test
+    @Test(timeout=25000)
     public void getSet1Test() {
         String value = String.join("_","value", Integer.toString(ThreadLocalRandom.current().nextInt()),
                 Long.toString(System.currentTimeMillis()));
@@ -73,7 +73,7 @@ public class HolderGrpcTest {
         assertEquals(HolderResult.Status.RETRIEVED, holderResult2.getStatus() );
     }
 
-    @Test
+    @Test(timeout=25000)
     public void getSet2Test() {
         String value = String.join("_","value", Integer.toString(ThreadLocalRandom.current().nextInt()),
                 Long.toString(System.currentTimeMillis()));
@@ -92,7 +92,7 @@ public class HolderGrpcTest {
         assertEquals(HolderResult.Status.RETRIEVED, holderResult2.getStatus() );
     }
 
-    @Test
+    @Test(timeout=25000)
     public void getCancelTest() {
         HolderClientGrpc holderClientGrpc1 = generateHolderClientGrpc();
         HolderClientGrpc holderClientGrpc2 = generateHolderClientGrpc(holderClientGrpc1.getName());
@@ -109,7 +109,7 @@ public class HolderGrpcTest {
         assertEquals(HolderResult.Status.CANCELLED, holderResult2.getStatus() );
     }
 
-    @Test
+    @Test(timeout=25000)
     public void getSet3Test() {
         String value = String.join("_","value", Integer.toString(ThreadLocalRandom.current().nextInt()),
                 Long.toString(System.currentTimeMillis()));
@@ -128,7 +128,7 @@ public class HolderGrpcTest {
         assertEquals(HolderResult.Status.NOTFOUND, holderResult2.getStatus() );
     }
 
-    @Test
+    @Test(timeout=25000)
     public void getSet4Test() {
         String value = String.join("_","value", Integer.toString(ThreadLocalRandom.current().nextInt()),
                 Long.toString(System.currentTimeMillis()));
@@ -147,7 +147,7 @@ public class HolderGrpcTest {
         assertEquals(HolderResult.Status.AWAITED, holderResult2.getStatus() );
     }
 
-    @Test
+    @Test(timeout=25000)
     public void getSet5Test() {
         String value = String.join("_","value", Integer.toString(ThreadLocalRandom.current().nextInt()),
                 Long.toString(System.currentTimeMillis()));
@@ -166,7 +166,7 @@ public class HolderGrpcTest {
         assertEquals(HolderResult.Status.EXPIRED, holderResult2.getStatus() );
     }
 
-    @Test
+    @Test(timeout=25000)
     public void asyncGetSetTest() throws InterruptedException {
         String value = String.join("_","value", Integer.toString(ThreadLocalRandom.current().nextInt()),
                 Long.toString(System.currentTimeMillis()));

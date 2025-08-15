@@ -55,12 +55,6 @@ public class CountDownLatchServerRmiImpl implements CountDownLatchServerRmi {
     }
 
     @Override
-    public boolean tryAwaitWithTimeOut(String name, long timeOut) throws RemoteException {
-        LOGGER.info("rmi  server> tryAwaitWithTimeOut name {} timeOut {}", name, timeOut);
-        return countDownLatchService.tryAwaitWithTimeOut(name, timeOut);
-    }
-
-    @Override
     public boolean tryAwaitWithTimeOut(String name, long timeOut, TimeUnit timeUnit) throws RemoteException {
         LOGGER.info("rmi  server> tryAwaitWithTimeOut name {} timeOut {} timeUnit {}", name, timeOut, timeUnit);
         return countDownLatchService.tryAwaitWithTimeOut(name, timeOut, timeUnit);

@@ -7,7 +7,6 @@ import org.obapanel.lockfactoryserver.core.LockStatus;
 import org.obapanel.lockfactoryserver.core.grpc.LockServerGrpc;
 import org.obapanel.lockfactoryserver.core.grpc.LockStatusValues;
 import org.obapanel.lockfactoryserver.core.grpc.NameTokenValues;
-import org.obapanel.lockfactoryserver.core.grpc.TimeUnitGrpc;
 import org.obapanel.lockfactoryserver.core.grpc.TryLockWithTimeout;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
 import org.slf4j.Logger;
@@ -52,18 +51,11 @@ public class LockServerGrpcImpl extends LockServerGrpc.LockServerImplBase {
 
     @Override
     public void tryLockWithTimeOut(TryLockWithTimeout request, StreamObserver<StringValue> responseObserver) {
-        String result = "";
         String name = request.getName();
         long timeOut = request.getTimeOut();
-        TimeUnitGrpc timeUnitGrpc = request.getTimeUnit();
-        if (timeUnitGrpc == null) {
-            LOGGER.info("grpc server> tryLockWithTimeOut {} {}", name, timeOut);
-            result = lockService.tryLockWithTimeOut(name, timeOut);
-        } else {
-            TimeUnit timeUnit = fromGrpcToJava(timeUnitGrpc);
-            LOGGER.info("grpc server> tryLockWithTimeOut {} {} {}", name, timeOut, timeUnit);
-            result = lockService.tryLockWithTimeOut(name, timeOut, timeUnit);
-        }
+        TimeUnit timeUnit = fromGrpcToJava(request.getTimeUnit());
+        LOGGER.info("grpc server> tryLockWithTimeOut {} {} {}", name, timeOut, timeUnit);
+        String result = lockService.tryLockWithTimeOut(name, timeOut, timeUnit);
         responseObserver.onNext(StringValue.of(result));
         responseObserver.onCompleted();
     }

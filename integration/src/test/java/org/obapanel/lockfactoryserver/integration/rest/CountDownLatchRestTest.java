@@ -64,7 +64,7 @@ public class CountDownLatchRestTest {
         return new CountDownLatchClientRest(baseUrl, countDownLatchCurrentName);
     }
 
-    @Test
+    @Test(timeout=25000)
     public void createAndGetTest() {
         int count = ThreadLocalRandom.current().nextInt(5,100);
         CountDownLatchClientRest countDownLatchClientRest = generateCountDownLatchClientRest();
@@ -82,7 +82,7 @@ public class CountDownLatchRestTest {
         assertFalse(recreate);
     }
 
-    @Test
+    @Test(timeout=25000)
     public void awaitOneTest() throws InterruptedException {
         Semaphore inner = new Semaphore(0);
         CountDownLatchClientRest countDownLatchClientRest1 = generateCountDownLatchClientRest();
@@ -109,7 +109,7 @@ public class CountDownLatchRestTest {
         assertFalse(countDownLatchClientRest1.isActive());
     }
 
-    @Test
+    @Test(timeout=25000)
     public void awaitOneTest2()  {
         CountDownLatchClientRest countDownLatchClientRest = generateCountDownLatchClientRest();
         boolean created = countDownLatchClientRest.createNew(1);
@@ -127,7 +127,7 @@ public class CountDownLatchRestTest {
         assertFalse(countDownLatchClientRest.isActive());
     }
 
-    @Test
+    @Test(timeout=25000)
     public void awaitManyTest() throws InterruptedException {
         Semaphore inner = new Semaphore(0);
         //TODO why more result in error ( server does not respond ?)
@@ -163,7 +163,7 @@ public class CountDownLatchRestTest {
         assertFalse(countDownLatchClientRest.isActive());
     }
 
-    @Test
+    @Test(timeout=25000)
     public void awaitManyPreTest() throws InterruptedException {
         Semaphore inner = new Semaphore(0);
         //TODO why more result in error ( server does not respond ?)
@@ -221,7 +221,7 @@ public class CountDownLatchRestTest {
         assertFalse(countDownLatchClientRest0.isActive());
     }
 
-    @Test
+    @Test(timeout=25000)
     public void awaitCountTest() throws InterruptedException {
         Semaphore inner2 = new Semaphore(0);
         Semaphore inner3 = new Semaphore(0);

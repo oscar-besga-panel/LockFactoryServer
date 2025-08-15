@@ -46,7 +46,7 @@ public class HolderClientRmi extends AbstractClientRmi<HolderServerRmi> {
         getServerRmi().set(getName(), value);
     }
 
-    public void setWithTimeToLiveMillis(String value, long timeToLiveMillis) throws RemoteException {
+    public void setWithTimeToLive(String value, long timeToLiveMillis) throws RemoteException {
         this.setWithTimeToLive(value, timeToLiveMillis, TimeUnit.MILLISECONDS);
     }
     

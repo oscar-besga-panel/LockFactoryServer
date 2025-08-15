@@ -3,6 +3,7 @@ package org.obapanel.lockfactoryserver.integration.grpc.advanced;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.obapanel.lockfactoryserver.client.grpc.LockClientGrpc;
 import org.obapanel.lockfactoryserver.core.LockStatus;
@@ -55,7 +56,8 @@ public class WithLockGrpcAdvancedTest {
         executorService.shutdownNow();
     }
 
-    @Test
+    //@Ignore
+    @Test(timeout=25000)
     public void testIfInterruptedFor5SecondsLock() throws InterruptedException {
             intoCriticalZone.set(false);
             errorInCriticalZone.set(false);

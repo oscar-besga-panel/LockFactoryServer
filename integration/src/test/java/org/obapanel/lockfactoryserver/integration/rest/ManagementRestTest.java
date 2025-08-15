@@ -74,7 +74,7 @@ public class ManagementRestTest {
 
     }
 
-    @Test
+    @Test(timeout=25000)
     public void isRunningTest() {
         LOGGER.debug("test isRunning ini >>>");
         ManagementClientRest managementClientRest = generateManagementClientRest();
@@ -83,7 +83,7 @@ public class ManagementRestTest {
         LOGGER.debug("test isRunning fin <<<");
     }
 
-    @Test
+    @Test(timeout=25000)
     public void isRunningMultipleTest() {
         LOGGER.debug("test isRunningMultipleTest ini >>>");
         final int count = ThreadLocalRandom.current().nextInt(5,12);
@@ -123,7 +123,7 @@ public class ManagementRestTest {
         LOGGER.debug("test isRunningMultipleTest fin <<<");
     }
 
-    @Test
+    @Test(timeout=25000)
     public void shutdownTest() {
         LOGGER.debug("test shutdownTest ini >>>");
         ManagementClientRest managementClientRest = generateManagementClientRest();

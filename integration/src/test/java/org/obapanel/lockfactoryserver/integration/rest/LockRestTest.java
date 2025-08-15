@@ -71,7 +71,7 @@ public class LockRestTest {
         return new LockClientRest(baseUrl, lockName);
     }
 
-    @Test
+    @Test(timeout=25000)
     public void lockUnlockTest()  {
         LockClientRest lockClientRest = generateLockClientRest();
         LOGGER.debug("test lockUnlockTest ini >>>");
@@ -86,7 +86,7 @@ public class LockRestTest {
         LOGGER.debug("test lockUnlockTest fin <<<");
     }
 
-    @Test
+    @Test(timeout=25000)
     public void lockTwolocksTest() {
         LOGGER.debug("test lockTwolocksTest ini >>>");
         LockClientRest lockClientRest1 = generateLockClientRest();
@@ -103,7 +103,7 @@ public class LockRestTest {
         LOGGER.debug("test lockTwolocksTest fin <<<");
     }
 
-    @Test
+    @Test(timeout=25000)
     public void doWithLockSimpleTest() throws InterruptedException {
         String currentLockName =  generateLockClientRest().getName()  + "_1_simple";
         Semaphore inner = new Semaphore(0);
@@ -123,7 +123,7 @@ public class LockRestTest {
         assertTrue(acquired);
     }
 
-    @Test
+    @Test(timeout=25000)
     public void doGetWithLockSimpleTest() throws InterruptedException, ExecutionException, TimeoutException {
         String currentLockName =  generateLockClientRest().getName() + "_2_simple";
         Semaphore inner = new Semaphore(0);

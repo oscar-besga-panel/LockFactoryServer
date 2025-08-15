@@ -67,7 +67,7 @@ public class LockClientRestTest {
         mockedStaticHttpClient = Mockito.mockStatic(HttpClients.class);
         mockedStaticHttpClient.when(HttpClients::createDefault).thenReturn(httpclient);
         mockedStaticHttpClientBuilder = Mockito.mockStatic(HttpClientBuilder.class);
-        mockedStaticHttpClientBuilder.when(() -> HttpClientBuilder.create() ).thenReturn(httpClientBuilder);
+        mockedStaticHttpClientBuilder.when(HttpClientBuilder::create).thenReturn(httpClientBuilder);
         when(httpClientBuilder.setDefaultRequestConfig(any(RequestConfig.class))).thenReturn(httpClientBuilder);
         when(httpClientBuilder.build()).thenReturn(httpclient);
 
@@ -123,16 +123,31 @@ public class LockClientRestTest {
     }
 
     @Test
-    public void tryLock2Test() throws IOException {
+    public void tryLockWithTimeout2Test() throws IOException {
         int time = ThreadLocalRandom.current().nextInt(10,30);
         finalResult.set("token_" + name);
-        boolean result = lockClientRest.tryLock(time, TimeUnit.MILLISECONDS);
+        boolean result = lockClientRest.tryLockWithTimeout(time, TimeUnit.SECONDS);
         assertTrue(result);
         verify(httpclient).execute(any(HttpGet.class));
         String finalUrl = finalUrl();
         assertTrue(finalUrl.contains("lock"));
         assertTrue(finalUrl.contains("tryLock"));
         assertTrue(finalUrl.contains(Integer.toString(time)));
+        assertTrue(finalUrl.contains(TimeUnit.SECONDS.name().toLowerCase()));
+        assertTrue(finalUrl.contains(name));
+    }
+
+    @Test
+    public void tryLockWithTimeout3Test() throws IOException {
+        int timeMillis = ThreadLocalRandom.current().nextInt(10,30);
+        finalResult.set("token_" + name);
+        boolean result = lockClientRest.tryLockWithTimeout(timeMillis);
+        assertTrue(result);
+        verify(httpclient).execute(any(HttpGet.class));
+        String finalUrl = finalUrl();
+        assertTrue(finalUrl.contains("lock"));
+        assertTrue(finalUrl.contains("tryLock"));
+        assertTrue(finalUrl.contains(Integer.toString(timeMillis)));
         assertTrue(finalUrl.contains(TimeUnit.MILLISECONDS.name().toLowerCase()));
         assertTrue(finalUrl.contains(name));
     }

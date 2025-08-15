@@ -36,6 +36,10 @@ public class BucketRateLimiterClientGrpc
         return BucketRateLimiterGrpc.newFutureStub(managedChannel);
     }
 
+    public void newRateLimiter(long totalTokens, boolean greedy, long timeRefill) {
+        this.newRateLimiter(totalTokens, greedy, timeRefill, TimeUnit.MILLISECONDS);
+    }
+
     public void newRateLimiter(long totalTokens, boolean greedy, long timeRefill, TimeUnit timeUnit) {
         BucketRateLimiterNew bucketRateLimiterNew = BucketRateLimiterNew.newBuilder().
                 setName(getName()).
@@ -63,6 +67,10 @@ public class BucketRateLimiterClientGrpc
                 build();
         BoolValue response = getStub().tryConsume(nameTokensConsume);
         return response.getValue();
+    }
+
+    public boolean tryConsumeWithTimeOut(long tokens, long timeOut) {
+        return this.tryConsumeWithTimeOut(tokens, timeOut, TimeUnit.MILLISECONDS);
     }
 
     public boolean tryConsumeWithTimeOut(long tokens, long timeOut, TimeUnit timeUnit) {

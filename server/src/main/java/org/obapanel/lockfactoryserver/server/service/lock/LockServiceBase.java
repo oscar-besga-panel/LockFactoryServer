@@ -48,11 +48,6 @@ public class LockServiceBase implements LockService {
         return lock.tryLock();
     }
 
-    public String tryLockWithTimeOut(String name, long timeOut) {
-        return this.tryLockWithTimeOut(name, timeOut, TimeUnit.MILLISECONDS);
-    }
-
-
     public String tryLockWithTimeOut(String name, long timeOut, TimeUnit timeUnit) {
         try {
             LOGGER.info("service> tryLock {} {} {}", name, timeOut, timeUnit);

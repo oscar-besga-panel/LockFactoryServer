@@ -44,7 +44,8 @@ public class LockClientGrpcAdvancedTest {
         stopIntegrationTestServer();
     }
 
-    @Test
+
+    @Test(timeout=30000)
     public void testIfInterruptedFor5SecondsLock() throws InterruptedException {
             intoCriticalZone.set(false);
             errorInCriticalZone.set(false);

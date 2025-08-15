@@ -50,7 +50,7 @@ public class SemaphoreRmiTest {
         return new SemaphoreClientRmi(LOCALHOST , getConfigurationIntegrationTestServer().getRmiServerPort(), semaphoreName);
     }
 
-    @Test
+    @Test(timeout=25000)
     public void currentPermitsTest() throws NotBoundException, RemoteException {
         LOGGER.debug("test currentTest ini >>>");
         SemaphoreClientRmi semaphoreClientRmi = generateSemaphoreClientRmi();
@@ -63,7 +63,7 @@ public class SemaphoreRmiTest {
         LOGGER.debug("test currentTest fin <<<");
     }
 
-    @Test
+    @Test(timeout=25000)
     public void accquireAndReleaseTest() throws RemoteException, NotBoundException {
         LOGGER.debug("test accquireTest ini >>>");
         SemaphoreClientRmi semaphoreClientRmi = generateSemaphoreClientRmi();
@@ -83,7 +83,7 @@ public class SemaphoreRmiTest {
         LOGGER.debug("test accquireTest fin <<<");
     }
 
-    @Test
+    @Test(timeout=25000)
     public void tryAcquireTest() throws InterruptedException, RemoteException, NotBoundException {
         Semaphore inner = new Semaphore(0);
         LOGGER.debug("test tryAcquireTest ini >>>");
@@ -110,7 +110,7 @@ public class SemaphoreRmiTest {
         LOGGER.debug("test tryAcquireTest fin <<<");
     }
 
-    @Test
+    @Test(timeout=25000)
     public void tryAcquireWithTimeOutTest() throws InterruptedException, RemoteException, NotBoundException {
         Semaphore inner = new Semaphore(0);
         LOGGER.debug("test tryAcquireWithTimeOutTest ini >>>");
@@ -125,7 +125,7 @@ public class SemaphoreRmiTest {
             }
             inner.release();
         });
-        boolean resulttry1 = semaphoreClientRmi.tryAcquireWithTimeOut(3500, TimeUnit.MILLISECONDS);
+        boolean resulttry1 = semaphoreClientRmi.tryAcquireWithTimeOut(3500);
         LOGGER.debug("}tryAcquireWithTimeOutTest} obtained resulttry1 {}", resulttry1);
         boolean resulttrya = inner.tryAcquire(10, TimeUnit.SECONDS);
         LOGGER.debug("}tryAcquireWithTimeOutTest} obtained resulttrya {}", resulttrya);

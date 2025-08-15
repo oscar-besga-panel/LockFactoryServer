@@ -1,6 +1,5 @@
 package org.obapanel.lockfactoryserver.server.connections.rest;
 
-import com.github.arteam.embedhttp.HttpRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,9 +8,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.obapanel.lockfactoryserver.core.LockStatus;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
 
-import java.rmi.RemoteException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
@@ -45,30 +41,28 @@ public class LockServerRestImplTest {
     @Test
     public void lockTest() {
         String lockName = "lock1" + System.currentTimeMillis();
-        String response = lockServerRest.lock("/lock", Arrays.asList(lockName), HttpRequest.EMPTY_REQUEST);
+        String response = lockServerRest.lock(lockName);
         assertTrue(response.contains(lockName));
     }
 
     @Test
     public void tryLock1Test() {
         String lockName = "lock2" + System.currentTimeMillis();
-        String response = lockServerRest.tryLock("/trylock", Arrays.asList(lockName), HttpRequest.EMPTY_REQUEST);
+        String response = lockServerRest.tryLock(lockName);
         assertTrue(response.contains(lockName));
     }
 
     @Test
     public void tryLock2Test() {
         String lockName = "lock3" + System.currentTimeMillis();
-        List<String> parameters = Arrays.asList(lockName, Long.toString(1), TimeUnit.MILLISECONDS.name().toLowerCase());
-        String response = lockServerRest.tryLockWithTimeout("/trylock", parameters, HttpRequest.EMPTY_REQUEST);
+        String response = lockServerRest.tryLockWithTimeout(lockName, 1L, TimeUnit.MILLISECONDS.name().toLowerCase());
         assertTrue(response.contains(lockName));
     }
 
     @Test
-    public void tryLock3Test() throws RemoteException {
+    public void tryLock3Test() {
         String lockName = "lock4" + System.currentTimeMillis();
-        List<String> parameters = Arrays.asList(lockName, Long.toString(1));
-        String response = lockServerRest.tryLockWithTimeout("/trylock", parameters, HttpRequest.EMPTY_REQUEST);
+        String response = lockServerRest.tryLockWithTimeout(lockName, 1L);
         assertTrue(response.contains(lockName));
     }
 
@@ -76,8 +70,7 @@ public class LockServerRestImplTest {
     public void lockStatusTest() {
         String lockName = "lock5" + System.currentTimeMillis();
         String token = "token_" + lockName;
-        List<String> parameters = Arrays.asList(lockName, token);
-        String response = lockServerRest.lockStatus("/lockstatus", parameters, HttpRequest.EMPTY_REQUEST);
+        String response = lockServerRest.lockStatus(lockName, token);
         assertEquals(LockStatus.ABSENT.name().toLowerCase(), response);
     }
 
@@ -85,10 +78,8 @@ public class LockServerRestImplTest {
     public void unlock() {
         String lockName = "lock6" + System.currentTimeMillis();
         String token = "token_" + lockName;
-        List<String> parameters = Arrays.asList(lockName, token);
-        String response = lockServerRest.unlock("/unlock", parameters, HttpRequest.EMPTY_REQUEST);
+        String response = lockServerRest.unlock(lockName, token);
         assertTrue(Boolean.parseBoolean(response));
     }
-
 
 }

@@ -59,7 +59,7 @@ public class HolderRestTest {
         return new HolderClientRest(baseUrl, holderCurrentName);
     }
 
-    @Test
+    @Test(timeout=25000)
     public void getSet1Test() {
         String value = String.join("_","value", Integer.toString(ThreadLocalRandom.current().nextInt()),
                 Long.toString(System.currentTimeMillis()));
@@ -72,7 +72,7 @@ public class HolderRestTest {
     }
 
 
-    @Test
+    @Test(timeout=25000)
     public void getSet2Test() {
         String value = String.join("_","value", Integer.toString(ThreadLocalRandom.current().nextInt()),
                 Long.toString(System.currentTimeMillis()));
@@ -91,7 +91,7 @@ public class HolderRestTest {
         assertEquals(HolderResult.Status.RETRIEVED, holderResult2.getStatus() );
     }
 
-    @Test
+    @Test(timeout=25000)
     public void getCancelTest() {
         HolderClientRest holderClientRest1 = generateHolderClientRest();
         HolderClientRest holderClientRest2 = generateHolderClientRest(holderClientRest1.getName());
@@ -108,7 +108,7 @@ public class HolderRestTest {
         assertEquals(HolderResult.Status.CANCELLED, holderResult2.getStatus() );
     }
 
-    @Test
+    @Test(timeout=25000)
     public void getSet3Test() {
         String value = String.join("_","value", Integer.toString(ThreadLocalRandom.current().nextInt()),
                 Long.toString(System.currentTimeMillis()));
@@ -127,7 +127,7 @@ public class HolderRestTest {
         assertEquals(HolderResult.Status.NOTFOUND, holderResult2.getStatus() );
     }
 
-    @Test
+    @Test(timeout=25000)
     public void getSet4Test() {
         String value = String.join("_","value", Integer.toString(ThreadLocalRandom.current().nextInt()),
                 Long.toString(System.currentTimeMillis()));
@@ -146,7 +146,7 @@ public class HolderRestTest {
         assertEquals(HolderResult.Status.AWAITED, holderResult2.getStatus() );
     }
 
-    @Test
+    @Test(timeout=25000)
     public void getSet5Test() {
         String value = String.join("_","value", Integer.toString(ThreadLocalRandom.current().nextInt()),
                 Long.toString(System.currentTimeMillis()));

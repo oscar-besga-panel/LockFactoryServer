@@ -51,7 +51,7 @@ public class BucketRateLimiterGpcTest {
                 bucketName);
     }
 
-    @Test
+    @Test(timeout=25000)
     public void createAndSimpleUsage1Test() {
         BucketRateLimiterClientGrpc bucketRateLimiterClientGrpc = generateBucketClientGrpc();
         bucketRateLimiterClientGrpc.newRateLimiter(1L, false, 300, TimeUnit.MILLISECONDS);
@@ -66,7 +66,7 @@ public class BucketRateLimiterGpcTest {
         assertEquals(-1L, bucketRateLimiterClientGrpc.getAvailableTokens());
     }
 
-    @Test
+    @Test(timeout=25000)
     public void createAndSimpleUsage2Test() {
         BucketRateLimiterClientGrpc bucketRateLimiterClientGrpc = generateBucketClientGrpc();
         bucketRateLimiterClientGrpc.newRateLimiter(1L, false, 300, TimeUnit.MILLISECONDS);
@@ -80,7 +80,7 @@ public class BucketRateLimiterGpcTest {
         assertEquals(-1L, bucketRateLimiterClientGrpc.getAvailableTokens());
     }
 
-    @Test
+    @Test(timeout=25000)
     public void createAndSimpleUsage3Test() {
         BucketRateLimiterClientGrpc bucketRateLimiterClientGrpc = generateBucketClientGrpc();
         bucketRateLimiterClientGrpc.newRateLimiter(1L, false, 300, TimeUnit.MILLISECONDS);
@@ -100,7 +100,7 @@ public class BucketRateLimiterGpcTest {
         assertEquals(-1L, bucketRateLimiterClientGrpc.getAvailableTokens());
     }
 
-    @Test
+    @Test(timeout=25000)
     public void createAndAsyncUsage1Test() throws InterruptedException {
         Semaphore inner = new Semaphore(0);
         BucketRateLimiterClientGrpc bucketRateLimiterClientGrpc = generateBucketClientGrpc();

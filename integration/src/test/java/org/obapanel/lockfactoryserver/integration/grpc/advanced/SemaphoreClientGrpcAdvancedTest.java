@@ -2,6 +2,7 @@ package org.obapanel.lockfactoryserver.integration.grpc.advanced;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.obapanel.lockfactoryserver.client.grpc.SemaphoreClientGrpc;
 import org.slf4j.Logger;
@@ -40,7 +41,8 @@ public class SemaphoreClientGrpcAdvancedTest {
         stopIntegrationTestServer();
     }
 
-    @Test
+    //@Ignore
+    @Test(timeout=25000)
     public void testIfInterruptedFor5SecondsLock() throws InterruptedException {
         SemaphoreClientGrpc semaphoreClientGrpc = new SemaphoreClientGrpc(LOCALHOST, getConfigurationIntegrationTestServer().getGrpcServerPort(), semaphoreName);
         semaphoreClientGrpc.release();

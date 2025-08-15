@@ -1,17 +1,21 @@
 package org.obapanel.lockfactoryserver.server.connections.rest;
 
-import com.github.arteam.embedhttp.HttpRequest;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
 import org.obapanel.lockfactoryserver.core.LockStatus;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Class that connects a REST petition with the lock service
  */
+@Path("/lock")
 public class LockServerRestImpl {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LockServerRestImpl.class);
@@ -22,61 +26,67 @@ public class LockServerRestImpl {
         this.lockService = lockService;
     }
 
-
-    public String lock(String prefix, List<String> parameters, HttpRequest request) {
-        String name = parameters.get(0);
+    @GET
+    @Path("/lock/{name}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String lock(@PathParam("name") String name) {
         LOGGER.info("rest server> lock lock {}", name);
-        String response = lockService.lock(name);
-        return response;
+        return lockService.lock(name);
     }
 
-    public String tryLock(String prefix, List<String> parameters, HttpRequest request) {
-        String name = parameters.get(0);
+    @GET
+    @Path("/{a:tryLock|trylock}/{name}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String tryLock(@PathParam("name") String name) {
         LOGGER.info("rest server> lock tryLock {}", name);
-        String response = lockService.tryLock(name);
-        return response;
+        return lockService.tryLock(name);
     }
 
-    public String tryLockWithTimeout(String prefix, List<String> parameters, HttpRequest request) {
-        String name = parameters.get(0);
-        long timeOut = Long.parseLong(parameters.get(1));
-        TimeUnit timeUnit;
-        if (parameters.size() > 2) {
-            String timeUnitName = parameters.get(2);
-            timeUnit = TimeUnit.valueOf(timeUnitName.toUpperCase());
-        }  else {
-            timeUnit = TimeUnit.MILLISECONDS;
-        }
-        LOGGER.info("rest server> lock tryLockWithTimeout {} {} {}", name, timeOut, timeUnit);
-        String response = lockService.tryLockWithTimeOut(name, timeOut, timeUnit);
-        return response;
+    @GET
+    @Path("/{a:tryLockWithTimeout|trylockwithtimeout}/{name}/{timeOut}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String tryLockWithTimeout(@PathParam("name") String name,
+                                     @PathParam("timeOut") long timeOut) {
+        return tryLockWithTimeout(name, timeOut, TimeUnit.MILLISECONDS.name());
     }
 
-    public String lockStatus(String prefix, List<String> parameters, HttpRequest request) {
-        String name = parameters.get(0);
-        String token;
-        if (parameters.size() > 1) {
-            token = parameters.get(1);
-        } else {
-            token = "";
-        }
+    @GET
+    @Path("/{a:tryLockWithTimeout|trylockwithtimeout}/{name}/{timeOut}/{timeUnit}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String tryLockWithTimeout(@PathParam("name") String name,
+                                     @PathParam("timeOut") long timeOut,
+                                     @PathParam("timeUnit") String timeUnit) {
+        TimeUnit timeUnitData = TimeUnit.valueOf(timeUnit.toUpperCase());
+        LOGGER.info("rest server> lock tryLockWithTimeout {} {} {}", name, timeOut, timeUnitData);
+        return lockService.tryLockWithTimeOut(name, timeOut, timeUnitData);
+    }
+
+    @GET
+    @Path("/{a:lockStatus|lockstatus}/{name}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String lockStatus(@PathParam("name") String name) {
+        return lockStatus(name, "");
+    }
+
+
+    @GET
+    @Path("/{a:lockStatus|lockstatus}/{name}/{token}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String lockStatus(@PathParam("name") String name,
+                             @PathParam("token") String token) {
         LOGGER.info("rest server> lock lockStatus name {} token {}", name, token);
         LockStatus response = lockService.lockStatus(name, token);
         return response.name().toLowerCase();
     }
 
-    public String unlock(String prefix, List<String> parameters, HttpRequest request) {
-        String name = parameters.get(0);
-        String token;
-        if (parameters.size() > 1) {
-            token = parameters.get(1);
-        } else {
-            token = "";
-        }
+    @GET
+    @Path("/{a:unlock|unLock}/{name}/{token}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String unlock(@PathParam("name") String name,
+                         @PathParam("token") String token) {
         LOGGER.info("rest server> unlock {} {}", name, token);
         boolean response = lockService.unLock(name, token);
         return Boolean.toString(response);
     }
-
 
 }

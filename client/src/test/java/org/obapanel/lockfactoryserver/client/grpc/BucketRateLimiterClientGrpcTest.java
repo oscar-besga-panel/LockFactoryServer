@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -82,15 +83,27 @@ public class BucketRateLimiterClientGrpcTest {
     }
 
     @Test
-    public void createNewTest() {
+    public void createNewTest1() {
         ArgumentCaptor<BucketRateLimiterNew> captor = ArgumentCaptor.forClass(BucketRateLimiterNew.class);
         bucketRateLimiterClientGrpc.newRateLimiter(current.get(), false, 10L, TimeUnit.SECONDS);
         verify(stub).newRateLimiter(captor.capture());
         assertEquals(name, captor.getValue().getName());
         assertEquals(current.get(), captor.getValue().getTotalTokens());
-        assertEquals(false, captor.getValue().getGreedy());
+        assertFalse(captor.getValue().getGreedy());
         assertEquals(10L, captor.getValue().getTimeRefill());
         assertEquals(fromJavaToGrpc(TimeUnit.SECONDS), captor.getValue().getTimeUnit());
+    }
+
+    @Test
+    public void createNewTest2() {
+        ArgumentCaptor<BucketRateLimiterNew> captor = ArgumentCaptor.forClass(BucketRateLimiterNew.class);
+        bucketRateLimiterClientGrpc.newRateLimiter(current.get(), false, 10L);
+        verify(stub).newRateLimiter(captor.capture());
+        assertEquals(name, captor.getValue().getName());
+        assertEquals(current.get(), captor.getValue().getTotalTokens());
+        assertFalse(captor.getValue().getGreedy());
+        assertEquals(10L, captor.getValue().getTimeRefill());
+        assertEquals(fromJavaToGrpc(TimeUnit.MILLISECONDS), captor.getValue().getTimeUnit());
     }
 
     @Test
@@ -116,7 +129,7 @@ public class BucketRateLimiterClientGrpcTest {
     }
 
     @Test
-    public void tryConsumeWithTimeOut() {
+    public void tryConsumeWithTimeOut1() {
         long tokens = ThreadLocalRandom.current().nextLong(3);
         when(stub.tryConsumeWithTimeOut(any(NameTokensConsumeWithTimeOut.class))).thenReturn(BoolValue.of(current.get() % 2 == 0));
         ArgumentCaptor<NameTokensConsumeWithTimeOut> captor = ArgumentCaptor.forClass(NameTokensConsumeWithTimeOut.class);
@@ -126,6 +139,20 @@ public class BucketRateLimiterClientGrpcTest {
         assertEquals(tokens, captor.getValue().getTokens());
         assertEquals(435L, captor.getValue().getTimeOut());
         assertEquals(fromJavaToGrpc(TimeUnit.SECONDS), captor.getValue().getTimeUnit());
+        assertEquals(current.get() % 2 == 0, result);
+    }
+
+    @Test
+    public void tryConsumeWithTimeOut2() {
+        long tokens = ThreadLocalRandom.current().nextLong(3);
+        when(stub.tryConsumeWithTimeOut(any(NameTokensConsumeWithTimeOut.class))).thenReturn(BoolValue.of(current.get() % 2 == 0));
+        ArgumentCaptor<NameTokensConsumeWithTimeOut> captor = ArgumentCaptor.forClass(NameTokensConsumeWithTimeOut.class);
+        boolean result = bucketRateLimiterClientGrpc.tryConsumeWithTimeOut(tokens, 435L);
+        verify(stub).tryConsumeWithTimeOut(captor.capture());
+        assertEquals(name, captor.getValue().getName());
+        assertEquals(tokens, captor.getValue().getTokens());
+        assertEquals(435L, captor.getValue().getTimeOut());
+        assertEquals(fromJavaToGrpc(TimeUnit.MILLISECONDS), captor.getValue().getTimeUnit());
         assertEquals(current.get() % 2 == 0, result);
     }
 
@@ -151,9 +178,7 @@ public class BucketRateLimiterClientGrpcTest {
             return f;
         });
         ArgumentCaptor<NameTokensConsume> captor = ArgumentCaptor.forClass(NameTokensConsume.class);
-        bucketRateLimiterClientGrpc.asyncConsume(tokens, () -> {
-            inner.release();
-        });
+        bucketRateLimiterClientGrpc.asyncConsume(tokens, inner::release);
         boolean released = inner.tryAcquire(2, 1000, TimeUnit.MILLISECONDS);
         verify(futureStub).asyncConsume(captor.capture());
         assertEquals(name, captor.getValue().getName());
