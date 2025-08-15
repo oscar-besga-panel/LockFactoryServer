@@ -10,7 +10,6 @@ _Project information_
 [![OpenHub](https://badgen.net/badge/%20/openhub/purple?icon=awesome)](https://openhub.net/p/LockFactoryServer)
 
 _Current Build_  
-[![Build Status](https://app.travis-ci.com/oscar-besga-panel/LockFactoryServer.svg?branch=main)](https://app.travis-ci.com/oscar-besga-panel/LockFactoryServer)
 ![Issues](https://img.shields.io/github/issues/oscar-besga-panel/LockFactoryServer)
 [![codecov](https://codecov.io/gh/oscar-besga-panel/LockFactoryServer/branch/main/graph/badge.svg?token=BUFDK9DQ3Q)](https://codecov.io/gh/oscar-besga-panel/LockFactoryServer)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/95b46a3667b143ba80848c2bd3889890)](https://www.codacy.com/gh/oscar-besga-panel/LockFactoryServer/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=oscar-besga-panel/LockFactoryServer&amp;utm_campaign=Badge_Grade)
@@ -57,7 +56,7 @@ There are more than 300 unit tests to ensure a working project.
 
 ## How to build
 
-This project uses JDK11 and Gradle (provided gradlew 7.5.1)  
+This project uses JDK11 and Gradle (provided gradlew 8.3)  
 
 If you need a integration test for REST connection, you can use curl or postman
 
@@ -66,7 +65,7 @@ If you need a integration test for REST connection, you can use curl or postman
 
 I made this project because I wanted to have a 100% Java implementation of a server which provides synchronization primitives as services.  
 I know you can do this with mongo, redis (as see [here](https://github.com/oscar-besga-panel/InterruptingJedisLocks)) or other servers; but I wanted a stand-alone, slimmed, only-for-this-purpose, do-one-thing-and-do-it-well implementation.  
-This is why I don't want to provide with memory-related apis, nor messaging or other utilites; as redis, rabbitmq and other are fully available out there.
+This is why I don't want to provide with memory-related apis, nor messaging or other utilities; as redis, rabbitmq and other are fully available out there.
 
 
 It uses a Jetty12 sever with JAXB-JERSEY
