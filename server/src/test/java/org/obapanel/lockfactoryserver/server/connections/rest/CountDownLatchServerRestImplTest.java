@@ -7,8 +7,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchService;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
@@ -34,7 +32,6 @@ public class CountDownLatchServerRestImplTest {
     @Before
     public void setup()  {
         when(countDownLatchService.createNew(anyString(), anyInt())).thenReturn(true);
-        //unused when(countDownLatchService.tryAwaitWithTimeOut(anyString(), anyLong())).thenReturn(true);
         when(countDownLatchService.tryAwaitWithTimeOut(anyString(), anyLong(), any(TimeUnit.class))).thenReturn(true);
         countDownLatchServerRest = new CountDownLatchServerRestImpl(countDownLatchService);
     }
@@ -43,7 +40,6 @@ public class CountDownLatchServerRestImplTest {
     public void createNewTest1() {
         String name = "codola_" + System.currentTimeMillis();
         int count = ThreadLocalRandom.current().nextInt(100);
-        List<String> parameters = Arrays.asList(name, "" + count);
         String response = countDownLatchServerRest.createNew(name, count);
         verify(countDownLatchService).createNew(eq(name), eq(count));
         assertEquals("true", response);
@@ -93,7 +89,6 @@ public class CountDownLatchServerRestImplTest {
     @Test
     public void tryAwaitWithTimeout1Test() {
         String name = "codola_" + System.currentTimeMillis();
-        List<String> parameters = Arrays.asList(name, Long.toString(2L),  TimeUnit.SECONDS.name().toLowerCase());
         String response = countDownLatchServerRest.tryAwaitWithTimeOut(name, 2L,  TimeUnit.SECONDS.name().toLowerCase());
         verify(countDownLatchService).tryAwaitWithTimeOut(eq(name), eq(2L), eq(TimeUnit.SECONDS));
         assertEquals("true", response);
