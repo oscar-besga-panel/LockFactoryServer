@@ -125,7 +125,7 @@ public class PrimitivesCacheTest {
         MyPrimitivesCache myPrimitivesCache = new MyPrimitivesCache(2, 1, false,
                 (name, data) -> name.equalsIgnoreCase("100") );
         List<String> deletedData = new ArrayList<>();
-        myPrimitivesCache.addRemoveListener((n,k) -> deletedData.add(n));
+        myPrimitivesCache.addRemoveListener(deletedData::add);
         myPrimitivesCache.getOrCreateData("100");
         myPrimitivesCache.getOrCreateData("101");
         String data1 = myPrimitivesCache.getData("100");
@@ -145,10 +145,10 @@ public class PrimitivesCacheTest {
         MyPrimitivesCache myPrimitivesCache = new MyPrimitivesCache(30, 30, false,
                 (name, data) -> name.equalsIgnoreCase("100") );
         List<String> deletedData = new ArrayList<>();
-        myPrimitivesCache.addRemoveListener((n,k) -> deletedData.add(n));
+        myPrimitivesCache.addRemoveListener(deletedData::add);
         myPrimitivesCache.getOrCreateData("100");
         String data1 = myPrimitivesCache.getData("100");
-        myPrimitivesCache.removeDataIfNotAvoidable("100");
+        myPrimitivesCache.removeDataIfNotAvoidable("100", false);
         String data2 = myPrimitivesCache.getData("100");
         assertNotNull(data1);
         assertNotNull(data2);
@@ -156,14 +156,14 @@ public class PrimitivesCacheTest {
     }
 
     @Test
-    public void removeDataIfNotAvoidableDeleteTest() throws InterruptedException {
+    public void removeDataIfNotAvoidableDeleteTest1() throws InterruptedException {
         MyPrimitivesCache myPrimitivesCache = new MyPrimitivesCache(30, 30, false,
                 (name, data) -> name.equalsIgnoreCase("100") );
         List<String> deletedData = new ArrayList<>();
-        myPrimitivesCache.addRemoveListener((n,k) -> deletedData.add(n));
+        myPrimitivesCache.addRemoveListener(deletedData::add);
         myPrimitivesCache.getOrCreateData("101");
         String data1 = myPrimitivesCache.getData("101");
-        myPrimitivesCache.removeDataIfNotAvoidable("101");
+        myPrimitivesCache.removeDataIfNotAvoidable("101" , false);
         String data2 = myPrimitivesCache.getData("101");
         assertNotNull(data1);
         assertNull(data2);
@@ -172,11 +172,27 @@ public class PrimitivesCacheTest {
     }
 
     @Test
+    public void removeDataIfNotAvoidableDeleteTest2() throws InterruptedException {
+        MyPrimitivesCache myPrimitivesCache = new MyPrimitivesCache(30, 30, false,
+                (name, data) -> name.equalsIgnoreCase("100") );
+        List<String> deletedData = new ArrayList<>();
+        myPrimitivesCache.addRemoveListener(deletedData::add);
+        myPrimitivesCache.getOrCreateData("101");
+        String data1 = myPrimitivesCache.getData("101");
+        myPrimitivesCache.removeDataIfNotAvoidable("101" , true);
+        String data2 = myPrimitivesCache.getData("101");
+        assertNotNull(data1);
+        assertNotNull(data2);
+        Thread.sleep(20);
+        assertFalse(deletedData.contains("101"));
+    }
+
+    @Test
     public void expireContinuouslySomeDataTest() throws InterruptedException {
         MyPrimitivesCache myPrimitivesCache = new MyPrimitivesCache(2, 1, true,
                 (name, data) -> name.equalsIgnoreCase("100") );
         List<String> deletedData = new ArrayList<>();
-        myPrimitivesCache.addRemoveListener((n,k) -> deletedData.add(n));
+        myPrimitivesCache.addRemoveListener(deletedData::add);
         myPrimitivesCache.getOrCreateData("100");
         myPrimitivesCache.getOrCreateData("101");
         String data1 = myPrimitivesCache.getData("100");
@@ -197,13 +213,13 @@ public class PrimitivesCacheTest {
         private final BiFunction<String, String, Boolean> avoidExpirationFunction;
 
         public MyPrimitivesCache(int cacheCheckDataPeriodSeconds, int cacheTimeToLiveSeconds, boolean cacheCheckContinuously) {
-            super(cacheCheckDataPeriodSeconds, cacheTimeToLiveSeconds, cacheCheckContinuously);
+            super(cacheCheckDataPeriodSeconds, cacheTimeToLiveSeconds);
             this.avoidExpirationFunction = null;
         }
 
         public MyPrimitivesCache(int cacheCheckDataPeriodSeconds, int cacheTimeToLiveSeconds, boolean cacheCheckContinuously,
                                  BiFunction<String, String, Boolean> avoidExpirationFunction) {
-            super(cacheCheckDataPeriodSeconds, cacheTimeToLiveSeconds, cacheCheckContinuously);
+            super(cacheCheckDataPeriodSeconds, cacheTimeToLiveSeconds);
             this.avoidExpirationFunction = avoidExpirationFunction;
         }
 
@@ -218,7 +234,7 @@ public class PrimitivesCacheTest {
         }
 
         @Override
-        public boolean avoidExpiration(String name, String data) {
+        public boolean avoidDeletion(String name, String data) {
             if (avoidExpirationFunction != null) {
                 return avoidExpirationFunction.apply(name, data);
             } else {

@@ -56,7 +56,7 @@ There are more than 300 unit tests to ensure a working project.
 
 ## How to build
 
-This project uses JDK11 and Gradle (provided gradlew 8.3)  
+This project uses JDK17 and Gradle (provided gradlew 8.3)  
 
 If you need a integration test for REST connection, you can use curl or postman
 

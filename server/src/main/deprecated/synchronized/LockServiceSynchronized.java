@@ -1,80 +1,128 @@
 package org.obapanel.lockfactoryserver.server.service.lock;
 
 import org.obapanel.lockfactoryserver.core.LockStatus;
+import org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
+import org.obapanel.lockfactoryserver.server.primitives.lock.TokenLock;
+import org.obapanel.lockfactoryserver.server.service.Services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
 
-import static org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException.doWithRuntime;
-
-
-public final class LockServiceSynchronized extends LockService {
+public class LockServiceSynchronized extends AbstractSynchronizedService implements LockService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LockServiceSynchronized.class);
 
+    public static final Services TYPE = LockService.TYPE;
+
+    private final LockCache lockCache;
 
     public LockServiceSynchronized(LockFactoryConfiguration configuration) {
-        super(configuration);
+        this.lockCache = new LockCache(configuration);
+        addLocalRemoveListenerToCache(lockCache);
     }
 
-    public void shutdown() throws Exception {
-        synchronized (this) {
-            this.notifyAll();
+    public String lock(String name) {
+        LOGGER.info("service> lock {}", name);
+        return underServiceLockGet(() -> executeLock(name));
+    }
+
+    private String executeLock(String name)  {
+        try {
+            TokenLock lock = lockCache.getOrCreateData(name);
+            String token = lock.tryLock();
+            while (token == null || token.isEmpty()) {
+                //serviceWaitUnlock.await();
+                Condition c = getOrCreateCondition(name);
+                c.await();
+                token = lock.tryLock();
+            }
+            return token;
+        } catch (InterruptedException e) {
+            throw RuntimeInterruptedException.getToThrowWhenInterrupted(e);
         }
-        super.shutdown();
     }
 
-    @Override
-    public synchronized String lock(String name) {
-        String token = super.tryLock(name);
-        while (token == null || token.isEmpty()) {
-            doWithRuntime(LockServiceSynchronized.this::wait);
-            token = super.tryLock(name);
+    public String tryLock(String name) {
+        LOGGER.info("service> tryLock {}", name);
+        return underServiceLockGet(() -> executeTryLock(name));
+    }
+
+    private String executeTryLock(String name) {
+        TokenLock lock = lockCache.getOrCreateData(name);
+        return lock.tryLock();
+    }
+
+    public String tryLockWithTimeOut(String name, long timeOut, TimeUnit timeUnit) {
+        LOGGER.info("service> tryLockWithTimeOut name {} timeOut {} timeUnit {}", name, timeOut, timeUnit);
+        return underServiceLockGet(() -> executeTryLockWithTimeOut(name, timeOut, timeUnit));
+    }
+
+    private String executeTryLockWithTimeOut(String name, long timeOut, TimeUnit timeUnit) {
+        try {
+            long limitTime = System.currentTimeMillis() + timeUnit.toMillis(timeOut);
+            TokenLock lock = lockCache.getOrCreateData(name);
+            String token = lock.tryLock();
+            while ((token == null || token.isEmpty()) && limitTime > System.currentTimeMillis()) {
+                Condition condition = getOrCreateCondition(name);
+                condition.await(limitTime - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
+                if (limitTime > System.currentTimeMillis()) {
+                    token = lock.tryLock();
+                }
+            }
+            return token;
+        } catch (InterruptedException e) {
+            throw RuntimeInterruptedException.getToThrowWhenInterrupted(e);
         }
-        return token;
-    }
-
-    @Override
-    public synchronized String tryLock(String name) {
-        return super.tryLock(name);
     }
 
 
-    @Override
-    public synchronized String tryLockWithTimeOut(String name, long timeOut) {
-        return this.tryLockWithTimeOut(name, timeOut, TimeUnit.MILLISECONDS);
+    public LockStatus lockStatus(String name, String token) {
+        LOGGER.info("service> lockStatus name {} token {}", name, token);
+        return underServiceLockGet(() -> executeLockStatus(name, token));
     }
 
-    @Override
-    public synchronized String tryLockWithTimeOut(String name, long timeOut, TimeUnit timeUnit) {
-        LOGGER.debug("]]] tryLockWithTimeOut  ]]] init {}", System.currentTimeMillis());
-        String result = super.tryLock(name);
-        long t = System.currentTimeMillis() + timeUnit.toMillis(timeOut);
-        while((result == null || result.isEmpty()) && t > System.currentTimeMillis() ) {
-            LOGGER.debug("]]] tryLockWithTimeOut ]]] into while {}", System.currentTimeMillis());
-            doWithRuntime(() -> LockServiceSynchronized.this.wait(timeUnit.toMillis(timeOut) + 1));
-            LOGGER.debug("]]] tryLockWithTimeOut  ]]] into while wait {}", System.currentTimeMillis());
-            result = super.tryLock(name);
+    private LockStatus executeLockStatus(String name, String token) {
+        TokenLock lock = lockCache.getData(name);
+        if (lock == null) {
+            return LockStatus.ABSENT;
+        } else if (!lock.isLocked()) {
+            return LockStatus.UNLOCKED;
+        } else {
+            // Lock is locked here
+            boolean valid = lock.validate(token);
+            if (valid) {
+                return LockStatus.OWNER;
+            } else {
+                return LockStatus.OTHER;
+            }
         }
-        LOGGER.debug("]]] tryLockWithTimeOut  ]]] into gotoend wait {}", System.currentTimeMillis());
-        LOGGER.debug("] tryLockWithTimeOut  result {}", result);
-        return result;
     }
 
-    @Override
-    public synchronized LockStatus lockStatus(String name, String token) {
-        return super.lockStatus(name, token);
+    public boolean unLock(String name, String token) {
+        LOGGER.info("service> unlock name {} token {}", name, token);
+        return underServiceLockGet(() -> executeUnLock(name, token));
     }
 
-    @Override
-    public synchronized boolean unLock(String name, String token) {
-        boolean unlocked = super.unLock(name, token);
-        if (unlocked) {
-            LockServiceSynchronized.this.notifyAll();
+    private boolean executeUnLock(String name, String token) {
+        boolean unlocked = false;
+        TokenLock lock = lockCache.getData(name);
+        if (lock != null) {
+            unlocked = lock.unlock(token);
+            signalAndRemoveCondition(name);
+            LOGGER.debug("unlock done name {} token {} result {}", name, token, unlocked);
+        } else {
+            LOGGER.debug("unlock invalid name {} token {}", name, token);
         }
         return unlocked;
     }
 
+    @Override
+    public void shutdown() throws Exception {
+        lockCache.clearAndShutdown();
+    }
+
 }
+

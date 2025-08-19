@@ -5,7 +5,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
-import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchServiceSynchronized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

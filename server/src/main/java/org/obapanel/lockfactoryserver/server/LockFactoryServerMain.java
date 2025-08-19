@@ -41,10 +41,12 @@ public class LockFactoryServerMain {
                 lockFactoryServerMain.setPath(args[0]);
             }
             lockFactoryServerMain.execute();
-            //TODO needed? System.exit(0);
+            //TODO needed?
+            System.exit(0);
         } catch (Exception e) {
             System.out.println("Error in main " + e);
             e.printStackTrace();
+            System.exit(1);
         }
     }
 

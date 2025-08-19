@@ -49,22 +49,22 @@ public class HolderCacheTest {
     }
 
     @Test
-    public void avoidExpirationTest() throws InterruptedException {
+    public void avoidDeletionTest() {
         Holder holder1 = holderCache.createNew("holder1");
         Holder holder2 = holderCache.createNew("holder2");
         Holder holder3 = holderCache.createNew("holder3");
         executorService.submit(() -> holder1.set("value1"));
         executorService.submit(() -> holder2.set("value2", 350, TimeUnit.MILLISECONDS));
-        executorService.submit(() -> holder3.cancel());
+        executorService.submit(holder3::cancel);
         doSleepInTest(100);
-        boolean result1 = holderCache.avoidExpiration("holder1", holder1);
-        boolean result2 = holderCache.avoidExpiration("holder2", holder2);
-        boolean result3 = holderCache.avoidExpiration("holder3", holder3);
+        boolean result1 = holderCache.avoidDeletion("holder1", holder1);
+        boolean result2 = holderCache.avoidDeletion("holder2", holder2);
+        boolean result3 = holderCache.avoidDeletion("holder3", holder3);
         assertFalse(result1);
         assertTrue(result2);
         assertFalse(result3);
         doSleepInTest(500);
-        boolean result22 = holderCache.avoidExpiration("holder2", holder2);
+        boolean result22 = holderCache.avoidDeletion("holder2", holder2);
         assertFalse(result22);
     }
 

@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchService;
-import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchServiceSynchronized;
+import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchServiceBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +36,7 @@ public class CountDownLatchServiceAdvancedTest {
     @Before
     public void setup() throws InterruptedException {
         LOGGER.debug("setup ini >>>");
-        countDownLatchService = new CountDownLatchServiceSynchronized(new LockFactoryConfiguration());
+        countDownLatchService = new CountDownLatchServiceBase(new LockFactoryConfiguration());
         LOGGER.debug("setup fin <<<");
         Thread.sleep(250);
     }
@@ -52,7 +52,7 @@ public class CountDownLatchServiceAdvancedTest {
     }
 
     @Test
-    public void accessToCriticalZoneTest() throws InterruptedException {
+    public void accessToCriticalZoneTest() {
             intoCriticalZone.set(false);
             colisionInCriticalZone.set(false);
             otherErrors.set(false);

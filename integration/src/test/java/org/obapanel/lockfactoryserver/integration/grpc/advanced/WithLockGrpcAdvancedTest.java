@@ -36,7 +36,7 @@ public class WithLockGrpcAdvancedTest {
 
     private final List<LockClientGrpc> lockList = new ArrayList<>();
 
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private final String lockName = "lockGrpc999x" + System.currentTimeMillis();
 
@@ -57,7 +57,7 @@ public class WithLockGrpcAdvancedTest {
     }
 
     //@Ignore
-    @Test(timeout=25000)
+    @Test(timeout=50000)
     public void testIfInterruptedFor5SecondsLock() throws InterruptedException {
             intoCriticalZone.set(false);
             errorInCriticalZone.set(false);

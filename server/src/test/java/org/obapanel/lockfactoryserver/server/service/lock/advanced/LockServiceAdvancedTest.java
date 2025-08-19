@@ -7,7 +7,7 @@ import org.obapanel.lockfactoryserver.core.LockStatus;
 import org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
-import org.obapanel.lockfactoryserver.server.service.lock.LockServiceSynchronized;
+import org.obapanel.lockfactoryserver.server.service.lock.LockServiceBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,9 +21,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.assertFalse;
 
-public class LockServiceSynchronizedAdvancedTest {
+public class LockServiceAdvancedTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LockServiceSynchronizedAdvancedTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LockServiceAdvancedTest.class);
 
     private final AtomicBoolean intoCriticalZone = new AtomicBoolean(false);
     private final AtomicBoolean errorInCriticalZone = new AtomicBoolean(false);
@@ -41,7 +41,7 @@ public class LockServiceSynchronizedAdvancedTest {
     @Before
     public void setup() throws InterruptedException {
         LOGGER.debug("setup ini >>>");
-        lockService = new LockServiceSynchronized(new LockFactoryConfiguration());
+        lockService = new LockServiceBase(new LockFactoryConfiguration());
         LOGGER.debug("setup fin <<<");
         Thread.sleep(250);
     }
@@ -57,7 +57,7 @@ public class LockServiceSynchronizedAdvancedTest {
     }
 
     @Test
-    public void testIfInterruptedFor5SecondsLock() throws InterruptedException {
+    public void testIfInterruptedFor5SecondsLock() {
         intoCriticalZone.set(false);
         errorInCriticalZone.set(false);
         otherErrors.set(false);
@@ -132,7 +132,7 @@ public class LockServiceSynchronizedAdvancedTest {
         LOGGER.info("accessCriticalZone > exit   > " + Thread.currentThread().getName());
     }
 
-    private class LockInfo {
+    private static class LockInfo {
         private String name;
         private String token;
         private String ownerThreadName;

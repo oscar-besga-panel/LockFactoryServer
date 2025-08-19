@@ -34,7 +34,7 @@ public class CountDownLatchServiceTest {
     @Before
     public void setup() {
         LOGGER.debug("before setup");
-        countDownLatchService = new CountDownLatchServiceSynchronized(new LockFactoryConfiguration());
+        countDownLatchService = new CountDownLatchServiceBase(new LockFactoryConfiguration());
         executorService = Executors.newSingleThreadExecutor();
     }
 

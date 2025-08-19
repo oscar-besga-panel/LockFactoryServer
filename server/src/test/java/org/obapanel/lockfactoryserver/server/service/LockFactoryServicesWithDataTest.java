@@ -165,7 +165,7 @@ public class LockFactoryServicesWithDataTest {
         }
 
         @Override
-        public boolean avoidExpiration(String name, String data) {
+        public boolean avoidDeletion(String name, String data) {
             return avoidExpiration.get();
         }
 

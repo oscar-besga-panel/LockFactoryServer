@@ -31,12 +31,12 @@ public class LockCacheTest {
     }
 
     @Test
-    public void avoidExpirationTest() throws InterruptedException {
+    public void avoidDeletionTest() {
         TokenLock lock1 = lockCache.createNew("lock1");
         lock1.lock();
         TokenLock lock2 = lockCache.createNew("lock2");
-        assertTrue(lockCache.avoidExpiration("lock1", lock1));
-        assertFalse(lockCache.avoidExpiration("lock2", lock2));
+        assertTrue(lockCache.avoidDeletion("lock1", lock1));
+        assertFalse(lockCache.avoidDeletion("lock2", lock2));
     }
 
 }
