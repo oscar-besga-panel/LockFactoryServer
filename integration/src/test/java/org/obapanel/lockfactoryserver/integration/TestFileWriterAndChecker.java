@@ -1,5 +1,6 @@
 package org.obapanel.lockfactoryserver.integration;
 
+import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +19,17 @@ public class TestFileWriterAndChecker {
     private final File file;
     private final AtomicBoolean isWriting = new AtomicBoolean(false);
     private final AtomicBoolean isError = new AtomicBoolean(false);
+
+    public static TestFileWriterAndChecker fromTempFolder(TemporaryFolder tmpFolder, String fileName) {
+        try {
+            File tmpFile = tmpFolder.newFile(fileName);
+            LOGGER.debug("Temporary file created: {}", tmpFile.getAbsolutePath());
+            return new TestFileWriterAndChecker(tmpFile);
+        } catch (IOException e) {
+            LOGGER.error("Error creating temporary file", e);
+            throw new RuntimeException("Error creating temporary file", e);
+        }
+    }
 
     public TestFileWriterAndChecker(File file) {
         this.file = file;
@@ -86,6 +98,10 @@ public class TestFileWriterAndChecker {
             }
             return readOk;
         }
+    }
+
+    public File getFile() {
+        return file;
     }
 
 }
