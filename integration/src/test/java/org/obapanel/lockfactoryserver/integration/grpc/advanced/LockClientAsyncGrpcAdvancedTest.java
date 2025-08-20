@@ -30,13 +30,14 @@ public class LockClientAsyncGrpcAdvancedTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LockGpcTest.class);
 
+    private final static int NUM_TEST = 7;
 
     private final AtomicBoolean intoCriticalZone = new AtomicBoolean(false);
     private final AtomicBoolean errorInCriticalZone = new AtomicBoolean(false);
     private final AtomicBoolean otherErrors = new AtomicBoolean(false);
 
-    private final List<LockClientGrpc> lockList = new ArrayList<>();
-    private final ExecutorService executorService = Executors.newCachedThreadPool();
+    private final List<LockClientGrpc> lockList = Collections.synchronizedList(new ArrayList<>());
+    private final ExecutorService executorService = Executors.newFixedThreadPool(NUM_TEST);
 
     private final String lockName = "lockGrpc999x" + System.currentTimeMillis();
 
@@ -57,24 +58,21 @@ public class LockClientAsyncGrpcAdvancedTest {
         executorService.shutdownNow();
     }
 
-    @Test(timeout=25000)
+    @Test(timeout=75000)
     public void testIfInterruptedFor5SecondsLock() throws InterruptedException {
             intoCriticalZone.set(false);
             errorInCriticalZone.set(false);
             otherErrors.set(false);
             List<Thread> threadList = new ArrayList<>();
-            for(int i=0; i < 5; i++) {
-                int time = ThreadLocalRandom.current().nextInt(0,5) + i;
-                Thread t = new Thread(() -> accesLockOfCriticalZone(1));
+            for(int i=0; i < NUM_TEST; i++) {
+                int time = ThreadLocalRandom.current().nextInt(0, NUM_TEST) + i;
+                Thread t = new Thread(() -> accesLockOfCriticalZone(time));
                 t.setName(String.format("prueba_t%d",i));
                 threadList.add(t);
             }
             Collections.shuffle(threadList);
             threadList.forEach(Thread::start);
-    //            t1.start();
-    //            t2.start();
-    //            t3.start();
-            //Thread.sleep(TimeUnit.SECONDS.toMillis(5));
+            Thread.sleep(TimeUnit.SECONDS.toMillis(5));
             for (Thread thread : threadList) {
                 thread.join();
             }
@@ -96,7 +94,7 @@ public class LockClientAsyncGrpcAdvancedTest {
             lockClientGrpc.asyncLock(executorService, () ->
                     accesLockOfCriticalZoneAsync(lockClientGrpc, sleepTime, semaphore)
             );
-            boolean acquired = semaphore.tryAcquire(30, TimeUnit.SECONDS);
+            boolean acquired = semaphore.tryAcquire(60, TimeUnit.SECONDS);
             if (!acquired) {
                 otherErrors.set(true);
             }
@@ -122,6 +120,8 @@ public class LockClientAsyncGrpcAdvancedTest {
     private void checkLock(LockClientGrpc lockClientGrpc) {
        LockStatus lockStatus = lockClientGrpc.lockStatus();
         if (!LockStatus.OWNER.equals(lockStatus)) {
+            LOGGER.error("Lock {} of thread {} is in status {}, not OWNER",
+                    lockClientGrpc.getName(), Thread.currentThread().getName(), lockStatus);
             String message = String.format("Lock %s of thread %s is in status %s, not OWNER",
                     lockClientGrpc.getName(), Thread.currentThread().getName(), lockStatus);
             throw new IllegalStateException(message);
@@ -132,6 +132,7 @@ public class LockClientAsyncGrpcAdvancedTest {
         LOGGER.info("accessCriticalZone > enter  > " + Thread.currentThread().getName());
         if (intoCriticalZone.get()) {
             errorInCriticalZone.set(true);
+            LOGGER.error("Other thread is here {}", Thread.currentThread().getName());
             throw new IllegalStateException("Other thread is here " + Thread.currentThread().getName());
         }
         try {
