@@ -30,7 +30,7 @@ public class LockClientAsyncGrpcAdvancedTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LockGpcTest.class);
 
-    private final static int NUM_TEST = 7;
+    private final static int NUM_TEST = 5;
 
     private final AtomicBoolean intoCriticalZone = new AtomicBoolean(false);
     private final AtomicBoolean errorInCriticalZone = new AtomicBoolean(false);

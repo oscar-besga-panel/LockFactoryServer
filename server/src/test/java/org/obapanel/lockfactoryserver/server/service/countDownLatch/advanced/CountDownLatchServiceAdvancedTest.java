@@ -51,7 +51,7 @@ public class CountDownLatchServiceAdvancedTest {
         Thread.sleep(250);
     }
 
-    @Test
+    @Test(timeout=45000)
     public void accessToCriticalZoneTest() {
             intoCriticalZone.set(false);
             colisionInCriticalZone.set(false);

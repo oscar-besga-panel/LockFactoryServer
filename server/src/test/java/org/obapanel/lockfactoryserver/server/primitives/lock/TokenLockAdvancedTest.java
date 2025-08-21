@@ -28,7 +28,7 @@ public class TokenLockAdvancedTest {
 
     private final TokenLock tokenLock = new TokenLock();
 
-    @Test
+    @Test(timeout=45000)
     public void testIfInterruptedFor5SecondsLock() throws InterruptedException {
         intoCriticalZone.set(false);
         errorInCriticalZone.set(false);

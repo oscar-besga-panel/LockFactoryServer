@@ -76,12 +76,14 @@ public class LockAsyncGpcTest {
             LOGGER.debug("runnable after");
             refLockStatus.set(lockClientGrpc.lockStatus());
             makeWait.release();
+            lockClientGrpc.unLock();
         });
         LOGGER.debug(" after");
         boolean acquired = makeWait.tryAcquire(30, TimeUnit.SECONDS);
         assertTrue(acquired);
         assertEquals(LockStatus.OWNER, refLockStatus.get());
         LOGGER.debug("test lockUnlockTest fin <<<");
+        lockClientGrpc.close();
     }
 
     @Test(timeout=25000)
@@ -107,6 +109,55 @@ public class LockAsyncGpcTest {
         assertEquals(LockStatus.OWNER, refLockStatus2.get());
         assertEquals(LockStatus.OTHER, refLockStatus1.get());
         LOGGER.debug("test lockUnlockTest fin <<<");
+        lockClientGrpc1.close();
+        lockClientGrpc2.unLock();
+        lockClientGrpc2.close();
+    }
+
+    @Test(timeout=25000)
+    public void lockDoAsync1Test() throws InterruptedException {
+        Semaphore makeWait = new Semaphore(0);
+        LockClientGrpc lockClientGrpc = generateLockClientGrpc();
+        AtomicReference<LockStatus> refLockStatus = new AtomicReference<>(LockStatus.ABSENT);
+        LOGGER.debug("test lockUnlockTest ini >>>");
+        lockClientGrpc.doWithAsyncLock(executorService, () -> {
+            LOGGER.debug("runnable after");
+            refLockStatus.set(lockClientGrpc.lockStatus());
+            makeWait.release();
+        });
+        LOGGER.debug(" after");
+        boolean acquired = makeWait.tryAcquire(30, TimeUnit.SECONDS);
+        assertTrue(acquired);
+        assertEquals(LockStatus.OWNER, refLockStatus.get());
+        LOGGER.debug("test lockUnlockTest fin <<<");
+        lockClientGrpc.close();
+    }
+
+    @Test(timeout=25000)
+    public void lockDoAsync2Test() throws InterruptedException {
+        Semaphore makeWait = new Semaphore(0);
+        LockClientGrpc lockClientGrpc1 = generateLockClientGrpc();
+        LockClientGrpc lockClientGrpc2 = generateLockClientGrpc(lockClientGrpc1.getName());
+        AtomicReference<LockStatus> refLockStatus1 = new AtomicReference<>(LockStatus.ABSENT);
+        AtomicReference<LockStatus> refLockStatus2 = new AtomicReference<>(LockStatus.ABSENT);
+        LOGGER.debug("test lockUnlockTest ini >>>");
+        lockClientGrpc1.lock();
+        lockClientGrpc2.doWithAsyncLock(executorService, () -> {
+            LOGGER.debug("runnable after");
+            refLockStatus1.set(lockClientGrpc1.lockStatus());
+            refLockStatus2.set(lockClientGrpc2.lockStatus());
+            makeWait.release();
+        });
+        LOGGER.debug("async after");
+        lockClientGrpc1.unLock();
+        LOGGER.debug("unlock after");
+        boolean acquired = makeWait.tryAcquire(30, TimeUnit.SECONDS);
+        assertTrue(acquired);
+        assertEquals(LockStatus.OWNER, refLockStatus2.get());
+        assertEquals(LockStatus.OTHER, refLockStatus1.get());
+        LOGGER.debug("test lockUnlockTest fin <<<");
+        lockClientGrpc1.close();
+        lockClientGrpc2.close();
     }
 
     @Test(timeout=25000)
@@ -122,6 +173,7 @@ public class LockAsyncGpcTest {
                 lockClientGrpc.doWithinLock(() -> {
                     inner.release();
                 });
+                lockClientGrpc.close();
                 return Void.class;
             });
         }
@@ -144,6 +196,7 @@ public class LockAsyncGpcTest {
                     inner.release();
                     return "x";
                 });
+                lockClientGrpc.close();
                 return partialResult;
             });
             futures.add(f);

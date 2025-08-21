@@ -56,7 +56,7 @@ public class LockServiceAdvancedTest {
         Thread.sleep(250);
     }
 
-    @Test
+    @Test(timeout=45000)
     public void testIfInterruptedFor5SecondsLock() {
         intoCriticalZone.set(false);
         errorInCriticalZone.set(false);

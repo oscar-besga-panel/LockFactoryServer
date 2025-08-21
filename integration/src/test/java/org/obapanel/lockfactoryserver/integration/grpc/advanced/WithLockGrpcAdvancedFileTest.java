@@ -2,11 +2,14 @@ package org.obapanel.lockfactoryserver.integration.grpc.advanced;
 
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.obapanel.lockfactoryserver.client.grpc.LockClientGrpc;
 import org.obapanel.lockfactoryserver.core.LockStatus;
+import org.obapanel.lockfactoryserver.integration.TestFileWriterAndChecker;
 import org.obapanel.lockfactoryserver.integration.grpc.LockGpcTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,27 +21,32 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.obapanel.lockfactoryserver.integration.IntegrationTestServer.LOCALHOST;
 import static org.obapanel.lockfactoryserver.integration.IntegrationTestServer.getConfigurationIntegrationTestServer;
 import static org.obapanel.lockfactoryserver.integration.IntegrationTestServer.startIntegrationTestServer;
 import static org.obapanel.lockfactoryserver.integration.IntegrationTestServer.stopIntegrationTestServer;
 
-public class WithLockGrpcAdvancedTest {
+public class WithLockGrpcAdvancedFileTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LockGpcTest.class);
 
-    private final AtomicBoolean intoCriticalZone = new AtomicBoolean(false);
-    private final AtomicBoolean errorInCriticalZone = new AtomicBoolean(false);
-    private final AtomicBoolean otherErrors = new AtomicBoolean(false);
+    private final static int NUM = 7;
+
+    private final static char[] CHARS = new char[] {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'};
+
+    @Rule
+    public TemporaryFolder tmpFolder = new TemporaryFolder();
+
+    private TestFileWriterAndChecker testFileWriterAndChecker;
 
     private final List<LockClientGrpc> lockList = Collections.synchronizedList(new ArrayList<>());
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-    private final String lockName = "lockGrpc999x" + System.currentTimeMillis();
+    private final String lockName = "lockGrpcFile888x" + System.currentTimeMillis();
 
     @BeforeClass
     public static void setupAll() throws InterruptedException {
@@ -50,6 +58,14 @@ public class WithLockGrpcAdvancedTest {
         stopIntegrationTestServer();
     }
 
+    @Before
+    public void setUp() throws Exception {
+        String fileName = "LockClientGrpcAdvancedFileTest_" + System.currentTimeMillis() + ".txt";
+        testFileWriterAndChecker = TestFileWriterAndChecker.fromTempFolder(tmpFolder, fileName);
+        LOGGER.debug("Current temp folder: {}", tmpFolder.getRoot().getAbsolutePath());
+    }
+
+
     @After
     public void tearsDown() throws InterruptedException {
         executorService.shutdown();
@@ -60,14 +76,12 @@ public class WithLockGrpcAdvancedTest {
     @Test(timeout=70000)
     public void testIfInterruptedFor5SecondsLock() throws InterruptedException {
             int num = 7;
-            intoCriticalZone.set(false);
-            errorInCriticalZone.set(false);
-            otherErrors.set(false);
             List<Thread> threadList = new ArrayList<>();
             for(int i=0; i < num; i++) {
-                int time = ThreadLocalRandom.current().nextInt(0,num) + i;
-                Thread t = new Thread(() -> accesLockOfCriticalZone(time));
-                t.setName(String.format("prueba_t%d",i));
+                int times = 10 + 3*ThreadLocalRandom.current().nextInt(0, NUM) + i;
+                char toWrite = CHARS[i];
+                Thread t = new Thread(() -> writeFileAsyncWithGrpcLock(toWrite, times));
+                t.setName(String.format("prueba_t%d_%s",i, toWrite));
                 threadList.add(t);
             }
             Collections.shuffle(threadList);
@@ -75,8 +89,7 @@ public class WithLockGrpcAdvancedTest {
             for (Thread thread : threadList) {
                 thread.join();
             }
-            assertFalse(errorInCriticalZone.get());
-            assertFalse(otherErrors.get());
+            assertTrue(testFileWriterAndChecker.checkFile());
             assertFalse(lockList.stream().anyMatch(this::isLockInUse));
             lockList.forEach(LockClientGrpc::close);
     }
@@ -86,17 +99,19 @@ public class WithLockGrpcAdvancedTest {
         return LockStatus.OWNER == lockStatus;
     }
 
-    private void accesLockOfCriticalZone(int sleepTime) {
+    private void writeFileAsyncWithGrpcLock(char toWrite, int times) {
         try {
+            LOGGER.debug("Writing file with lock: {} with char: {} times: {} -- ini >", lockName, toWrite, times);
             LockClientGrpc lockClientGrpc = new LockClientGrpc(LOCALHOST , getConfigurationIntegrationTestServer().getGrpcServerPort(), lockName);
             lockList.add(lockClientGrpc);
             lockClientGrpc.doWithinLock(() ->{
                 checkLock(lockClientGrpc);
-                accessCriticalZone(sleepTime);
+                LOGGER.debug("Writing file with lock: {} with char: {} times: {} -- lock ! >", lockName, toWrite, times);
+                testFileWriterAndChecker.writeFile(toWrite, times, 33);
             });
         } catch (Exception e){
-            otherErrors.set(true);
             LOGGER.error("Other error ", e);
+            throw new IllegalStateException("Error writing file with lock: " + lockName + " with char " + toWrite, e);
         }
     }
 
@@ -107,27 +122,6 @@ public class WithLockGrpcAdvancedTest {
                     lockClientGrpc.getName(), Thread.currentThread().getName(), lockStatus);
             throw new IllegalStateException(message);
         }
-    }
-
-    private void accessCriticalZone(int sleepTime){
-        LOGGER.info("accessCriticalZone > enter  > " + Thread.currentThread().getName());
-        if (intoCriticalZone.get()) {
-            errorInCriticalZone.set(true);
-            throw new IllegalStateException("Other thread is here " + Thread.currentThread().getName());
-        }
-        try {
-            LOGGER.info("accessCriticalZone > bef true  > " + Thread.currentThread().getName());
-            intoCriticalZone.set(true);
-            LOGGER.info("accessCriticalZone > aft true  > " + Thread.currentThread().getName());
-            Thread.sleep(TimeUnit.SECONDS.toMillis(sleepTime));
-        } catch (InterruptedException e) {
-            //NOOP
-        } finally {
-            LOGGER.info("accessCriticalZone > bef false > " + Thread.currentThread().getName());
-            intoCriticalZone.set(false);
-            LOGGER.info("accessCriticalZone > aft false > " + Thread.currentThread().getName());
-        }
-        LOGGER.info("accessCriticalZone > exit   > " + Thread.currentThread().getName());
     }
 
 }

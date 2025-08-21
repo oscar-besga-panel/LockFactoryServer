@@ -113,15 +113,53 @@ public class LockClientGrpc
         return token;
     }
 
-    public void asyncLock() {
-        asyncLock(lazyLocalExecutor(), null);
-    }
 
+    /**
+     * Asynchronously executes the runnable after obtaining the lock (both operations are done asynchronously).
+     * The lock is NOT released after the runnable is executed.
+     * It uses an internal executor to run the runnable.
+     * @param onLock Method to be executed after obtaining the lock.
+     */
     public void asyncLock(Runnable onLock) {
-        asyncLock(lazyLocalExecutor(), onLock);
+        Executor executor = lazyLocalExecutor();
+        asyncLock(executor, false, onLock);
     }
 
+    /**
+     * Asynchronously executes the runnable after obtaining the lock, then is released (all operations are done asynchronously).
+     * The lock is automatically released after the runnable is executed.
+     * It uses an internal executor to run the runnable.
+     * @param onLock Method to be executed after obtaining the lock.
+     */
+    public void doWithAsyncLock(Runnable onLock) {
+        Executor executor = lazyLocalExecutor();
+        asyncLock(executor, true, onLock);
+    }
+
+
+    /**
+     * Asynchronously executes the runnable after obtaining the lock (both operations are done asynchronously).
+     * The lock is NOT released after the runnable is executed.
+     * @param executor Executor to run the runnable and take the lock
+     * @param onLock Method to be executed after obtaining the lock.
+     */
     public void asyncLock(Executor executor, Runnable onLock) {
+        asyncLock(executor, false, onLock);
+    }
+
+    /**
+     * Asynchronously executes the runnable after obtaining the lock, then is released (all operations are done asynchronously).
+     * The lock is automatically released after the runnable is executed.
+     * @param executor Executor to run the runnable and take the lock
+     * @param onLock Method to be executed after obtaining the lock.
+     */
+    public void doWithAsyncLock(Executor executor, Runnable onLock) {
+        asyncLock(executor, true, onLock);
+    }
+
+
+
+    private void asyncLock(Executor executor,  boolean autoUnlock, Runnable onLock) {
         ListenableFuture<StringValue> listenableFuture = getAsyncStub().
                 asyncLock(StringValue.of(getName()));
         listenableFuture.addListener(() -> {
@@ -135,6 +173,10 @@ public class LockClientGrpc
                 throw RuntimeInterruptedException.getToThrowWhenInterrupted(e);
             } catch (ExecutionException e) {
                 throw new IllegalStateException(e);
+            } finally {
+                if (autoUnlock) {
+                    unLock();
+                }
             }
         }, executor);
     }

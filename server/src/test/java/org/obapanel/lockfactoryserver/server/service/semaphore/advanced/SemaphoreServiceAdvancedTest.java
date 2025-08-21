@@ -69,7 +69,7 @@ public class SemaphoreServiceAdvancedTest {
         Thread.sleep(250);
     }
 
-    @Test
+    @Test(timeout=45000)
     public void testIfInterruptedFor5SecondsLock() throws InterruptedException {
         semaphoreService.release(semaphoreName, 1);
         intoCriticalZone.set(false);

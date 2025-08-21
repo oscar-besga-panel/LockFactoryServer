@@ -42,7 +42,7 @@ public class LockFactoryServerMain {
             }
             lockFactoryServerMain.execute();
             //TODO needed?
-            System.exit(0);
+            //System.exit(0);
         } catch (Exception e) {
             System.out.println("Error in main " + e);
             e.printStackTrace();

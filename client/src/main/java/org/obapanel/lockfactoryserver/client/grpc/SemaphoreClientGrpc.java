@@ -67,18 +67,42 @@ public class SemaphoreClientGrpc
         getStub().acquire(namePermits);
     }
 
+    /**
+     * Acquires 1 permit asynchronously using the local lazy local executor.
+     * This method does NOT release the permit when the action is finished.
+     * @param onAcquire action when the permit is acquired.
+     */
     public void asyncAcquire(Runnable onAcquire) {
         asyncAcquire(1, lazyLocalExecutor(), onAcquire);
     }
 
+    /**
+     * Acquires 1 permit asynchronously using the local lazy local executor.
+     * This method does NOT release the permit when the action is finished.
+     * @param onAcquire action when the permit is acquired.
+     * @param executor executor to run the action when the permit is acquired.
+     */
     public void asyncAcquire(Executor executor, Runnable onAcquire) {
         asyncAcquire(1, executor, onAcquire);
     }
 
+    /**
+     * Acquires 1 permit asynchronously using the local lazy local executor.
+     * This method does NOT release the permit when the action is finished.
+     * @param onAcquire action when the permit is acquired.
+     * @param permits number of permits to acquire.
+     */
     public void asyncAcquire(int permits, Runnable onAcquire) {
         asyncAcquire(permits, lazyLocalExecutor(), onAcquire);
     }
 
+    /**
+     * Acquires 1 permit asynchronously using the local lazy local executor.
+     * This method does NOT release the permit when the action is finished.
+     * @param onAcquire action when the permit is acquired.
+     * @param executor executor to run the action when the permit is acquired.
+     * @param permits number of permits to acquire.
+     */
     public void asyncAcquire(int permits, Executor executor, Runnable onAcquire) {
         NamePermits namePermits = createNamePermits(permits);
         ListenableFuture<Empty> listenableFuture = getAsyncStub().asyncAcquire(namePermits);
