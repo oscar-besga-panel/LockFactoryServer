@@ -76,7 +76,7 @@ public class LockClientGrpcAdvancedFileTest {
                 testFileWriterAndChecker.writeFile(toWrite, times, 25);
             });
         } catch (Exception e) {
-            throw new RuntimeException("Error writing file with lock: " + lockName + " with char " + toWrite, e);
+            throw new IllegalStateException("Error writing file with lock: " + lockName + " with char " + toWrite, e);
         }
         LOGGER.debug("Writing file with lock: {} with char: {} times: {} -- fin <", lockName, toWrite, times);
     }

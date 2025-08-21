@@ -27,7 +27,7 @@ public class TestFileWriterAndChecker {
             return new TestFileWriterAndChecker(tmpFile);
         } catch (IOException e) {
             LOGGER.error("Error creating temporary file", e);
-            throw new RuntimeException("Error creating temporary file", e);
+            throw new IllegalStateException("Error creating temporary file", e);
         }
     }
 

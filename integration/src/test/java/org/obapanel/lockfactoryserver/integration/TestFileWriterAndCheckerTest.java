@@ -90,7 +90,7 @@ public class TestFileWriterAndCheckerTest {
             testSemaphore.acquire();
             fileWriterAndChecker.writeFile(toWrite, 10, 10);
         } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
         } finally {
             testSemaphore.release();
         }
