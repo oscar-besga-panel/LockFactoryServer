@@ -9,7 +9,6 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 
 import static org.junit.Assert.assertEquals;
@@ -84,7 +83,7 @@ public class PrimitivesCacheTest {
     }
 
     @Test
-    public void shutdownTest() throws Exception {
+    public void shutdownTest() {
         try (MyPrimitivesCache myPrimitivesCache = new MyPrimitivesCache(30, 30)) {
             boolean isRunningNow1 = myPrimitivesCache.checkIsRunning();
             myPrimitivesCache.clearAndShutdown();
@@ -150,7 +149,7 @@ public class PrimitivesCacheTest {
     }
 
     @Test(timeout = 20000)
-    public void removeDataIfNotAvoidableNotDeleteTest() throws InterruptedException {
+    public void removeDataIfNotAvoidableNotDeleteTest() {
         try (MyPrimitivesCache myPrimitivesCache = new MyPrimitivesCache(30, 30,
                 (name, data) -> name.equalsIgnoreCase("100") )) {
             List<String> deletedData = new ArrayList<>();
@@ -227,6 +226,7 @@ public class PrimitivesCacheTest {
         assertNotNull(data3);
         assertNull(data4);
         assertTrue(deletedData.contains("101"));
+        myPrimitivesCache.close();
     }
 
 

@@ -14,10 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertTrue;
 import static org.obapanel.lockfactoryserver.integration.IntegrationTestServer.LOCALHOST;
@@ -52,7 +49,7 @@ public class LockClientRestAdvancedFileTest {
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         String fileName = "LockClientRestAdvancedFileTest_" + System.currentTimeMillis() + ".txt";
         testFileWriterAndChecker = TestFileWriterAndChecker.fromTempFolder(tmpFolder, fileName);
         LOGGER.debug("Current temp folder: {}", tmpFolder.getRoot().getAbsolutePath());

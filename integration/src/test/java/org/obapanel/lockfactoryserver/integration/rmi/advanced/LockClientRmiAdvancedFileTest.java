@@ -49,7 +49,7 @@ public class LockClientRmiAdvancedFileTest {
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         String fileName = "LockClientRmiAdvancedFileTest_" + System.currentTimeMillis() + ".txt";
         testFileWriterAndChecker = TestFileWriterAndChecker.fromTempFolder(tmpFolder, fileName);
         LOGGER.debug("Current temp folder: {}", tmpFolder.getRoot().getAbsolutePath());

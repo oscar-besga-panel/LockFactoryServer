@@ -51,7 +51,7 @@ public class SemaphoreClientRestAdvancedFileTest {
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         String fileName = "SemaphoreClientRmiAdvancedFileTest_" + System.currentTimeMillis() + ".txt";
         testFileWriterAndChecker = TestFileWriterAndChecker.fromTempFolder(tmpFolder, fileName);
         LOGGER.debug("Current temp folder: {}", tmpFolder.getRoot().getAbsolutePath());

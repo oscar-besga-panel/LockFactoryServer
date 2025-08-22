@@ -61,9 +61,9 @@ public class SemaphoreClientRestTest {
     @Before
     public void setup() throws IOException {
         mockedStaticHttpClient = Mockito.mockStatic(HttpClients.class);
-        mockedStaticHttpClient.when(() -> HttpClients.createDefault() ).thenReturn(httpclient);
+        mockedStaticHttpClient.when(HttpClients::createDefault).thenReturn(httpclient);
         mockedStaticHttpClientBuilder = Mockito.mockStatic(HttpClientBuilder.class);
-        mockedStaticHttpClientBuilder.when(() -> HttpClientBuilder.create() ).thenReturn(httpClientBuilder);
+        mockedStaticHttpClientBuilder.when(HttpClientBuilder::create).thenReturn(httpClientBuilder);
         when(httpClientBuilder.setDefaultRequestConfig(any(RequestConfig.class))).thenReturn(httpClientBuilder);
         when(httpClientBuilder.build()).thenReturn(httpclient);
         when(httpclient.execute(any(HttpGet.class))).thenAnswer(ioc ->{
@@ -74,14 +74,13 @@ public class SemaphoreClientRestTest {
         mockedStaticEntityUtils = Mockito.mockStatic(EntityUtils.class);
         mockedStaticEntityUtils.when(() -> EntityUtils.toString(eq(httpEntity))).
                 thenAnswer(ioc -> finalResult.toString());
-        StatusLine statusLine = mock(StatusLine.class);
         when(httpResponse.getCode()).thenReturn(200);
         semaphoreClientRest = new SemaphoreClientRest("http://localhost:8080/", name);
     }
 
     private String finalUrl() {
         if (finalRequest.get() != null) {
-            return finalRequest.get().getRequestUri().toString();
+            return finalRequest.get().getRequestUri();
         } else {
             return "";
         }

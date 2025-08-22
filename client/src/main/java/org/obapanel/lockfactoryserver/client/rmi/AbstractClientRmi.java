@@ -64,11 +64,11 @@ public abstract class AbstractClientRmi<K extends Remote> implements AutoCloseab
         }
     }
 
-    interface RmiActionDo {
+    public interface RmiActionDo {
         void execute() throws RemoteException;
     }
 
-    interface RmiActionGet<T> {
+    public interface RmiActionGet<T> {
         T execute() throws RemoteException;
     }
 
