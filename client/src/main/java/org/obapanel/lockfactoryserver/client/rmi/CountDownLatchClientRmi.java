@@ -1,5 +1,6 @@
 package org.obapanel.lockfactoryserver.client.rmi;
 
+import org.obapanel.lockfactoryserver.client.ClientCountDownLatch;
 import org.obapanel.lockfactoryserver.core.rmi.CountDownLatchServerRmi;
 
 import java.rmi.NotBoundException;
@@ -7,7 +8,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.util.concurrent.TimeUnit;
 
-public class CountDownLatchClientRmi extends AbstractClientRmi<CountDownLatchServerRmi> {
+public class CountDownLatchClientRmi extends AbstractClientRmi<CountDownLatchServerRmi> implements ClientCountDownLatch {
 
     public static final String RMI_NAME = CountDownLatchServerRmi.RMI_NAME;
 
@@ -24,36 +25,36 @@ public class CountDownLatchClientRmi extends AbstractClientRmi<CountDownLatchSer
         return RMI_NAME;
     }
 
-    public boolean createNew(int count) throws RemoteException {
-        return getServerRmi().createNew(getName(), count);
+    public boolean createNew(int count) {
+        return getWithRemote( () -> getServerRmi().createNew(getName(), count));
     }
 
-    public void countDown() throws RemoteException {
-        getServerRmi().countDown(getName());
+    public void countDown() {
+        doWithRemote(() -> getServerRmi().countDown(getName()));
     }
 
-    public void countDown(int count) throws RemoteException {
-        getServerRmi().countDown(getName(), count);
+    public void countDown(int count) {
+        doWithRemote(() -> getServerRmi().countDown(getName(), count));
     }
 
-    public boolean isActive() throws RemoteException {
-        return getServerRmi().getCount(getName()) > 0;
+    public boolean isActive() {
+        return getWithRemote(() -> getServerRmi().getCount(getName()) > 0);
     }
 
-    public int getCount() throws RemoteException {
-        return getServerRmi().getCount(getName());
+    public int getCount() {
+        return getWithRemote(() -> getServerRmi().getCount(getName()));
     }
 
-    public void await() throws RemoteException {
-        getServerRmi().await(getName());
+    public void await() {
+        doWithRemote(() -> getServerRmi().await(getName()));
     }
 
-    public boolean tryAwaitWithTimeOut(long timeOutMillis) throws RemoteException {
-        return getServerRmi().tryAwaitWithTimeOut(getName(), timeOutMillis);
+    public boolean tryAwaitWithTimeOut(long timeOutMillis) {
+        return getWithRemote(() ->  getServerRmi().tryAwaitWithTimeOut(getName(), timeOutMillis));
     }
 
-    public boolean tryAwaitWithTimeOut(long timeOut, TimeUnit timeUnit) throws RemoteException {
-        return getServerRmi().tryAwaitWithTimeOut(getName(), timeOut, timeUnit);
+    public boolean tryAwaitWithTimeOut(long timeOut, TimeUnit timeUnit) {
+        return getWithRemote(() ->  getServerRmi().tryAwaitWithTimeOut(getName(), timeOut, timeUnit));
     }
 
 }

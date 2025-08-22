@@ -58,10 +58,6 @@ public class LockClientGrpcAdvancedTest {
             }
             Collections.shuffle(threadList);
             threadList.forEach(Thread::start);
-//            t1.start();
-//            t2.start();
-//            t3.start();
-            //Thread.sleep(TimeUnit.SECONDS.toMillis(5));
             for (Thread thread : threadList) {
                 thread.join();
             }

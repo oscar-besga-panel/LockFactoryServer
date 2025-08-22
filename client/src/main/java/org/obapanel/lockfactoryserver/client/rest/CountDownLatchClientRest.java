@@ -1,12 +1,13 @@
 package org.obapanel.lockfactoryserver.client.rest;
 
 
+import org.obapanel.lockfactoryserver.client.ClientCountDownLatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
-public class CountDownLatchClientRest extends AbstractClientRest {
+public class CountDownLatchClientRest extends AbstractClientRest implements ClientCountDownLatch {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CountDownLatchClientRest.class);
 

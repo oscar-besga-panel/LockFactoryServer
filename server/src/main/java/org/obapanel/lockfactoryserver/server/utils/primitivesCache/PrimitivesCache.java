@@ -28,7 +28,7 @@ public abstract class PrimitivesCache<K> implements AutoCloseable {
 
     static final AtomicLong INSTANCE_COUNT = new AtomicLong(0);
 
-    public static final int INITIAL_DELAY_SECONDS = 1;
+    public static final int INITIAL_DELAY_MILLISECONDS = 150;
 
 
     private final long instance = INSTANCE_COUNT.getAndIncrement();
@@ -62,8 +62,10 @@ public abstract class PrimitivesCache<K> implements AutoCloseable {
      * @param cacheTimeToLiveSeconds time to live for every object
      */
     public PrimitivesCache(int cacheCheckDataPeriodSeconds, int cacheTimeToLiveSeconds) {
-        this.scheduledExecutorService.scheduleAtFixedRate(this::checkForData, calculateInitialDelay(),
-                cacheCheckDataPeriodSeconds, TimeUnit.SECONDS);
+        this.scheduledExecutorService.scheduleAtFixedRate(this::checkForData,
+                calculateInitialDelayInMillis(instance),
+                TimeUnit.SECONDS.toMillis(cacheCheckDataPeriodSeconds),
+                TimeUnit.MILLISECONDS);
         this.cacheTimeToLiveSeconds = cacheTimeToLiveSeconds;
     }
 
@@ -71,8 +73,8 @@ public abstract class PrimitivesCache<K> implements AutoCloseable {
      * Calculate a little delay to init checkForData; a little more each cache is created
      * @return seconds to init checkForData
      */
-    private long calculateInitialDelay() {
-        return INITIAL_DELAY_SECONDS + instance;
+    private static long calculateInitialDelayInMillis(long numInstance) {
+        return INITIAL_DELAY_MILLISECONDS + (numInstance * 5L);
     }
 
     /**
@@ -155,6 +157,7 @@ public abstract class PrimitivesCache<K> implements AutoCloseable {
      * @return new element
      */
     private synchronized PrimitivesCacheEntry<K> createData(String name, Supplier<K> supplier) {
+        LOGGER.debug("createData mapName {} name {}", getMapName(), name);
         if (!dataMap.containsKey(name)) {
             K primitive;
             if (supplier != null) {
@@ -202,7 +205,6 @@ public abstract class PrimitivesCache<K> implements AutoCloseable {
      */
     synchronized void removeDataIfNotAvoidable(String name, boolean checkExpired) {
         PrimitivesCacheEntry<K> data = dataMap.get(name);
-        //if (data != null && data.isDelayed()) {
         if (data != null && (!checkExpired || data.isDelayed())) {
             if (avoidDeletion(name, data.getPrimitive())) {
                 LOGGER.debug("removeDataIfNotAvoidable not remove data name {}", name);
@@ -270,7 +272,7 @@ public abstract class PrimitivesCache<K> implements AutoCloseable {
             LOGGER.debug("checkForData ini mapName {} > map {}", getMapName(), dataMap.size());
             dataMap.forEach((name, primitive) -> {
                 LOGGER.debug("checkForDataToRemove mapName {} name {} primitive {}", getMapName(), name, primitive);
-                removeEntryDataFromQueueIfExpired(name, primitive);
+                checkForDataToRemove(name, primitive);
             });
             t = System.currentTimeMillis() - t;
             LOGGER.debug("checkForData ini mapName {} t > map {} > t {}", getMapName(), dataMap.size(), t);
@@ -285,7 +287,7 @@ public abstract class PrimitivesCache<K> implements AutoCloseable {
      *
      * @param delayedData data to be checked an removed
      */
-    synchronized void removeEntryDataFromQueueIfExpired(String name, PrimitivesCacheEntry<K> delayedData){
+    synchronized void checkForDataToRemove(String name, PrimitivesCacheEntry<K> delayedData){
         LOGGER.debug("removeEntryDataFromQueue mapName {} delayedData {}", getMapName(), delayedData );
         if (delayedData.isDelayed() ) {
             if (avoidDeletion(delayedData.getName(), delayedData.getPrimitive())) {
@@ -293,13 +295,6 @@ public abstract class PrimitivesCache<K> implements AutoCloseable {
                 delayedData.refresh();
             } else {
                 removeData(name);
-//                LOGGER.debug("removeEntryDataFromQueue delayedData mapName {} REMOVE {} ", getMapName(), delayedData );
-//                PrimitivesCacheEntry<K> result = dataMap.remove(name);
-//                if (result == null) {
-//                    LOGGER.warn("removeEntryDataFromQueue delayedData mapName {} REMOVE {} NOT REMOVED", getMapName(), delayedData );
-//                } else {
-//                    notifyRemoveListenersBackground(delayedData.getName(), result);
-//                }
             }
         }
     }

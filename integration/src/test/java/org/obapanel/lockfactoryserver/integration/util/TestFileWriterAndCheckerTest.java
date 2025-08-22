@@ -1,8 +1,9 @@
-package org.obapanel.lockfactoryserver.integration;
+package org.obapanel.lockfactoryserver.integration.util;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.obapanel.lockfactoryserver.integration.TestFileWriterAndChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

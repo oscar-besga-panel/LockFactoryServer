@@ -4,7 +4,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.BoolValue;
 import com.google.protobuf.StringValue;
 import io.grpc.ManagedChannel;
-import org.obapanel.lockfactoryserver.client.WithLock;
+import org.obapanel.lockfactoryserver.client.ClientLock;
 import org.obapanel.lockfactoryserver.core.LockStatus;
 import org.obapanel.lockfactoryserver.core.grpc.LockServerGrpc;
 import org.obapanel.lockfactoryserver.core.grpc.LockStatusValues;
@@ -23,7 +23,7 @@ import static org.obapanel.lockfactoryserver.core.util.TimeUnitConverter.fromJav
 
 public class LockClientGrpc
         extends AbstractClientGrpc<LockServerGrpc.LockServerBlockingStub, LockServerGrpc.LockServerFutureStub>
-        implements WithLock {
+        implements ClientLock {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LockClientGrpc.class);
 

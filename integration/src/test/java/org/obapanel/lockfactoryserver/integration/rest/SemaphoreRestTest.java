@@ -112,7 +112,7 @@ public class SemaphoreRestTest {
     }
 
     @Test(timeout=25000)
-    public void tryAcquireWithTimeOut1Test() throws InterruptedException {
+    public void tryAcquireWithTimeOut1Test() throws Exception {
         Semaphore inner = new Semaphore(0);
         LOGGER.debug("test tryAcquireWithTimeOut1Test ini >>>");
         SemaphoreClientRest semaphoreClientRest1 = generateSemaphoreClientRest();
@@ -141,7 +141,7 @@ public class SemaphoreRestTest {
     }
 
     @Test(timeout=25000)
-    public void tryAcquireWithTimeOut2Test() throws InterruptedException {
+    public void tryAcquireWithTimeOut2Test() throws Exception {
         Semaphore inner = new Semaphore(0);
         LOGGER.debug("test tryAcquireWithTimeOut2Test ini >>>");
         SemaphoreClientRest semaphoreClientRest1 = generateSemaphoreClientRest();

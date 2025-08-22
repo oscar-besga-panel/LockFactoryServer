@@ -6,6 +6,7 @@ import com.google.protobuf.Empty;
 import com.google.protobuf.Int32Value;
 import com.google.protobuf.StringValue;
 import io.grpc.ManagedChannel;
+import org.obapanel.lockfactoryserver.client.ClientSemaphore;
 import org.obapanel.lockfactoryserver.core.grpc.NamePermits;
 import org.obapanel.lockfactoryserver.core.grpc.NamePermitsWithTimeout;
 import org.obapanel.lockfactoryserver.core.grpc.SemaphoreServerGrpc;
@@ -18,7 +19,8 @@ import java.util.concurrent.TimeUnit;
 import static org.obapanel.lockfactoryserver.core.util.TimeUnitConverter.fromJavaToGrpc;
 
 public class SemaphoreClientGrpc
-        extends AbstractClientGrpc<SemaphoreServerGrpc.SemaphoreServerBlockingStub, SemaphoreServerGrpc.SemaphoreServerFutureStub> {
+        extends AbstractClientGrpc<SemaphoreServerGrpc.SemaphoreServerBlockingStub, SemaphoreServerGrpc.SemaphoreServerFutureStub>
+        implements ClientSemaphore {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SemaphoreClientGrpc.class);
 
@@ -56,10 +58,6 @@ public class SemaphoreClientGrpc
         int result = response.getValue();
         LOGGER.debug("current name {} currentluBlocked {}", getName(), result);
         return result;
-    }
-
-    public void acquire() {
-        acquire(1);
     }
 
     public void acquire(int permits) {
@@ -109,26 +107,11 @@ public class SemaphoreClientGrpc
         listenableFuture.addListener(onAcquire, executor);
     }
 
-    public boolean tryAcquire() {
-        return tryAcquire(1);
-    }
 
     public boolean tryAcquire(int permits) {
         NamePermits namePermits = createNamePermits(permits);
         BoolValue response = getStub().tryAcquire(namePermits);
         return response.getValue();
-    }
-
-    public boolean tryAcquireWithTimeOut(long timeOutMillis) {
-        return tryAcquireWithTimeOut(1, timeOutMillis, TimeUnit.MILLISECONDS);
-    }
-
-    public boolean tryAcquireWithTimeOut(long timeOut, TimeUnit timeUnit) {
-        return tryAcquireWithTimeOut(1, timeOut, timeUnit);
-    }
-
-    public boolean tryAcquireWithTimeOut(int permits, long timeOutMillis) {
-        return this.tryAcquireWithTimeOut(permits, timeOutMillis, TimeUnit.MILLISECONDS);
     }
 
     public boolean tryAcquireWithTimeOut(int permits, long timeOut, TimeUnit timeUnit) {
@@ -140,10 +123,6 @@ public class SemaphoreClientGrpc
                 build();
         BoolValue response = getStub().tryAcquireWithTimeOut(namePermitsWithTimeout);
         return response.getValue();
-    }
-
-    public void release() {
-        release(1);
     }
 
     public void release(int permits) {

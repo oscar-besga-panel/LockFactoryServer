@@ -140,7 +140,7 @@ public class SemaphoreClientGrpcTest {
     }
 
     @Test
-    public void tryAcquireOneTest() {
+    public void tryAcquireOneTest() throws Exception {
         int origin = semaphoreInit();
         boolean response = semaphoreClientGrpc.tryAcquire();
         assertTrue(response);
@@ -170,7 +170,7 @@ public class SemaphoreClientGrpcTest {
     }
 
     @Test
-    public void tryAcquireWithTimeOut2Test() {
+    public void tryAcquireWithTimeOut2Test() throws Exception {
         int origin = semaphoreInit();
         boolean response = semaphoreClientGrpc.tryAcquireWithTimeOut(3, 1);
         assertTrue(response);
@@ -180,7 +180,7 @@ public class SemaphoreClientGrpcTest {
     }
 
     @Test
-    public void tryAcquireWithTimeOut3Test() {
+    public void tryAcquireWithTimeOut3Test() throws Exception {
         int origin = semaphoreInit();
         boolean response = semaphoreClientGrpc.tryAcquireWithTimeOut( 1, TimeUnit.MILLISECONDS);
         assertTrue(response);
@@ -190,7 +190,7 @@ public class SemaphoreClientGrpcTest {
     }
 
     @Test
-    public void tryAcquireWithTimeOut4Test() {
+    public void tryAcquireWithTimeOut4Test() throws Exception {
         int origin = semaphoreInit();
         boolean response = semaphoreClientGrpc.tryAcquireWithTimeOut( 1);
         assertTrue(response);

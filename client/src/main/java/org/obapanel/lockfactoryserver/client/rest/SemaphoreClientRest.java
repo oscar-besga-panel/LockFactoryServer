@@ -1,11 +1,12 @@
 package org.obapanel.lockfactoryserver.client.rest;
 
+import org.obapanel.lockfactoryserver.client.ClientSemaphore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
-public class SemaphoreClientRest extends AbstractClientRest {
+public class SemaphoreClientRest extends AbstractClientRest implements ClientSemaphore {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SemaphoreClientRest.class);
 
@@ -35,27 +36,11 @@ public class SemaphoreClientRest extends AbstractClientRest {
         LOGGER.debug("acquire name {} permits {} response {}", getName(), permits, response);
     }
 
-    public boolean tryAcquire() {
-        return tryAcquire(1);
-    }
-
     public boolean tryAcquire(int permits) {
         String response = requestWithUrl( "tryAcquire", getName(), Integer.toString(permits));
         boolean result = Boolean.parseBoolean(response);
         LOGGER.debug("tryAcquire name {} permits {} response {}", getName(), permits, result);
         return result;
-    }
-
-    public boolean tryAcquireWithTimeOut(long timeOut) {
-        return tryAcquireWithTimeOut(1, timeOut, TimeUnit.MILLISECONDS);
-    }
-
-    public boolean tryAcquireWithTimeOut(long timeOut, TimeUnit timeUnit) {
-        return tryAcquireWithTimeOut(1, timeOut, timeUnit);
-    }
-
-    public boolean tryAcquireWithTimeOut(int permits, long timeOut) {
-        return tryAcquireWithTimeOut(permits, timeOut, TimeUnit.MILLISECONDS);
     }
 
     public boolean tryAcquireWithTimeOut(int permits, long timeOut, TimeUnit timeUnit) {
@@ -65,10 +50,6 @@ public class SemaphoreClientRest extends AbstractClientRest {
         LOGGER.debug("tryAcquireWithTimeOut name {} permits {}  timeOut {} timeUnit {} response {}", getName(),
                 permits, timeOut, timeUnit, result);
         return result;
-    }
-
-    public void release() {
-        release(1);
     }
 
     public void release(int permits) {

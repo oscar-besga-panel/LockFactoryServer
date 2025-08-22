@@ -41,4 +41,36 @@ public abstract class AbstractClientRmi<K extends Remote> implements AutoCloseab
         LOGGER.debug("closed");
     }
 
+    public final void doWithRemote(RmiActionDo rmiActionDo) {
+        try {
+            rmiActionDo.execute();
+        } catch (RemoteException remoteException) {
+            throw new RemoteRuntimeException(remoteException);
+        }
+    }
+
+    public final <T> T getWithRemote(RmiActionGet<T> rmiActionGet) {
+        try {
+            return rmiActionGet.execute();
+        } catch (RemoteException remoteException) {
+            throw new RemoteRuntimeException(remoteException);
+        }
+    }
+
+    public static class RemoteRuntimeException extends RuntimeException {
+
+        public RemoteRuntimeException(RemoteException cause) {
+            super(cause);
+        }
+    }
+
+    interface RmiActionDo {
+        void execute() throws RemoteException;
+    }
+
+    interface RmiActionGet<T> {
+        T execute() throws RemoteException;
+    }
+
+
 }

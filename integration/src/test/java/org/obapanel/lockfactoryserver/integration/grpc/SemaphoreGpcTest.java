@@ -113,7 +113,7 @@ public class SemaphoreGpcTest {
     }
 
     @Test(timeout=25000)
-    public void tryAcquireWithTimeOutTest() throws InterruptedException {
+    public void tryAcquireWithTimeOutTest() throws Exception {
         Semaphore inner = new Semaphore(0);
         LOGGER.debug("test tryAcquireWithTimeOutTest ini >>>");
         SemaphoreClientGrpc semaphoreClientGrpc = generateSemaphoreClientGrpc();

@@ -137,7 +137,7 @@ public class SemaphoreClientRestTest {
     }
 
     @Test
-    public void tryAcquireWithTimeOut1Test() throws IOException {
+    public void tryAcquireWithTimeOut1Test() throws Exception {
         boolean result = semaphoreClientRest.tryAcquireWithTimeOut(7);
         assertFalse(result);
         verify(httpclient).execute(any(HttpGet.class));
@@ -151,7 +151,7 @@ public class SemaphoreClientRestTest {
     }
 
     @Test
-    public void tryAcquireWithTimeOut2Test() throws IOException {
+    public void tryAcquireWithTimeOut2Test() throws Exception {
         boolean result = semaphoreClientRest.tryAcquireWithTimeOut(7, TimeUnit.SECONDS);
         assertFalse(result);
         verify(httpclient).execute(any(HttpGet.class));
