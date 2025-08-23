@@ -6,6 +6,7 @@ import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.util.Timeout;
@@ -79,10 +80,10 @@ public abstract class AbstractClientRest implements AutoCloseable, NamedClient {
         }
     }
 
-    private String innerRequest(String operation, CloseableHttpClient httpclient) throws IOException, ParseException {
-        int num = ThreadLocalRandom.current().nextInt(1_000_0000);
-        HttpGet httpGet = new HttpGet(baseUrl + operation + "?_=" + System.currentTimeMillis() + "_" + num);
-        httpGet.addHeader("_", System.currentTimeMillis() +  "_" + num);
+    private String innerRequestOld(String operation, CloseableHttpClient httpclient) throws IOException, ParseException {
+        String varPart = String.format("%d_%d", System.currentTimeMillis(), ThreadLocalRandom.current().nextInt(1_000_0000));
+        HttpGet httpGet = new HttpGet(baseUrl + operation + "?_=" + varPart);
+        httpGet.addHeader("_", varPart);
         // httpGet.setHeader("Connection", "close");
         LOGGER.debug("created get {}", httpGet);
         try (CloseableHttpResponse response = httpclient.execute(httpGet)) {
@@ -91,7 +92,26 @@ public abstract class AbstractClientRest implements AutoCloseable, NamedClient {
         }
     }
 
-    String processResponse(String operation, CloseableHttpResponse response) throws IOException, ParseException {
+    private String innerRequest(String operation, CloseableHttpClient httpclient) throws IOException, ParseException {
+        String varPart = String.format("%d_%d", System.currentTimeMillis(), ThreadLocalRandom.current().nextInt(1_000_0000));
+        HttpGet httpGet = new HttpGet(baseUrl + operation + "?_=" + varPart);
+        httpGet.addHeader("_", varPart);
+        // httpGet.setHeader("Connection", "close");
+        LOGGER.debug("created get {}", httpGet);
+        String result = httpclient.execute(httpGet, response -> {
+            LOGGER.debug("executed get {}", response);
+            //processResponse(operation, response);
+            return processResponse(operation, response);
+        });
+//        try (CloseableHttpResponse response = httpclient.execute(httpGet)) {
+//            LOGGER.debug("executed get {}", response);
+//            return processResponse(operation, response);
+//        }
+        return result;
+    }
+
+
+    String processResponse(String operation, ClassicHttpResponse response) throws IOException, ParseException {
         String responseResult = EntityUtils.toString(response.getEntity());
         int code = response.getCode();
         if (code == HTTP_OK) {

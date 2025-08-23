@@ -6,7 +6,7 @@ import com.google.protobuf.Empty;
 import com.google.protobuf.Int32Value;
 import com.google.protobuf.StringValue;
 import io.grpc.ManagedChannel;
-import org.obapanel.lockfactoryserver.client.ClientSemaphore;
+import org.obapanel.lockfactoryserver.client.SemaphoreClient;
 import org.obapanel.lockfactoryserver.core.grpc.NamePermits;
 import org.obapanel.lockfactoryserver.core.grpc.NamePermitsWithTimeout;
 import org.obapanel.lockfactoryserver.core.grpc.SemaphoreServerGrpc;
@@ -20,7 +20,7 @@ import static org.obapanel.lockfactoryserver.core.util.TimeUnitConverter.fromJav
 
 public class SemaphoreClientGrpc
         extends AbstractClientGrpc<SemaphoreServerGrpc.SemaphoreServerBlockingStub, SemaphoreServerGrpc.SemaphoreServerFutureStub>
-        implements ClientSemaphore {
+        implements SemaphoreClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SemaphoreClientGrpc.class);
 

@@ -2,7 +2,7 @@ package org.obapanel.lockfactoryserver.client;
 
 import java.util.function.Supplier;
 
-public interface ClientLock {
+public interface LockClient {
 
 
     boolean lock();

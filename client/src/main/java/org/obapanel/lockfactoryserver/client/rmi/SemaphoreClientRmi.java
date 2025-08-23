@@ -1,6 +1,6 @@
 package org.obapanel.lockfactoryserver.client.rmi;
 
-import org.obapanel.lockfactoryserver.client.ClientSemaphore;
+import org.obapanel.lockfactoryserver.client.SemaphoreClient;
 import org.obapanel.lockfactoryserver.core.rmi.SemaphoreServerRmi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,7 +10,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.util.concurrent.TimeUnit;
 
-public class SemaphoreClientRmi extends AbstractClientRmi<SemaphoreServerRmi> implements ClientSemaphore {
+public class SemaphoreClientRmi extends AbstractClientRmi<SemaphoreServerRmi> implements SemaphoreClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SemaphoreClientRmi.class);
 

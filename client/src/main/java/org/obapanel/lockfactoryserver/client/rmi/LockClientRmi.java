@@ -1,6 +1,6 @@
 package org.obapanel.lockfactoryserver.client.rmi;
 
-import org.obapanel.lockfactoryserver.client.ClientLock;
+import org.obapanel.lockfactoryserver.client.LockClient;
 import org.obapanel.lockfactoryserver.core.LockStatus;
 import org.obapanel.lockfactoryserver.core.rmi.LockServerRmi;
 import org.slf4j.Logger;
@@ -12,7 +12,7 @@ import java.rmi.registry.Registry;
 import java.util.concurrent.TimeUnit;
 
 public class LockClientRmi extends AbstractClientRmi<LockServerRmi>
-        implements ClientLock {
+        implements LockClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LockClientRmi.class);
 

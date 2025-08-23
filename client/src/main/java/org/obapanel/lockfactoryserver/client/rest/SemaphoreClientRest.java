@@ -1,12 +1,12 @@
 package org.obapanel.lockfactoryserver.client.rest;
 
-import org.obapanel.lockfactoryserver.client.ClientSemaphore;
+import org.obapanel.lockfactoryserver.client.SemaphoreClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
-public class SemaphoreClientRest extends AbstractClientRest implements ClientSemaphore {
+public class SemaphoreClientRest extends AbstractClientRest implements SemaphoreClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SemaphoreClientRest.class);
 

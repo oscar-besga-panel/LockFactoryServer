@@ -1,6 +1,6 @@
 package org.obapanel.lockfactoryserver.client.rmi;
 
-import org.obapanel.lockfactoryserver.client.ClientCountDownLatch;
+import org.obapanel.lockfactoryserver.client.CountDownLatchClient;
 import org.obapanel.lockfactoryserver.core.rmi.CountDownLatchServerRmi;
 
 import java.rmi.NotBoundException;
@@ -8,7 +8,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.util.concurrent.TimeUnit;
 
-public class CountDownLatchClientRmi extends AbstractClientRmi<CountDownLatchServerRmi> implements ClientCountDownLatch {
+public class CountDownLatchClientRmi extends AbstractClientRmi<CountDownLatchServerRmi> implements CountDownLatchClient {
 
     public static final String RMI_NAME = CountDownLatchServerRmi.RMI_NAME;
 

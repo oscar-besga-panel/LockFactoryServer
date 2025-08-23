@@ -2,7 +2,7 @@ package org.obapanel.lockfactoryserver.client;
 
 import java.util.concurrent.TimeUnit;
 
-public interface ClientSemaphore {
+public interface SemaphoreClient {
 
     int currentPermits() ;
 
