@@ -80,18 +80,6 @@ public abstract class AbstractClientRest implements AutoCloseable, NamedClient {
         }
     }
 
-    private String innerRequestOld(String operation, CloseableHttpClient httpclient) throws IOException, ParseException {
-        String varPart = String.format("%d_%d", System.currentTimeMillis(), ThreadLocalRandom.current().nextInt(1_000_0000));
-        HttpGet httpGet = new HttpGet(baseUrl + operation + "?_=" + varPart);
-        httpGet.addHeader("_", varPart);
-        // httpGet.setHeader("Connection", "close");
-        LOGGER.debug("created get {}", httpGet);
-        try (CloseableHttpResponse response = httpclient.execute(httpGet)) {
-            LOGGER.debug("executed get {}", response);
-            return processResponse(operation, response);
-        }
-    }
-
     private String innerRequest(String operation, CloseableHttpClient httpclient) throws IOException, ParseException {
         String varPart = String.format("%d_%d", System.currentTimeMillis(), ThreadLocalRandom.current().nextInt(1_000_0000));
         HttpGet httpGet = new HttpGet(baseUrl + operation + "?_=" + varPart);
@@ -100,13 +88,8 @@ public abstract class AbstractClientRest implements AutoCloseable, NamedClient {
         LOGGER.debug("created get {}", httpGet);
         String result = httpclient.execute(httpGet, response -> {
             LOGGER.debug("executed get {}", response);
-            //processResponse(operation, response);
             return processResponse(operation, response);
         });
-//        try (CloseableHttpResponse response = httpclient.execute(httpGet)) {
-//            LOGGER.debug("executed get {}", response);
-//            return processResponse(operation, response);
-//        }
         return result;
     }
 
