@@ -7,6 +7,7 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.message.StatusLine;
 import org.junit.After;
@@ -67,10 +68,9 @@ public class AbstractClientRestTest {
         mockedStaticHttpClientBuilder.when(() -> HttpClientBuilder.create() ).thenReturn(httpClientBuilder);
         when(httpClientBuilder.setDefaultRequestConfig(any(RequestConfig.class))).thenReturn(httpClientBuilder);
         when(httpClientBuilder.build()).thenReturn(httpclient);
-
-        when(httpclient.execute(any(HttpGet.class))).thenAnswer(ioc ->{
-            finalRequest.set(ioc.getArgument(0));
-            return httpResponse;
+        when(httpclient.execute(any(HttpGet.class), any(HttpClientResponseHandler.class))).thenAnswer(ioc ->{
+            finalRequest.set(ioc.getArgument(0,HttpGet.class));
+            return ioc.getArgument(1, HttpClientResponseHandler.class).handleResponse(httpResponse);
         });
         when(httpResponse.getEntity()).thenReturn(httpEntity);
         mockedStaticEntityUtils = Mockito.mockStatic(EntityUtils.class);

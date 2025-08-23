@@ -7,6 +7,7 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.message.StatusLine;
 import org.junit.After;
@@ -69,9 +70,9 @@ public class BucketRateLimiterRestTest {
         mockedStaticHttpClientBuilder.when(HttpClientBuilder::create).thenReturn(httpClientBuilder);
         when(httpClientBuilder.setDefaultRequestConfig(any(RequestConfig.class))).thenReturn(httpClientBuilder);
         when(httpClientBuilder.build()).thenReturn(httpclient);
-        when(httpclient.execute(any(HttpGet.class))).thenAnswer(ioc ->{
-            finalRequest.set(ioc.getArgument(0));
-            return httpResponse;
+        when(httpclient.execute(any(HttpGet.class), any(HttpClientResponseHandler.class))).thenAnswer(ioc ->{
+            finalRequest.set(ioc.getArgument(0,HttpGet.class));
+            return ioc.getArgument(1, HttpClientResponseHandler.class).handleResponse(httpResponse);
         });
         when(httpResponse.getEntity()).thenReturn(httpEntity);
         mockedStaticEntityUtils = Mockito.mockStatic(EntityUtils.class);
@@ -110,7 +111,7 @@ public class BucketRateLimiterRestTest {
         assertTrue(finalUrl.contains(Long.toString(tokens)));
         assertTrue(finalUrl.contains(Boolean.toString(true)));
         assertTrue(finalUrl.contains(TimeUnit.SECONDS.toString()));
-        verify(httpclient).execute(any(HttpGet.class));
+        verify(httpclient).execute(any(HttpGet.class), any(HttpClientResponseHandler.class));
     }
 
     @Test
@@ -126,7 +127,7 @@ public class BucketRateLimiterRestTest {
         assertTrue(finalUrl.contains(Long.toString(tokens)));
         assertTrue(finalUrl.contains(Boolean.toString(true)));
         assertTrue(finalUrl.contains(TimeUnit.MILLISECONDS.toString()));
-        verify(httpclient).execute(any(HttpGet.class));
+        verify(httpclient).execute(any(HttpGet.class), any(HttpClientResponseHandler.class));
     }
 
     @Test
@@ -138,8 +139,8 @@ public class BucketRateLimiterRestTest {
         assertTrue(finalUrl.contains("bucketRateLimiter"));
         assertTrue(finalUrl.contains("getAvailableTokens"));
         assertTrue(finalUrl.contains(name));
-        verify(httpclient).execute(any(HttpGet.class));
         assertEquals(tokens, result);
+        verify(httpclient).execute(any(HttpGet.class), any(HttpClientResponseHandler.class));
     }
 
     @Test
@@ -152,8 +153,8 @@ public class BucketRateLimiterRestTest {
         assertTrue(finalUrl.contains("tryConsume"));
         assertTrue(finalUrl.contains(name));
         assertTrue(finalUrl.contains(Long.toString(tokens)));
-        verify(httpclient).execute(any(HttpGet.class));
         assertTrue(result);
+        verify(httpclient).execute(any(HttpGet.class), any(HttpClientResponseHandler.class));
     }
 
     @Test
@@ -165,8 +166,8 @@ public class BucketRateLimiterRestTest {
         assertTrue(finalUrl.contains("tryConsume"));
         assertTrue(finalUrl.contains(name));
         assertTrue(finalUrl.contains(Long.toString(1L)));
-        verify(httpclient).execute(any(HttpGet.class));
         assertTrue(result);
+        verify(httpclient).execute(any(HttpGet.class), any(HttpClientResponseHandler.class));
     }
 
     @Test
@@ -181,8 +182,8 @@ public class BucketRateLimiterRestTest {
         assertTrue(finalUrl.contains(Long.toString(tokens)));
         assertTrue(finalUrl.contains(Long.toString(117L)));
         assertTrue(finalUrl.contains(TimeUnit.MICROSECONDS.toString()));
-        verify(httpclient).execute(any(HttpGet.class));
         assertFalse(result);
+        verify(httpclient).execute(any(HttpGet.class), any(HttpClientResponseHandler.class));
     }
 
     @Test
@@ -197,8 +198,8 @@ public class BucketRateLimiterRestTest {
         assertTrue(finalUrl.contains(Long.toString(tokens)));
         assertTrue(finalUrl.contains(Long.toString(117L)));
         assertTrue(finalUrl.contains(TimeUnit.MILLISECONDS.toString()));
-        verify(httpclient).execute(any(HttpGet.class));
         assertFalse(result);
+        verify(httpclient).execute(any(HttpGet.class), any(HttpClientResponseHandler.class));
     }
 
     @Test
@@ -211,7 +212,7 @@ public class BucketRateLimiterRestTest {
         assertTrue(finalUrl.contains("consume"));
         assertTrue(finalUrl.contains(name));
         assertTrue(finalUrl.contains(Long.toString(tokens)));
-        verify(httpclient).execute(any(HttpGet.class));
+        verify(httpclient).execute(any(HttpGet.class), any(HttpClientResponseHandler.class));
     }
 
     @Test
@@ -223,7 +224,7 @@ public class BucketRateLimiterRestTest {
         assertTrue(finalUrl.contains("consume"));
         assertTrue(finalUrl.contains(name));
         assertTrue(finalUrl.contains(Long.toString(1L)));
-        verify(httpclient).execute(any(HttpGet.class));
+        verify(httpclient).execute(any(HttpGet.class), any(HttpClientResponseHandler.class));
     }
 
     @Test
@@ -234,7 +235,7 @@ public class BucketRateLimiterRestTest {
         assertTrue(finalUrl.contains("bucketRateLimiter"));
         assertTrue(finalUrl.contains("remove"));
         assertTrue(finalUrl.contains(name));
-        verify(httpclient).execute(any(HttpGet.class));
+        verify(httpclient).execute(any(HttpGet.class), any(HttpClientResponseHandler.class));
     }
 
 
