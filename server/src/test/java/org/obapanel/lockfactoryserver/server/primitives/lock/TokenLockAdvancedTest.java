@@ -23,13 +23,13 @@ public class TokenLockAdvancedTest {
     private final AtomicBoolean errorInCriticalZone = new AtomicBoolean(false);
     private final AtomicBoolean otherErrors = new AtomicBoolean(false);
 
-    private final List<LockInfo> lockList = new ArrayList<>();
+    private final List<LockInfo> lockList = Collections.synchronizedList(new ArrayList<>());
 
 
     private final TokenLock tokenLock = new TokenLock();
 
     @Test(timeout=45000)
-    public void testIfInterruptedFor5SecondsLock() throws InterruptedException {
+    public void testIfInterruptedFor5SecondsLock() {
         intoCriticalZone.set(false);
         errorInCriticalZone.set(false);
         otherErrors.set(false);
@@ -130,10 +130,6 @@ public class TokenLockAdvancedTest {
 
         public String getOwnerThreadName() {
             return ownerThreadName;
-        }
-
-        public void setOwnerThreadName(String ownerThreadName) {
-            this.ownerThreadName = ownerThreadName;
         }
 
         @Override
