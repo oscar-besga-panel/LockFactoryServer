@@ -73,14 +73,13 @@ public class ManagementClientRestTest {
         mockedStaticEntityUtils = Mockito.mockStatic(EntityUtils.class);
         mockedStaticEntityUtils.when(() -> EntityUtils.toString(eq(httpEntity))).
                 thenAnswer(ioc -> finalResult.toString());
-        StatusLine statusLine = mock(StatusLine.class);
         when(httpResponse.getCode()).thenReturn(200);
         managementClientRest = new ManagementClientRest("http://localhost:8080/");
     }
 
     private String finalUrl() {
         if (finalRequest.get() != null) {
-            return finalRequest.get().getRequestUri().toString();
+            return finalRequest.get().getRequestUri();
         } else {
             return "";
         }

@@ -78,7 +78,6 @@ public class BucketRateLimiterRestTest {
         mockedStaticEntityUtils = Mockito.mockStatic(EntityUtils.class);
         mockedStaticEntityUtils.when(() -> EntityUtils.toString(eq(httpEntity))).
                 thenAnswer(ioc -> finalResult.toString());
-        StatusLine statusLine = mock(StatusLine.class);
         when(httpResponse.getCode()).thenReturn(200);
         bucketRateLimiterRestClient = new BucketRateLimiterRestClient("http://localhost:8080/", name);
     }

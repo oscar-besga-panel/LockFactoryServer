@@ -79,14 +79,13 @@ public class CountDownLatchClientRestTest {
         mockedStaticEntityUtils = Mockito.mockStatic(EntityUtils.class);
         mockedStaticEntityUtils.when(() -> EntityUtils.toString(eq(httpEntity))).
                 thenAnswer(ioc -> finalResult.toString());
-        StatusLine statusLine = mock(StatusLine.class);
         when(httpResponse.getCode()).thenReturn(200);
         countDownLatchClientRest = new CountDownLatchClientRest("http://localhost:8080/", name);
     }
 
     private String finalUrl() {
         if (finalRequest.get() != null) {
-            return finalRequest.get().getRequestUri().toString();
+            return finalRequest.get().getRequestUri();
         } else {
             return "";
         }

@@ -79,7 +79,6 @@ public class HolderClientRestTest {
         mockedStaticEntityUtils = Mockito.mockStatic(EntityUtils.class);
         mockedStaticEntityUtils.when(() -> EntityUtils.toString(eq(httpEntity))).
                 thenAnswer(ioc -> resolveFinalResult());
-        StatusLine statusLine = mock(StatusLine.class);
         when(httpResponse.getCode()).thenReturn(200);
         holderClientRest = new HolderClientRest("http://localhost:8080/", name);
     }
@@ -98,7 +97,7 @@ public class HolderClientRestTest {
 
     private String finalUrl() {
         if (finalRequest.get() != null) {
-            return finalRequest.get().getRequestUri().toString();
+            return finalRequest.get().getRequestUri();
         } else {
             return "";
         }

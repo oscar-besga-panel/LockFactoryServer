@@ -42,9 +42,6 @@ public class AbstractClientRestTest {
     private CloseableHttpResponse httpResponse;
 
     @Mock
-    private StatusLine statusLine;
-
-    @Mock
     private HttpEntity httpEntity;
 
 
@@ -78,14 +75,6 @@ public class AbstractClientRestTest {
                 thenAnswer(ioc -> finalResult.toString());
         when(httpResponse.getCode()).thenAnswer(ioc -> finalStatus.get());
 
-    }
-
-    private String finalUrl() {
-        if (finalRequest.get() != null) {
-            return finalRequest.get().getRequestUri().toString();
-        } else {
-            return "";
-        }
     }
 
     @After
