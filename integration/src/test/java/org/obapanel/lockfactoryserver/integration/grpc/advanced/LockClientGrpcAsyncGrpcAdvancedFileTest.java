@@ -85,13 +85,13 @@ public class LockClientGrpcAsyncGrpcAdvancedFileTest {
         try {
             LockClientGrpc lockClientGrpc = new LockClientGrpc(LOCALHOST , getConfigurationIntegrationTestServer().getGrpcServerPort(), lockName);
             lockClientGrpcs.add(lockClientGrpc);
-            lockClientGrpc.doWithAsyncLock(() -> writeFileWithGrpcLock(semaphore, lockClientGrpc, toWrite, times));
+            lockClientGrpc.doWithAsyncLock(() -> writeFileWithGrpcLock(semaphore, toWrite, times));
         } catch (Exception e) {
-            throw new RuntimeException("Error writing file with lock: " + lockName + " with char " + toWrite, e);
+            throw new IllegalStateException("Error writing file with lock: " + lockName + " with char " + toWrite, e);
         }
     }
 
-    void writeFileWithGrpcLock(Semaphore semaphore, LockClientGrpc lockClientGrpc , char toWrite, int times) {
+    void writeFileWithGrpcLock(Semaphore semaphore, char toWrite, int times) {
         LOGGER.debug("Writing in file with lock: {} with char: {} times: {} -- lock ! >", lockName, toWrite, times);
         testFileWriterAndChecker.writeFile(toWrite, times, 25);
         semaphore.release();
