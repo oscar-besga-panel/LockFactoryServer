@@ -58,6 +58,7 @@ public class BucketRateLimiterRmiTest {
         boolean take2 = bucketRateLimiterClientRmi.tryConsume();
         doSleep(305L);
         boolean take3 = bucketRateLimiterClientRmi.tryConsume(1);
+        LOGGER.debug("take1 {} take2 {} take3 {}", take1, take2, take3);
         assertTrue(take1);
         assertFalse(take2);
         assertTrue(take3);

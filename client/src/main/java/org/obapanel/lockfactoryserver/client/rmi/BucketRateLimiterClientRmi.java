@@ -1,5 +1,6 @@
 package org.obapanel.lockfactoryserver.client.rmi;
 
+import org.obapanel.lockfactoryserver.client.BucketRateLimiterClient;
 import org.obapanel.lockfactoryserver.core.rmi.BucketRateLimiterServerRmi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,7 +10,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.util.concurrent.TimeUnit;
 
-public class BucketRateLimiterClientRmi extends AbstractClientRmi<BucketRateLimiterServerRmi>  {
+public class BucketRateLimiterClientRmi extends AbstractClientRmi<BucketRateLimiterServerRmi> implements BucketRateLimiterClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BucketRateLimiterClientRmi.class);
 
@@ -28,47 +29,57 @@ public class BucketRateLimiterClientRmi extends AbstractClientRmi<BucketRateLimi
         return RMI_NAME;
     }
 
-    public void newRateLimiter(long totalTokens, boolean greedy, long timeRefillMillis) throws RemoteException {
-        getServerRmi().newRateLimiter(getName(),totalTokens, greedy, timeRefillMillis, TimeUnit.MILLISECONDS);
+    @Override
+    public void newRateLimiter(long totalTokens, boolean greedy, long timeRefillMillis) {
+        doWithRemote(() -> getServerRmi().newRateLimiter(getName(),totalTokens, greedy, timeRefillMillis, TimeUnit.MILLISECONDS));
     }
 
-    public void newRateLimiter(long totalTokens, boolean greedy, long timeRefill, TimeUnit timeUnit) throws RemoteException {
-        getServerRmi().newRateLimiter(getName(),totalTokens, greedy, timeRefill, timeUnit);
+    @Override
+    public void newRateLimiter(long totalTokens, boolean greedy, long timeRefill, TimeUnit timeUnit) {
+        doWithRemote(() -> getServerRmi().newRateLimiter(getName(),totalTokens, greedy, timeRefill, timeUnit));
     }
 
-    public long getAvailableTokens() throws RemoteException {
-        return getServerRmi().getAvailableTokens(getName());
+    @Override
+    public long getAvailableTokens() {
+        return getWithRemote(() -> getServerRmi().getAvailableTokens(getName()));
     }
 
-    public boolean tryConsume() throws RemoteException {
-        return tryConsume(1L);
-    }
-
-
-    public boolean tryConsume(long tokens) throws RemoteException {
-        return getServerRmi().tryConsume(getName(), tokens);
-    }
-
-    public boolean tryConsumeWithTimeOut(long tokens, long timeOutMillis) throws RemoteException {
-        return tryConsumeWithTimeOut(tokens, timeOutMillis, TimeUnit.MILLISECONDS);
+    @Override
+    public boolean tryConsume() {
+        return getWithRemote(() -> tryConsume(1L));
     }
 
 
-    public boolean tryConsumeWithTimeOut(long tokens, long timeOut, TimeUnit timeUnit) throws RemoteException {
-        return getServerRmi().tryConsumeWithTimeOut(getName(), tokens, timeOut, timeUnit);
+    @Override
+    public boolean tryConsume(long tokens) {
+        return getWithRemote(() -> getServerRmi().tryConsume(getName(), tokens));
     }
 
-    public void consume() throws RemoteException {
+    @Override
+    public boolean tryConsumeWithTimeOut(long tokens, long timeOutMillis) {
+        return getWithRemote(() -> tryConsumeWithTimeOut(tokens, timeOutMillis, TimeUnit.MILLISECONDS));
+    }
+
+
+    @Override
+    public boolean tryConsumeWithTimeOut(long tokens, long timeOut, TimeUnit timeUnit) {
+        return getWithRemote(() -> getServerRmi().tryConsumeWithTimeOut(getName(), tokens, timeOut, timeUnit));
+    }
+
+    @Override
+    public void consume() {
         consume(1L);
     }
 
 
-    public void consume(long tokens) throws RemoteException {
-        getServerRmi().consume(getName(), tokens);
+    @Override
+    public void consume(long tokens) {
+        doWithRemote(() -> getServerRmi().consume(getName(), tokens));
     }
 
-    public void remove() throws RemoteException {
-        getServerRmi().remove(getName());
+    @Override
+    public void remove() {
+        doWithRemote(() ->getServerRmi().remove(getName()));
     }
 
 }

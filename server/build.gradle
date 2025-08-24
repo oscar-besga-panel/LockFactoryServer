@@ -12,7 +12,7 @@ dependencies {
     implementation "io.netty:netty-handler-proxy:${nettyVersion}"
     implementation "io.netty:netty-resolver-dns:${nettyVersion}"
     implementation "io.grpc:grpc-netty:${grpcVersion}"
-    implementation "com.bucket4j:bucket4j-core:${bucket4jVersion}"
+    implementation "com.bucket4j:bucket4j_jdk17-core:${bucket4jVersion}"
     implementation "org.eclipse.jetty:jetty-server:${jettyVersion}"
     //implementation "org.eclipse.jetty:jetty-servlet:${jettyVersion}"
     implementation "org.eclipse.jetty.ee10:jetty-ee10-servlet:${jettyVersion}"

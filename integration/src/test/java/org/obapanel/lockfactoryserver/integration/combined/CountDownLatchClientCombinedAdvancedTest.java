@@ -29,6 +29,8 @@ public class CountDownLatchClientCombinedAdvancedTest {
 
     private final static int NUM = 5;
 
+    private final String countDownLatchName = "countDownLatchCombinedtXXXx" + System.currentTimeMillis();
+
     @BeforeClass
     public static void setupAll() throws InterruptedException {
         startIntegrationTestServer();
@@ -38,8 +40,6 @@ public class CountDownLatchClientCombinedAdvancedTest {
     public static void tearsDownAll() throws InterruptedException {
         stopIntegrationTestServer();
     }
-
-    private final String countDownLatchName = "countDownLatchCombinedtXXXx" + System.currentTimeMillis();
 
     @Test(timeout=30000)
     public void testIfFileIsWrittenCorrectly() throws InterruptedException {
@@ -82,6 +82,7 @@ public class CountDownLatchClientCombinedAdvancedTest {
     void countDownCurrentLatch(Supplier<CountDownLatchClient> countDownLatchClientSupplier) {
         CountDownLatchClient countDownLatchClient = countDownLatchClientSupplier.get();
         countDownLatchClient.countDown();
+        LOGGER.debug("Counted down with count {}", countDownLatchClient.getCount());
     }
 
     CountDownLatchClient generateCountDownLatchClientRest()  {

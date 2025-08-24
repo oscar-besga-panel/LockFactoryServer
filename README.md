@@ -36,7 +36,7 @@ But once something is activated, is available to be used/accessed by every other
 
 
 
-In _advanced beta_ for now !  
+In _RELEASE CANDIDATE_ for now !  
 
 See the [wiki](https://github.com/oscar-besga-panel/LockFactoryServer/wiki) for more documentation
 
@@ -52,7 +52,7 @@ The server can run standalone or be embedded into other services or applications
 It executes integration tests, where a local server is started and local clients execute complex operations against it. It servers to ensure the good performance and correctness of the system.  
 There are more than 55 integration tests to ensure the correctness of the project. 
  
-There are more than 300 unit tests to ensure a working project.
+There are more than 500 unit tests to ensure a working project.
 
 ## How to build
 

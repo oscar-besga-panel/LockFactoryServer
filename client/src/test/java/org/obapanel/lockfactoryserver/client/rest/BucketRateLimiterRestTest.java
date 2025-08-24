@@ -9,7 +9,6 @@ import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.apache.hc.core5.http.message.StatusLine;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,7 +53,7 @@ public class BucketRateLimiterRestTest {
 
     private MockedStatic<EntityUtils> mockedStaticEntityUtils;
 
-    private BucketRateLimiterRestClient bucketRateLimiterRestClient;
+    private BucketRateLimiterClientRest bucketRateLimiterClientRest;
 
     private final AtomicReference<HttpGet> finalRequest = new AtomicReference<>(null);
 
@@ -79,7 +78,7 @@ public class BucketRateLimiterRestTest {
         mockedStaticEntityUtils.when(() -> EntityUtils.toString(eq(httpEntity))).
                 thenAnswer(ioc -> finalResult.toString());
         when(httpResponse.getCode()).thenReturn(200);
-        bucketRateLimiterRestClient = new BucketRateLimiterRestClient("http://localhost:8080/", name);
+        bucketRateLimiterClientRest = new BucketRateLimiterClientRest("http://localhost:8080/", name);
     }
 
     private String finalUrl() {
@@ -101,7 +100,7 @@ public class BucketRateLimiterRestTest {
     public void newRateLimiterTest1() throws IOException {
         long tokens = ThreadLocalRandom.current().nextLong(5,50);
         finalResult.set("ok");
-        bucketRateLimiterRestClient.newRateLimiter(tokens, true, 117L, TimeUnit.SECONDS);
+        bucketRateLimiterClientRest.newRateLimiter(tokens, true, 117L, TimeUnit.SECONDS);
         String finalUrl = finalUrl();
         assertTrue(finalUrl.contains("bucketRateLimiter"));
         assertTrue(finalUrl.contains("newRateLimiter"));
@@ -117,7 +116,7 @@ public class BucketRateLimiterRestTest {
     public void newRateLimiterTest2() throws IOException {
         long tokens = ThreadLocalRandom.current().nextLong(5,50);
         finalResult.set("ok");
-        bucketRateLimiterRestClient.newRateLimiter(tokens, true, 117L);
+        bucketRateLimiterClientRest.newRateLimiter(tokens, true, 117L);
         String finalUrl = finalUrl();
         assertTrue(finalUrl.contains("bucketRateLimiter"));
         assertTrue(finalUrl.contains("newRateLimiter"));
@@ -133,7 +132,7 @@ public class BucketRateLimiterRestTest {
     public void getAvailableTokensTest() throws IOException {
         long tokens = ThreadLocalRandom.current().nextLong(5,50);
         finalResult.set(Long.toString(tokens));
-        long result = bucketRateLimiterRestClient.getAvailableTokens();
+        long result = bucketRateLimiterClientRest.getAvailableTokens();
         String finalUrl = finalUrl();
         assertTrue(finalUrl.contains("bucketRateLimiter"));
         assertTrue(finalUrl.contains("getAvailableTokens"));
@@ -146,7 +145,7 @@ public class BucketRateLimiterRestTest {
     public void tryConsumeTest() throws IOException {
         long tokens = ThreadLocalRandom.current().nextLong(5,50);
         finalResult.set("true");
-        boolean result = bucketRateLimiterRestClient.tryConsume(tokens);
+        boolean result = bucketRateLimiterClientRest.tryConsume(tokens);
         String finalUrl = finalUrl();
         assertTrue(finalUrl.contains("bucketRateLimiter"));
         assertTrue(finalUrl.contains("tryConsume"));
@@ -159,7 +158,7 @@ public class BucketRateLimiterRestTest {
     @Test
     public void tryConsume1Test() throws IOException {
         finalResult.set("true");
-        boolean result = bucketRateLimiterRestClient.tryConsume();
+        boolean result = bucketRateLimiterClientRest.tryConsume();
         String finalUrl = finalUrl();
         assertTrue(finalUrl.contains("bucketRateLimiter"));
         assertTrue(finalUrl.contains("tryConsume"));
@@ -173,7 +172,7 @@ public class BucketRateLimiterRestTest {
     public void tryConsumeWithTimeOutTest1() throws IOException {
         long tokens = ThreadLocalRandom.current().nextLong(5,50);
         finalResult.set("false");
-        boolean result = bucketRateLimiterRestClient.tryConsumeWithTimeOut(tokens, 117L, TimeUnit.MICROSECONDS);
+        boolean result = bucketRateLimiterClientRest.tryConsumeWithTimeOut(tokens, 117L, TimeUnit.MICROSECONDS);
         String finalUrl = finalUrl();
         assertTrue(finalUrl.contains("bucketRateLimiter"));
         assertTrue(finalUrl.contains("tryConsumeWithTimeOut"));
@@ -189,7 +188,7 @@ public class BucketRateLimiterRestTest {
     public void tryConsumeWithTimeOutTest2() throws IOException {
         long tokens = ThreadLocalRandom.current().nextLong(5,50);
         finalResult.set("false");
-        boolean result = bucketRateLimiterRestClient.tryConsumeWithTimeOut(tokens, 117L);
+        boolean result = bucketRateLimiterClientRest.tryConsumeWithTimeOut(tokens, 117L);
         String finalUrl = finalUrl();
         assertTrue(finalUrl.contains("bucketRateLimiter"));
         assertTrue(finalUrl.contains("tryConsumeWithTimeOut"));
@@ -205,7 +204,7 @@ public class BucketRateLimiterRestTest {
     public void consumeTest() throws IOException {
         long tokens = ThreadLocalRandom.current().nextLong(5,50);
         finalResult.set("ok");
-        bucketRateLimiterRestClient.consume(tokens);
+        bucketRateLimiterClientRest.consume(tokens);
         String finalUrl = finalUrl();
         assertTrue(finalUrl.contains("bucketRateLimiter"));
         assertTrue(finalUrl.contains("consume"));
@@ -217,7 +216,7 @@ public class BucketRateLimiterRestTest {
     @Test
     public void consume1Test() throws IOException {
         finalResult.set("ok");
-        bucketRateLimiterRestClient.consume();
+        bucketRateLimiterClientRest.consume();
         String finalUrl = finalUrl();
         assertTrue(finalUrl.contains("bucketRateLimiter"));
         assertTrue(finalUrl.contains("consume"));
@@ -229,7 +228,7 @@ public class BucketRateLimiterRestTest {
     @Test
     public void removeTest() throws IOException {
         finalResult.set("ok");
-        bucketRateLimiterRestClient.remove();
+        bucketRateLimiterClientRest.remove();
         String finalUrl = finalUrl();
         assertTrue(finalUrl.contains("bucketRateLimiter"));
         assertTrue(finalUrl.contains("remove"));
