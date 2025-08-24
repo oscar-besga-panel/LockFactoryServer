@@ -32,6 +32,7 @@ public class BucketRateLimiterClientRest extends AbstractClientRest implements B
 
     public long getAvailableTokens() {
         String response = requestWithUrl( "getAvailableTokens", getName());
+        LOGGER.debug("getAvailableTokens response {}", response);
         return Long.parseLong(response);
     }
 

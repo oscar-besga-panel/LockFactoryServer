@@ -41,7 +41,9 @@ public class BucketRateLimiterClientRmi extends AbstractClientRmi<BucketRateLimi
 
     @Override
     public long getAvailableTokens() {
-        return getWithRemote(() -> getServerRmi().getAvailableTokens(getName()));
+        long tokens = getWithRemote(() -> getServerRmi().getAvailableTokens(getName()));
+        LOGGER.debug("tokens available for {} : {}", getName(), tokens);
+        return tokens;
     }
 
     @Override

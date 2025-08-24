@@ -10,8 +10,6 @@ import org.obapanel.lockfactoryserver.client.rmi.BucketRateLimiterClientRmi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,8 +26,6 @@ import static org.obapanel.lockfactoryserver.integration.IntegrationTestServer.s
 public class BucketRateLimiterCombinedTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BucketRateLimiterCombinedTest.class);
-
-    private static final AtomicInteger BUCKET_COUNT = new AtomicInteger(0);
 
     private final String bucketRateLimiterName = "buraliCombinedXXXx" + System.currentTimeMillis();
 
