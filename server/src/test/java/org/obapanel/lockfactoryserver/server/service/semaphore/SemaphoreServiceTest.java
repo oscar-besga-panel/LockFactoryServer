@@ -7,7 +7,6 @@ import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.service.Services;
 
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
@@ -17,13 +16,10 @@ import static org.junit.Assert.assertTrue;
 public class SemaphoreServiceTest {
 
     private SemaphoreService semaphoreService;
-    private ScheduledExecutorService scheduledExecutorService;
 
     @Before
     public void setup() {
-        //semaphoreService = new SemaphoreServiceBase(new LockFactoryConfiguration());
-        semaphoreService = new SemaphoreServiceSynchronized(new LockFactoryConfiguration());
-        scheduledExecutorService = Executors.newScheduledThreadPool(1);
+        semaphoreService = new SemaphoreServiceBase(new LockFactoryConfiguration());
     }
 
     @After

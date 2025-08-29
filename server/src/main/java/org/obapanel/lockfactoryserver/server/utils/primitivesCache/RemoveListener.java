@@ -1,6 +1,7 @@
 package org.obapanel.lockfactoryserver.server.utils.primitivesCache;
 
-public interface RemoveListener<K> {
+public interface RemoveListener {
 
-    void onRemove(String name, K data);
+    void onRemove(String name);
+
 }

@@ -10,18 +10,15 @@ import org.obapanel.lockfactoryserver.server.service.LockFactoryServices;
 import org.obapanel.lockfactoryserver.server.service.Services;
 import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchService;
 import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchServiceBase;
-import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchServiceSynchronized;
 import org.obapanel.lockfactoryserver.server.service.holder.HolderService;
 import org.obapanel.lockfactoryserver.server.service.holder.HolderServiceBase;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
 import org.obapanel.lockfactoryserver.server.service.lock.LockServiceBase;
-import org.obapanel.lockfactoryserver.server.service.lock.LockServiceSynchronized;
 import org.obapanel.lockfactoryserver.server.service.management.ManagementService;
 import org.obapanel.lockfactoryserver.server.service.rateLimiter.BucketRateLimiterService;
 import org.obapanel.lockfactoryserver.server.service.rateLimiter.BucketRateLimiterServiceBase;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreServiceBase;
-import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreServiceSynchronized;
 import org.obapanel.lockfactoryserver.server.utils.UnmodificableEnumMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,25 +103,6 @@ public class LockFactoryServer implements AutoCloseable {
             ManagementService managementService = new ManagementService(this);
             services.put(Services.MANAGEMENT, managementService);
         }
-        if (configuration.isSynchronizedEnabled()) {
-            createSynchronizedServices();
-        } else {
-            createBaseServices();
-        }
-        if (configuration.isHolderEnabled()) {
-            LOGGER.debug("createServices holder");
-            HolderService holderService = new HolderServiceBase(configuration);
-            services.put(Services.HOLDER, holderService);
-        }
-        if (configuration.isBucketRateLimiterEnabled()) {
-            LOGGER.debug("createServices bucketRateLimiter");
-            BucketRateLimiterService bucketRateLimiterService = new BucketRateLimiterServiceBase(configuration);
-            services.put(Services.BUCKET_RATE_LIMITER, bucketRateLimiterService);
-        }
-    }
-
-    final void createBaseServices() {
-        LOGGER.debug("createServices base");
         if (configuration.isLockEnabled()) {
             LOGGER.debug("createServices lock");
             LockService lockService = new LockServiceBase(configuration);
@@ -140,24 +118,15 @@ public class LockFactoryServer implements AutoCloseable {
             CountDownLatchService countDownLatchService = new CountDownLatchServiceBase(configuration);
             services.put(Services.COUNTDOWNLATCH, countDownLatchService);
         }
-    }
-
-    final void createSynchronizedServices() {
-        LOGGER.debug("createServices synchronized");
-        if (configuration.isLockEnabled()) {
-            LOGGER.debug("createServices lock");
-            LockService lockService = new LockServiceSynchronized(configuration);
-            services.put(Services.LOCK, lockService);
+        if (configuration.isHolderEnabled()) {
+            LOGGER.debug("createServices holder");
+            HolderService holderService = new HolderServiceBase(configuration);
+            services.put(Services.HOLDER, holderService);
         }
-        if (configuration.isSemaphoreEnabled()) {
-            LOGGER.debug("createServices semaphore");
-            SemaphoreService semaphoreService = new SemaphoreServiceSynchronized(configuration);
-            services.put(Services.SEMAPHORE, semaphoreService);
-        }
-        if (configuration.isCountDownLatchEnabled()) {
-            LOGGER.debug("createServices countdownlatch");
-            CountDownLatchService countDownLatchService = new CountDownLatchServiceSynchronized(configuration);
-            services.put(Services.COUNTDOWNLATCH, countDownLatchService);
+        if (configuration.isBucketRateLimiterEnabled()) {
+            LOGGER.debug("createServices bucketRateLimiter");
+            BucketRateLimiterService bucketRateLimiterService = new BucketRateLimiterServiceBase(configuration);
+            services.put(Services.BUCKET_RATE_LIMITER, bucketRateLimiterService);
         }
     }
 
@@ -363,7 +332,7 @@ public class LockFactoryServer implements AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         shutdown();
     }
 

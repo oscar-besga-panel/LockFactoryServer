@@ -5,7 +5,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
-import org.obapanel.lockfactoryserver.server.service.lock.LockServiceSynchronized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

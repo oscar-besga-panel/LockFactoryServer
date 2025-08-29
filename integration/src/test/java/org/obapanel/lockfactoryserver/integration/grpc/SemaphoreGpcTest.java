@@ -63,6 +63,7 @@ public class SemaphoreGpcTest {
         assertEquals(0, result1);
         assertEquals(2, result2);
         LOGGER.debug("test currentTest fin <<<");
+        semaphoreClientGrpc.close();
     }
 
     @Test(timeout=25000)
@@ -83,6 +84,7 @@ public class SemaphoreGpcTest {
         assertEquals(0, result1);
         assertEquals(2, result2);
         LOGGER.debug("test accquireTest fin <<<");
+        semaphoreClientGrpc.close();
     }
 
     @Test(timeout=25000)
@@ -110,10 +112,11 @@ public class SemaphoreGpcTest {
         assertTrue(resulttrya);
         assertTrue(resulttry2);
         LOGGER.debug("test tryAcquireTest fin <<<");
+        semaphoreClientGrpc.close();
     }
 
     @Test(timeout=25000)
-    public void tryAcquireWithTimeOutTest() throws InterruptedException {
+    public void tryAcquireWithTimeOutTest() throws Exception {
         Semaphore inner = new Semaphore(0);
         LOGGER.debug("test tryAcquireWithTimeOutTest ini >>>");
         SemaphoreClientGrpc semaphoreClientGrpc = generateSemaphoreClientGrpc();
@@ -137,5 +140,6 @@ public class SemaphoreGpcTest {
         assertTrue(resulttrya);
         assertTrue(resulttry2);
         LOGGER.debug("test tryAcquireWithTimeOutTest fin <<<");
+        semaphoreClientGrpc.close();
     }
 }

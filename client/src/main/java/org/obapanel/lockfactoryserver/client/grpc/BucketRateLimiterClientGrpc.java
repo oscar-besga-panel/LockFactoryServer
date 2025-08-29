@@ -5,6 +5,7 @@ import com.google.protobuf.BoolValue;
 import com.google.protobuf.Empty;
 import com.google.protobuf.Int64Value;
 import io.grpc.ManagedChannel;
+import org.obapanel.lockfactoryserver.client.BucketRateLimiterClient;
 import org.obapanel.lockfactoryserver.core.grpc.BucketRateLimiterGrpc;
 import org.obapanel.lockfactoryserver.core.grpc.BucketRateLimiterNew;
 import org.obapanel.lockfactoryserver.core.grpc.NameTokensConsume;
@@ -16,7 +17,8 @@ import java.util.concurrent.TimeUnit;
 import static org.obapanel.lockfactoryserver.core.util.TimeUnitConverter.fromJavaToGrpc;
 
 public class BucketRateLimiterClientGrpc
-        extends AbstractClientGrpc<BucketRateLimiterGrpc.BucketRateLimiterBlockingStub, BucketRateLimiterGrpc.BucketRateLimiterFutureStub> {
+        extends AbstractClientGrpc<BucketRateLimiterGrpc.BucketRateLimiterBlockingStub, BucketRateLimiterGrpc.BucketRateLimiterFutureStub>
+        implements BucketRateLimiterClient {
 
     public BucketRateLimiterClientGrpc(String address, int port, String name) {
         super(address, port, name);

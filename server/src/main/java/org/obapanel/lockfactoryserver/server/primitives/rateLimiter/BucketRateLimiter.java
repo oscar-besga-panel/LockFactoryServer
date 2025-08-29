@@ -1,10 +1,12 @@
 package org.obapanel.lockfactoryserver.server.primitives.rateLimiter;
 
-import io.github.bucket4j.Bandwidth;
+
+import io.github.bucket4j.BandwidthBuilder;
 import io.github.bucket4j.BlockingStrategy;
 import io.github.bucket4j.Bucket;
-import io.github.bucket4j.Refill;
 import org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
@@ -17,6 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class BucketRateLimiter {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(BucketRateLimiter.class);
 
     private final Bucket bucket;
 
@@ -30,16 +33,27 @@ public class BucketRateLimiter {
     }
 
     public static Bucket createNewBucket(long totalTokens, boolean refillGreedy, long timeRefill, TimeUnit timeUnit) {
-        Refill refill;
+        LOGGER.debug("createNewBucket totalTokens {} refillGreedy {} timeRefill {} timeUnit {}",
+                totalTokens, refillGreedy, timeRefill, timeUnit);
+        Duration duration = Duration.of(timeRefill, timeUnit.toChronoUnit());
         if (refillGreedy) {
-            refill = Refill.greedy(totalTokens, Duration.of(timeRefill, timeUnit.toChronoUnit()));
+            return Bucket.builder()
+                    .addLimit(limit -> limitGreedy(limit, totalTokens, duration))
+                    .build();
         } else {
-            refill = Refill.intervally(totalTokens, Duration.of(timeRefill, timeUnit.toChronoUnit()));
+            return Bucket.builder()
+                    .addLimit(limit -> limitInterval(limit, totalTokens, duration))
+                    .build();
         }
-        Bandwidth limit = Bandwidth.classic(totalTokens, refill);
-        return Bucket.builder().
-                addLimit(limit).
-                build();
+    }
+
+    private static BandwidthBuilder.BandwidthBuilderBuildStage limitGreedy(BandwidthBuilder.BandwidthBuilderCapacityStage limit, long totalTokens,
+                                                                           Duration duration) {
+        return limit.capacity(totalTokens).refillGreedy(totalTokens, duration).initialTokens(totalTokens);
+    }
+
+    private static BandwidthBuilder.BandwidthBuilderBuildStage limitInterval(BandwidthBuilder.BandwidthBuilderCapacityStage limit, long totalTokens, Duration duration) {
+        return limit.capacity(totalTokens).refillIntervally(totalTokens, duration).initialTokens(totalTokens);
     }
 
     public void setExpired(boolean expired) {
@@ -51,16 +65,18 @@ public class BucketRateLimiter {
     }
 
     public boolean tryConsume(long tokens) {
+        LOGGER.debug("tryConsume tokens {}", tokens);
         return !expired.get() &&
                 tokens <= totalTokens &&
                 bucket.tryConsume(tokens);
     }
 
-    public boolean tryConsumeBlocking(long tokens, Duration of) {
+    public boolean tryConsumeBlocking(long tokens, Duration duration) {
         try {
+            LOGGER.debug("tryConsumeBlocking tokens {} duration {}", tokens, duration);
             return !expired.get() &&
                     tokens <= totalTokens &&
-                    bucket.asBlocking().tryConsume(tokens, of);
+                    bucket.asBlocking().tryConsume(tokens, duration);
         } catch (InterruptedException e) {
             throw RuntimeInterruptedException.getToThrowWhenInterrupted(e);
         }
@@ -68,6 +84,7 @@ public class BucketRateLimiter {
 
     public void consumeBlocking(long tokens) {
         try {
+            LOGGER.debug("consumeBlocking tokens {}", tokens);
             if (!expired.get()) {
                 bucket.asBlocking().consume(tokens, BlockingStrategy.PARKING);
             }
@@ -77,12 +94,15 @@ public class BucketRateLimiter {
     }
 
     public long getTotalTokens() {
+        LOGGER.debug("getTotalTokens totalTokens {}", totalTokens);
         return totalTokens;
     }
 
     public long getAvailableTokens() {
         if (!expired.get()) {
-            return bucket.getAvailableTokens();
+            long currentTokens = bucket.getAvailableTokens();
+            LOGGER.debug("getAvailableTokens totalTokens {} currentTokens {}", totalTokens, currentTokens);
+            return currentTokens;
         } else {
             return -1L;
         }

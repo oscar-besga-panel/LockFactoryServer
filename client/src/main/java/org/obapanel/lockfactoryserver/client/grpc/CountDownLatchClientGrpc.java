@@ -5,6 +5,7 @@ import com.google.protobuf.BoolValue;
 import com.google.protobuf.Empty;
 import com.google.protobuf.Int32Value;
 import io.grpc.ManagedChannel;
+import org.obapanel.lockfactoryserver.client.CountDownLatchClient;
 import org.obapanel.lockfactoryserver.core.grpc.AwaitWithTimeout;
 import org.obapanel.lockfactoryserver.core.grpc.CountDownLatchServerGrpc;
 import org.obapanel.lockfactoryserver.core.grpc.NameCount;
@@ -17,7 +18,8 @@ import java.util.concurrent.TimeUnit;
 import static org.obapanel.lockfactoryserver.core.util.TimeUnitConverter.fromJavaToGrpc;
 
 public class CountDownLatchClientGrpc
-        extends AbstractClientGrpc<CountDownLatchServerGrpc.CountDownLatchServerBlockingStub, CountDownLatchServerGrpc.CountDownLatchServerFutureStub> {
+        extends AbstractClientGrpc<CountDownLatchServerGrpc.CountDownLatchServerBlockingStub, CountDownLatchServerGrpc.CountDownLatchServerFutureStub>
+        implements CountDownLatchClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CountDownLatchClientGrpc.class);
 

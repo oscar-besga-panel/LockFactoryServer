@@ -1,17 +1,18 @@
 package org.obapanel.lockfactoryserver.client.rest;
 
+import org.obapanel.lockfactoryserver.client.BucketRateLimiterClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
-public class BucketRateLimiterRestClient extends AbstractClientRest {
+public class BucketRateLimiterClientRest extends AbstractClientRest implements BucketRateLimiterClient {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BucketRateLimiterRestClient.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BucketRateLimiterClientRest.class);
 
     private static final String SERVICE_URL_NAME_BUCKET_RATE_LIMITER = "bucketRateLimiter";
 
-    public BucketRateLimiterRestClient(String baseServerUrl, String name) {
+    public BucketRateLimiterClientRest(String baseServerUrl, String name) {
         super(baseServerUrl, name);
     }
 
@@ -31,6 +32,7 @@ public class BucketRateLimiterRestClient extends AbstractClientRest {
 
     public long getAvailableTokens() {
         String response = requestWithUrl( "getAvailableTokens", getName());
+        LOGGER.debug("getAvailableTokens response {}", response);
         return Long.parseLong(response);
     }
 

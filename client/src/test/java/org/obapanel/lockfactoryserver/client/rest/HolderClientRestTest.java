@@ -8,6 +8,7 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.message.StatusLine;
 import org.junit.After;
@@ -28,7 +29,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class HolderClientRestTest {
@@ -68,15 +71,14 @@ public class HolderClientRestTest {
         mockedStaticHttpClientBuilder.when(() -> HttpClientBuilder.create() ).thenReturn(httpClientBuilder);
         when(httpClientBuilder.setDefaultRequestConfig(any(RequestConfig.class))).thenReturn(httpClientBuilder);
         when(httpClientBuilder.build()).thenReturn(httpclient);
-        when(httpclient.execute(any(HttpGet.class))).thenAnswer(ioc ->{
-            finalRequest.set(ioc.getArgument(0));
-            return httpResponse;
+        when(httpclient.execute(any(HttpGet.class), any(HttpClientResponseHandler.class))).thenAnswer(ioc ->{
+            finalRequest.set(ioc.getArgument(0,HttpGet.class));
+            return ioc.getArgument(1, HttpClientResponseHandler.class).handleResponse(httpResponse);
         });
         when(httpResponse.getEntity()).thenReturn(httpEntity);
         mockedStaticEntityUtils = Mockito.mockStatic(EntityUtils.class);
         mockedStaticEntityUtils.when(() -> EntityUtils.toString(eq(httpEntity))).
                 thenAnswer(ioc -> resolveFinalResult());
-        StatusLine statusLine = mock(StatusLine.class);
         when(httpResponse.getCode()).thenReturn(200);
         holderClientRest = new HolderClientRest("http://localhost:8080/", name);
     }
@@ -95,7 +97,7 @@ public class HolderClientRestTest {
 
     private String finalUrl() {
         if (finalRequest.get() != null) {
-            return finalRequest.get().getRequestUri().toString();
+            return finalRequest.get().getRequestUri();
         } else {
             return "";
         }
@@ -118,7 +120,7 @@ public class HolderClientRestTest {
         assertTrue(finalUrl.contains(name));
         assertEquals(HolderResult.Status.RETRIEVED, holderResult.getStatus());
         assertEquals("value_" + name, holderResult.getValue());
-        verify(httpclient).execute(any(HttpGet.class));
+        verify(httpclient).execute(any(HttpGet.class), any(HttpClientResponseHandler.class));
     }
 
     @Test
@@ -131,7 +133,7 @@ public class HolderClientRestTest {
         assertTrue(finalUrl.contains(name));
         assertEquals(HolderResult.Status.RETRIEVED, holderResult.getStatus());
         assertEquals("value_" + name, holderResult.getValue());
-        verify(httpclient).execute(any(HttpGet.class));
+        verify(httpclient).execute(any(HttpGet.class), any(HttpClientResponseHandler.class));
     }
 
     @Test
@@ -146,7 +148,7 @@ public class HolderClientRestTest {
         assertTrue(finalUrl.contains(name));
         assertEquals(HolderResult.Status.RETRIEVED, holderResult.getStatus());
         assertEquals("value_" + name, holderResult.getValue());
-        verify(httpclient).execute(any(HttpGet.class));
+        verify(httpclient).execute(any(HttpGet.class), any(HttpClientResponseHandler.class));
     }
 
     @Test
@@ -159,7 +161,7 @@ public class HolderClientRestTest {
         assertTrue(finalUrl.contains("set"));
         assertTrue(finalUrl.contains(name));
         assertTrue(finalUrl.contains(newValue));
-        verify(httpclient).execute(any(HttpGet.class));
+        verify(httpclient).execute(any(HttpGet.class), any(HttpClientResponseHandler.class));
     }
 
     @Test
@@ -174,7 +176,7 @@ public class HolderClientRestTest {
         assertTrue(finalUrl.contains(newValue));
         assertTrue(finalUrl.contains(Long.toString(1234L)));
         assertTrue(finalUrl.contains(TimeUnit.MILLISECONDS.name()));
-        verify(httpclient).execute(any(HttpGet.class));
+        verify(httpclient).execute(any(HttpGet.class), any(HttpClientResponseHandler.class));
     }
 
     @Test
@@ -185,7 +187,7 @@ public class HolderClientRestTest {
         assertTrue(finalUrl.contains("holder"));
         assertTrue(finalUrl.contains("cancel"));
         assertTrue(finalUrl.contains(name));
-        verify(httpclient).execute(any(HttpGet.class));
+        verify(httpclient).execute(any(HttpGet.class), any(HttpClientResponseHandler.class));
     }
 
 }

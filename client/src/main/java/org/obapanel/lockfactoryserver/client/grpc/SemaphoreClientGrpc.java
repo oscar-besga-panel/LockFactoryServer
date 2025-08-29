@@ -6,6 +6,7 @@ import com.google.protobuf.Empty;
 import com.google.protobuf.Int32Value;
 import com.google.protobuf.StringValue;
 import io.grpc.ManagedChannel;
+import org.obapanel.lockfactoryserver.client.SemaphoreClient;
 import org.obapanel.lockfactoryserver.core.grpc.NamePermits;
 import org.obapanel.lockfactoryserver.core.grpc.NamePermitsWithTimeout;
 import org.obapanel.lockfactoryserver.core.grpc.SemaphoreServerGrpc;
@@ -18,7 +19,8 @@ import java.util.concurrent.TimeUnit;
 import static org.obapanel.lockfactoryserver.core.util.TimeUnitConverter.fromJavaToGrpc;
 
 public class SemaphoreClientGrpc
-        extends AbstractClientGrpc<SemaphoreServerGrpc.SemaphoreServerBlockingStub, SemaphoreServerGrpc.SemaphoreServerFutureStub> {
+        extends AbstractClientGrpc<SemaphoreServerGrpc.SemaphoreServerBlockingStub, SemaphoreServerGrpc.SemaphoreServerFutureStub>
+        implements SemaphoreClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SemaphoreClientGrpc.class);
 
@@ -58,53 +60,58 @@ public class SemaphoreClientGrpc
         return result;
     }
 
-    public void acquire() {
-        acquire(1);
-    }
-
     public void acquire(int permits) {
         NamePermits namePermits = createNamePermits(permits);
         getStub().acquire(namePermits);
     }
 
+    /**
+     * Acquires 1 permit asynchronously using the local lazy local executor.
+     * This method does NOT release the permit when the action is finished.
+     * @param onAcquire action when the permit is acquired.
+     */
     public void asyncAcquire(Runnable onAcquire) {
         asyncAcquire(1, lazyLocalExecutor(), onAcquire);
     }
 
+    /**
+     * Acquires 1 permit asynchronously using the local lazy local executor.
+     * This method does NOT release the permit when the action is finished.
+     * @param onAcquire action when the permit is acquired.
+     * @param executor executor to run the action when the permit is acquired.
+     */
     public void asyncAcquire(Executor executor, Runnable onAcquire) {
         asyncAcquire(1, executor, onAcquire);
     }
 
+    /**
+     * Acquires 1 permit asynchronously using the local lazy local executor.
+     * This method does NOT release the permit when the action is finished.
+     * @param onAcquire action when the permit is acquired.
+     * @param permits number of permits to acquire.
+     */
     public void asyncAcquire(int permits, Runnable onAcquire) {
         asyncAcquire(permits, lazyLocalExecutor(), onAcquire);
     }
 
+    /**
+     * Acquires 1 permit asynchronously using the local lazy local executor.
+     * This method does NOT release the permit when the action is finished.
+     * @param onAcquire action when the permit is acquired.
+     * @param executor executor to run the action when the permit is acquired.
+     * @param permits number of permits to acquire.
+     */
     public void asyncAcquire(int permits, Executor executor, Runnable onAcquire) {
         NamePermits namePermits = createNamePermits(permits);
         ListenableFuture<Empty> listenableFuture = getAsyncStub().asyncAcquire(namePermits);
         listenableFuture.addListener(onAcquire, executor);
     }
 
-    public boolean tryAcquire() {
-        return tryAcquire(1);
-    }
 
     public boolean tryAcquire(int permits) {
         NamePermits namePermits = createNamePermits(permits);
         BoolValue response = getStub().tryAcquire(namePermits);
         return response.getValue();
-    }
-
-    public boolean tryAcquireWithTimeOut(long timeOutMillis) {
-        return tryAcquireWithTimeOut(1, timeOutMillis, TimeUnit.MILLISECONDS);
-    }
-
-    public boolean tryAcquireWithTimeOut(long timeOut, TimeUnit timeUnit) {
-        return tryAcquireWithTimeOut(1, timeOut, timeUnit);
-    }
-
-    public boolean tryAcquireWithTimeOut(int permits, long timeOutMillis) {
-        return this.tryAcquireWithTimeOut(permits, timeOutMillis, TimeUnit.MILLISECONDS);
     }
 
     public boolean tryAcquireWithTimeOut(int permits, long timeOut, TimeUnit timeUnit) {
@@ -116,10 +123,6 @@ public class SemaphoreClientGrpc
                 build();
         BoolValue response = getStub().tryAcquireWithTimeOut(namePermitsWithTimeout);
         return response.getValue();
-    }
-
-    public void release() {
-        release(1);
     }
 
     public void release(int permits) {

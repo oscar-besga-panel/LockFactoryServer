@@ -15,7 +15,7 @@ import org.obapanel.lockfactoryserver.server.connections.rmi.RmiConnection;
 import org.obapanel.lockfactoryserver.server.service.LockFactoryServices;
 import org.obapanel.lockfactoryserver.server.service.Services;
 import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchServiceBase;
-import org.obapanel.lockfactoryserver.server.service.lock.LockServiceSynchronized;
+import org.obapanel.lockfactoryserver.server.service.lock.LockServiceBase;
 import org.obapanel.lockfactoryserver.server.service.management.ManagementService;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreServiceBase;
 import org.slf4j.Logger;
@@ -40,34 +40,27 @@ public class LockFactoryServerTest {
     static MockedConstruction<GrpcConnection> grpcConnectionMocked;
     static MockedConstruction<RestConnection> restConnectionMocked;
     static MockedConstruction<ManagementService> managementServiceMocked;
-    static MockedConstruction<LockServiceSynchronized> lockServiceMocked;
+    static MockedConstruction<LockServiceBase> lockServiceMocked;
     static MockedConstruction<SemaphoreServiceBase> semaphoreServiceMocked;
     static MockedConstruction<CountDownLatchServiceBase> countDownLatchServiceMocked;
 
     @BeforeClass
     public static void setupAll() {
         LOGGER.debug("setupAll");
-        rmiConnectionMocked = mockConstruction(RmiConnection.class, (mock, context) -> {
-            when(mock.getType()).thenReturn(Connections.RMI);
-        });
-        grpcConnectionMocked = mockConstruction(GrpcConnection.class, (mock, context) -> {
-            when(mock.getType()).thenReturn(Connections.GRPC);
-        });
-        restConnectionMocked = mockConstruction(RestConnection.class, (mock, context) -> {
-            when(mock.getType()).thenReturn(Connections.REST);
-        });
-        managementServiceMocked = mockConstruction(ManagementService.class, (mock, context) -> {
-            when(mock.getType()).thenReturn(Services.MANAGEMENT);
-        });
-        lockServiceMocked = mockConstruction(LockServiceSynchronized.class, (mock, context) -> {
-            when(mock.getType()).thenReturn(Services.LOCK);
-        });
-        semaphoreServiceMocked = mockConstruction(SemaphoreServiceBase.class, (mock, context) -> {
-            when(mock.getType()).thenReturn(Services.SEMAPHORE);
-        });
-        countDownLatchServiceMocked =  mockConstruction(CountDownLatchServiceBase.class, (mock, context) -> {
-            when(mock.getType()).thenReturn(Services.COUNTDOWNLATCH);
-        });
+        rmiConnectionMocked = mockConstruction(RmiConnection.class, (mock, context) ->
+                when(mock.getType()).thenReturn(Connections.RMI));
+        grpcConnectionMocked = mockConstruction(GrpcConnection.class, (mock, context) ->
+                when(mock.getType()).thenReturn(Connections.GRPC));
+        restConnectionMocked = mockConstruction(RestConnection.class, (mock, context) ->
+            when(mock.getType()).thenReturn(Connections.REST));
+        managementServiceMocked = mockConstruction(ManagementService.class, (mock, context) ->
+            when(mock.getType()).thenReturn(Services.MANAGEMENT));
+        lockServiceMocked = mockConstruction(LockServiceBase.class, (mock, context) ->
+            when(mock.getType()).thenReturn(Services.LOCK));
+        semaphoreServiceMocked = mockConstruction(SemaphoreServiceBase.class, (mock, context) ->
+            when(mock.getType()).thenReturn(Services.SEMAPHORE));
+        countDownLatchServiceMocked =  mockConstruction(CountDownLatchServiceBase.class, (mock, context) ->
+            when(mock.getType()).thenReturn(Services.COUNTDOWNLATCH));
     }
 
     @AfterClass

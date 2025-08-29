@@ -36,15 +36,19 @@ public class LockFactoryServerMain {
     public static void main(String[] args) {
         try {
             System.out.println("LockFactoryServer!");
+            LOGGER.debug("LockFactoryServer!");
             lockFactoryServerMain = new LockFactoryServerMain();
             if (args.length > 0 && args[0] != null && !args[0].isEmpty()) {
                 lockFactoryServerMain.setPath(args[0]);
             }
             lockFactoryServerMain.execute();
-            //TODO needed? System.exit(0);
+            //TODO needed?
+            //System.exit(0);
         } catch (Exception e) {
+            LOGGER.error("Error in main", e);
             System.out.println("Error in main " + e);
             e.printStackTrace();
+            System.exit(1);
         }
     }
 

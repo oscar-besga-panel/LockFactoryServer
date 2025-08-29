@@ -8,6 +8,7 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.message.StatusLine;
 import org.junit.After;
@@ -29,7 +30,10 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LockClientRestTest {
@@ -71,22 +75,21 @@ public class LockClientRestTest {
         when(httpClientBuilder.setDefaultRequestConfig(any(RequestConfig.class))).thenReturn(httpClientBuilder);
         when(httpClientBuilder.build()).thenReturn(httpclient);
 
-        when(httpclient.execute(any(HttpGet.class))).thenAnswer(ioc ->{
-            finalRequest.set(ioc.getArgument(0));
-            return httpResponse;
+        when(httpclient.execute(any(HttpGet.class), any(HttpClientResponseHandler.class))).thenAnswer(ioc ->{
+            finalRequest.set(ioc.getArgument(0,HttpGet.class));
+            return ioc.getArgument(1, HttpClientResponseHandler.class).handleResponse(httpResponse);
         });
         when(httpResponse.getEntity()).thenReturn(httpEntity);
         mockedStaticEntityUtils = Mockito.mockStatic(EntityUtils.class);
         mockedStaticEntityUtils.when(() -> EntityUtils.toString(eq(httpEntity))).
                 thenAnswer(ioc -> finalResult.toString());
-        StatusLine statusLine = mock(StatusLine.class);
         when(httpResponse.getCode()).thenReturn(200);
         lockClientRest = new LockClientRest("http://localhost:8080/", name);
     }
 
     private String finalUrl() {
         if (finalRequest.get() != null) {
-            return finalRequest.get().getRequestUri().toString();
+            return finalRequest.get().getRequestUri();
         } else {
             return "";
         }
@@ -104,7 +107,7 @@ public class LockClientRestTest {
         finalResult.set("token_" + name);
         boolean result = lockClientRest.lock();
         assertTrue(result);
-        verify(httpclient).execute(any(HttpGet.class));
+        verify(httpclient).execute(any(HttpGet.class), any(HttpClientResponseHandler.class));
         String finalUrl = finalUrl();
         assertTrue(finalUrl.contains("lock")); //twice
         assertTrue(finalUrl.contains(name));
@@ -115,7 +118,7 @@ public class LockClientRestTest {
         finalResult.set("token_" + name);
         boolean result = lockClientRest.tryLock();
         assertTrue(result);
-        verify(httpclient).execute(any(HttpGet.class));
+        verify(httpclient).execute(any(HttpGet.class), any(HttpClientResponseHandler.class));
         String finalUrl = finalUrl();
         assertTrue(finalUrl.contains("lock"));
         assertTrue(finalUrl.contains("tryLock"));
@@ -128,7 +131,7 @@ public class LockClientRestTest {
         finalResult.set("token_" + name);
         boolean result = lockClientRest.tryLockWithTimeout(time, TimeUnit.SECONDS);
         assertTrue(result);
-        verify(httpclient).execute(any(HttpGet.class));
+        verify(httpclient).execute(any(HttpGet.class), any(HttpClientResponseHandler.class));
         String finalUrl = finalUrl();
         assertTrue(finalUrl.contains("lock"));
         assertTrue(finalUrl.contains("tryLock"));
@@ -143,7 +146,7 @@ public class LockClientRestTest {
         finalResult.set("token_" + name);
         boolean result = lockClientRest.tryLockWithTimeout(timeMillis);
         assertTrue(result);
-        verify(httpclient).execute(any(HttpGet.class));
+        verify(httpclient).execute(any(HttpGet.class), any(HttpClientResponseHandler.class));
         String finalUrl = finalUrl();
         assertTrue(finalUrl.contains("lock"));
         assertTrue(finalUrl.contains("tryLock"));
@@ -157,7 +160,7 @@ public class LockClientRestTest {
         finalResult.set("true");
         boolean result = lockClientRest.isLocked();
         assertTrue(result);
-        verify(httpclient).execute(any(HttpGet.class));
+        verify(httpclient).execute(any(HttpGet.class), any(HttpClientResponseHandler.class));
         String finalUrl = finalUrl();
         assertTrue(finalUrl.contains("lock"));
         assertTrue(finalUrl.contains("isLocked"));
@@ -169,7 +172,7 @@ public class LockClientRestTest {
         finalResult.set("true");
         boolean result = lockClientRest.unLock();
         assertTrue(result);
-        verify(httpclient).execute(any(HttpGet.class));
+        verify(httpclient).execute(any(HttpGet.class), any(HttpClientResponseHandler.class));
         String finalUrl = finalUrl();
         assertTrue(finalUrl.contains("lock"));
         assertTrue(finalUrl.contains("unlock"));
@@ -180,7 +183,7 @@ public class LockClientRestTest {
     public void doWithLockTest() throws Exception {
         finalResult.set("true");
         lockClientRest.doWithinLock(() -> LOGGER.debug("doWithLock"));
-        verify(httpclient, times(2)).execute(any(HttpGet.class));
+        verify(httpclient, times(2)).execute(any(HttpGet.class), any(HttpClientResponseHandler.class));
     }
 
     @Test
@@ -190,7 +193,7 @@ public class LockClientRestTest {
             LOGGER.debug("doWithLock");
             return "";
         });
-        verify(httpclient, times(2)).execute(any(HttpGet.class));
+        verify(httpclient, times(2)).execute(any(HttpGet.class), any(HttpClientResponseHandler.class));
     }
 
 }

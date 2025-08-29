@@ -176,18 +176,22 @@ public class LockClientGrpcTest {
     }
 
     @Test
-    public void asyncLock2Simple1Test() throws InterruptedException {
-        lockClientGrpc.asyncLock();
+    public void asyncLock2Simple1Test() {
+        lockClientGrpc.asyncLock(() -> {
+            LOGGER.debug("asyncLock2Simple1Test runnable executed");
+            sleepWell(1000);
+        });
         int count = 0;
         while(lockClientGrpc.getToken() == null ||
                 lockClientGrpc.getToken().isEmpty()) {
-            Thread.sleep(75);
+            sleepWell(150);
             if (count < 100) {
                 count++;
             } else {
                 throw new IllegalStateException("Counted more than 100 times");
             }
         }
+        LOGGER.debug("count {}", count);
         assertTrue(lockClientGrpc.getToken().contains(name));
         verify(futureStub).asyncLock(any(StringValue.class));
     }
@@ -202,6 +206,52 @@ public class LockClientGrpcTest {
         assertTrue(acquired);
         assertTrue(lockClientGrpc.getToken().contains(name));
         verify(futureStub).asyncLock(any(StringValue.class));
+    }
+
+    @Test
+    public void doWithAsyncLock2Simple1Test() throws InterruptedException {
+        lockClientGrpc.doWithAsyncLock(() -> {
+            LOGGER.debug("doWithAsyncLock2Simple1Test runnable executed");
+            sleepWell(1000);
+        });
+        int count = 0;
+        while(lockClientGrpc.getToken() == null ||
+                lockClientGrpc.getToken().isEmpty()) {
+            Thread.sleep(75);
+            if (count < 100) {
+                count++;
+            } else {
+                throw new IllegalStateException("Counted more than 100 times");
+            }
+        }
+        LOGGER.debug("count {}", count);
+        Thread.sleep(3000);
+        assertFalse(lockClientGrpc.getToken().contains(name));
+        verify(futureStub).asyncLock(any(StringValue.class));
+        verify(stub).unLock(any(NameTokenValues.class));
+    }
+
+    @Test
+    public void doWithAsyncLock2Simple2Test() throws InterruptedException {
+        Semaphore semaphore = new Semaphore(0);
+        lockClientGrpc.doWithAsyncLock(() -> {
+            semaphore.release();
+        });
+        Thread.sleep(3000);
+        boolean acquired = semaphore.tryAcquire(3000, TimeUnit.SECONDS);
+        assertTrue(acquired);
+        assertFalse(lockClientGrpc.getToken().contains(name));
+        verify(futureStub).asyncLock(any(StringValue.class));
+        verify(stub).unLock(any(NameTokenValues.class));
+    }
+
+    private void sleepWell(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            LOGGER.error("Sleep interrupted", e);
+            Thread.currentThread().interrupt();
+        }
     }
 
 }

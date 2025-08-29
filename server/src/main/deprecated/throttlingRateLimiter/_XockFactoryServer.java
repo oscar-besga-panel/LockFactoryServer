@@ -9,16 +9,13 @@ import org.obapanel.lockfactoryserver.server.connections.rmi.RmiConnection;
 import org.obapanel.lockfactoryserver.server.service.LockFactoryServices;
 import org.obapanel.lockfactoryserver.server.service.Services;
 import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchService;
-import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchServiceSynchronized;
 import org.obapanel.lockfactoryserver.server.service.holder.HolderService;
 import org.obapanel.lockfactoryserver.server.service.holder.HolderServiceSynchronized;
 import org.obapanel.lockfactoryserver.server.service.lock.LockService;
-import org.obapanel.lockfactoryserver.server.service.lock.LockServiceSynchronized;
 import org.obapanel.lockfactoryserver.server.service.management.ManagementService;
 import org.obapanel.lockfactoryserver.server.service.management.ManagementServiceSynchronized;
 import org.obapanel.lockfactoryserver.server.service.rateLimiter.BucketRateLimiterService;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
-import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreServiceSynchronized;
 import org.obapanel.lockfactoryserver.server.utils.UnmodificableEnumMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +31,7 @@ import static org.obapanel.lockfactoryserver.core.util.RuntimeInterruptedExcepti
  * It also stops and shutdowns components gracefully
  * Also, can make a thread wait to the ending of the shutdown process whenever it takes
  * It can be embeded it other applications/programs/servers and can give access
- *   to the current components of the server
+ *    to the current components of the server
  */
 public class LockFactoryServer implements AutoCloseable {
 

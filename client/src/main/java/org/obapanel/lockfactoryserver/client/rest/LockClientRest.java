@@ -1,6 +1,6 @@
 package org.obapanel.lockfactoryserver.client.rest;
 
-import org.obapanel.lockfactoryserver.client.WithLock;
+import org.obapanel.lockfactoryserver.client.LockClient;
 import org.obapanel.lockfactoryserver.core.LockStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.TimeUnit;
 
 public class LockClientRest extends AbstractClientRest
-        implements WithLock {
+        implements LockClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LockClientRest.class);
 

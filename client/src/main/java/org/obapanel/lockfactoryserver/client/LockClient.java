@@ -2,16 +2,16 @@ package org.obapanel.lockfactoryserver.client;
 
 import java.util.function.Supplier;
 
-public interface WithLock {
+public interface LockClient {
 
 
-    boolean lock() throws Exception;
+    boolean lock();
 
-    boolean unLock() throws Exception;
+    boolean unLock();
 
-    boolean tryLock() throws Exception;
+    boolean tryLock();
 
-    default void doWithinLock(Runnable runnable) throws Exception {
+    default void doWithinLock(Runnable runnable) {
         try {
             boolean locked = lock();
             if (locked) {
@@ -22,7 +22,7 @@ public interface WithLock {
         }
     }
 
-    default <T> T doGetWithinLock(Supplier<T> supplier) throws Exception {
+    default <T> T doGetWithinLock(Supplier<T> supplier) {
         T result = null;
         try {
             boolean locked = lock();

@@ -5,7 +5,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.obapanel.lockfactoryserver.client.grpc.LockClientGrpc;
 import org.obapanel.lockfactoryserver.core.LockStatus;
-import org.obapanel.lockfactoryserver.integration.grpc.LockGpcTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +23,7 @@ import static org.obapanel.lockfactoryserver.integration.IntegrationTestServer.s
 
 public class LockClientGrpcAdvancedTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LockGpcTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LockClientGrpcAdvancedTest.class);
 
     private final AtomicBoolean intoCriticalZone = new AtomicBoolean(false);
     private final AtomicBoolean errorInCriticalZone = new AtomicBoolean(false);
@@ -59,10 +58,6 @@ public class LockClientGrpcAdvancedTest {
             }
             Collections.shuffle(threadList);
             threadList.forEach(Thread::start);
-//            t1.start();
-//            t2.start();
-//            t3.start();
-            //Thread.sleep(TimeUnit.SECONDS.toMillis(5));
             for (Thread thread : threadList) {
                 thread.join();
             }

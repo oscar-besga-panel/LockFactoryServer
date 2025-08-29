@@ -34,9 +34,9 @@ public class WithLockGrpcAdvancedTest {
     private final AtomicBoolean errorInCriticalZone = new AtomicBoolean(false);
     private final AtomicBoolean otherErrors = new AtomicBoolean(false);
 
-    private final List<LockClientGrpc> lockList = new ArrayList<>();
+    private final List<LockClientGrpc> lockList = Collections.synchronizedList(new ArrayList<>());
 
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private final String lockName = "lockGrpc999x" + System.currentTimeMillis();
 
@@ -57,14 +57,15 @@ public class WithLockGrpcAdvancedTest {
     }
 
     //@Ignore
-    @Test(timeout=25000)
+    @Test(timeout=70000)
     public void testIfInterruptedFor5SecondsLock() throws InterruptedException {
+            int num = 7;
             intoCriticalZone.set(false);
             errorInCriticalZone.set(false);
             otherErrors.set(false);
             List<Thread> threadList = new ArrayList<>();
-            for(int i=0; i < 5; i++) {
-                int time = ThreadLocalRandom.current().nextInt(0,5) + i;
+            for(int i=0; i < num; i++) {
+                int time = ThreadLocalRandom.current().nextInt(0,num) + i;
                 Thread t = new Thread(() -> accesLockOfCriticalZone(time));
                 t.setName(String.format("prueba_t%d",i));
                 threadList.add(t);
@@ -77,6 +78,7 @@ public class WithLockGrpcAdvancedTest {
             assertFalse(errorInCriticalZone.get());
             assertFalse(otherErrors.get());
             assertFalse(lockList.stream().anyMatch(this::isLockInUse));
+            lockList.forEach(LockClientGrpc::close);
     }
 
     private boolean isLockInUse(LockClientGrpc lockClientGrpc) {

@@ -1,5 +1,6 @@
 package org.obapanel.lockfactoryserver.client.rmi;
 
+import org.obapanel.lockfactoryserver.client.SemaphoreClient;
 import org.obapanel.lockfactoryserver.core.rmi.SemaphoreServerRmi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,7 +10,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.util.concurrent.TimeUnit;
 
-public class SemaphoreClientRmi extends AbstractClientRmi<SemaphoreServerRmi> {
+public class SemaphoreClientRmi extends AbstractClientRmi<SemaphoreServerRmi> implements SemaphoreClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SemaphoreClientRmi.class);
 
@@ -28,48 +29,24 @@ public class SemaphoreClientRmi extends AbstractClientRmi<SemaphoreServerRmi> {
         return RMI_NAME;
     }
 
-    public int currentPermits() throws RemoteException {
-        return getServerRmi().currentPermits(getName());
+    public int currentPermits()  {
+        return getWithRemote(() -> getServerRmi().currentPermits(getName()));
     }
 
-    public void acquire() throws RemoteException {
-        this. acquire(1);
+    public void acquire(int permits) {
+        doWithRemote(() -> getServerRmi().acquire(getName(), permits));
     }
 
-    public void acquire(int permits) throws RemoteException {
-        getServerRmi().acquire(getName(), permits);
+    public boolean tryAcquire(int permits) {
+        return getWithRemote(() -> getServerRmi().tryAcquire(getName(), permits));
     }
 
-    public boolean tryAcquire() throws RemoteException {
-        return this.tryAcquire(1);
+    public boolean tryAcquireWithTimeOut(int permits, long timeOut, TimeUnit timeUnit) {
+        return getWithRemote(() -> getServerRmi().tryAcquireWithTimeOut(getName(), permits, timeOut, timeUnit));
     }
 
-    public boolean tryAcquire(int permits) throws RemoteException {
-        return getServerRmi().tryAcquire(getName(), permits);
-    }
-
-    public boolean tryAcquireWithTimeOut(long timeOutMillis) throws RemoteException {
-        return this.tryAcquireWithTimeOut(1, timeOutMillis, TimeUnit.MILLISECONDS);
-    }
-
-    public boolean tryAcquireWithTimeOut(int permits, long timeOut) throws RemoteException {
-        return this.tryAcquireWithTimeOut(permits, timeOut, TimeUnit.MILLISECONDS);
-    }
-
-    public boolean tryAcquireWithTimeOut(long timeOut, TimeUnit timeUnit) throws RemoteException {
-        return this.tryAcquireWithTimeOut(1, timeOut, timeUnit);
-    }
-
-    public boolean tryAcquireWithTimeOut(int permits, long timeOut, TimeUnit timeUnit) throws RemoteException {
-        return getServerRmi().tryAcquireWithTimeOut(getName(), permits, timeOut, timeUnit);
-    }
-
-    public void release() throws RemoteException {
-        this.release(1);
-    }
-
-    public void release(int permits) throws RemoteException {
-        getServerRmi().release(getName(), permits);
+    public void release(int permits) {
+        doWithRemote(() -> getServerRmi().release(getName(), permits));
     }
 
 }

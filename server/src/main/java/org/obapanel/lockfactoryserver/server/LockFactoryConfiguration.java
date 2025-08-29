@@ -9,8 +9,6 @@ public class LockFactoryConfiguration {
 
 
     public static final String TRUE = "true";
-    public static final String FALSE = "false";
-
 
     public static final String RMI_SERVER_ACTIVE =  "rmiServerActive";
     public static final String RMI_SERVER_PORT = "rmiServerPort";
@@ -30,12 +28,8 @@ public class LockFactoryConfiguration {
     public static final String HOLDER_MAXIMUM_SIZE = "holderMaximumSize";
     public static final String BUCKET_RATE_LIMITER_ENABLED = "bucketRateLimiterEnabled";
 
-    public static final String SYNCHRONIZED_ENABLED = "synchronizedEnabled";
-
     public static final String CACHE_CHECK_DATA_PERIOD_SECONDS = "cacheCheckDataPeriodSeconds";
     public static final String CACHE_TIME_TO_LIVE_SECONDS = "cacheTimeToLiveSeconds";
-    public static final String CACHE_CHECK_CONTINUOUSLY = "cacheCheckContinuously";
-
 
     public static final String DEFAULT_RMI_SERVER_ACTIVE = TRUE;
     public static final String DEFAULT_RMI_SERVER_PORT = "1099";
@@ -54,14 +48,11 @@ public class LockFactoryConfiguration {
     public static final String DEFAULT_HOLDER_ENABLED = TRUE;
     public static final String DEFAULT_BUCKET_RATE_LIMITER_ENABLED = TRUE;
 
-    public static final String DEFAULT_SYNCHRONIZED_ENABLED = TRUE;
-
     public static final String DEFAULT_HOLDER_MAXIMUM_SIZE = "1024";
 
 
     public static final String DEFAULT_CACHE_CHECK_DATA_PERIOD_SECONDS = "10";
     public static final String DEFAULT_CACHE_TIME_TO_LIVE_SECONDS = "10";
-    public static final String DEFAULT_CACHE_CHECK_CONTINUOUSLY = TRUE;
 
     private final Properties properties;
 
@@ -156,10 +147,6 @@ public class LockFactoryConfiguration {
                 DEFAULT_CACHE_TIME_TO_LIVE_SECONDS));
     }
 
-    public boolean isCacheCheckContinuously() {
-        return Boolean.parseBoolean(properties.getProperty(CACHE_CHECK_CONTINUOUSLY, DEFAULT_CACHE_CHECK_CONTINUOUSLY));
-    }
-
     public boolean isManagementEnabled() {
         return Boolean.parseBoolean(properties.getProperty(MANAGEMENT_ENABLED, DEFAULT_MANAGEMENT_ENABLED));
     }
@@ -174,10 +161,6 @@ public class LockFactoryConfiguration {
 
     public long getHolderMaximumSize() {
         return Long.parseLong(properties.getProperty(HOLDER_MAXIMUM_SIZE, DEFAULT_HOLDER_MAXIMUM_SIZE));
-    }
-
-    public boolean isSynchronizedEnabled() {
-        return Boolean.parseBoolean(properties.getProperty(SYNCHRONIZED_ENABLED, DEFAULT_SYNCHRONIZED_ENABLED));
     }
 
 }

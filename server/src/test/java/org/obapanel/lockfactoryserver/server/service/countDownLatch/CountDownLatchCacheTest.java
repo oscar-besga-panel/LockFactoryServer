@@ -38,7 +38,7 @@ public class CountDownLatchCacheTest {
 
 
     @Test
-    public void avoidExpirationTest() throws InterruptedException {
+    public void avoidDeletionTest() throws InterruptedException {
         ExecutorService testExecutor = Executors.newSingleThreadExecutor();
         String name1 = "codola1_" + System.currentTimeMillis();
         String name2 = "codola2_" + System.currentTimeMillis();
@@ -56,9 +56,9 @@ public class CountDownLatchCacheTest {
             }
         });
         Thread.sleep(100);
-        boolean result1 = countDownLatchCache.avoidExpiration(name1, countDownLatchCache.getData(name1));
-        boolean result2 = countDownLatchCache.avoidExpiration(name2, countDownLatchCache.getData(name2));
-        boolean result3 = countDownLatchCache.avoidExpiration(name3, countDownLatchCache.getData(name3));
+        boolean result1 = countDownLatchCache.avoidDeletion(name1, countDownLatchCache.getData(name1));
+        boolean result2 = countDownLatchCache.avoidDeletion(name2, countDownLatchCache.getData(name2));
+        boolean result3 = countDownLatchCache.avoidDeletion(name3, countDownLatchCache.getData(name3));
         assertTrue(result1);
         assertTrue(result2);
         assertFalse(result3);

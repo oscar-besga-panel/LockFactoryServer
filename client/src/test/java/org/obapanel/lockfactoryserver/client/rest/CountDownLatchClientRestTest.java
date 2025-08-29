@@ -8,6 +8,7 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.message.StatusLine;
 import org.junit.After;
@@ -28,7 +29,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CountDownLatchClientRestTest {
@@ -68,22 +71,21 @@ public class CountDownLatchClientRestTest {
         mockedStaticHttpClientBuilder.when(() -> HttpClientBuilder.create() ).thenReturn(httpClientBuilder);
         when(httpClientBuilder.setDefaultRequestConfig(any(RequestConfig.class))).thenReturn(httpClientBuilder);
         when(httpClientBuilder.build()).thenReturn(httpclient);
-        when(httpclient.execute(any(HttpGet.class))).thenAnswer(ioc ->{
-            finalRequest.set(ioc.getArgument(0));
-            return httpResponse;
+        when(httpclient.execute(any(HttpGet.class), any(HttpClientResponseHandler.class))).thenAnswer(ioc ->{
+            finalRequest.set(ioc.getArgument(0,HttpGet.class));
+            return ioc.getArgument(1, HttpClientResponseHandler.class).handleResponse(httpResponse);
         });
         when(httpResponse.getEntity()).thenReturn(httpEntity);
         mockedStaticEntityUtils = Mockito.mockStatic(EntityUtils.class);
         mockedStaticEntityUtils.when(() -> EntityUtils.toString(eq(httpEntity))).
                 thenAnswer(ioc -> finalResult.toString());
-        StatusLine statusLine = mock(StatusLine.class);
         when(httpResponse.getCode()).thenReturn(200);
         countDownLatchClientRest = new CountDownLatchClientRest("http://localhost:8080/", name);
     }
 
     private String finalUrl() {
         if (finalRequest.get() != null) {
-            return finalRequest.get().getRequestUri().toString();
+            return finalRequest.get().getRequestUri();
         } else {
             return "";
         }
@@ -107,7 +109,7 @@ public class CountDownLatchClientRestTest {
         assertTrue(finalUrl.contains(name));
         assertTrue(finalUrl.contains(Integer.toString(count)));
         assertTrue(result);
-        verify(httpclient).execute(any(HttpGet.class));
+        verify(httpclient).execute(any(HttpGet.class), any(HttpClientResponseHandler.class));
     }
 
     @Test
@@ -120,7 +122,7 @@ public class CountDownLatchClientRestTest {
         assertTrue(finalUrl.contains("getCount"));
         assertTrue(finalUrl.contains(name));
         assertEquals(count, result);
-        verify(httpclient).execute(any(HttpGet.class));
+        verify(httpclient).execute(any(HttpGet.class), any(HttpClientResponseHandler.class));
     }
 
     @Test
@@ -133,7 +135,7 @@ public class CountDownLatchClientRestTest {
         assertTrue(finalUrl.contains("getCount"));
         assertTrue(finalUrl.contains(name));
         assertTrue(result);
-        verify(httpclient).execute(any(HttpGet.class));
+        verify(httpclient).execute(any(HttpGet.class), any(HttpClientResponseHandler.class));
     }
 
     @Test
@@ -144,7 +146,7 @@ public class CountDownLatchClientRestTest {
         assertTrue(finalUrl.contains("countDownLatch"));
         assertTrue(finalUrl.contains("countDown"));
         assertTrue(finalUrl.contains(name));
-        verify(httpclient).execute(any(HttpGet.class));
+        verify(httpclient).execute(any(HttpGet.class), any(HttpClientResponseHandler.class));
     }
 
     @Test
@@ -156,7 +158,7 @@ public class CountDownLatchClientRestTest {
         assertTrue(finalUrl.contains("countDown"));
         assertTrue(finalUrl.contains("3"));
         assertTrue(finalUrl.contains(name));
-        verify(httpclient).execute(any(HttpGet.class));
+        verify(httpclient).execute(any(HttpGet.class), any(HttpClientResponseHandler.class));
     }
 
     @Test
@@ -167,7 +169,7 @@ public class CountDownLatchClientRestTest {
         assertTrue(finalUrl.contains("countDownLatch"));
         assertTrue(finalUrl.contains("await"));
         assertTrue(finalUrl.contains(name));
-        verify(httpclient).execute(any(HttpGet.class));
+        verify(httpclient).execute(any(HttpGet.class), any(HttpClientResponseHandler.class));
     }
 
     @Test
@@ -181,7 +183,7 @@ public class CountDownLatchClientRestTest {
         assertTrue(finalUrl.contains(name));
         assertTrue(finalUrl.contains(Long.toString(timeOut)));
         assertTrue(result);
-        verify(httpclient).execute(any(HttpGet.class));
+        verify(httpclient).execute(any(HttpGet.class), any(HttpClientResponseHandler.class));
     }
 
     @Test
@@ -196,7 +198,7 @@ public class CountDownLatchClientRestTest {
         assertTrue(finalUrl.contains(Long.toString(timeOut)));
         assertTrue(finalUrl.contains(TimeUnit.MILLISECONDS.name().toLowerCase()));
         assertTrue(result);
-        verify(httpclient).execute(any(HttpGet.class));
+        verify(httpclient).execute(any(HttpGet.class), any(HttpClientResponseHandler.class));
     }
 
 }

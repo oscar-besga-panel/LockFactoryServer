@@ -23,7 +23,7 @@ developed in Java and ready to use.
 * Semaphore: with permits it can acquire or release, in any quantity, from/to requesters
 * Countdownlatch: with an initial count and requesters that wait until the count is zero
 * Holders: requesters wait until some data is stored into memory or is cancelled
-* Rate limiter: limits the rate of requests/usages/etc. by time or by tokens from bucket _(coming soon, in *rateLimiter* branch !)_
+* Rate limiter: limits the rate of requests/usages/etc. by time /tokens from bucket (see [bucket4j](https://bucket4j.com/))
 
 
 So various processes/applications/threads can access the same primitive by using any connection method
@@ -36,7 +36,7 @@ But once something is activated, is available to be used/accessed by every other
 
 
 
-In _advanced beta_ for now !  
+In _RELEASE CANDIDATE_ for now !  
 
 See the [wiki](https://github.com/oscar-besga-panel/LockFactoryServer/wiki) for more documentation
 
@@ -52,11 +52,11 @@ The server can run standalone or be embedded into other services or applications
 It executes integration tests, where a local server is started and local clients execute complex operations against it. It servers to ensure the good performance and correctness of the system.  
 There are more than 55 integration tests to ensure the correctness of the project. 
  
-There are more than 300 unit tests to ensure a working project.
+There are more than 500 unit tests to ensure a working project.
 
 ## How to build
 
-This project uses JDK11 and Gradle (provided gradlew 8.3)  
+This project uses JDK17 and Gradle (provided gradlew 8.3)  
 
 If you need a integration test for REST connection, you can use curl or postman
 

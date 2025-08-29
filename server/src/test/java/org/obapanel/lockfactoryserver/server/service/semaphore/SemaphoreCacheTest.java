@@ -37,7 +37,7 @@ public class SemaphoreCacheTest {
     }
 
     @Test
-    public void avoidExpirationTest() throws InterruptedException {
+    public void avoidDeletionTest() throws InterruptedException {
         ExecutorService testExecutor = Executors.newSingleThreadExecutor();
         String sem1 = "sem1_" + System.currentTimeMillis();
         String sem2 = "sem2_" + System.currentTimeMillis();
@@ -54,9 +54,9 @@ public class SemaphoreCacheTest {
             }
         });
         Thread.sleep(150);
-        boolean result1 = semaphoreCache.avoidExpiration(sem1, ssem1);
-        boolean result2 = semaphoreCache.avoidExpiration(sem2, ssem2);
-        boolean result3 = semaphoreCache.avoidExpiration(sem3, ssem3);
+        boolean result1 = semaphoreCache.avoidDeletion(sem1, ssem1);
+        boolean result2 = semaphoreCache.avoidDeletion(sem2, ssem2);
+        boolean result3 = semaphoreCache.avoidDeletion(sem3, ssem3);
         assertFalse(result1);
         assertFalse(result2);
         assertTrue(result3);

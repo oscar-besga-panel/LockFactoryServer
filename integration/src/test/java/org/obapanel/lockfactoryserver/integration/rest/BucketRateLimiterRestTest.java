@@ -4,7 +4,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.obapanel.lockfactoryserver.client.rest.BucketRateLimiterRestClient;
+import org.obapanel.lockfactoryserver.client.rest.BucketRateLimiterClientRest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,65 +50,66 @@ public class BucketRateLimiterRestTest {
         executorService.shutdownNow();
     }
 
-    BucketRateLimiterRestClient generatBucketRateLimiterRestClient() {
+    BucketRateLimiterClientRest generatBucketRateLimiterRestClient() {
         int num = BUCKET_COUNT.incrementAndGet();
         String bucketRateLimiterNameCurrent = bucketRateLimiterName.replace("XXX", String.format("%03d", num) );
         return generateBucketRateLimiterRestClient(bucketRateLimiterNameCurrent);
     }
 
-    BucketRateLimiterRestClient generateBucketRateLimiterRestClient(String bucketRateLimiterNameCurrent) {
+    BucketRateLimiterClientRest generateBucketRateLimiterRestClient(String bucketRateLimiterNameCurrent) {
         String baseUrl = "http://" + LOCALHOST + ":" + getConfigurationIntegrationTestServer().getRestServerPort() + "/";
-        return new BucketRateLimiterRestClient(baseUrl, bucketRateLimiterNameCurrent);
+        return new BucketRateLimiterClientRest(baseUrl, bucketRateLimiterNameCurrent);
     }
 
 
     @Test(timeout=25000)
     public void createAndSimpleUsage1Test() throws RemoteException, NotBoundException {
-        BucketRateLimiterRestClient bucketRateLimiterRestClient = generatBucketRateLimiterRestClient();
-        bucketRateLimiterRestClient.newRateLimiter(1L, false, 300, TimeUnit.MILLISECONDS);
-        boolean take1 = bucketRateLimiterRestClient.tryConsume(1);
-        boolean take2 = bucketRateLimiterRestClient.tryConsume();
+        BucketRateLimiterClientRest bucketRateLimiterClientRest = generatBucketRateLimiterRestClient();
+        bucketRateLimiterClientRest.newRateLimiter(1L, false, 300, TimeUnit.MILLISECONDS);
+        boolean take1 = bucketRateLimiterClientRest.tryConsume(1);
+        boolean take2 = bucketRateLimiterClientRest.tryConsume();
         doSleep(305L);
-        boolean take3 = bucketRateLimiterRestClient.tryConsume(1);
+        boolean take3 = bucketRateLimiterClientRest.tryConsume(1);
+        LOGGER.debug("take1: {}, take2: {}, take3: {}", take1, take2, take3);
         assertTrue(take1);
         assertFalse(take2);
         assertTrue(take3);
-        bucketRateLimiterRestClient.remove();
-        assertEquals(-1L, bucketRateLimiterRestClient.getAvailableTokens());
+        bucketRateLimiterClientRest.remove();
+        assertEquals(-1L, bucketRateLimiterClientRest.getAvailableTokens());
     }
 
     @Test(timeout=25000)
     public void createAndSimpleUsage2Test() throws RemoteException, NotBoundException {
-        BucketRateLimiterRestClient bucketRateLimiterRestClient = generatBucketRateLimiterRestClient();
-        bucketRateLimiterRestClient.newRateLimiter(1L, false, 300, TimeUnit.MILLISECONDS);
-        boolean take1 = bucketRateLimiterRestClient.tryConsumeWithTimeOut(1, 500, TimeUnit.MILLISECONDS);
-        boolean take2 = bucketRateLimiterRestClient.tryConsumeWithTimeOut(1, 500, TimeUnit.MILLISECONDS);
-        boolean take3 = bucketRateLimiterRestClient.tryConsumeWithTimeOut(1,100, TimeUnit.MILLISECONDS);
+        BucketRateLimiterClientRest bucketRateLimiterClientRest = generatBucketRateLimiterRestClient();
+        bucketRateLimiterClientRest.newRateLimiter(1L, false, 300, TimeUnit.MILLISECONDS);
+        boolean take1 = bucketRateLimiterClientRest.tryConsumeWithTimeOut(1, 500, TimeUnit.MILLISECONDS);
+        boolean take2 = bucketRateLimiterClientRest.tryConsumeWithTimeOut(1, 500, TimeUnit.MILLISECONDS);
+        boolean take3 = bucketRateLimiterClientRest.tryConsumeWithTimeOut(1,100, TimeUnit.MILLISECONDS);
         assertTrue(take1);
         assertTrue(take2);
         assertFalse(take3);
-        bucketRateLimiterRestClient.remove();
-        assertEquals(-1L, bucketRateLimiterRestClient.getAvailableTokens());
+        bucketRateLimiterClientRest.remove();
+        assertEquals(-1L, bucketRateLimiterClientRest.getAvailableTokens());
     }
 
     @Test(timeout=25000)
     public void createAndSimpleUsage3Test() throws RemoteException, NotBoundException {
-        BucketRateLimiterRestClient bucketRateLimiterRestClient = generatBucketRateLimiterRestClient();
-        bucketRateLimiterRestClient.newRateLimiter(1L, false, 300, TimeUnit.MILLISECONDS);
+        BucketRateLimiterClientRest bucketRateLimiterClientRest = generatBucketRateLimiterRestClient();
+        bucketRateLimiterClientRest.newRateLimiter(1L, false, 300, TimeUnit.MILLISECONDS);
         long t0 = System.currentTimeMillis();
-        bucketRateLimiterRestClient.consume(1);
+        bucketRateLimiterClientRest.consume(1);
         long t1 = System.currentTimeMillis();
-        bucketRateLimiterRestClient.consume();
+        bucketRateLimiterClientRest.consume();
         long t2 = System.currentTimeMillis();
-        bucketRateLimiterRestClient.consume(1);
+        bucketRateLimiterClientRest.consume(1);
         long t3 = System.currentTimeMillis();
         doSleep(305);
-        assertEquals(1L, bucketRateLimiterRestClient.getAvailableTokens());
+        assertEquals(1L, bucketRateLimiterClientRest.getAvailableTokens());
         assertTrue(t1 - t0 < 290L);
         assertTrue(t2 - t1 > 250L);
         assertTrue(t3 - t2 > 290L);
-        bucketRateLimiterRestClient.remove();
-        assertEquals(-1L, bucketRateLimiterRestClient.getAvailableTokens());
+        bucketRateLimiterClientRest.remove();
+        assertEquals(-1L, bucketRateLimiterClientRest.getAvailableTokens());
     }
 
 

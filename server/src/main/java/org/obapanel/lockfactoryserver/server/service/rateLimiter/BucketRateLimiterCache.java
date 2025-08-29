@@ -23,6 +23,11 @@ public final class BucketRateLimiterCache extends PrimitivesCache<BucketRateLimi
     }
 
     @Override
+    protected boolean isAllowedCreationWithSupplier() {
+        return true;
+    }
+
+    @Override
     public BucketRateLimiter getOrCreateData(String name) {
         throw new UnsupportedOperationException("Not allowed create without supplier for rateLimiter");
     }
@@ -38,7 +43,7 @@ public final class BucketRateLimiterCache extends PrimitivesCache<BucketRateLimi
     }
 
     @Override
-    public boolean avoidExpiration(String name, BucketRateLimiter data) {
+    public boolean avoidDeletion(String name, BucketRateLimiter data) {
         return data.isExpired();
     }
 

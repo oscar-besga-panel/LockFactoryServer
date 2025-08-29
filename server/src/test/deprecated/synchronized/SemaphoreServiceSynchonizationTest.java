@@ -6,7 +6,6 @@ import org.junit.Test;
 import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.obapanel.lockfactoryserver.server.service.lock.advanced.LockServiceAdvancedTest;
 import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreService;
-import org.obapanel.lockfactoryserver.server.service.semaphore.SemaphoreServiceSynchronized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
