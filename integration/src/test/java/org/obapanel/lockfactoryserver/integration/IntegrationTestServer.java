@@ -54,6 +54,8 @@ public final class IntegrationTestServer {
             Thread.sleep(50);
             LOGGER.debug("IntegrationTestServer[{}] stop  ini >>>", NUM_SERVER.get());
             lockFactoryServer.shutdown();
+            lockFactoryServer = null;
+            System.gc(); // To avoid problems with the port in the next test
             LOGGER.debug("IntegrationTestServer[{}] stop  fin <<<", NUM_SERVER.get());
             Thread.sleep(50);
         });

@@ -4,6 +4,7 @@ import org.obapanel.lockfactoryserver.server.LockFactoryConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -241,15 +242,32 @@ public abstract class PrimitivesCache<K> implements AutoCloseable {
     /**
      * Clears all data and stops periodical cleanup tasks and time
      */
-    public void clearAndShutdown() {
+    public synchronized void clearAndShutdown() {
         LOGGER.debug("clearAndShutdown mapName {}", getMapName());
         isRunning.set(false);
+        dataMap.forEach((name, primitivesCacheEntry) -> closePrimitive(name, primitivesCacheEntry.getPrimitive()));
         dataMap.clear();
         removeListenerList.clear();
         scheduledExecutorService.shutdown();
         scheduledExecutorService.shutdownNow();
         removeListenerExecutor.shutdown();
         removeListenerExecutor.shutdownNow();
+    }
+
+    private void closePrimitive(String name, K primitive) {
+        if (primitive instanceof Closeable) {
+            try {
+                ((Closeable) primitive).close();
+            } catch (Exception e) {
+                LOGGER.warn("clearAndShutdown mapName {} name {} error closing primitive {}", getMapName(), name, primitive, e);
+            }
+        } else if (primitive instanceof AutoCloseable) {
+            try {
+                ((AutoCloseable) primitive).close();
+            } catch (Exception e) {
+                LOGGER.warn("clearAndShutdown mapName {} name {} error closing primitive {}", getMapName(), name, primitive, e);
+            }
+        }
     }
 
     public void close() {
@@ -259,7 +277,6 @@ public abstract class PrimitivesCache<K> implements AutoCloseable {
     public boolean checkIsRunning(){
         return isRunning.get();
     }
-
 
     /**
      * Checks data for cleanup and equivalence and coherence between data structures

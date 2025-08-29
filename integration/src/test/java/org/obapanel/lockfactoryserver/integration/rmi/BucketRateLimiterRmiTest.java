@@ -93,8 +93,12 @@ public class BucketRateLimiterRmiTest {
         long t3 = System.currentTimeMillis();
         doSleep(305);
         assertEquals(1L, bucketRateLimiterClientRmi.getAvailableTokens());
+        LOGGER.debug("t0 {} t1 {} t2 {} t3 {}", t0, t1, t2, t3);
+        LOGGER.debug("t1 - t0 {}", (t1 - t0));
         assertTrue(t1 - t0 < 290L);
+        LOGGER.debug("t2 - t1 {}", (t2 - t1));
         assertTrue(t2 - t1 > 250L);
+        LOGGER.debug("t3 - t2 {}", (t3 - t2));
         assertTrue(t3 - t2 > 290L);
         bucketRateLimiterClientRmi.remove();
         assertEquals(-1L, bucketRateLimiterClientRmi.getAvailableTokens());

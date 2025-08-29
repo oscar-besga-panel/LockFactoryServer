@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static org.junit.Assert.assertEquals;
 import static org.obapanel.lockfactoryserver.integration.IntegrationTestServer.LOCALHOST;
@@ -41,15 +42,23 @@ public class BucketRateLimiterCombinedTest {
 
     @Test(timeout=25000)
     public void bucketTestGreedy() throws InterruptedException {
-        bucketTest(true, 1);
+        AtomicLong finallyAvailableTokens = new AtomicLong(0);
+        AtomicInteger actuallyTaken = new AtomicInteger(0);
+        bucketTest(true, finallyAvailableTokens, actuallyTaken);
+        assertEquals(-1L, finallyAvailableTokens.get());
+        assertEquals(1, actuallyTaken.get());
     }
 
     @Test(timeout=25000)
     public void bucketTestInternal() throws InterruptedException {
-        bucketTest(false, 1);
+        AtomicLong finallyAvailableTokens = new AtomicLong(0);
+        AtomicInteger actuallyTaken = new AtomicInteger(0);
+        bucketTest(false, finallyAvailableTokens, actuallyTaken);
+        assertEquals(-1L, finallyAvailableTokens.get());
+        assertEquals(1, actuallyTaken.get());
     }
 
-    public void bucketTest(boolean greedy, int expectedTaken) throws InterruptedException {
+    public void bucketTest(boolean greedy, AtomicLong finallyAvailableTokens, AtomicInteger actuallyTaken) throws InterruptedException {
         AtomicInteger taken = new AtomicInteger(0);
         CountDownLatch localCountDownLatch = new CountDownLatch(3);
         BucketRateLimiterClientRmi bucketRateLimiterClientRmi = generateBucketRateLimiterClientRmi();
@@ -68,8 +77,8 @@ public class BucketRateLimiterCombinedTest {
             thread.join();
         }
         bucketRateLimiterClientRmi.remove();
-        assertEquals(-1L, bucketRateLimiterClientRmi.getAvailableTokens());
-        assertEquals(expectedTaken, taken.get());
+        finallyAvailableTokens.set(bucketRateLimiterClientRmi.getAvailableTokens());
+        actuallyTaken.set(taken.get());
     }
 
     public void executeCountDown(CountDownLatch localCountDownLatch, AtomicInteger taken, BucketRateLimiterClient bucketRateLimiterClient, long timeOut ) {

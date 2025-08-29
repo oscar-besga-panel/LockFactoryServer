@@ -29,7 +29,7 @@ public class CountDownLatchServiceBase implements CountDownLatchService {
         countDownLatchCache.clearAndShutdown();
     }
 
-    public boolean createNew(String name, int count) {
+    public synchronized boolean createNew(String name, int count) {
         LOGGER.info("service> createNew name {} count {}", name, count);
         boolean result = false;
         CountDownLatch countDownLatch = countDownLatchCache.getData(name);
@@ -51,10 +51,6 @@ public class CountDownLatchServiceBase implements CountDownLatchService {
             for(int i=0; i < count; i++) {
                 countDownLatch.countDown();
             }
-            // Lambda way
-//            IntStream.range(0, count).forEach( i ->
-//                countDownLatch.countDown();
-//            );
         }
     }
 
