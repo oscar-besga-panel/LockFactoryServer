@@ -1,6 +1,6 @@
 plugins {
     id 'application'
-    id 'com.github.johnrengelman.shadow'
+    id 'com.gradleup.shadow'
 }
 
 dependencies {
@@ -14,7 +14,6 @@ dependencies {
     implementation "io.grpc:grpc-netty:${grpcVersion}"
     implementation "com.bucket4j:bucket4j_jdk17-core:${bucket4jVersion}"
     implementation "org.eclipse.jetty:jetty-server:${jettyVersion}"
-    //implementation "org.eclipse.jetty:jetty-servlet:${jettyVersion}"
     implementation "org.eclipse.jetty.ee10:jetty-ee10-servlet:${jettyVersion}"
     implementation "org.glassfish.jersey.core:jersey-server:${jerseyVersion}"
     implementation "org.glassfish.jersey.containers:jersey-container-servlet-core:${jerseyVersion}"

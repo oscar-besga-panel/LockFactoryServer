@@ -68,6 +68,7 @@ public class GrpcConnection implements LockFactoryConnection {
             BucketRateLimiterGrpcImpl rateLimiterBucketGrpc = new BucketRateLimiterGrpcImpl(bucketRateLimiterService);
             serverBuilder.addService(rateLimiterBucketGrpc);
         }
+//        serverBuilder.executor(new ThreadPoolExecutor());
         grpcServer = serverBuilder.build();
         grpcServer.start();
         LOGGER.debug("GrpcConnection activated");

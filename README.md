@@ -33,6 +33,7 @@ A synchronization primitive will be automatically erased from the cache unless i
 You can activate or deactivate each type of primitive and also each type of connection.
 But once something is activated, is available to be used/accessed by every other active type (no fine grained control)
 
+For the moment, there is no way to make this server distributed (clustering, replication, etc).
 
 
 

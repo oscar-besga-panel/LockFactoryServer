@@ -31,10 +31,11 @@ public class RestConnection implements LockFactoryConnection {
     public void activate(LockFactoryConfiguration configuration, Map<Services, LockFactoryServices> services) throws Exception {
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
         context.setContextPath("/");
-        jettyServer = new Server(configuration.getRestServerPort());
-        jettyServer.setHandler(context);
         ResourceConfig resourceConfig = generateResourceConfig(configuration, services);
         context.addServlet(new ServletContainer(resourceConfig), "/*");
+        //jettyServer = new Server(new ThreadPoolExecutor(), configuration.getRestServerPort());
+        jettyServer = new Server(configuration.getRestServerPort());
+        jettyServer.setHandler(context);
         jettyServer.start();
     }
 

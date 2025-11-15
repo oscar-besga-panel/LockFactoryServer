@@ -1,5 +1,5 @@
 plugins {
-    id 'com.github.johnrengelman.shadow'
+    id 'com.gradleup.shadow'
 }
 
 group 'org.obapanel.lockfactoryserver.core'
@@ -33,6 +33,6 @@ protobuf {
 
 shadowJar {
     manifest {
-        attributes 'Description': 'LockFactoryServer server shadow jar'
+        attributes 'Description': 'LockFactoryServer core shadow jar'
     }
 }
