@@ -2,7 +2,7 @@ package org.obapanel.lockfactoryserver.client;
 
 import java.util.concurrent.TimeUnit;
 
-public interface BucketRateLimiterClient {
+public interface BucketRateLimiterClient extends AutoCloseableClient<BucketRateLimiterClient> {
     void newRateLimiter(long totalTokens, boolean greedy, long timeRefillMillis);
 
     void newRateLimiter(long totalTokens, boolean greedy, long timeRefill, TimeUnit timeUnit);
@@ -22,4 +22,5 @@ public interface BucketRateLimiterClient {
     void consume(long tokens);
 
     void remove();
+
 }

@@ -64,6 +64,7 @@ public class BucketRateLimiterGpcTest {
         assertTrue(take3);
         bucketRateLimiterClientGrpc.remove();
         assertEquals(-1L, bucketRateLimiterClientGrpc.getAvailableTokens());
+        bucketRateLimiterClientGrpc.close();
     }
 
     @Test(timeout=25000)
@@ -78,6 +79,7 @@ public class BucketRateLimiterGpcTest {
         assertFalse(take3);
         bucketRateLimiterClientGrpc.remove();
         assertEquals(-1L, bucketRateLimiterClientGrpc.getAvailableTokens());
+        bucketRateLimiterClientGrpc.close();
     }
 
     @Test(timeout=25000)
@@ -98,6 +100,7 @@ public class BucketRateLimiterGpcTest {
         assertTrue(t3 - t2 > 290L);
         bucketRateLimiterClientGrpc.remove();
         assertEquals(-1L, bucketRateLimiterClientGrpc.getAvailableTokens());
+        bucketRateLimiterClientGrpc.close();
     }
 
     @Test(timeout=25000)
@@ -124,6 +127,7 @@ public class BucketRateLimiterGpcTest {
         LOGGER.debug("released now is {}", released);
         assertTrue(released);
         assertTrue(t1 - t0 < 50L);
+        bucketRateLimiterClientGrpc.close();
     }
 
 }

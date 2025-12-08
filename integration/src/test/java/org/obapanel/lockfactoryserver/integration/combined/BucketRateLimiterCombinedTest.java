@@ -77,11 +77,16 @@ public class BucketRateLimiterCombinedTest {
             thread.join();
         }
         bucketRateLimiterClientRmi.remove();
+        bucketRateLimiterClientRmi.close();
         finallyAvailableTokens.set(bucketRateLimiterClientRmi.getAvailableTokens());
         actuallyTaken.set(taken.get());
     }
 
     public void executeCountDown(CountDownLatch localCountDownLatch, AtomicInteger taken, BucketRateLimiterClient bucketRateLimiterClient, long timeOut ) {
+        bucketRateLimiterClient.withClientDo( b -> executeCountDownWithClient(localCountDownLatch, taken, b, timeOut));
+    }
+
+    public void executeCountDownWithClient(CountDownLatch localCountDownLatch, AtomicInteger taken, BucketRateLimiterClient bucketRateLimiterClient, long timeOut ) {
         try {
             localCountDownLatch.countDown();
             localCountDownLatch.await();
@@ -93,13 +98,14 @@ public class BucketRateLimiterCombinedTest {
             } else {
                 LOGGER.debug("executeCountDown take false");
             }
-
         } catch (InterruptedException e) {
             throw new IllegalStateException(e);
         }
+
     }
 
-    BucketRateLimiterClientRest generateBucketRateLimiterClientRest()  {
+
+            BucketRateLimiterClientRest generateBucketRateLimiterClientRest()  {
         String baseUrl = "http://" + LOCALHOST + ":" + getConfigurationIntegrationTestServer().getRestServerPort() + "/";
         return new BucketRateLimiterClientRest(baseUrl, bucketRateLimiterName);
     }

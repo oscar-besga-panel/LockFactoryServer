@@ -76,6 +76,7 @@ public class BucketRateLimiterRestTest {
         assertTrue(take3);
         bucketRateLimiterClientRest.remove();
         assertEquals(-1L, bucketRateLimiterClientRest.getAvailableTokens());
+        bucketRateLimiterClientRest.close();
     }
 
     @Test(timeout=25000)
@@ -90,6 +91,7 @@ public class BucketRateLimiterRestTest {
         assertFalse(take3);
         bucketRateLimiterClientRest.remove();
         assertEquals(-1L, bucketRateLimiterClientRest.getAvailableTokens());
+        bucketRateLimiterClientRest.close();
     }
 
     @Test(timeout=25000)
@@ -110,6 +112,7 @@ public class BucketRateLimiterRestTest {
         assertTrue(t3 - t2 > 290L);
         bucketRateLimiterClientRest.remove();
         assertEquals(-1L, bucketRateLimiterClientRest.getAvailableTokens());
+        bucketRateLimiterClientRest.close();
     }
 
 

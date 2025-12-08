@@ -43,14 +43,16 @@ public class CountDownLatchClientCombinedAdvancedTest {
 
     @Test(timeout=30000)
     public void testIfFileIsWrittenCorrectly() throws InterruptedException {
-        generateRandomCountDownLatchClient().createNew(NUM);
+        generateRandomCountDownLatchClient().withClientDo( cdl -> cdl.createNew(NUM));
         List<Thread> threadList = new ArrayList<>();
         for(int i = 0; i < NUM; i++) {
             threadList.add(generateThread(i));
         }
         Collections.shuffle(threadList);
         threadList.forEach(Thread::start);
-        boolean countDownDone = generateCountDownLatchClientGrpc().tryAwaitWithTimeOut(27, TimeUnit.SECONDS);
+        boolean countDownDone = generateCountDownLatchClientGrpc().withClientGet( cdl ->
+                cdl.tryAwaitWithTimeOut(27, TimeUnit.SECONDS)
+        );
         for (Thread thread : threadList) {
             thread.join();
         }
@@ -66,6 +68,8 @@ public class CountDownLatchClientCombinedAdvancedTest {
             return this::generateCountDownLatchClientRmi;
         }
     }
+
+
 
     CountDownLatchClient generateRandomCountDownLatchClient() {
         int pos = ThreadLocalRandom.current().nextInt(0,3);
