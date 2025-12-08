@@ -60,25 +60,26 @@ public class LockClientAsyncGrpcAdvancedTest {
 
     @Test(timeout=75000)
     public void testIfInterruptedFor5SecondsLock() throws InterruptedException {
-            intoCriticalZone.set(false);
-            errorInCriticalZone.set(false);
-            otherErrors.set(false);
-            List<Thread> threadList = new ArrayList<>();
-            for(int i=0; i < NUM_TEST; i++) {
-                int time = ThreadLocalRandom.current().nextInt(0, NUM_TEST) + i;
-                Thread t = new Thread(() -> accesLockOfCriticalZone(time));
-                t.setName(String.format("prueba_t%d",i));
-                threadList.add(t);
-            }
-            Collections.shuffle(threadList);
-            threadList.forEach(Thread::start);
-            Thread.sleep(TimeUnit.SECONDS.toMillis(5));
-            for (Thread thread : threadList) {
-                thread.join();
-            }
-            assertFalse(errorInCriticalZone.get());
-            assertFalse(otherErrors.get());
-            assertFalse(lockList.stream().anyMatch(this::isLockInUse));
+        intoCriticalZone.set(false);
+        errorInCriticalZone.set(false);
+        otherErrors.set(false);
+        List<Thread> threadList = new ArrayList<>();
+        for(int i=0; i < NUM_TEST; i++) {
+            int time = ThreadLocalRandom.current().nextInt(0, NUM_TEST) + i;
+            Thread t = new Thread(() -> accesLockOfCriticalZone(time));
+            t.setName(String.format("prueba_t%d",i));
+            threadList.add(t);
+        }
+        Collections.shuffle(threadList);
+        threadList.forEach(Thread::start);
+        Thread.sleep(TimeUnit.SECONDS.toMillis(5));
+        for (Thread thread : threadList) {
+            thread.join();
+        }
+        assertFalse(errorInCriticalZone.get());
+        assertFalse(otherErrors.get());
+        assertFalse(lockList.stream().anyMatch(this::isLockInUse));
+        lockList.forEach(LockClientGrpc::close);
     }
 
     private boolean isLockInUse(LockClientGrpc lockClientGrpc) {

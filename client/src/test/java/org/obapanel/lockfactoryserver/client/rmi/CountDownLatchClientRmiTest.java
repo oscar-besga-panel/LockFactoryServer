@@ -1,5 +1,6 @@
 package org.obapanel.lockfactoryserver.client.rmi;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,6 +49,11 @@ public class CountDownLatchClientRmiTest {
         when(countDownLatchServerRmi.tryAwaitWithTimeOut(anyString(), anyLong())).thenReturn(true);
         when(countDownLatchServerRmi.tryAwaitWithTimeOut(anyString(), anyLong(), any(TimeUnit.class))).thenReturn(true);
         countDownLatchClientRmi = new CountDownLatchClientRmi(registry, name);
+    }
+
+    @After
+    public void tearDown() {
+        countDownLatchClientRmi.close();
     }
 
     @Test

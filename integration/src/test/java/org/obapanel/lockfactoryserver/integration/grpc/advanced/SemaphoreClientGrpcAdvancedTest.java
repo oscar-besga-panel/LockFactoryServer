@@ -47,24 +47,25 @@ public class SemaphoreClientGrpcAdvancedTest {
         SemaphoreClientGrpc semaphoreClientGrpc = new SemaphoreClientGrpc(LOCALHOST, getConfigurationIntegrationTestServer().getGrpcServerPort(), semaphoreName);
         semaphoreClientGrpc.release();
         intoCriticalZone.set(false);
-            errorInCriticalZone.set(false);
-            otherErrors.set(false);
-            List<Thread> threadList = new ArrayList<>();
-            for(int i=0; i < 5; i++) {
-                LOGGER.info("i {}", i);
-                int sleepTime = ThreadLocalRandom.current().nextInt(1, 3 + i);
-                Thread t = new Thread(() -> accesLockOfCriticalZone(sleepTime));
-                t.setName("prueba_t" + i);
-                threadList.add(t);
-            }
-            Collections.shuffle(threadList);
-            threadList.forEach(Thread::start);
+        errorInCriticalZone.set(false);
+        otherErrors.set(false);
+        List<Thread> threadList = new ArrayList<>();
+        for(int i=0; i < 5; i++) {
+            LOGGER.info("i {}", i);
+            int sleepTime = ThreadLocalRandom.current().nextInt(1, 3 + i);
+            Thread t = new Thread(() -> accesLockOfCriticalZone(sleepTime));
+            t.setName("prueba_t" + i);
+            threadList.add(t);
+        }
+        Collections.shuffle(threadList);
+        threadList.forEach(Thread::start);
 
-            for(Thread t: threadList) {
-                t.join();
-            }
-            assertFalse(errorInCriticalZone.get());
-            assertFalse(otherErrors.get());
+        for(Thread t: threadList) {
+            t.join();
+        }
+        assertFalse(errorInCriticalZone.get());
+        assertFalse(otherErrors.get());
+        semaphoreClientGrpc.close();
     }
 
     private void accesLockOfCriticalZone(int sleepTime) {

@@ -70,7 +70,9 @@ public class HolderRmiTest {
         holderClientRmi1.setWithTimeToLive(value, 1000);
         HolderResult holderResult2 = holderClientRmi2.get();
         assertEquals(value, holderResult2.getValue() );
-        assertEquals(HolderResult.Status.RETRIEVED, holderResult2.getStatus() );
+        assertEquals(HolderResult.Status.RETRIEVED, holderResult2.getStatus());
+        holderClientRmi1.close();
+        holderClientRmi2.close();
     }
 
     @Test(timeout=25000)
@@ -94,6 +96,8 @@ public class HolderRmiTest {
         LOGGER.debug("get value <");
         assertEquals(value, holderResult2.getValue() );
         assertEquals(HolderResult.Status.RETRIEVED, holderResult2.getStatus() );
+        holderClientRmi1.close();
+        holderClientRmi2.close();
     }
 
     @Test(timeout=25000)
@@ -115,6 +119,8 @@ public class HolderRmiTest {
         LOGGER.debug("get value <");
         assertNull(holderResult2.getValue() );
         assertEquals(HolderResult.Status.CANCELLED, holderResult2.getStatus() );
+        holderClientRmi1.close();
+        holderClientRmi2.close();
     }
 
     @Test(timeout=25000)
@@ -137,7 +143,9 @@ public class HolderRmiTest {
         HolderResult holderResult2 = holderClientRmi2.getIfAvailable();
         LOGGER.debug("get value <");
         assertNull(holderResult2.getValue() );
-        assertEquals(HolderResult.Status.NOTFOUND, holderResult2.getStatus() );
+        assertEquals(HolderResult.Status.NOTFOUND, holderResult2.getStatus());
+        holderClientRmi1.close();
+        holderClientRmi2.close();
     }
 
     @Test(timeout=25000)
@@ -160,7 +168,9 @@ public class HolderRmiTest {
         HolderResult holderResult2 = holderClientRmi2.getWithTimeOut(250, TimeUnit.MILLISECONDS);
         LOGGER.debug("get value <");
         assertNull(holderResult2.getValue() );
-        assertEquals(HolderResult.Status.AWAITED, holderResult2.getStatus() );
+        assertEquals(HolderResult.Status.AWAITED, holderResult2.getStatus());
+        holderClientRmi1.close();
+        holderClientRmi2.close();
     }
 
     @Test(timeout=25000)
@@ -183,7 +193,9 @@ public class HolderRmiTest {
         HolderResult holderResult2 = holderClientRmi2.get();
         LOGGER.debug("get value <");
         assertNull(holderResult2.getValue() );
-        assertEquals(HolderResult.Status.EXPIRED, holderResult2.getStatus() );
+        assertEquals(HolderResult.Status.EXPIRED, holderResult2.getStatus());
+        holderClientRmi1.close();
+        holderClientRmi2.close();
     }
 
 }

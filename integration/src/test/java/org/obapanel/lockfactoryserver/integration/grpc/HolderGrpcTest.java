@@ -71,6 +71,8 @@ public class HolderGrpcTest {
         HolderResult holderResult2 = holderClientGrpc2.get();
         assertEquals(value, holderResult2.getValue() );
         assertEquals(HolderResult.Status.RETRIEVED, holderResult2.getStatus() );
+        holderClientGrpc1.close();
+        holderClientGrpc2.close();
     }
 
     @Test(timeout=25000)
@@ -90,6 +92,8 @@ public class HolderGrpcTest {
         LOGGER.debug("get value <");
         assertEquals(value, holderResult2.getValue() );
         assertEquals(HolderResult.Status.RETRIEVED, holderResult2.getStatus() );
+        holderClientGrpc1.close();
+        holderClientGrpc2.close();
     }
 
     @Test(timeout=25000)
@@ -107,6 +111,8 @@ public class HolderGrpcTest {
         LOGGER.debug("get value <");
         assertNull(holderResult2.getValue() );
         assertEquals(HolderResult.Status.CANCELLED, holderResult2.getStatus() );
+        holderClientGrpc1.close();
+        holderClientGrpc2.close();
     }
 
     @Test(timeout=25000)
@@ -126,6 +132,8 @@ public class HolderGrpcTest {
         LOGGER.debug("get value <");
         assertNull(holderResult2.getValue() );
         assertEquals(HolderResult.Status.NOTFOUND, holderResult2.getStatus() );
+        holderClientGrpc1.close();
+        holderClientGrpc2.close();
     }
 
     @Test(timeout=25000)
@@ -145,6 +153,8 @@ public class HolderGrpcTest {
         LOGGER.debug("get value <");
         assertNull(holderResult2.getValue() );
         assertEquals(HolderResult.Status.AWAITED, holderResult2.getStatus() );
+        holderClientGrpc1.close();
+        holderClientGrpc2.close();
     }
 
     @Test(timeout=25000)
@@ -164,6 +174,8 @@ public class HolderGrpcTest {
         LOGGER.debug("get value <");
         assertNull(holderResult2.getValue() );
         assertEquals(HolderResult.Status.EXPIRED, holderResult2.getStatus() );
+        holderClientGrpc1.close();
+        holderClientGrpc2.close();
     }
 
     @Test(timeout=25000)
@@ -191,6 +203,8 @@ public class HolderGrpcTest {
         assertTrue(inner.tryAcquire(1200, TimeUnit.MILLISECONDS));
         assertEquals(value, holderResult2.get().getValue() );
         assertEquals(HolderResult.Status.RETRIEVED, holderResult2.get().getStatus() );
+        holderClientGrpc1.close();
+        holderClientGrpc2.close();
     }
 
 }

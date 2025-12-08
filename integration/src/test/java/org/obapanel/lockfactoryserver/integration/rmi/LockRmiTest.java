@@ -87,6 +87,7 @@ public class LockRmiTest {
         assertTrue(unlocked);
         assertTrue(ABSENT_OR_UNLOCKED.contains(status2));
         LOGGER.debug("test lockUnlockTest fin <<<");
+        lockClientRmi.close();
     }
 
     @Test(timeout=25000)
@@ -104,6 +105,8 @@ public class LockRmiTest {
         assertFalse(locked2);
         assertEquals(LockStatus.OTHER, status2);
         LOGGER.debug("test lockTwolocksTest fin <<<");
+        lockClientRmi1.close();
+        lockClientRmi2.close();
     }
 
     @Test(timeout=25000)
@@ -119,6 +122,7 @@ public class LockRmiTest {
                 lockClientRmi.doWithinLock(() -> {
                     inner.release();
                 });
+                lockClientRmi.close();
                 return Void.class;
             });
         }
@@ -127,7 +131,7 @@ public class LockRmiTest {
     }
 
     @Test(timeout=25000)
-    public void doGetWithLockSimpleTest() throws InterruptedException, ExecutionException, TimeoutException {
+    public void doGetWithLockSimpleTest1() throws InterruptedException, ExecutionException, TimeoutException {
         String currentLockName =  generateLockClientRmi().getName() + "_2_simple";
         Semaphore inner = new Semaphore(0);
         List<Future<String>> futures = new ArrayList<>();
@@ -141,6 +145,35 @@ public class LockRmiTest {
                     inner.release();
                     return "x";
                 });
+                lockClientRmi.close();
+                return partialResult;
+            });
+            futures.add(f);
+        }
+        boolean acquired = inner.tryAcquire(lockNums, 1500, TimeUnit.MILLISECONDS);
+        assertTrue(acquired);
+        for(Future<String> f: futures) {
+            assertEquals("x", f.get(500, TimeUnit.MILLISECONDS));
+        }
+    }
+
+    @Test(timeout=25000)
+    public void doGetWithLockSimpleTest2() throws InterruptedException, ExecutionException, TimeoutException {
+        String currentLockName =  generateLockClientRmi().getName() + "_2_simple";
+        Semaphore inner = new Semaphore(0);
+        List<Future<String>> futures = new ArrayList<>();
+        int lockNums = 3;
+        for(int i=0; i < lockNums; i++) {
+            int sleep = (i + 1) * ThreadLocalRandom.current().nextInt(60, 120);
+            Future<String> f = executorService.submit(() -> {
+                String partialResult = "";
+                Thread.sleep(sleep);
+                try(LockClientRmi lockClientRmi = generateLockClientRmi(currentLockName)) {
+                    partialResult = lockClientRmi.doGetWithinLock(() -> {
+                        inner.release();
+                        return "x";
+                    });
+                }
                 return partialResult;
             });
             futures.add(f);

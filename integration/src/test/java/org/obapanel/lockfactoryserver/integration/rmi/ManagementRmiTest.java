@@ -47,6 +47,7 @@ public class ManagementRmiTest {
             boolean running = managementClientRmi.isRunning();
             assertTrue(running);
             assertFalse(hasBeenShutdowmAlready.get());
+            managementClientRmi.close();
             LOGGER.debug("test isRunning fin <<<");
         } else {
             assertTrue(hasBeenShutdowmAlready.get());
@@ -66,6 +67,7 @@ public class ManagementRmiTest {
         try {
             Thread.sleep(1000);
             managementClientRmi.isRunning();
+            managementClientRmi.close();
             fail("test shutdownTest error fail" );
         } catch (Exception e) {
             LOGGER.debug("test shutdownTest controlled error e {}", e);

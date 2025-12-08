@@ -1,5 +1,6 @@
 package org.obapanel.lockfactoryserver.client.rmi;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,6 +43,11 @@ public class BucketRateLimiterClientRmiTest {
         current.set(ThreadLocalRandom.current().nextInt(10));
         when(registry.lookup(eq(BucketRateLimiterClientRmi.RMI_NAME))).thenReturn(bucketRateLimiterServerRmi);
         bucketRateLimiterClientRmi = new BucketRateLimiterClientRmi(registry, name);
+    }
+
+    @After
+    public void tearDown() {
+        bucketRateLimiterClientRmi.close();
     }
 
     @Test

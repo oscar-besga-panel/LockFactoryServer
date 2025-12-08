@@ -84,6 +84,7 @@ public class LockClientRmiAdvancedFileTest {
                     LOGGER.debug("Writing file with lock: {} with char: {} times: {} -- lock ! >", lockName, toWrite, times);
                     testFileWriterAndChecker.writeFile(toWrite, times, 25);
             });
+            lockClientRmi.close();
         } catch (Exception e) {
             throw new IllegalStateException("Error writing file with lock: " + lockName + " with char " + toWrite, e);
         }

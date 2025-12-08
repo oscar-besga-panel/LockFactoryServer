@@ -71,11 +71,11 @@ public class SemaphoreClientRestAdvancedFileTest {
         }
         Collections.shuffle(threadList);
         threadList.forEach(Thread::start);
-
         for(Thread t: threadList) {
             t.join();
         }
-            assertTrue(testFileWriterAndChecker.checkFile());
+        assertTrue(testFileWriterAndChecker.checkFile());
+        semaphoreClientRest.close();
     }
 
     private void writeWithSemaphore(int times, char toWrite) {
@@ -85,6 +85,7 @@ public class SemaphoreClientRestAdvancedFileTest {
             LOGGER.debug("Writing in file with semaphore: {} with char: {} times: {} -- lock ! >", semaphoreName, toWrite, times);
             testFileWriterAndChecker.writeFile(toWrite, times, 25);
             semaphoreClientRest.release();
+            semaphoreClientRest.close();
         } catch (Exception e){
             LOGGER.error("Other error ", e);
             throw new IllegalStateException("Error writing file with semaphore: " + semaphoreName + " with char " + toWrite, e);

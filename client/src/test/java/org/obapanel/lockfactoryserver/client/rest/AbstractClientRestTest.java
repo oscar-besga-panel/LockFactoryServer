@@ -91,6 +91,7 @@ public class AbstractClientRestTest {
         TestAbstractClientRest testAbstractClientRest1 = new TestAbstractClientRest();
         String response = testAbstractClientRest1.requestWithUrl("test/1");
         assertEquals("true", response);
+        testAbstractClientRest1.close();
     }
 
     @Test
@@ -110,12 +111,14 @@ public class AbstractClientRestTest {
         finalStatus.set(500);
         TestAbstractClientRest testAbstractClientRest1 = new TestAbstractClientRest();
         String response = testAbstractClientRest1.requestWithUrl("test/1");
+        testAbstractClientRest1.close();
     }
 
     @Test(expected = IllegalStateException.class)
     public void testResponseNoUrlTest() {
         TestAbstractClientRest testAbstractClientRest9 = new TestAbstractClientRest();
         testAbstractClientRest9.requestWithUrl();
+        testAbstractClientRest9.close();
     }
 
     private class TestAbstractClientRest extends AbstractClientRest {

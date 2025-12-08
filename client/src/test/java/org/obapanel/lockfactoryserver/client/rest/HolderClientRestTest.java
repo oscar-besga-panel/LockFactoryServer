@@ -108,6 +108,7 @@ public class HolderClientRestTest {
         mockedStaticHttpClient.close();
         mockedStaticEntityUtils.close();
         mockedStaticHttpClientBuilder.close();
+        holderClientRest.close();
     }
 
     @Test

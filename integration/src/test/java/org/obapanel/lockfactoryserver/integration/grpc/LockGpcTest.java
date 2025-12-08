@@ -59,6 +59,7 @@ public class LockGpcTest {
         assertEquals(LockStatus.OWNER, lockStatus1);
         assertTrue(unlocked);
         assertTrue(ABSENT_OR_UNLOCKED.contains(lockStatus2));
+        lockClientGrpc.close();
         LOGGER.debug("test lockUnlockTest fin <<<");
     }
 
@@ -76,6 +77,8 @@ public class LockGpcTest {
         assertEquals(LockStatus.OWNER, lockStatus1);
         assertFalse(locked2);
         assertEquals(LockStatus.OTHER, lockStatus2);
+        lockClientGrpc1.close();
+        lockClientGrpc2.close();
         LOGGER.debug("test lockTwolocksTest fin <<<");
     }
 

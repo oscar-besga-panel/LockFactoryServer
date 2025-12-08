@@ -83,6 +83,7 @@ public class LockRestTest {
         assertEquals(LockStatus.OWNER, status1);
         assertTrue(unlocked);
         assertTrue(ABSENT_OR_UNLOCKED.contains(status2));
+        lockClientRest.close();
         LOGGER.debug("test lockUnlockTest fin <<<");
     }
 
@@ -100,6 +101,8 @@ public class LockRestTest {
         assertEquals(LockStatus.OWNER, status1);
         assertFalse(locked2);
         assertEquals(LockStatus.OTHER, status2);
+        lockClientRest1.close();
+        lockClientRest2.close();
         LOGGER.debug("test lockTwolocksTest fin <<<");
     }
 
@@ -116,6 +119,7 @@ public class LockRestTest {
                 lockClientRest.doWithinLock(() -> {
                     inner.release();
                 });
+                lockClientRest.close();
                 return Void.class;
             });
         }
@@ -138,6 +142,7 @@ public class LockRestTest {
                     inner.release();
                     return "x";
                 });
+                lockClientRest.close();
                 return partialResult;
             });
             futures.add(f);

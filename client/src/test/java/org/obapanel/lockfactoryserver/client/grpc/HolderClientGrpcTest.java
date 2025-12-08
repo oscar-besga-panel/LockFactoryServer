@@ -95,6 +95,7 @@ public class HolderClientGrpcTest {
         mockedStaticHolderServerGrpc.close();
         executorService.shutdown();
         executorService.shutdownNow();
+        holderClientGrpc.close();
     }
 
     @Test

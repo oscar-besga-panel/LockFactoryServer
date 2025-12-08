@@ -69,6 +69,8 @@ public class HolderRestTest {
         HolderResult holderResult2 = holderClientRest2.get();
         assertEquals(value, holderResult2.getValue() );
         assertEquals(HolderResult.Status.RETRIEVED, holderResult2.getStatus() );
+        holderClientRest1.close();
+        holderClientRest2.close();
     }
 
 
@@ -89,6 +91,8 @@ public class HolderRestTest {
         LOGGER.debug("get value <");
         assertEquals(value, holderResult2.getValue() );
         assertEquals(HolderResult.Status.RETRIEVED, holderResult2.getStatus() );
+        holderClientRest1.close();
+        holderClientRest2.close();
     }
 
     @Test(timeout=25000)
@@ -106,6 +110,8 @@ public class HolderRestTest {
         LOGGER.debug("get value <");
         assertNull(holderResult2.getValue() );
         assertEquals(HolderResult.Status.CANCELLED, holderResult2.getStatus() );
+        holderClientRest1.close();
+        holderClientRest2.close();
     }
 
     @Test(timeout=25000)
@@ -125,6 +131,8 @@ public class HolderRestTest {
         LOGGER.debug("get value <");
         assertNull(holderResult2.getValue() );
         assertEquals(HolderResult.Status.NOTFOUND, holderResult2.getStatus() );
+        holderClientRest1.close();
+        holderClientRest2.close();
     }
 
     @Test(timeout=25000)
@@ -144,6 +152,8 @@ public class HolderRestTest {
         LOGGER.debug("get value <");
         assertNull(holderResult2.getValue() );
         assertEquals(HolderResult.Status.AWAITED, holderResult2.getStatus() );
+        holderClientRest1.close();
+        holderClientRest2.close();
     }
 
     @Test(timeout=25000)
@@ -163,6 +173,8 @@ public class HolderRestTest {
         LOGGER.debug("get value <");
         assertNull(holderResult2.getValue() );
         assertEquals(HolderResult.Status.EXPIRED, holderResult2.getStatus() );
+        holderClientRest1.close();
+        holderClientRest2.close();
     }
 
 }

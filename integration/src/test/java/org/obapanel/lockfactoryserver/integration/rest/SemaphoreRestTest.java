@@ -62,6 +62,7 @@ public class SemaphoreRestTest {
         assertEquals(0, result1);
         assertEquals(2, result2);
         LOGGER.debug("test currentTest fin <<<");
+        semaphoreClientRest.close();
     }
 
     @Test(timeout=25000)
@@ -82,6 +83,7 @@ public class SemaphoreRestTest {
         assertEquals(0, result1);
         assertEquals(2, result2);
         LOGGER.debug("test accquireTest fin <<<");
+        semaphoreClientRest.close();
     }
 
     @Test(timeout=25000)
@@ -109,6 +111,7 @@ public class SemaphoreRestTest {
         assertTrue(resulttrya);
         assertTrue(resulttry2);
         LOGGER.debug("test tryAcquireTest fin <<<");
+        semaphoreClientRest.close();
     }
 
     @Test(timeout=25000)
@@ -138,6 +141,9 @@ public class SemaphoreRestTest {
         assertTrue(resulttrya);
         assertTrue(resulttry2);
         LOGGER.debug("test tryAcquireWithTimeOut1Test fin <<<");
+        semaphoreClientRest1.close();
+        semaphoreClientRest2.close();
+        semaphoreClientRest3.close();
     }
 
     @Test(timeout=25000)
@@ -167,6 +173,9 @@ public class SemaphoreRestTest {
         assertTrue(resulttrya);
         assertTrue(resulttry2);
         LOGGER.debug("test tryAcquireWithTimeOut2Test fin <<<");
+        semaphoreClientRest1.close();
+        semaphoreClientRest2.close();
+        semaphoreClientRest3.close();
     }
 
 }

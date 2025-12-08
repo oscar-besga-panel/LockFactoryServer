@@ -80,6 +80,7 @@ public class CountDownLatchRmiTest {
         assertEquals(count, count2);
         assertEquals(count, count3);
         assertEquals(count - 1, count4);
+        countDownLatchClientRmi.close();
     }
 
     @Test(timeout=25000)
@@ -96,6 +97,7 @@ public class CountDownLatchRmiTest {
                 countDownLatchClientRmi2.countDown();
                 countedDown.set(true);
                 inner.release();
+                countDownLatchClientRmi2.close();
             } catch (InterruptedException e) {
                 throw new RuntimeInterruptedException(e);
             } catch (RemoteException | NotBoundException e) {
@@ -109,6 +111,7 @@ public class CountDownLatchRmiTest {
         assertTrue(countedDown.get());
         assertTrue(result);
         assertFalse(countDownLatchClientRmi1.isActive());
+        countDownLatchClientRmi1.close();
     }
 
     @Test(timeout=25000)
@@ -127,6 +130,7 @@ public class CountDownLatchRmiTest {
         assertTrue(created);
         assertTrue(result);
         assertFalse(countDownLatchClientRmi.isActive());
+        countDownLatchClientRmi.close();
     }
 
     @Test(timeout=25000)
@@ -155,6 +159,7 @@ public class CountDownLatchRmiTest {
         assertTrue(created);
         assertTrue(result);
         assertFalse(countDownLatchClientRmi.isActive());
+        countDownLatchClientRmi.close();
     }
 
     @Test(timeout=25000)
@@ -204,6 +209,7 @@ public class CountDownLatchRmiTest {
         assertTrue(created);
         assertTrue(awaited.get());
         assertFalse(countDownLatchClientRmi.isActive());
+        countDownLatchClientRmi.close();
     }
 
     @Test(timeout=25000)
@@ -221,6 +227,7 @@ public class CountDownLatchRmiTest {
                 countDownLatchClientRmi2.countDown(2);
                 countedDown2.set(true);
                 inner2.release();
+                countDownLatchClientRmi2.close();
             } catch (InterruptedException e) {
                 throw new RuntimeInterruptedException(e);
             } catch (RemoteException | NotBoundException e) {
@@ -235,6 +242,7 @@ public class CountDownLatchRmiTest {
                 countDownLatchClientRmi3.countDown(3);
                 countedDown3.set(true);
                 inner3.release();
+                countDownLatchClientRmi3.close();
             } catch (InterruptedException e) {
                 throw new RuntimeInterruptedException(e);
             } catch (RemoteException | NotBoundException e) {
@@ -251,6 +259,7 @@ public class CountDownLatchRmiTest {
         assertTrue(countedDown3.get());
         assertTrue(result);
         assertFalse(countDownLatchClientRmi1.isActive());
+        countDownLatchClientRmi1.close();
     }
 
 }

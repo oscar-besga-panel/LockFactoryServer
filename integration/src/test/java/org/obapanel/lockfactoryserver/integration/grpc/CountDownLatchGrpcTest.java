@@ -82,6 +82,7 @@ public class CountDownLatchGrpcTest {
         assertEquals(count, count2);
         assertEquals(count, count3);
         assertEquals(count - 1, count4);
+        countDownLatchClientGrpc.close();
     }
 
     @Test(timeout=25000)
@@ -98,6 +99,7 @@ public class CountDownLatchGrpcTest {
                 countDownLatchClientGrpc2.countDown();
                 countedDown.set(true);
                 inner.release();
+                countDownLatchClientGrpc2.close();
             } catch (InterruptedException e) {
                 throw new RuntimeInterruptedException(e);
             }
@@ -109,6 +111,7 @@ public class CountDownLatchGrpcTest {
         assertTrue(countedDown.get());
         assertTrue(result);
         assertFalse(countDownLatchClientGrpc1.isActive());
+        countDownLatchClientGrpc1.close();
     }
 
     @Test(timeout=25000)
@@ -127,6 +130,7 @@ public class CountDownLatchGrpcTest {
         assertTrue(created);
         assertTrue(result);
         assertFalse(countDownLatchClientGrpc.isActive());
+        countDownLatchClientGrpc.close();
     }
 
     @Test(timeout=25000)
@@ -155,6 +159,7 @@ public class CountDownLatchGrpcTest {
         assertTrue(created);
         assertTrue(result);
         assertFalse(countDownLatchClientGrpc.isActive());
+        countDownLatchClientGrpc.close();
     }
 
     @Test(timeout=25000)
@@ -204,6 +209,7 @@ public class CountDownLatchGrpcTest {
         assertTrue(created);
         assertTrue(awaited.get());
         assertFalse(countDownLatchClientGrpc.isActive());
+        countDownLatchClientGrpc.close();
     }
 
     @Test(timeout=25000)
@@ -222,6 +228,7 @@ public class CountDownLatchGrpcTest {
                 countDownLatchClientGrpc2.countDown(2);
                 countedDown2.set(true);
                 inner2.release();
+                countDownLatchClientGrpc2.close();
             } catch (InterruptedException e) {
                 throw new RuntimeInterruptedException(e);
             }
@@ -233,6 +240,7 @@ public class CountDownLatchGrpcTest {
                 countDownLatchClientGrpc3.countDown(3);
                 countedDown3.set(true);
                 inner3.release();
+                countDownLatchClientGrpc3.close();
             } catch (InterruptedException e) {
                 throw new RuntimeInterruptedException(e);
             }
@@ -247,6 +255,7 @@ public class CountDownLatchGrpcTest {
         assertTrue(countedDown3.get());
         assertTrue(result);
         assertFalse(countDownLatchClientGrpc1.isActive());
+        countDownLatchClientGrpc1.close();
     }
 
 }

@@ -80,6 +80,7 @@ public class BucketRateLimiterClientGrpcTest {
         mockedStaticBucketRateLimiterServerGrpc.close();
         executorService.shutdown();
         executorService.shutdownNow();
+        bucketRateLimiterClientGrpc.close();
     }
 
     @Test

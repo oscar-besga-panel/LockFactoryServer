@@ -1,5 +1,6 @@
 package org.obapanel.lockfactoryserver.client.rmi;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,6 +53,11 @@ public class LockClientRmiTest {
         when(lockServerRmi.lockStatus(anyString(), anyString())).thenReturn(LockStatus.OWNER);
         when(lockServerRmi.unlock(anyString(), anyString())).thenReturn( true);
         lockClientRmi = new LockClientRmi(registry, name);
+    }
+
+    @After
+    public void tearDown() {
+        lockClientRmi.close();
     }
 
     @Test
