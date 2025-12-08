@@ -168,12 +168,11 @@ public class LockRmiTest {
             Future<String> f = executorService.submit(() -> {
                 String partialResult = "";
                 Thread.sleep(sleep);
-                try(LockClientRmi lockClientRmi = generateLockClientRmi(currentLockName)) {
-                    partialResult = lockClientRmi.doGetWithinLock(() -> {
-                        inner.release();
-                        return "x";
-                    });
-                }
+                LockClientRmi lockClientRmi = generateLockClientRmi(currentLockName);
+                partialResult = lockClientRmi.doGetWithinLock(() -> {
+                    inner.release();
+                    return "x";
+                });
                 return partialResult;
             });
             futures.add(f);

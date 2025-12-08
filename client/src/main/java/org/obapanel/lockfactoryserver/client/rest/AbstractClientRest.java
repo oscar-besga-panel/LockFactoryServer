@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
-public abstract class AbstractClientRest implements AutoCloseable, NamedClient {
+public abstract class AbstractClientRest implements NamedClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractClientRest.class);
 
@@ -97,6 +97,7 @@ public abstract class AbstractClientRest implements AutoCloseable, NamedClient {
     String processResponse(String operation, ClassicHttpResponse response) throws IOException, ParseException {
         String responseResult = EntityUtils.toString(response.getEntity());
         int code = response.getCode();
+        response.close();
         if (code == HTTP_OK) {
             LOGGER.debug("response baseUrl {} operation {} httpCode {} responseResult {}",
                     baseUrl, operation, code, responseResult);
@@ -111,10 +112,6 @@ public abstract class AbstractClientRest implements AutoCloseable, NamedClient {
 
     public String getName() {
         return name;
-    }
-
-    public void close() {
-        LOGGER.debug("closed");
     }
 
 }

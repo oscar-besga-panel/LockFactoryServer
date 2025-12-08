@@ -96,7 +96,6 @@ public class CountDownLatchClientRestTest {
         mockedStaticHttpClient.close();
         mockedStaticEntityUtils.close();
         mockedStaticHttpClientBuilder.close();
-        countDownLatchClientRest.close();
     }
 
     @Test

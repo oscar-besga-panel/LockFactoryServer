@@ -80,7 +80,6 @@ public class CountDownLatchRestTest {
         assertEquals(count, count3);
         assertEquals(count - 1, count4);
         assertFalse(recreate);
-        countDownLatchClientRest.close();
     }
 
     @Test(timeout=25000)
@@ -97,7 +96,6 @@ public class CountDownLatchRestTest {
                 countDownLatchClientRest2.countDown();
                 countedDown.set(true);
                 inner.release();
-                countDownLatchClientRest2.close();
             } catch (InterruptedException e) {
                 throw new RuntimeInterruptedException(e);
             }
@@ -109,7 +107,6 @@ public class CountDownLatchRestTest {
         assertTrue(countedDown.get());
         assertTrue(result);
         assertFalse(countDownLatchClientRest1.isActive());
-        countDownLatchClientRest1.close();
     }
 
     @Test(timeout=25000)
@@ -128,7 +125,6 @@ public class CountDownLatchRestTest {
         assertTrue(created);
         assertTrue(result);
         assertFalse(countDownLatchClientRest.isActive());
-        countDownLatchClientRest.close();
     }
 
     @Test(timeout=25000)
@@ -148,7 +144,6 @@ public class CountDownLatchRestTest {
                     CountDownLatchClientRest countDownLatchClientRestN = generateCountDownLatchClientRest(name);
                     countDownLatchClientRestN.countDown();
                     inner.release();
-                    countDownLatchClientRestN.close();
                 } catch (InterruptedException e) {
                     throw new RuntimeInterruptedException(e);
                 }
@@ -166,7 +161,6 @@ public class CountDownLatchRestTest {
         assertTrue(created);
         assertTrue(result);
         assertFalse(countDownLatchClientRest.isActive());
-        countDownLatchClientRest.close();
     }
 
     @Test(timeout=25000)
@@ -183,7 +177,6 @@ public class CountDownLatchRestTest {
             CountDownLatchClientRest countDownLatchClientRest1 = generateCountDownLatchClientRest(name);
             countDownLatchClientRest1.await();
             awaited.set(true);
-            countDownLatchClientRest1.close();
         });
         tfinal.setName("t_" + System.currentTimeMillis());
         tfinal.setDaemon(true);
@@ -197,7 +190,6 @@ public class CountDownLatchRestTest {
                     countDownLatchClientRest2.countDown();
                     countedDown.set(true);
                     inner.release();
-                    countDownLatchClientRest2.close();
                 } catch (InterruptedException e) {
                     throw new RuntimeInterruptedException(e);
                 }
@@ -225,7 +217,6 @@ public class CountDownLatchRestTest {
         assertTrue(awaited.get());
         assertTrue(countedDown.get());
         assertFalse(countDownLatchClientRest0.isActive());
-        countDownLatchClientRest0.close();
     }
 
     @Test(timeout=25000)
@@ -243,7 +234,6 @@ public class CountDownLatchRestTest {
                 countDownLatchClientRest2.countDown(2);
                 countedDown2.set(true);
                 inner2.release();
-                countDownLatchClientRest2.close();
             } catch (InterruptedException e) {
                 throw new RuntimeInterruptedException(e);
             }
@@ -256,7 +246,6 @@ public class CountDownLatchRestTest {
                 countDownLatchClientRest3.countDown(3);
                 countedDown3.set(true);
                 inner3.release();
-                countDownLatchClientRest3.close();
             } catch (InterruptedException e) {
                 throw new RuntimeInterruptedException(e);
             }
@@ -271,7 +260,6 @@ public class CountDownLatchRestTest {
         assertTrue(countedDown3.get());
         assertTrue(result);
         assertFalse(countDownLatchClientRest1.isActive());
-        countDownLatchClientRest1.close();
     }
 
 }

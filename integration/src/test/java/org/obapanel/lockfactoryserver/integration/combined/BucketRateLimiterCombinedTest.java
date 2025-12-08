@@ -83,10 +83,6 @@ public class BucketRateLimiterCombinedTest {
     }
 
     public void executeCountDown(CountDownLatch localCountDownLatch, AtomicInteger taken, BucketRateLimiterClient bucketRateLimiterClient, long timeOut ) {
-        bucketRateLimiterClient.withClientDo( b -> executeCountDownWithClient(localCountDownLatch, taken, b, timeOut));
-    }
-
-    public void executeCountDownWithClient(CountDownLatch localCountDownLatch, AtomicInteger taken, BucketRateLimiterClient bucketRateLimiterClient, long timeOut ) {
         try {
             localCountDownLatch.countDown();
             localCountDownLatch.await();
@@ -98,10 +94,14 @@ public class BucketRateLimiterCombinedTest {
             } else {
                 LOGGER.debug("executeCountDown take false");
             }
+            if (localCountDownLatch instanceof AutoCloseable) {
+                ((AutoCloseable) localCountDownLatch).close();
+            }
         } catch (InterruptedException e) {
             throw new IllegalStateException(e);
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
         }
-
     }
 
 

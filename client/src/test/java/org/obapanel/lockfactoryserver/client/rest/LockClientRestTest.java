@@ -100,7 +100,6 @@ public class LockClientRestTest {
         mockedStaticHttpClient.close();
         mockedStaticEntityUtils.close();
         mockedStaticHttpClientBuilder.close();
-        lockClientRest.close();
     }
 
     @Test

@@ -2,7 +2,7 @@ package org.obapanel.lockfactoryserver.client;
 
 import java.util.function.Supplier;
 
-public interface LockClient extends AutoCloseableClient<LockClient> {
+public interface LockClient {
 
 
     boolean lock();

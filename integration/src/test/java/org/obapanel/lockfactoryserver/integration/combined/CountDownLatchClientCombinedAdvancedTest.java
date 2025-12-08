@@ -42,21 +42,23 @@ public class CountDownLatchClientCombinedAdvancedTest {
     }
 
     @Test(timeout=30000)
-    public void testIfFileIsWrittenCorrectly() throws InterruptedException {
-        generateRandomCountDownLatchClient().withClientDo( cdl -> cdl.createNew(NUM));
+    public void testIfFileIsWrittenCorrectly() throws Exception {
+        CountDownLatchClient countDownLatchClient = generateRandomCountDownLatchClient();
+        countDownLatchClient.createNew(NUM);
         List<Thread> threadList = new ArrayList<>();
         for(int i = 0; i < NUM; i++) {
             threadList.add(generateThread(i));
         }
         Collections.shuffle(threadList);
         threadList.forEach(Thread::start);
-        boolean countDownDone = generateCountDownLatchClientGrpc().withClientGet( cdl ->
-                cdl.tryAwaitWithTimeOut(27, TimeUnit.SECONDS)
-        );
+        boolean countDownDone = generateCountDownLatchClientGrpc().tryAwaitWithTimeOut(27, TimeUnit.SECONDS);
         for (Thread thread : threadList) {
             thread.join();
         }
         assertTrue(countDownDone);
+        if (countDownLatchClient instanceof AutoCloseable) {
+            ((AutoCloseable) countDownLatchClient).close();
+        }
     }
 
     Supplier<CountDownLatchClient> generateSupplier(int pos) {

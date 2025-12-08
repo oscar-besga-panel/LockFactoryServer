@@ -10,7 +10,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
-public abstract class AbstractClientRmi<K extends Remote> implements AutoCloseable, NamedClient {
+public abstract class AbstractClientRmi<K extends Remote> implements NamedClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractClientRmi.class);
 

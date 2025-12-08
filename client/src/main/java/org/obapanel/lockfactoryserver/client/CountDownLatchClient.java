@@ -2,7 +2,7 @@ package org.obapanel.lockfactoryserver.client;
 
 import java.util.concurrent.TimeUnit;
 
-public interface CountDownLatchClient extends AutoCloseableClient<CountDownLatchClient> {
+public interface CountDownLatchClient {
 
     boolean createNew(int count);
 

@@ -100,7 +100,6 @@ public class ManagementRestTest {
                     ManagementClientRest managementClientRest = generateManagementClientRest();
                     boolean response = managementClientRest.isRunning();
                     running.set(response);
-                    managementClientRest.close();
                 } catch (InterruptedException e) {
                     throw new RuntimeInterruptedException(e);
                 } finally {
@@ -141,7 +140,6 @@ public class ManagementRestTest {
             LOGGER.debug("test shutdownTest controlled error e {}", e);
         }
         LOGGER.debug("test shutdownTest fin <<<");
-        managementClientRest.close();
     }
 
 }

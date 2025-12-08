@@ -2,7 +2,7 @@ package org.obapanel.lockfactoryserver.client;
 
 import java.util.concurrent.TimeUnit;
 
-public interface SemaphoreClient extends AutoCloseableClient<SemaphoreClient> {
+public interface SemaphoreClient {
 
     int currentPermits() ;
 

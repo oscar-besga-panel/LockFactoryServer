@@ -93,7 +93,6 @@ public class BucketRateLimiterRestTest {
         mockedStaticHttpClient.close();
         mockedStaticEntityUtils.close();
         mockedStaticHttpClientBuilder.close();
-        bucketRateLimiterClientRest.close();
     }
 
     @Test

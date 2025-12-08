@@ -90,7 +90,6 @@ public class ManagementClientRestTest {
         mockedStaticHttpClient.close();
         mockedStaticEntityUtils.close();
         mockedStaticHttpClientBuilder.close();
-        managementClientRest.close();
     }
 
     @Test

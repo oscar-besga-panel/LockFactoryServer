@@ -101,7 +101,6 @@ public class SemaphoreClientRestTest {
         mockedStaticHttpClient.close();
         mockedStaticEntityUtils.close();
         mockedStaticHttpClientBuilder.close();
-        semaphoreClientRest.close();
     }
 
     @Test

@@ -126,19 +126,13 @@ public class SemaphoreClientCombinedAdvancedFileTest {
     void writeFileWithSemaphore(char toWrite, int times, Supplier<SemaphoreClient> semaphoreClientSupplier) {
         try {
             SemaphoreClient semaphoreClient = semaphoreClientSupplier.get();
-            semaphoreClient.withClientDo(sc -> writeFileWithSemaphoreClient(toWrite, times,sc));
-        } catch (Exception e){
-            LOGGER.error("Other error ", e);
-            throw new IllegalStateException("Error writing file with semaphore: " + semaphoreName + " with char " + toWrite, e);
-        }
-    }
-
-    void writeFileWithSemaphoreClient(char toWrite, int times, SemaphoreClient semaphoreClient) {
-        try {
             semaphoreClient.acquire();
             LOGGER.debug("Writing in file with semaphore: {} with char: {} times: {} -- lock ! >", semaphoreName, toWrite, times);
             testFileWriterAndChecker.writeFile(toWrite, times, 25);
             semaphoreClient.release();
+            if (semaphoreClient instanceof AutoCloseable) {
+                ((AutoCloseable) semaphoreClient).close();
+            }
         } catch (Exception e){
             LOGGER.error("Other error ", e);
             throw new IllegalStateException("Error writing file with semaphore: " + semaphoreName + " with char " + toWrite, e);

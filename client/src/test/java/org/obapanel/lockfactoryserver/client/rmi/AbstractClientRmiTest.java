@@ -93,7 +93,8 @@ public class AbstractClientRmiTest {
         String lookupName = "";
         int remoteResult = 0;
         Exception errorHere = null;
-        try (TestAbstractClientRmi testAbstractClientRmi = new TestAbstractClientRmi(registry, "TestAbstractClientRmiTry1")) {
+        try {
+            TestAbstractClientRmi testAbstractClientRmi = new TestAbstractClientRmi(registry, "TestAbstractClientRmiTry1");
             name = testAbstractClientRmi.getName();
             lookupName = testAbstractClientRmi.registryLookupName();
             remoteResult = testAbstractClientRmi.remoteCall();
@@ -114,7 +115,8 @@ public class AbstractClientRmiTest {
         String lookupName = "";
         int remoteResult = 0;
         Exception errorHere = null;
-        try (TestAbstractClientRmi testAbstractClientRmi = new TestAbstractClientRmi(registry, "TestAbstractClientRmiTry2")) {
+        try {
+            TestAbstractClientRmi testAbstractClientRmi = new TestAbstractClientRmi(registry, "TestAbstractClientRmiTry2");
             name = testAbstractClientRmi.getName();
             lookupName = testAbstractClientRmi.registryLookupName();
             remoteResult = testAbstractClientRmi.remoteCall();
