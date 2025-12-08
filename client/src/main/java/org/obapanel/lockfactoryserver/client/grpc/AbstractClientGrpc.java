@@ -82,8 +82,7 @@ abstract class AbstractClientGrpc<M extends AbstractBlockingStub, N extends Abst
             managedChannel.shutdown();
         }
         localExecutor.close();
-
-        LOGGER.debug("close");
+        LOGGER.debug("closed");
     }
 
     private static class LazyLoadExecutor extends LazyObject<ExecutorService> implements AutoCloseable {

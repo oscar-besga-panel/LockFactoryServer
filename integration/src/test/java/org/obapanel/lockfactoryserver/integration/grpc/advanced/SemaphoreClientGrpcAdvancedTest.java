@@ -74,6 +74,7 @@ public class SemaphoreClientGrpcAdvancedTest {
             semaphoreClientGrpc.acquire();
             accessCriticalZone(sleepTime);
             semaphoreClientGrpc.release();
+            semaphoreClientGrpc.close();
         } catch (Exception e){
             otherErrors.set(true);
             LOGGER.error("Other error ", e);
