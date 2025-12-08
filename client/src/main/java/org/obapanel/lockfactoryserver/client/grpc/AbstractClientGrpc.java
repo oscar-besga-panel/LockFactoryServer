@@ -6,7 +6,7 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.AbstractBlockingStub;
 import io.grpc.stub.AbstractFutureStub;
 import org.obapanel.lockfactoryserver.client.NamedClient;
-import org.obapanel.lockfactoryserver.core.util.LazyObject;
+import org.obapanel.lockfactoryserver.core.util.AbstractLazyObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +24,7 @@ abstract class AbstractClientGrpc<M extends AbstractBlockingStub, N extends Abst
     private final M blockingStub;
     private final N asyncStub;
 
-    private final LazyLoadExecutor localExecutor = new LazyLoadExecutor();
+    private final AbstractLazyLoadExecutor localExecutor = new AbstractLazyLoadExecutor();
 
     private final String name;
 
@@ -85,7 +85,7 @@ abstract class AbstractClientGrpc<M extends AbstractBlockingStub, N extends Abst
         LOGGER.debug("closed");
     }
 
-    private static class LazyLoadExecutor extends LazyObject<ExecutorService> implements AutoCloseable {
+    private static class AbstractLazyLoadExecutor extends AbstractLazyObject<ExecutorService> implements AutoCloseable {
 
         @Override
         protected ExecutorService initialize() {
