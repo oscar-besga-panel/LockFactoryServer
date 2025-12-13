@@ -61,6 +61,7 @@ public class SemaphoreRmiTest {
         assertEquals(0, result1);
         assertEquals(2, result2);
         LOGGER.debug("test currentTest fin <<<");
+        semaphoreClientRmi.close();
     }
 
     @Test(timeout=25000)
@@ -81,6 +82,7 @@ public class SemaphoreRmiTest {
         assertEquals(0, result1);
         assertEquals(2, result2);
         LOGGER.debug("test accquireTest fin <<<");
+        semaphoreClientRmi.close();
     }
 
     @Test(timeout=25000)
@@ -108,6 +110,7 @@ public class SemaphoreRmiTest {
         assertTrue(resulttrya);
         assertTrue(resulttry2);
         LOGGER.debug("test tryAcquireTest fin <<<");
+        semaphoreClientRmi.close();
     }
 
     @Test(timeout=25000)
@@ -138,6 +141,7 @@ public class SemaphoreRmiTest {
         assertTrue(resulttrya);
         assertTrue(resulttry2);
         LOGGER.debug("test tryAcquireWithTimeOutTest fin <<<");
+        semaphoreClientRmi.close();
     }
 
 }

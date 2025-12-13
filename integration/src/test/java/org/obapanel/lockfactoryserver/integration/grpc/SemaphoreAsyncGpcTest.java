@@ -66,6 +66,7 @@ public class SemaphoreAsyncGpcTest {
         assertTrue(released);
         assertEquals(1, result1);
         assertEquals(0, result2.get());
+        semaphoreClientGrpc.close();
         LOGGER.debug("test acquireAsyncTest fin >>>");
     }
 
@@ -88,6 +89,7 @@ public class SemaphoreAsyncGpcTest {
         assertTrue(released);
         assertEquals(0, result1);
         assertEquals(0, result2.get());
+        semaphoreClientGrpc.close();
         LOGGER.debug("test acquireAsyncTest fin >>>");
     }
 

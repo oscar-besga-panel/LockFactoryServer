@@ -42,8 +42,9 @@ public class CountDownLatchClientCombinedAdvancedTest {
     }
 
     @Test(timeout=30000)
-    public void testIfFileIsWrittenCorrectly() throws InterruptedException {
-        generateRandomCountDownLatchClient().createNew(NUM);
+    public void testIfFileIsWrittenCorrectly() throws Exception {
+        CountDownLatchClient countDownLatchClient = generateRandomCountDownLatchClient();
+        countDownLatchClient.createNew(NUM);
         List<Thread> threadList = new ArrayList<>();
         for(int i = 0; i < NUM; i++) {
             threadList.add(generateThread(i));
@@ -55,6 +56,9 @@ public class CountDownLatchClientCombinedAdvancedTest {
             thread.join();
         }
         assertTrue(countDownDone);
+        if (countDownLatchClient instanceof AutoCloseable) {
+            ((AutoCloseable) countDownLatchClient).close();
+        }
     }
 
     Supplier<CountDownLatchClient> generateSupplier(int pos) {
@@ -66,6 +70,8 @@ public class CountDownLatchClientCombinedAdvancedTest {
             return this::generateCountDownLatchClientRmi;
         }
     }
+
+
 
     CountDownLatchClient generateRandomCountDownLatchClient() {
         int pos = ThreadLocalRandom.current().nextInt(0,3);

@@ -64,6 +64,7 @@ public class LockClientGrpcAdvancedTest {
             assertFalse(errorInCriticalZone.get());
             assertFalse(otherErrors.get());
             assertFalse(lockList.stream().anyMatch(this::isLockInUse));
+            lockList.forEach(LockClientGrpc::close);
     }
 
     private boolean isLockInUse(LockClientGrpc lockClientGrpc) {

@@ -1,5 +1,6 @@
 package org.obapanel.lockfactoryserver.client.rmi;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -66,6 +67,11 @@ public class SemaphoreClientRmiTest {
             return null;
         }).when(semaphoreServerRmi).release(anyString(), anyInt());
         semaphoreClientRmi = new SemaphoreClientRmi(registry, name);
+    }
+
+    @After
+    public void tearDown() {
+        semaphoreClientRmi.close();
     }
 
 

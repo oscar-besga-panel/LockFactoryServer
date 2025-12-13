@@ -99,6 +99,7 @@ public class SemaphoreClientGrpcTest {
         mockedStaticSemaphoreServerGrpc.close();
         executorService.shutdown();
         executorService.shutdownNow();
+        semaphoreClientGrpc.close();
     }
 
     int semaphoreInit() {

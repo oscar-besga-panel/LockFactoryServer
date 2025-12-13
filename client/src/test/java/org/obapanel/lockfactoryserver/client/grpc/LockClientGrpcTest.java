@@ -100,6 +100,7 @@ public class LockClientGrpcTest {
     public void tearsDown() {
         listenableFutures.forEach(FakeListenableFuture::close);
         mockedStaticLockServerGrpc.close();
+        lockClientGrpc.close();
     }
 
     @Test

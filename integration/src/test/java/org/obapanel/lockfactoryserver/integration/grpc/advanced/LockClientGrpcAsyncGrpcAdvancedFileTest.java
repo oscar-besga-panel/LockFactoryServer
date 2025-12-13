@@ -74,7 +74,7 @@ public class LockClientGrpcAsyncGrpcAdvancedFileTest {
         for (Thread thread : threadList) {
             thread.join();
         }
-        Thread.sleep(3000);
+        Thread.sleep(200);
         lockClientGrpcs.forEach(LockClientGrpc::close);
         boolean checkResult = testFileWriterAndChecker.checkFile();
         assertTrue(checkResult);

@@ -71,6 +71,7 @@ public class ManagementGpcTest {
         ManagementClientGrpc managementClientGrpc = generateManagementClientGrpc();
         boolean running = managementClientGrpc.isRunning();
         assertTrue(running);
+        managementClientGrpc.close();
         LOGGER.debug("test isRunning fin <<<");
     }
 
@@ -90,6 +91,7 @@ public class ManagementGpcTest {
         } catch (Exception e) {
             LOGGER.debug("test shutdownTest controlled error e {}", e);
         }
+        managementClientGrpc.close();
         LOGGER.debug("test shutdownTest fin <<<");
     }
 

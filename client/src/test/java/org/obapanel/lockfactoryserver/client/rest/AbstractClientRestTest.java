@@ -97,10 +97,8 @@ public class AbstractClientRestTest {
     public void testResponse200TryTest() {
         finalResult.set(Boolean.toString(true));
         finalStatus.set(200);
-        String response = "";
-        try(TestAbstractClientRest testAbstractClientRest1 = new TestAbstractClientRest()){
-            response = testAbstractClientRest1.requestWithUrl("test/1");
-        }
+        TestAbstractClientRest testAbstractClientRest1 = new TestAbstractClientRest();
+        String response = testAbstractClientRest1.requestWithUrl("test/1");
         assertEquals("true", response);
     }
 
@@ -109,7 +107,7 @@ public class AbstractClientRestTest {
         finalResult.set(Boolean.toString(true));
         finalStatus.set(500);
         TestAbstractClientRest testAbstractClientRest1 = new TestAbstractClientRest();
-        String response = testAbstractClientRest1.requestWithUrl("test/1");
+        testAbstractClientRest1.requestWithUrl("test/1");
     }
 
     @Test(expected = IllegalStateException.class)

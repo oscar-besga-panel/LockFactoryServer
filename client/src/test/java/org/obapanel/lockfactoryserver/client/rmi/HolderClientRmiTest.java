@@ -1,5 +1,6 @@
 package org.obapanel.lockfactoryserver.client.rmi;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,6 +51,12 @@ public class HolderClientRmiTest {
 
         holderClientRmi = new HolderClientRmi(registry, name);
     }
+
+    @After
+    public void tearDown() {
+        holderClientRmi.close();
+    }
+
 
     @Test
     public void getTest() throws RemoteException {

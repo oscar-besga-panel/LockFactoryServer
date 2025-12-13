@@ -75,6 +75,7 @@ public class CountDownLatchAsyncGrpcTest {
         boolean acquired = inner.tryAcquire(3500, TimeUnit.MILLISECONDS);
         assertFalse(countDownLatchClientGrpc.isActive());
         assertTrue(acquired);
+        countDownLatchClientGrpc.close();
     }
 
     @Test(timeout=25000)
@@ -90,6 +91,7 @@ public class CountDownLatchAsyncGrpcTest {
         boolean acquired = inner.tryAcquire(6500, TimeUnit.MILLISECONDS);
         assertTrue(acquired);
         assertFalse(countDownLatchClientGrpc.isActive());
+        countDownLatchClientGrpc.close();
     }
 
     @Test(timeout=25000)
@@ -147,6 +149,7 @@ public class CountDownLatchAsyncGrpcTest {
         assertTrue(awaited.get());
         assertFalse(countDownLatchClientGrpc.isActive());
         assertTrue(acquired);
+        countDownLatchClientGrpc.close();
     }
 
 }

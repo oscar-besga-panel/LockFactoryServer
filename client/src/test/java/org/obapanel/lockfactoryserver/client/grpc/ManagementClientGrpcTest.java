@@ -52,6 +52,7 @@ public class ManagementClientGrpcTest {
     @After
     public void tearsDown() {
         mockedStaticManagementServerGrpc.close();
+        managementClientGrpc.close();
     }
 
     @Test

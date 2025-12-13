@@ -177,7 +177,6 @@ public class CountDownLatchRestTest {
             CountDownLatchClientRest countDownLatchClientRest1 = generateCountDownLatchClientRest(name);
             countDownLatchClientRest1.awaitLatch();
             awaited.set(true);
-            countDownLatchClientRest1.close();
         });
         tfinal.setName("t_" + System.currentTimeMillis());
         tfinal.setDaemon(true);
@@ -191,7 +190,6 @@ public class CountDownLatchRestTest {
                     countDownLatchClientRest2.countDown();
                     countedDown.set(true);
                     inner.release();
-                    countDownLatchClientRest2.close();
                 } catch (InterruptedException e) {
                     throw new RuntimeInterruptedException(e);
                 }

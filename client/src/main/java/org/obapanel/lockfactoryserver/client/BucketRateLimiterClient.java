@@ -22,4 +22,5 @@ public interface BucketRateLimiterClient {
     void consume(long tokens);
 
     void remove();
+
 }

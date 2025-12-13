@@ -82,6 +82,7 @@ public class CountDownLatchClientGrpcTest {
         mockedStaticCountDownLatchServerGrpc.close();
         executorService.shutdown();
         executorService.shutdownNow();
+        countDownLatchClientGrpc.close();
     }
 
 

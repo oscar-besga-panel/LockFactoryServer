@@ -130,6 +130,9 @@ public class SemaphoreClientCombinedAdvancedFileTest {
             LOGGER.debug("Writing in file with semaphore: {} with char: {} times: {} -- lock ! >", semaphoreName, toWrite, times);
             testFileWriterAndChecker.writeFile(toWrite, times, 25);
             semaphoreClient.release();
+            if (semaphoreClient instanceof AutoCloseable) {
+                ((AutoCloseable) semaphoreClient).close();
+            }
         } catch (Exception e){
             LOGGER.error("Other error ", e);
             throw new IllegalStateException("Error writing file with semaphore: " + semaphoreName + " with char " + toWrite, e);

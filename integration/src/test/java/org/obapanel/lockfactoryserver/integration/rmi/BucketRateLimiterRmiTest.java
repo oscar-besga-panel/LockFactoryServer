@@ -64,6 +64,7 @@ public class BucketRateLimiterRmiTest {
         assertTrue(take3);
         bucketRateLimiterClientRmi.remove();
         assertEquals(-1L, bucketRateLimiterClientRmi.getAvailableTokens());
+        bucketRateLimiterClientRmi.close();
     }
 
     @Test(timeout=25000)
@@ -78,6 +79,7 @@ public class BucketRateLimiterRmiTest {
         assertFalse(take3);
         bucketRateLimiterClientRmi.remove();
         assertEquals(-1L, bucketRateLimiterClientRmi.getAvailableTokens());
+        bucketRateLimiterClientRmi.close();
     }
 
     @Test(timeout=25000)
@@ -102,6 +104,7 @@ public class BucketRateLimiterRmiTest {
         assertTrue(t3 - t2 > 290L);
         bucketRateLimiterClientRmi.remove();
         assertEquals(-1L, bucketRateLimiterClientRmi.getAvailableTokens());
+        bucketRateLimiterClientRmi.close();
     }
 
 }

@@ -71,11 +71,10 @@ public class SemaphoreClientRestAdvancedFileTest {
         }
         Collections.shuffle(threadList);
         threadList.forEach(Thread::start);
-
         for(Thread t: threadList) {
             t.join();
         }
-            assertTrue(testFileWriterAndChecker.checkFile());
+        assertTrue(testFileWriterAndChecker.checkFile());
     }
 
     private void writeWithSemaphore(int times, char toWrite) {
