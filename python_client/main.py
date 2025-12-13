@@ -1,8 +1,8 @@
 import time
 import grpc
 from google.protobuf import wrappers_pb2
-import LockFactoryServerGrpc_pb2
-import LockFactoryServerGrpc_pb2_grpc
+from LockFactoryServerGrpc_pb2_grpc import LockServerStub
+from LockFactoryServerGrpc_pb2 import NameTokenValues, LockStatus
 
 def current_milli_time():
     return round(time.time() * 1000)
@@ -10,19 +10,7 @@ def list_methods(obj):
     return [method_name for method_name in dir(obj)
             if callable(getattr(obj, method_name))]
 
-def run():
-
-    print("Hello Lock!")
-    channel = grpc.insecure_channel('localhost:50051')
-    stub = LockFactoryServerGrpc_pb2_grpc.LockServerStub(channel)
-    lockName = "pyTestLock_" + str(current_milli_time())
-    print("Lock Name:", lockName)
-    lockToken = stub.lock(wrappers_pb2.StringValue(value = lockName))
-    lockToken = lockToken.value
-    print("Lock Token:", lockToken)
-    nameTokenValue = LockFactoryServerGrpc_pb2.NameTokenValues(name=lockName, token=lockToken)
-
-    result = stub.lockStatus(nameTokenValue)
+# def instrument_methods(obj):
     # Instrospecting the result object
     # print("Lock Status Response received:", result.lockStatus)
     # print(type(result))
@@ -36,7 +24,21 @@ def run():
     # print(LockFactoryServerGrpc_pb2.LockStatus.__dict__)
     # print("Methods of the result object:", list_methods(LockFactoryServerGrpc_pb2.LockStatus))
 
-    print("Lock Status Enum Value:", LockFactoryServerGrpc_pb2.LockStatus.Name(result.lockStatus))
+def run():
+
+    print("Hello Lock!")
+    channel = grpc.insecure_channel('localhost:50051')
+    stub = LockServerStub(channel)
+    lockName = "pyTestLock_" + str(current_milli_time())
+    print("Lock Name:", lockName)
+    lockToken = stub.lock(wrappers_pb2.StringValue(value = lockName))
+    lockToken = lockToken.value
+    print("Lock Token:", lockToken)
+    nameTokenValue = NameTokenValues(name=lockName, token=lockToken)
+
+    result = stub.lockStatus(nameTokenValue)
+
+    print("Lock Status Enum Value:", LockStatus.Name(result.lockStatus))
 
     unLockResponse = stub.unLock(nameTokenValue)
     unLockResponse = unLockResponse.value
