@@ -45,8 +45,8 @@ public class CountDownLatchClientRmi extends AbstractClientRmi<CountDownLatchSer
         return getWithRemote(() -> getServerRmi().getCount(getName()));
     }
 
-    public void await() {
-        doWithRemote(() -> getServerRmi().await(getName()));
+    public void awaitLatch() {
+        doWithRemote(() -> getServerRmi().awaitLatch(getName()));
     }
 
     public boolean tryAwaitWithTimeOut(long timeOutMillis) {

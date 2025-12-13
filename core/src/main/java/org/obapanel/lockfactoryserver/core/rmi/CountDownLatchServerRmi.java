@@ -56,7 +56,7 @@ public interface CountDownLatchServerRmi extends Remote {
      * @param name Name of the countDownLatch
      * @throws RemoteException if anything goes wrong
      */
-    void await(String name) throws RemoteException;
+    void awaitLatch(String name) throws RemoteException;
 
     /**
      * Waits until the timeOut time is consumed or the countDownlatch reaches zero

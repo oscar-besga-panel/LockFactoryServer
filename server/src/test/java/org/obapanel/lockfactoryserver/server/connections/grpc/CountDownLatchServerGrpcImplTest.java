@@ -100,10 +100,10 @@ public class CountDownLatchServerGrpcImplTest {
     }
 
     @Test
-    public void awaitTest() throws RemoteException {
+    public void awaitLatchTest() throws RemoteException {
         String name = "codola4_" + System.currentTimeMillis();
         FakeStreamObserver<Empty> responseObserver = new FakeStreamObserver<>();
-        countDownLatchServerGrpc.await(StringValue.of(name), responseObserver);
+        countDownLatchServerGrpc.awaitLatch(StringValue.of(name), responseObserver);
         verify(countDownLatchService).await(eq(name));
         assertTrue(responseObserver.isCompleted());
     }

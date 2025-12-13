@@ -14,7 +14,7 @@ public interface CountDownLatchClient {
 
     int getCount();
 
-    void await();
+    void awaitLatch();
 
     boolean tryAwaitWithTimeOut(long timeOutMillis);
 

@@ -5,6 +5,7 @@ import "google/protobuf/wrappers.proto";
 
 package org.obapanel.lockfactoryserver.core.grpc;
 
+option java_generic_services = true;
 option java_multiple_files = true;
 option java_package = "org.obapanel.lockfactoryserver.core.grpc";
 option java_outer_classname = "LockFactoryServer";
@@ -162,7 +163,7 @@ service CountDownLatchServer {
   * Await to the count to be zero
   * requires name of the countDownLatch
   */
-  rpc await(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
+  rpc awaitLatch(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
 
   /**
    * Waits until the timeOut time is consumed or the countDownlatch reaches zero

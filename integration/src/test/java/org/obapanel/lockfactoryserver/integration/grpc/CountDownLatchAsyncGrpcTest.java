@@ -59,12 +59,12 @@ public class CountDownLatchAsyncGrpcTest {
     }
 
     @Test(timeout=25000)
-    public void synAwaitTest() throws InterruptedException {
+    public void synAwaitLatchTest() throws InterruptedException {
         Semaphore inner = new Semaphore(0);
         CountDownLatchClientGrpc countDownLatchClientGrpc = generateCountDownLatchClientGrpc();
         countDownLatchClientGrpc.createNew(1);
         Thread t = new Thread(() -> {
-            countDownLatchClientGrpc.await();
+            countDownLatchClientGrpc.awaitLatch();
             inner.release();
         });
         t.setName("countDownLatchClientGrpc.await");
@@ -78,11 +78,11 @@ public class CountDownLatchAsyncGrpcTest {
     }
 
     @Test(timeout=25000)
-    public void asynAwaitTest() throws InterruptedException {
+    public void asynAwaitLatchTest() throws InterruptedException {
         Semaphore inner = new Semaphore(0);
         CountDownLatchClientGrpc countDownLatchClientGrpc = generateCountDownLatchClientGrpc();
         countDownLatchClientGrpc.createNew(1);
-        countDownLatchClientGrpc.asyncAwait(executorService, () -> {
+        countDownLatchClientGrpc.asyncAwaitLatch(executorService, () -> {
             inner.release();
             LOGGER.debug("asynAwaitManyTest inner released");
         });
@@ -93,7 +93,7 @@ public class CountDownLatchAsyncGrpcTest {
     }
 
     @Test(timeout=25000)
-    public void asynAwaitManyTest() throws InterruptedException {
+    public void asynAwaitLatchManyTest() throws InterruptedException {
         Semaphore inner = new Semaphore(0);
         int count = 5; // ThreadLocalRandom.current().nextInt(5,15);
         CountDownLatchClientGrpc countDownLatchClientGrpc = generateCountDownLatchClientGrpc();
@@ -101,7 +101,7 @@ public class CountDownLatchAsyncGrpcTest {
         AtomicBoolean awaited = new AtomicBoolean(false);
         Thread tfinal = new Thread(() -> {
             try {
-                countDownLatchClientGrpc.asyncAwait(executorService,() -> {
+                countDownLatchClientGrpc.asyncAwaitLatch(executorService,() -> {
                     inner.release();
                     LOGGER.debug("asynAwaitManyTest inner released");
                 });

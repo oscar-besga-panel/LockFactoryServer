@@ -50,7 +50,7 @@ public class CountDownLatchClientRest extends AbstractClientRest implements Coun
         return result;
     }
 
-    public void await() {
+    public void awaitLatch() {
         String response = requestWithUrl( "await", getName());
         LOGGER.debug("await name {} response {}", getName(), response);
     }

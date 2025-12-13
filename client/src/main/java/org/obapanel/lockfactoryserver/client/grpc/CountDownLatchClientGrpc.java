@@ -77,8 +77,8 @@ public class CountDownLatchClientGrpc
         return int32Value.getValue();
     }
 
-    public void await()  {
-        getStub().await(getStringValueName());
+    public void awaitLatch()  {
+        getStub().awaitLatch(getStringValueName());
     }
 
     public boolean tryAwaitWithTimeOut(long timeOutMillis)  {
@@ -95,11 +95,11 @@ public class CountDownLatchClientGrpc
         return boolValue.getValue();
     }
 
-    public void asyncAwait(Runnable onAcquire) {
-        asyncAwait(lazyLocalExecutor(), onAcquire);
+    public void asyncAwaitLatch(Runnable onAcquire) {
+        asyncAwaitLatch(lazyLocalExecutor(), onAcquire);
     }
 
-    public void asyncAwait(Executor executor, Runnable onAwaited) {
+    public void asyncAwaitLatch(Executor executor, Runnable onAwaited) {
         ListenableFuture<Empty> listenableFuture = getAsyncStub().asyncAwait(getStringValueName());
         listenableFuture.addListener(onAwaited, executor);
     }

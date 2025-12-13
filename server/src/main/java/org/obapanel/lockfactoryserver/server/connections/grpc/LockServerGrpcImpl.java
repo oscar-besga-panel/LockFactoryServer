@@ -66,6 +66,7 @@ public class LockServerGrpcImpl extends LockServerGrpc.LockServerImplBase {
         String token = request.getToken();
         LOGGER.info("grpc server> lockStatus {} {}", name, token);
         LockStatus lockStatus = lockService.lockStatus(name, token);
+        LOGGER.info("grpc server> lockStatus response {}", lockStatus);
         LockStatusValues response = LockStatusValues.newBuilder().
                 setLockStatus(fromJavaToGrpc(lockStatus)).
                 build();

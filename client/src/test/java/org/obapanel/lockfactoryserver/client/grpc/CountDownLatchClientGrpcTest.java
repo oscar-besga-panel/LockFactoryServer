@@ -66,7 +66,7 @@ public class CountDownLatchClientGrpcTest {
                 thenReturn(futureStub);
         when(stub.createNew(any(NameCount.class))).thenReturn(BoolValue.of(true));
         when(stub.getCount(any(StringValue.class))).thenReturn(Int32Value.of(currentCount));
-        when(stub.await(any(StringValue.class))).thenReturn(Empty.getDefaultInstance());
+        when(stub.awaitLatch(any(StringValue.class))).thenReturn(Empty.getDefaultInstance());
         when(stub.tryAwaitWithTimeOut(any(AwaitWithTimeout.class))).thenReturn(BoolValue.of(true));
         when(futureStub.asyncAwait(any(StringValue.class))).thenAnswer(ioc -> {
             FakeListenableFuture<Empty> f = new FakeListenableFuture<>(Empty.newBuilder().build()).execute();
@@ -131,15 +131,15 @@ public class CountDownLatchClientGrpcTest {
     }
 
     @Test
-    public void awaitTest() {
+    public void awaitLatchTest() {
         ArgumentCaptor<StringValue> captor = ArgumentCaptor.forClass(StringValue.class);
-        countDownLatchClientGrpc.await();
-        verify(stub).await(captor.capture());
+        countDownLatchClientGrpc.awaitLatch();
+        verify(stub).awaitLatch(captor.capture());
         assertEquals(name, captor.getValue().getValue());
     }
 
     @Test
-    public void tryAwaitWithTimeOutTest1() {
+    public void tryAwaitLatchWithTimeOutTest1() {
         long timeOut = ThreadLocalRandom.current().nextLong(1,100);
         ArgumentCaptor<AwaitWithTimeout> captor = ArgumentCaptor.forClass(AwaitWithTimeout.class);
         boolean result = countDownLatchClientGrpc.tryAwaitWithTimeOut(timeOut, TimeUnit.SECONDS);
@@ -151,7 +151,7 @@ public class CountDownLatchClientGrpcTest {
     }
 
     @Test
-    public void tryAwaitWithTimeOutTest2() {
+    public void tryAwaitLatchWithTimeOutTest2() {
         long timeOut = ThreadLocalRandom.current().nextLong(1,100);
         ArgumentCaptor<AwaitWithTimeout> captor = ArgumentCaptor.forClass(AwaitWithTimeout.class);
         boolean result = countDownLatchClientGrpc.tryAwaitWithTimeOut(timeOut);
@@ -163,10 +163,10 @@ public class CountDownLatchClientGrpcTest {
     }
 
     @Test
-    public void asyncAwaitTest() throws InterruptedException {
+    public void asyncAwaitLatchLatchTest() throws InterruptedException {
         Semaphore inner = new Semaphore(0);
         ArgumentCaptor<StringValue> captor = ArgumentCaptor.forClass(StringValue.class);
-        countDownLatchClientGrpc.asyncAwait(executorService, () -> {
+        countDownLatchClientGrpc.asyncAwaitLatch(executorService, () -> {
             inner.release();
         });
         verify(futureStub).asyncAwait(captor.capture());

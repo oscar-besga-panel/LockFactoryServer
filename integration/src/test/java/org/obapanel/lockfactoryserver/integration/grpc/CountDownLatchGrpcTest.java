@@ -165,7 +165,7 @@ public class CountDownLatchGrpcTest {
         AtomicBoolean awaited = new AtomicBoolean(false);
         Thread tfinal = new Thread(() -> {
             try {
-                countDownLatchClientGrpc.await();
+                countDownLatchClientGrpc.awaitLatch();
                 awaited.set(true);
             } catch (Exception e) {
                 throw new IllegalStateException(e);

@@ -165,7 +165,7 @@ public class CountDownLatchRmiTest {
         AtomicBoolean awaited = new AtomicBoolean(false);
         Thread tfinal = new Thread(() -> {
             try {
-                countDownLatchClientRmi.await();
+                countDownLatchClientRmi.awaitLatch();
                 awaited.set(true);
             } catch (Exception e) {
                 throw new IllegalStateException(e);

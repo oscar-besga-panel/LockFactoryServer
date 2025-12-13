@@ -10,7 +10,6 @@ import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.apache.hc.core5.http.message.StatusLine;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -162,9 +161,9 @@ public class CountDownLatchClientRestTest {
     }
 
     @Test
-    public void awaitTest() throws IOException {
+    public void awaitLatchTest() throws IOException {
         finalResult.set("ok");
-        countDownLatchClientRest.await();
+        countDownLatchClientRest.awaitLatch();
         String finalUrl = finalUrl();
         assertTrue(finalUrl.contains("countDownLatch"));
         assertTrue(finalUrl.contains("await"));
@@ -173,7 +172,7 @@ public class CountDownLatchClientRestTest {
     }
 
     @Test
-    public void tryAwaitWithTimeou1tTest() throws IOException {
+    public void tryAwaitLatchWithTimeou1TTest() throws IOException {
         long timeOut = ThreadLocalRandom.current().nextLong(10);
         finalResult.set(Boolean.toString(true));
         boolean result = countDownLatchClientRest.tryAwaitWithTimeOut(timeOut);
@@ -187,7 +186,7 @@ public class CountDownLatchClientRestTest {
     }
 
     @Test
-    public void tryAwaitWithTimeout2Test() throws IOException {
+    public void tryAwaitLatchWithTimeout2Test() throws IOException {
         long timeOut = ThreadLocalRandom.current().nextLong(10);
         finalResult.set(Boolean.toString(true));
         boolean result = countDownLatchClientRest.tryAwaitWithTimeOut(timeOut, TimeUnit.MILLISECONDS);

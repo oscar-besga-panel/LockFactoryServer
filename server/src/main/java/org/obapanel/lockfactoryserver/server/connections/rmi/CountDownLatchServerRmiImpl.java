@@ -49,7 +49,7 @@ public class CountDownLatchServerRmiImpl implements CountDownLatchServerRmi {
     }
 
     @Override
-    public void await(String name) throws RemoteException {
+    public void awaitLatch(String name) throws RemoteException {
         LOGGER.info("rmi  server> await name {}", name);
         countDownLatchService.await(name);
     }

@@ -175,7 +175,7 @@ public class CountDownLatchRestTest {
         AtomicBoolean countedDown = new AtomicBoolean(false);
         Thread tfinal = new Thread(() -> {
             CountDownLatchClientRest countDownLatchClientRest1 = generateCountDownLatchClientRest(name);
-            countDownLatchClientRest1.await();
+            countDownLatchClientRest1.awaitLatch();
             awaited.set(true);
             countDownLatchClientRest1.close();
         });

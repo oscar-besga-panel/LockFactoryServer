@@ -8,7 +8,6 @@ import jakarta.ws.rs.core.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.obapanel.lockfactoryserver.server.service.countDownLatch.CountDownLatchService;
 
@@ -70,9 +69,9 @@ public class CountDownLatchServerRestImpl {
     }
 
     @GET
-    @Path("/await/{name}")
+    @Path("/awaitLatch/{name}")
     @Produces(MediaType.TEXT_PLAIN)
-    public String await(@PathParam("name") String name) {
+    public String awaitLatch(@PathParam("name") String name) {
         LOGGER.info("rest server> await name {}", name);
         countDownLatchService.await(name);
         return OK;

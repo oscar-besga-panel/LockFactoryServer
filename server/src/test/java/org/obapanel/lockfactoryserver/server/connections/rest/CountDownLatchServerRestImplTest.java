@@ -79,15 +79,15 @@ public class CountDownLatchServerRestImplTest {
     }
 
     @Test
-    public void awaitTest() {
+    public void awaitLatchTest() {
         String name = "codola_" + System.currentTimeMillis();
-        String response = countDownLatchServerRest.await(name);
+        String response = countDownLatchServerRest.awaitLatch(name);
         verify(countDownLatchService).await(eq(name));
         assertEquals("ok", response);
     }
 
     @Test
-    public void tryAwaitWithTimeout1Test() {
+    public void tryAwaitLatchWithTimeout1Test() {
         String name = "codola_" + System.currentTimeMillis();
         String response = countDownLatchServerRest.tryAwaitWithTimeOut(name, 2L,  TimeUnit.SECONDS.name().toLowerCase());
         verify(countDownLatchService).tryAwaitWithTimeOut(eq(name), eq(2L), eq(TimeUnit.SECONDS));
@@ -95,7 +95,7 @@ public class CountDownLatchServerRestImplTest {
     }
 
     @Test
-    public void tryAwaitWithTimeout2Test() {
+    public void tryAwaitLatchWithTimeout2Test() {
         String name = "codola_" + System.currentTimeMillis();
         String response = countDownLatchServerRest.tryAwaitWithTimeOut(name, 2L);
         verify(countDownLatchService).tryAwaitWithTimeOut(eq(name), eq(2L), eq(TimeUnit.MILLISECONDS));
